@@ -1,224 +1,312 @@
 @import "tailwindcss";
 @import "./assets/fonts/fonts.css";
 
-/* Tailwind v4 defaults dark mode to `prefers-color-scheme`; the app needs
-   a user-controlled toggle (persisted via ThemeProvider, see
-   src/components/theme/ThemeProvider.jsx), so switch to class-based dark
-   mode instead. */
+/* =============================================================================
+   NASF design tokens — UI_REBUILD_PLAN.md Phase 1
+   =============================================================================
+
+   Three tiers, and the rule that makes the whole thing maintainable:
+   components reference SEMANTIC tokens only, never a primitive and never a
+   raw hex. That is what keeps light and dark from drifting into two
+   hand-tuned palettes that have to be fixed twice.
+
+     1. Primitives  — raw values read off the NASF seal. Never used directly
+                      in a component.
+     2. Semantic    — intent (`--surface`, `--fg-subtle`). Redefined under
+                      `.dark`; this is the ONLY place a mode differs.
+     3. Tailwind    — `@theme inline` maps utilities onto the semantic layer.
+                      `inline` matters: it makes utilities resolve the var at
+                      use time, so `bg-surface` stays reactive when `.dark`
+                      is toggled instead of being frozen at build time.
+
+   Every foreground/background pair below is verified by
+   `scripts/check-contrast.mjs`, which runs as part of `npm run lint` and
+   exits non-zero on a failure. Do not adjust a colour here without running
+   it — the script is the source of truth, not this comment.
+   ========================================================================== */
+
+/* Tailwind v4 defaults dark mode to `prefers-color-scheme`; the app needs a
+   user-controlled toggle (persisted by ThemeProvider), so switch to a
+   class-based variant driven by `.dark` on <html>. */
 @custom-variant dark (&:where(.dark, .dark *));
 
-/* Raw color values live as plain CSS custom properties on :root/.dark so
-   they can change at runtime when `.dark` is toggled on <html>. `@theme
-   inline` below maps Tailwind's design tokens to these variables (rather
-   than fixed values) so utilities like `bg-background` stay reactive
-   across the toggle instead of being locked in at build time. */
+/* --- Tier 1: primitives -----------------------------------------------------
+   Ink is the seal's ground, gold its eagle and ring, paper its outer band.
+   Nothing outside this block should ever restate one of these hex values. */
 :root {
-  --background: #f8fafc; /* Crisp slate background */
-  --foreground: #0f172a; /* Deep charcoal navy text */
-  --card: #ffffff;
-  --card-foreground: #0f172a;
-  --primary: #2563eb; /* Vibrant Hero UI Royal Blue */
-  --primary-foreground: #ffffff;
-  --secondary: #f1f5f9; /* Soft slate gray */
-  --secondary-foreground: #0f172a;
-  --accent: #f59e0b; /* Vibrant Hero Amber */
-  --accent-foreground: #0f172a;
-  --muted: #f1f5f9;
-  --muted-foreground: #64748b; /* Cool slate */
-  --border: #e2e8f0;
-  --input: #cbd5e1;
-  --ring: #2563eb;
-  --destructive: #ef4444;
-  --destructive-foreground: #ffffff;
-  --success: #10b981;
-  --sidebar: #ffffff;
-  --sidebar-foreground: #0f172a;
-  --sidebar-border: #f1f5f9;
-  --sidebar-accent: #f8fafc;
-  --sidebar-primary: #2563eb;
+  --ink-950: #0a0d14;
+  --ink-900: #121826;
+  --ink-800: #1a2234;
+  --ink-700: #232c40;
+  --ink-600: #2f3a52;
+
+  --navy-800: #1a2740;
+  --navy-600: #2f4674;
+  /* Lightened from #3e5a93 so a filled primary button clears 3:1 against the
+     dark page ground (WCAG 1.4.11) while white label text still clears 4.5:1.
+     Both bounds are asserted by scripts/check-contrast.mjs. */
+  --navy-500: #4a69a8;
+
+  --gold-800: #7a5f0f;
+  --gold-750: #9e7c15;
+  --gold-700: #8a6d14;
+  --gold-500: #c9a227;
+  --gold-400: #d9b84a;
+  --gold-300: #e8ce81;
+  --gold-100: #f6ebcb;
+
+  --paper-50: #faf8f4;
+  --paper-100: #f3f0e9;
+  --paper-200: #e7e2d6;
+  --paper-300: #d6cfbe;
+  --paper-500: #8a8271;
 }
 
+/* --- Tier 2: semantic, light ----------------------------------------------- */
+:root {
+  --bg: var(--paper-100);
+  --surface: #ffffff;
+  --surface-raised: var(--paper-50);
+
+  --fg: var(--ink-950);
+  --fg-subtle: #596072;
+
+  /* Two border tokens on purpose. `--border` separates surfaces and is
+     decorative — WCAG does not require it to pass. `--border-strong` outlines
+     controls (inputs, unfilled buttons) where the border IS the affordance,
+     so it must clear 3:1 against its background. Using one token for both is
+     how control outlines end up invisible. */
+  --border: var(--paper-300);
+  --border-strong: var(--paper-500);
+
+  --primary: var(--navy-800);
+  --primary-fg: #ffffff;
+
+  /* Gold splits three ways, because one gold cannot do all three jobs on a
+     light ground and stay accessible:
+       --accent           FILL only. Dark text sits on it (8:1). Seal chrome,
+                          gold-filled chips. Never a thin line on white — at
+                          2.42:1 it is invisible as a boundary.
+       --accent-indicator LINES and RAILS that mark state (active nav rail,
+                          active tab underline). Must clear 3:1 on both the
+                          page and a card, so it is a deeper antique gold.
+       --accent-text      The only gold legible as body text on light.
+     Plain `--accent` never carries text and never draws a 1-3px state line. */
+  --accent: var(--gold-500);
+  --accent-fg: var(--ink-950);
+  --accent-indicator: var(--gold-750);
+  --accent-text: var(--gold-800);
+
+  --success: #1a6b42;
+  --success-surface: #e6f3ec;
+  --success-border: #b9dec9;
+  --warning: #8f5806;
+  --warning-surface: #fbf0dc;
+  --warning-border: #ebd5a6;
+  --danger: #b3261e;
+  --danger-surface: #fbe9e7;
+  --danger-border: #efc4c0;
+
+  --focus: var(--navy-600);
+}
+
+/* --- Tier 2: semantic, dark -------------------------------------------------
+   Not an inversion. Dark surfaces step UP in lightness for elevation (shadows
+   are invisible on near-black), the foreground is a warm off-white rather than
+   pure #fff (white on near-black is the classic eye-strain pairing), and the
+   status hues are re-picked for a dark ground rather than reused. */
 .dark {
-  --background: #090d16; /* Deep Hero Dark Midnight */
-  --foreground: #f8fafc; /* Crisp white text */
-  --card: #0f172a; /* Sleek Hero Glass Navy Card */
-  --card-foreground: #f8fafc;
-  --primary: #3b82f6; /* Hero Blue Glow in dark mode */
-  --primary-foreground: #ffffff;
-  --secondary: #1e293b;
-  --secondary-foreground: #f8fafc;
-  --accent: #fbbf24;
-  --accent-foreground: #090d16;
-  --muted: #1e293b;
-  --muted-foreground: #94a3b8;
-  --border: #1e293b;
-  --input: #334155;
-  --ring: #3b82f6;
-  --destructive: #f87171;
-  --destructive-foreground: #090d16;
-  --success: #34d399;
-  --sidebar: #0b1120;
-  --sidebar-foreground: #f8fafc;
-  --sidebar-border: #1e293b;
-  --sidebar-accent: #1e293b;
-  --sidebar-primary: #3b82f6;
+  --bg: var(--ink-950);
+  --surface: var(--ink-900);
+  --surface-raised: var(--ink-800);
+
+  --fg: #e9e6df;
+  --fg-subtle: #9aa1b1;
+
+  --border: var(--ink-700);
+  /* Lightened from #4a5670, which sat at 2.64:1 — an input outline you cannot
+     quite see is the exact failure 1.4.11 exists to prevent. */
+  --border-strong: #5c6a88;
+
+  --primary: var(--navy-500);
+  --primary-fg: #ffffff;
+
+  /* On a dark ground the bright gold already clears 3:1 comfortably, so fill
+     and indicator collapse back to one value. */
+  --accent: var(--gold-400);
+  --accent-fg: var(--ink-950);
+  --accent-indicator: var(--gold-400);
+  --accent-text: var(--gold-300);
+
+  --success: #3fbf84;
+  --success-surface: #132a20;
+  --success-border: #20503b;
+  --warning: #e0b341;
+  --warning-surface: #2b2213;
+  --warning-border: #57431c;
+  --danger: #f2857c;
+  --danger-surface: #2c1715;
+  --danger-border: #5a2a26;
+
+  --focus: var(--gold-400);
 }
 
+/* --- Tier 3: Tailwind theme ------------------------------------------------- */
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --color-card: var(--card);
-  --color-card-foreground: var(--card-foreground);
-  --color-primary: var(--primary);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-secondary: var(--secondary);
-  --color-secondary-foreground: var(--secondary-foreground);
-  --color-accent: var(--accent);
-  --color-accent-foreground: var(--accent-foreground);
-  --color-muted: var(--muted);
-  --color-muted-foreground: var(--muted-foreground);
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-raised: var(--surface-raised);
+  --color-fg: var(--fg);
+  --color-fg-subtle: var(--fg-subtle);
   --color-border: var(--border);
-  --color-input: var(--input);
-  --color-ring: var(--ring);
-  --color-destructive: var(--destructive);
-  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border-strong: var(--border-strong);
+  --color-primary: var(--primary);
+  --color-primary-fg: var(--primary-fg);
+  --color-accent: var(--accent);
+  --color-accent-fg: var(--accent-fg);
+  --color-accent-indicator: var(--accent-indicator);
+  --color-accent-text: var(--accent-text);
   --color-success: var(--success);
-  --color-sidebar: var(--sidebar);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-primary: var(--sidebar-primary);
+  --color-success-surface: var(--success-surface);
+  --color-success-border: var(--success-border);
+  --color-warning: var(--warning);
+  --color-warning-surface: var(--warning-surface);
+  --color-warning-border: var(--warning-border);
+  --color-danger: var(--danger);
+  --color-danger-surface: var(--danger-surface);
+  --color-danger-border: var(--danger-border);
+  --color-focus: var(--focus);
 
   --font-sans: "Cairo", ui-sans-serif, system-ui, sans-serif;
 
-  /* --- Typography scale -------------------------------------------------
-     Semantic Cairo size/line-height/weight pairs, so pages stop inventing
-     their own `text-xl font-black` combinations. `text-micro` in particular
-     formalizes the `text-[10px] font-bold` label pattern that had been
-     copy-pasted across nearly every card and table. */
-  --text-display: 2rem;
-  --text-display--line-height: 1.2;
-  --text-display--font-weight: 800;
-  --text-h1: 1.5rem;
-  --text-h1--line-height: 1.25;
-  --text-h1--font-weight: 800;
-  --text-h2: 1.125rem;
-  --text-h2--line-height: 1.35;
-  --text-h2--font-weight: 700;
-  --text-h3: 1rem;
-  --text-h3--line-height: 1.4;
-  --text-h3--font-weight: 700;
-  --text-body: 0.875rem;
-  --text-body--line-height: 1.6;
-  --text-caption: 0.75rem;
+  /* --- Typography --------------------------------------------------------
+     Arabic-first. Body is 16px at 1.7, not 14px at 1.5: Arabic letterforms
+     and their diacritics need more vertical room than Latin at the same
+     nominal size, and sub-16px inputs trigger iOS zoom-on-focus.
+
+     13px (`text-caption`) is the floor. `scripts/check-typography.mjs`
+     fails the build on `text-xs`, `text-[10px]`, and friends. */
+  --text-display: 1.75rem; /* 28 */
+  --text-display--line-height: 1.3;
+  --text-display--font-weight: 700;
+  --text-title: 1.375rem; /* 22 */
+  --text-title--line-height: 1.35;
+  --text-title--font-weight: 700;
+  --text-section: 1.125rem; /* 18 */
+  --text-section--line-height: 1.4;
+  --text-section--font-weight: 600;
+  --text-body: 1rem; /* 16 */
+  --text-body--line-height: 1.7;
+  --text-body--font-weight: 400;
+  --text-body-sm: 0.9375rem; /* 15 — dense table cells only */
+  --text-body-sm--line-height: 1.6;
+  --text-body-sm--font-weight: 400;
+  --text-label: 0.875rem; /* 14 */
+  --text-label--line-height: 1.5;
+  --text-label--font-weight: 500;
+  --text-caption: 0.8125rem; /* 13 — floor */
   --text-caption--line-height: 1.5;
-  --text-caption--font-weight: 500;
-  --text-micro: 0.625rem;
-  --text-micro--line-height: 1.4;
-  --text-micro--font-weight: 700;
+  --text-caption--font-weight: 400;
 
-  /* --- Radius scale --- semantic aliases over the raw rem values that
-     were being picked ad hoc (rounded-lg/xl/2xl) per component. */
-  --radius-control: 0.625rem; /* inputs, buttons */
-  --radius-card: 1rem; /* cards, panels */
-  --radius-panel: 1.25rem; /* dialogs, sheets */
+  /* Three weights. Anything outside 400/600/700 is a lint failure —
+     71 bold utilities across the old codebase is why nothing read as
+     emphasis. */
 
-  /* --- Elevation --- */
-  --shadow-card: 0 1px 2px 0 rgb(11 21 36 / 0.04), 0 1px 3px 0 rgb(11 21 36 / 0.06);
-  --shadow-card-hover: 0 4px 12px -2px rgb(11 21 36 / 0.10), 0 2px 6px -2px rgb(11 21 36 / 0.06);
-  --shadow-overlay: 0 16px 48px -12px rgb(11 21 36 / 0.28);
+  --radius-control: 0.5rem; /* inputs, buttons */
+  --radius-card: 0.75rem; /* cards, panels */
+  --radius-panel: 1rem; /* dialogs, sheets */
 
-  /* --- Motion --- mirrored as JS constants in src/lib/motion.js; change
-     both together or GSAP timings will drift from the CSS ones. */
+  /* Elevation: three levels, no more. Dark mode leans on `--surface-raised`
+     stepping up in lightness rather than on these, which is why the dark
+     values are barely stronger — a shadow on near-black does nothing. */
+  --shadow-raised: 0 1px 2px rgb(10 13 20 / 0.05), 0 2px 8px -2px rgb(10 13 20 / 0.06);
+  --shadow-overlay: 0 12px 40px -12px rgb(10 13 20 / 0.28), 0 4px 12px -6px rgb(10 13 20 / 0.16);
+
+  /* Motion. Mirrored as JS constants in src/lib/motion.js — change both
+     together or the GSAP timings drift from the CSS ones. */
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-out-soft: cubic-bezier(0.33, 1, 0.68, 1);
   --ease-in-out-soft: cubic-bezier(0.65, 0, 0.35, 1);
 }
 
-/* Motion duration scale. Plain custom properties rather than @theme tokens
-   because they're consumed by hand-written CSS and read by lib/motion.js,
-   not as Tailwind `duration-*` utilities. */
+.dark {
+  --shadow-raised: 0 1px 2px rgb(0 0 0 / 0.4), 0 2px 10px -2px rgb(0 0 0 / 0.5);
+  --shadow-overlay: 0 16px 48px -12px rgb(0 0 0 / 0.7), 0 4px 12px -6px rgb(0 0 0 / 0.5);
+}
+
+/* Duration scale. Plain custom properties, not `@theme` tokens: they're read
+   by lib/motion.js and by hand-written CSS below, not used as `duration-*`
+   utilities. Everything is faster than the old scale — a 400ms transition in
+   a data tool reads as lag, not polish. */
 :root {
-  --duration-fast: 150ms;
-  --duration-base: 250ms;
-  --duration-slow: 400ms;
+  --duration-fast: 120ms;
+  --duration-base: 200ms;
+  --duration-slow: 320ms;
 }
 
 @layer base {
-  /* `transition-colors`, NOT `transition-all`: a universal transition-all
-     animates transform/opacity too, which (a) costs a style recalc on every
-     element and (b) fights GSAP — GSAP writes inline transforms each frame
-     and a CSS transition on the same property lags them by its duration.
-     Colors still transition so the dark-mode toggle stays smooth. */
-  * {
-    @apply border-border/80 transition-colors duration-200;
+  /* Deliberately NOT `* { transition-colors }`. A universal transition costs a
+     style recalc on every element, and it makes per-component state changes
+     unpredictable because everything inherits a timing it didn't ask for.
+     Components opt in. The one global exception is the theme toggle, handled
+     by `.theme-transition` below. */
+
+  html {
+    -webkit-text-size-adjust: 100%;
   }
 
   body {
-    @apply bg-background text-foreground antialiased;
+    background-color: var(--bg);
+    color: var(--fg);
     font-family: var(--font-sans);
-    /* Premium background radial highlights */
-    background-image: 
-      radial-gradient(at 0% 0%, rgba(212, 175, 55, 0.03) 0px, transparent 50%),
-      radial-gradient(at 100% 100%, rgba(10, 37, 64, 0.03) 0px, transparent 50%);
+    font-size: var(--text-body);
+    line-height: 1.7;
+    font-weight: 400;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
-  input, select, textarea {
-    @apply focus:border-primary/50 focus:ring-2 focus:ring-primary/20 hover:border-muted-foreground/30 rounded-xl transition-all;
+  /* One focus treatment, everywhere, visible in both modes. The old build left
+     most controls on the browser default.
+
+     No `border-radius` here: `outline` already follows the element's own
+     radius in every current browser, and setting radius on `:focus-visible`
+     would change the element's SHAPE when focused — a circular avatar button
+     would square off into a rounded rectangle the moment you tabbed to it. */
+  :focus-visible {
+    outline: 2px solid var(--focus);
+    outline-offset: 2px;
   }
 
-  button {
-    @apply active:scale-95 transition-transform;
+  /* Numerals in this app are Latin digits inside RTL Arabic text (force
+     numbers, national numbers, dates). Isolating them keeps the bidi
+     algorithm from reordering adjacent runs; tabular figures keep table
+     columns aligned. Applied by the <Num> primitive. */
+  [data-num] {
+    font-variant-numeric: tabular-nums;
+    direction: ltr;
+    unicode-bidi: isolate;
   }
 }
 
-/* Premium Card & Layout Enhancements */
-.glass-card {
-  @apply bg-card/90 backdrop-blur-lg border border-border/60 shadow-sm hover:shadow-md transition-all rounded-2xl;
+/* Theme-toggle smoothing. Scoped to a class the ThemeProvider adds for the
+   duration of the switch, so the cost is paid once per toggle instead of on
+   every hover of every element for the life of the page. */
+.theme-transition,
+.theme-transition *,
+.theme-transition *::before,
+.theme-transition *::after {
+  transition:
+    background-color var(--duration-base) ease,
+    border-color var(--duration-base) ease,
+    color var(--duration-base) ease !important;
 }
 
-.glass-header {
-  @apply sticky top-0 z-40 bg-background/90 backdrop-blur-md border-b border-border/40;
-}
-
-.card-gold-accent {
-  @apply relative overflow-hidden before:absolute before:top-0 before:left-0 before:right-0 before:h-[3px] before:bg-gradient-to-r before:from-accent before:to-primary;
-}
-
-/* Animations */
-@keyframes fadeIn {
-  from { opacity: 0; transform: scale(0.99); }
-  to { opacity: 1; transform: scale(1); }
-}
-
-@keyframes slideUp {
-  from { transform: translateY(16px); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
-}
-
-@keyframes pulseGlow {
-  0%, 100% { opacity: 0.6; box-shadow: 0 0 8px rgba(16, 185, 129, 0.2); }
-  50% { opacity: 1; box-shadow: 0 0 16px rgba(16, 185, 129, 0.4); }
-}
-
-.animate-fade-in {
-  animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-
-.animate-slide-up {
-  animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-
-.pulse-glow {
-  animation: pulseGlow 2s infinite ease-in-out;
-}
-
-/* Reduced motion. Covers everything CSS-driven; GSAP is handled separately
-   in JS (src/lib/motion.js::prefersReducedMotion) because inline styles set
-   by GSAP aren't affected by these declarations. Animations are reduced to
-   a near-zero duration rather than `animation: none` so that animations
-   which end in a visible state (fade-in ending at opacity 1) still land on
-   that state instead of never running and leaving content invisible. */
+/* Reduced motion. Covers everything CSS-driven; GSAP is guarded separately in
+   src/lib/motion.js, because inline styles GSAP writes each frame are not
+   affected by these declarations. Durations collapse to ~0 rather than
+   `animation: none` so an animation that ends in a visible state still lands
+   on that state instead of never running and leaving content invisible. */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -230,17 +318,95 @@
   }
 }
 
-/* Custom Arabic Scrollbars */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 10px;
+  height: 10px;
 }
-
 ::-webkit-scrollbar-track {
-  @apply bg-transparent;
+  background: transparent;
 }
-
 ::-webkit-scrollbar-thumb {
-  @apply bg-muted-foreground/15 rounded-full hover:bg-muted-foreground/30 transition-colors;
+  background: var(--border-strong);
+  border-radius: 999px;
+  border: 3px solid var(--bg);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--fg-subtle);
 }
 
+/* =============================================================================
+   TRANSITIONAL COMPATIBILITY — delete in Phase 7
+   =============================================================================
+   Phases 2-6 rewrite components and pages. Until a page is rewritten it still
+   references the old token names and utilities. These aliases keep every
+   not-yet-rebuilt page rendering (in the NEW colours) instead of silently
+   losing every style the moment the token layer lands.
+
+   `scripts/check-typography.mjs` already refuses new uses. Phase 7 deletes
+   this block and the build breaks loudly if anything still depends on it —
+   which is the point.
+   ========================================================================== */
+@theme inline {
+  --color-background: var(--bg);
+  --color-foreground: var(--fg);
+  --color-card: var(--surface);
+  --color-card-foreground: var(--fg);
+  --color-secondary: var(--surface-raised);
+  --color-secondary-foreground: var(--fg);
+  --color-muted: var(--surface-raised);
+  --color-muted-foreground: var(--fg-subtle);
+  --color-input: var(--border-strong);
+  --color-ring: var(--focus);
+  --color-destructive: var(--danger);
+  --color-destructive-foreground: var(--primary-fg);
+  --color-primary-foreground: var(--primary-fg);
+  --color-accent-foreground: var(--accent-fg);
+  --color-sidebar: var(--surface);
+  --color-sidebar-foreground: var(--fg);
+  --color-sidebar-border: var(--border);
+  --color-sidebar-accent: var(--surface-raised);
+  --color-sidebar-primary: var(--primary);
+}
+
+/* The old `.glass-card` was translucent + `backdrop-blur`. Over a dense Arabic
+   table that lowers text contrast and costs a compositing layer per card —
+   one of the concrete causes of the "hard to read" complaint. Kept as a NAME
+   so unrewritten pages still get a sane card, but the blur is gone for good. */
+.glass-card {
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-raised);
+}
+.glass-header {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  background-color: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes slideUp {
+  from {
+    transform: translateY(8px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+.animate-fade-in {
+  animation: fadeIn var(--duration-base) var(--ease-out-soft) forwards;
+}
+.animate-slide-up {
+  animation: slideUp var(--duration-slow) var(--ease-out-expo) forwards;
+}
