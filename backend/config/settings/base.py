@@ -22,8 +22,11 @@ INSTALLED_APPS = [
     "corsheaders",
     "simple_history",
     "drf_spectacular",
+    "django_filters",
     # Local apps
     "apps.core",
+    "apps.organization",
+    "apps.members",
 ]
 
 MIDDLEWARE = [
@@ -34,7 +37,14 @@ MIDDLEWARE = [
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
+    # Resolves request.user from a JWT for the plain Django HttpRequest.
+    # Must sit after AuthenticationMiddleware (session auth wins if present)
+    # and before HistoryRequestMiddleware (which reads request.user to
+    # attribute history_user) — otherwise every simple_history row written
+    # through the JWT-authenticated API gets history_user=NULL.
+    "apps.core.middleware.JWTAuthenticationMiddleware",
     "simple_history.middleware.HistoryRequestMiddleware",
 ]
 
@@ -66,9 +76,15 @@ AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
 ]
 
+# Kept as the *formatting* locale (Latin-digit number/date formatting is
+# the least surprising here); Arabic RTL is applied purely in the frontend
+# templates/CSS, not via Django's `ar` locale (whose date format strings
+# would need per-call `|unlocalize` handling to keep numerals Latin).
 LANGUAGE_CODE = "en-us"
 
-TIME_ZONE = "UTC"
+# The apparatus operates in Libya; UTC would put printed document expiry
+# dates and audit-log timestamps 2h off from local wall-clock time.
+TIME_ZONE = "Africa/Tripoli"
 
 USE_I18N = True
 
@@ -78,8 +94,17 @@ STATIC_URL = "static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
 STATICFILES_DIRS = [BASE_DIR / "static"]
 
-MEDIA_URL = "media/"
-MEDIA_ROOT = BASE_DIR / "media"
+MEDIA_URL = "/media/"
+MEDIA_ROOT = Path(os.environ.get("MEDIA_ROOT", BASE_DIR / "media"))
+
+# Storage for uploaded documents (birth certificates, passports, national ID
+# scans, photos) that must NEVER be reachable by guessing a URL. Deliberately
+# outside MEDIA_ROOT/the web root — see apps.core.storage.PrivateMediaStorage.
+# Defaults next to MEDIA_ROOT for local dev; set explicitly in production to
+# a path outside the deployed webserver's document root.
+PRIVATE_MEDIA_ROOT = Path(
+    os.environ.get("PRIVATE_MEDIA_ROOT", BASE_DIR / "private_media")
+)
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
@@ -89,6 +114,22 @@ REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": ("rest_framework_simplejwt.authentication.JWTAuthentication",),
     "DEFAULT_PERMISSION_CLASSES": ("rest_framework.permissions.IsAuthenticated",),
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+    "DEFAULT_PAGINATION_CLASS": "apps.core.pagination.StandardResultsSetPagination",
+    "PAGE_SIZE": 25,
+    "DEFAULT_FILTER_BACKENDS": (
+        "django_filters.rest_framework.DjangoFilterBackend",
+        "rest_framework.filters.SearchFilter",
+        "rest_framework.filters.OrderingFilter",
+    ),
+    "DEFAULT_THROTTLE_CLASSES": (
+        "rest_framework.throttling.ScopedRateThrottle",
+    ),
+    "DEFAULT_THROTTLE_RATES": {
+        # Login is otherwise an open brute-force target — TokenObtainPairView
+        # has no throttle applied by default. See config/urls.py / core/urls.py
+        # for where the "login" scope is attached.
+        "login": "10/min",
+    },
 }
 
 SIMPLE_JWT = {

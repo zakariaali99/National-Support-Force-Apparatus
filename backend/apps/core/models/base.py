@@ -23,13 +23,21 @@ class BaseModel(models.Model):
 
     class Meta:
         abstract = True
+        # Without this, Django's implicit `_base_manager` defaults to the
+        # first declared manager (`objects`, the soft-delete-filtered one).
+        # `_base_manager` is what FK/related lookups and `refresh_from_db`
+        # use internally, so a soft-deleted row would make every relation
+        # pointing at it raise DoesNotExist. `all_objects` must be the base
+        # manager; `objects` stays the default for everyday queries.
+        base_manager_name = "all_objects"
+        default_manager_name = "objects"
 
     def soft_delete(self):
         self.is_deleted = True
         self.deleted_at = timezone.now()
-        self.save()
+        self.save(update_fields=["is_deleted", "deleted_at", "updated_at"])
 
     def restore(self):
         self.is_deleted = False
         self.deleted_at = None
-        self.save()
+        self.save(update_fields=["is_deleted", "deleted_at", "updated_at"])

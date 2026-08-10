@@ -14,6 +14,8 @@ urlpatterns = [
         name="swagger-ui",
     ),
     path("api/", include("apps.core.urls")),
+    path("api/", include("apps.organization.urls")),
+    path("api/", include("apps.members.urls")),
 ]
 
 if settings.DEBUG:

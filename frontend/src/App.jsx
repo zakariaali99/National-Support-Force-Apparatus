@@ -1,30 +1,33 @@
-function App() {
-  return (
-    <main className="min-h-screen bg-slate-950 text-white flex items-center justify-center">
-      <div className="text-center space-y-6 p-10">
-        <h1 className="text-4xl font-bold">
-          National Support Force <span className="text-emerald-400">Apparatus</span>
-        </h1>
-        <p className="text-slate-400 max-w-md mx-auto">
-          React + Vite + Tailwind CSS frontend connected to the Django backend.
-        </p>
-        <div className="flex gap-4 justify-center">
-          <a
-            href="/api/schema/swagger-ui/"
-            className="px-4 py-2 rounded-lg bg-emerald-500 text-white font-medium hover:bg-emerald-400 transition-colors"
-          >
-            API Docs
-          </a>
-          <a
-            href="http://localhost:8000/admin/"
-            className="px-4 py-2 rounded-lg border border-slate-700 text-slate-300 hover:border-slate-500 transition-colors"
-          >
-            Admin
-          </a>
-        </div>
-      </div>
-    </main>
-  )
-}
+import { Navigate, Route, Routes } from "react-router-dom";
 
-export default App
+import { AppShell } from "./components/layout/AppShell";
+import { LoginPage } from "./features/auth/LoginPage";
+import { ProtectedRoute } from "./features/auth/ProtectedRoute";
+import { DashboardPage } from "./features/dashboard/DashboardPage";
+import { MemberDetail } from "./features/members/MemberDetail";
+import { MemberForm } from "./features/members/MemberForm";
+import { MemberList } from "./features/members/MemberList";
+import { FactionsPage } from "./features/organization/FactionsPage";
+import { RanksPage } from "./features/organization/RanksPage";
+
+export default function App() {
+  return (
+    <Routes>
+      <Route path="/login" element={<LoginPage />} />
+
+      <Route element={<ProtectedRoute />}>
+        <Route element={<AppShell />}>
+          <Route path="/" element={<DashboardPage />} />
+          <Route path="/members" element={<MemberList />} />
+          <Route path="/members/new" element={<MemberForm />} />
+          <Route path="/members/:id" element={<MemberDetail />} />
+          <Route path="/members/:id/edit" element={<MemberForm />} />
+          <Route path="/organization/ranks" element={<RanksPage />} />
+          <Route path="/organization/factions" element={<FactionsPage />} />
+        </Route>
+      </Route>
+
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
+  );
+}

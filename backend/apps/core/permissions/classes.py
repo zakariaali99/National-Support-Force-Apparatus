@@ -1,0 +1,87 @@
+from rest_framework.permissions import BasePermission
+
+
+def user_can_access_faction(user, faction_id):
+    """Single-object counterpart to ScopedQuerysetMixin, for plain views
+    (e.g. the document download endpoint) that fetch one instance by pk
+    rather than filtering a queryset.
+    """
+    if user.is_superuser:
+        return True
+    if "all" in set(user.roles.values_list("scope", flat=True)):
+        return True
+    return user.factions.filter(id=faction_id).exists()
+
+
+class HasPermission(BasePermission):
+    """DRF permission class checking one permission codename via the Role
+    engine (apps.core.models.role.Role / apps.core.permissions.registry).
+
+    A view opts in one of two ways:
+
+    - `required_permission = "member.view"` — same codename for every
+      action on the view.
+    - `permission_map = {"list": None, "retrieve": None,
+      "create": "organization.manage", "destroy": "organization.manage"}`
+      — per-action codenames for a ViewSet. A codename of `None` means
+      "any authenticated user, no specific permission required" (typical
+      for read actions on shared lookup data like ranks/factions). An
+      action missing from the map denies by default.
+
+    A view that sets neither `required_permission` nor `permission_map`
+    denies everything — an endpoint must opt in explicitly rather than
+    silently defaulting open.
+    """
+
+    def has_permission(self, request, view):
+        if not request.user or not request.user.is_authenticated:
+            return False
+
+        permission_map = getattr(view, "permission_map", None)
+        if permission_map is not None:
+            action = getattr(view, "action", None)
+            if action not in permission_map:
+                return False
+            codename = permission_map[action]
+            return codename is None or request.user.has_permission(codename)
+
+        codename = getattr(view, "required_permission", None)
+        if codename is None:
+            return False
+        return request.user.has_permission(codename)
+
+
+class ScopedQuerysetMixin:
+    """Restricts a ViewSet's queryset to the requesting user's factions.
+
+    A supervisor of faction A should not be able to read faction B's
+    member records (and, downstream, their passports/national ID scans).
+    Mix into any viewset whose model has — or is related to — a `faction`
+    FK; set `faction_lookup` to the ORM path when it's not directly
+    `faction` (e.g. "member__faction" for a MemberDocument viewset).
+
+    A user with ANY "all"-scoped role (e.g. admin) sees everything. A user
+    with only "own_faction"/"own_records"-scoped roles is restricted to
+    their assigned factions (User.factions); a user with no factions
+    assigned and no "all"-scoped role sees nothing, rather than everything
+    by accident of an empty filter.
+    """
+
+    faction_lookup = "faction"
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        user = self.request.user
+        if not user or not user.is_authenticated:
+            return qs.none()
+        if user.is_superuser:
+            return qs
+
+        scopes = set(user.roles.values_list("scope", flat=True))
+        if "all" in scopes:
+            return qs
+
+        faction_ids = list(user.factions.values_list("id", flat=True))
+        if not faction_ids:
+            return qs.none()
+        return qs.filter(**{f"{self.faction_lookup}__in": faction_ids})
