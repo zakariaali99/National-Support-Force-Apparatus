@@ -27,7 +27,12 @@ INSTALLED_APPS = [
     "apps.core",
     "apps.organization",
     "apps.members",
+    "apps.workflow",
+    "apps.reports",
 ]
+
+# See apps/reports/renderer.py — engine abstraction for the PDF pipeline.
+REPORTS_PDF_ENGINE = os.environ.get("REPORTS_PDF_ENGINE", "weasyprint")
 
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
@@ -105,6 +110,26 @@ MEDIA_ROOT = Path(os.environ.get("MEDIA_ROOT", BASE_DIR / "media"))
 PRIVATE_MEDIA_ROOT = Path(
     os.environ.get("PRIVATE_MEDIA_ROOT", BASE_DIR / "private_media")
 )
+
+# Encrypted DB backups (apps.core.management.commands.backup_db) — outside
+# both MEDIA_ROOT and PRIVATE_MEDIA_ROOT so a compromised media path can't
+# also reach every backup. See apps/core/backup_crypto.py for why
+# BACKUP_ENCRYPTION_KEY isn't required to be an exact Fernet key.
+BACKUP_ROOT = Path(os.environ.get("BACKUP_ROOT", BASE_DIR / "backups"))
+BACKUP_ENCRYPTION_KEY = os.environ.get("BACKUP_ENCRYPTION_KEY")
+
+# Single-origin production deploy (see PLAN.md/deploy/README.md): the built
+# frontend (`cd frontend && npm run build`) is served by Django/WhiteNoise
+# instead of a separate static host, to kill CORS and simplify auth/print.
+# WHITENOISE_ROOT serves frontend/dist's files (JS/CSS/fonts) directly at
+# the URL root; config.urls's catch-all view returns dist/index.html for
+# any other non-API path so React Router's client-side routes survive a
+# hard refresh (e.g. GET /members/5). A no-op in dev, where the frontend
+# runs on its own Vite dev server instead — see FRONTEND_DIST.exists()
+# guard below and in config/urls.py.
+FRONTEND_DIST = BASE_DIR.parent / "frontend" / "dist"
+if FRONTEND_DIST.exists():
+    WHITENOISE_ROOT = str(FRONTEND_DIST)
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 

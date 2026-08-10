@@ -35,11 +35,17 @@ class MemberDocumentViewSet(SoftDeleteModelViewSet):
 
 
 def _log_document_access(request, document, action):
-    """Hook for Phase 7's ActivityLog model ("who viewed whose passport" is
-    the audit question that matters most for this data). A no-op today so
-    Phase 7 only has to fill this in once, not thread logging through every
-    download call site retroactively.
-    """
+    from apps.core.activity import log_activity
+
+    log_activity(
+        actor=request.user,
+        action=action,
+        target_model="MemberDocument",
+        target_id=document.id,
+        description=f"{document.document_type.name_ar} — {document.member.full_name}",
+        metadata={"member_id": document.member_id},
+        request=request,
+    )
 
 
 class MemberDocumentDownloadView(APIView):

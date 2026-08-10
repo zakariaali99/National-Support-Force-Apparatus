@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+<meta charset="utf-8" />
+{% include "print/_style.html" %}
+<style>
+  .doc-page { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; }
+  .doc-page img { max-width: 100%; max-height: 220mm; object-fit: contain; border: 1pt solid #ccc; }
+</style>
+</head>
+<body>
+{% include "print/_header.html" with title=document.document_type.name_ar %}
+<div class="doc-page">
+  <img src="{{ image_uri }}" alt="{{ document.document_type.name_ar }}" />
+</div>
+</body>
+</html>

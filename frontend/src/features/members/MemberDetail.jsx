@@ -1,20 +1,33 @@
-import { Pencil, Trash2 } from "lucide-react";
+import { Pencil, Trash2, Shield, Calendar, Phone, CreditCard, Droplets, MapPin, FileText, Send, Check, X } from "lucide-react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 
 import { AuthedImage } from "../../components/ui/AuthedImage";
 import { Button } from "../../components/ui/Button";
 import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/Card";
+import { Badge } from "../../components/ui/Badge";
+import { Skeleton } from "../../components/ui/Skeleton";
+import { showToast } from "../../components/ui/Toast";
 import { formatDate } from "../../lib/format";
 import { useAuth } from "../auth/AuthContext";
-import { useDeleteMember, useMember } from "./api";
+import { HistoryDialog } from "../audit/HistoryDialog";
+import { useApproveMember, useDeleteMember, useMember, useRejectMember, useSubmitMember } from "./api";
 import { approvalStatusLabel, serviceStatusLabel } from "./constants";
 import { DocumentUpload } from "./DocumentUpload";
+import { PrintDialog } from "./PrintDialog";
+import { ProfileExtras } from "./ProfileExtras";
 
-function InfoRow({ label, value }) {
+function DetailItem({ icon: Icon, label, value, dir }) {
   return (
-    <div className="flex justify-between gap-4 border-b border-border py-2 text-sm last:border-0">
-      <span className="text-muted-foreground">{label}</span>
-      <span className="font-medium">{value || "—"}</span>
+    <div className="flex items-center gap-3.5 p-3 rounded-xl border border-border/40 bg-card/45 hover:bg-secondary/20 transition-all">
+      <div className="p-2.5 bg-primary/5 text-primary rounded-lg">
+        <Icon className="h-4.5 w-4.5 shrink-0" />
+      </div>
+      <div className="min-w-0 flex-1">
+        <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wide">{label}</p>
+        <p className="text-xs font-bold text-foreground mt-0.5" dir={dir}>
+          {value || "—"}
+        </p>
+      </div>
     </div>
   );
 }
@@ -22,15 +35,40 @@ function InfoRow({ label, value }) {
 export function MemberDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { hasPermission } = useAuth();
+  const { hasPermission, user } = useAuth();
   const { data: member, isLoading } = useMember(id);
   const deleteMember = useDeleteMember();
+  const submitMember = useSubmitMember();
+  const approveMember = useApproveMember();
+  const rejectMember = useRejectMember();
 
   if (isLoading) {
-    return <p className="p-8 text-center text-sm text-muted-foreground">جارِ التحميل...</p>;
+    return (
+      <div className="space-y-6">
+        <div className="rounded-2xl border border-border bg-card p-6 flex flex-col sm:flex-row items-center gap-4">
+          <Skeleton className="h-16 w-16 rounded-full" />
+          <div className="space-y-2 flex-1">
+            <Skeleton className="h-4 w-1/3" />
+            <Skeleton className="h-3 w-1/4" />
+          </div>
+        </div>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {Array.from({ length: 6 }).map((_, idx) => (
+            <Skeleton key={idx} className="h-16 w-full" />
+          ))}
+        </div>
+      </div>
+    );
   }
   if (!member) {
-    return <p className="p-8 text-center text-sm text-muted-foreground">لم يتم العثور على العضو</p>;
+    return (
+      <div className="flex flex-col items-center justify-center p-12 text-center border border-dashed border-border rounded-2xl bg-card space-y-2.5">
+        <Shield className="h-12 w-12 text-destructive/40" />
+        <h3 className="font-bold text-base">لم يتم العثور على العضو</h3>
+        <p className="text-xs text-muted-foreground">الملف غير متوفر أو قد يكون تم حذفه من النظام.</p>
+        <Button onClick={() => navigate("/members")}>العودة لسجل الأعضاء</Button>
+      </div>
+    );
   }
 
   async function handleDelete() {
@@ -40,74 +78,195 @@ export function MemberDetail() {
     }
   }
 
+  async function handleSubmit() {
+    try {
+      await submitMember.mutateAsync({ id: member.id });
+      showToast("تم تقديم الملف للاعتماد");
+    } catch (err) {
+      showToast(err?.response?.data?.detail || "تعذر تقديم الملف", "error");
+    }
+  }
+
+  async function handleApprove() {
+    try {
+      await approveMember.mutateAsync({ id: member.id });
+      showToast("تم اعتماد الملف");
+    } catch (err) {
+      showToast(err?.response?.data?.detail || "تعذر اعتماد الملف", "error");
+    }
+  }
+
+  async function handleReject() {
+    const reason = window.prompt("سبب الرفض (اختياري):") || "";
+    try {
+      await rejectMember.mutateAsync({ id: member.id, reason });
+      showToast("تم رفض الملف");
+    } catch (err) {
+      showToast(err?.response?.data?.detail || "تعذر رفض الملف", "error");
+    }
+  }
+
+  const canSubmit =
+    hasPermission("member.edit") && ["draft", "rejected"].includes(member.approval_status);
+  const isOwnSubmission = user && member.created_by === user.id;
+  const canDecide =
+    hasPermission("member.approve") && member.approval_status === "pending" && !isOwnSubmission;
+
+  function getServiceStatusVariant(status) {
+    switch (status) {
+      case "active": return "success";
+      case "suspended": return "destructive";
+      case "on_leave": return "warning";
+      case "retired": return "secondary";
+      default: return "outline";
+    }
+  }
+
+  function getApprovalStatusVariant(status) {
+    switch (status) {
+      case "approved": return "success";
+      case "rejected": return "destructive";
+      case "pending": return "warning";
+      default: return "secondary";
+    }
+  }
+
   return (
-    <div className="space-y-4">
-      <Card>
-        <CardHeader className="flex-row items-start justify-between space-y-0">
-          <div className="flex items-center gap-4">
-            <AuthedImage src={member.photo_url} alt={member.full_name} className="h-16 w-16 rounded-full" />
-            <div>
-              <CardTitle>{member.full_name}</CardTitle>
-              <p className="text-sm text-muted-foreground">
-                {serviceStatusLabel(member.service_status)} · {approvalStatusLabel(member.approval_status)}
-              </p>
+    <div className="space-y-6">
+      {/* Profile Hero Header Banner */}
+      <div className="rounded-2xl border border-border/60 bg-card p-6 md:p-8 shadow-sm flex flex-col gap-6 sm:flex-row sm:items-center justify-between relative overflow-hidden bg-gradient-to-r from-secondary/20 via-transparent to-transparent animate-fade-in">
+        <div className="flex items-center gap-4.5 relative z-10">
+          <AuthedImage
+            src={member.photo_url}
+            alt={member.full_name}
+            className="h-20 w-20 rounded-full border-2 border-border shadow-md object-cover shrink-0"
+          />
+          <div className="min-w-0">
+            <h1 className="text-xl md:text-2xl font-black text-foreground tracking-tight line-clamp-1">
+              {member.full_name}
+            </h1>
+            <div className="flex flex-wrap items-center gap-2 mt-1.5">
+              <Badge variant={getServiceStatusVariant(member.service_status)} pulse={member.service_status === "active"}>
+                {serviceStatusLabel(member.service_status)}
+              </Badge>
+              <Badge variant={getApprovalStatusVariant(member.approval_status)}>
+                {approvalStatusLabel(member.approval_status)}
+              </Badge>
+              <span className="text-xs text-muted-foreground font-semibold px-1">•</span>
+              <span className="text-xs font-bold text-primary bg-primary/5 border border-primary/10 px-2 py-0.5 rounded">
+                {member.rank_name ?? member.rank}
+              </span>
             </div>
           </div>
-          <div className="flex gap-2">
-            {hasPermission("member.edit") && (
-              <Button asChild variant="outline" size="sm">
-                <Link to={`/members/${member.id}/edit`}>
-                  <Pencil className="h-4 w-4" />
-                  تعديل
-                </Link>
-              </Button>
-            )}
-            {hasPermission("member.delete") && (
-              <Button variant="outline" size="sm" onClick={handleDelete}>
-                <Trash2 className="h-4 w-4" />
-                حذف
-              </Button>
-            )}
-          </div>
-        </CardHeader>
-      </Card>
+        </div>
 
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle>البيانات الأساسية</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <InfoRow label="الرقم الحربي" value={member.force_number} />
-            <InfoRow label="الرقم الوطني" value={member.national_number} />
-            <InfoRow label="الرتبة" value={member.rank_name ?? member.rank} />
-            <InfoRow label="الفصيل" value={member.faction_name ?? member.faction} />
-            <InfoRow label="تاريخ الميلاد" value={formatDate(member.date_of_birth)} />
-            <InfoRow label="مكان الميلاد" value={member.place_of_birth} />
-            <InfoRow label="فصيلة الدم" value={member.blood_type} />
-            <InfoRow label="رقم الهاتف" value={member.phone} />
-            <InfoRow label="تاريخ الالتحاق" value={formatDate(member.join_date)} />
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>التعهدات</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="whitespace-pre-wrap text-sm">{member.pledges || "لا يوجد"}</p>
-          </CardContent>
-        </Card>
+        {/* Action Toolbar */}
+        <div className="flex items-center gap-2 relative z-10 sm:self-center">
+          {canSubmit && (
+            <Button size="sm" className="shadow-sm" onClick={handleSubmit} disabled={submitMember.isPending}>
+              <Send className="h-4 w-4 shrink-0" />
+              <span>تقديم للاعتماد</span>
+            </Button>
+          )}
+          {canDecide && (
+            <>
+              <Button
+                size="sm"
+                className="bg-success text-white hover:opacity-90 shadow-sm"
+                onClick={handleApprove}
+                disabled={approveMember.isPending}
+              >
+                <Check className="h-4 w-4 shrink-0" />
+                <span>اعتماد</span>
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                className="text-destructive border-destructive/20 hover:bg-destructive/10 shadow-sm"
+                onClick={handleReject}
+                disabled={rejectMember.isPending}
+              >
+                <X className="h-4 w-4 shrink-0" />
+                <span>رفض</span>
+              </Button>
+            </>
+          )}
+          {hasPermission("member.print") && <PrintDialog member={member} />}
+          {hasPermission("audit.view") && <HistoryDialog model="member" id={member.id} />}
+          {hasPermission("member.edit") && (
+            <Button asChild variant="outline" size="sm" className="shadow-sm">
+              <Link to={`/members/${member.id}/edit`} className="flex items-center gap-1.5">
+                <Pencil className="h-4 w-4 shrink-0" />
+                <span>تعديل</span>
+              </Link>
+            </Button>
+          )}
+          {hasPermission("member.delete") && (
+            <Button
+              variant="outline"
+              size="sm"
+              className="text-destructive border-destructive/20 hover:bg-destructive/10 hover:text-destructive shadow-sm"
+              onClick={handleDelete}
+            >
+              <Trash2 className="h-4 w-4 shrink-0" />
+              <span>حذف</span>
+            </Button>
+          )}
+        </div>
+        <div className="absolute top-0 end-0 h-32 w-32 bg-primary/5 rounded-full blur-2xl -translate-y-6 translate-x-6" />
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>المستندات</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <DocumentUpload memberId={member.id} />
-        </CardContent>
-      </Card>
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+        {/* Core Military and Personal Info List */}
+        <div className="lg:col-span-2 space-y-6">
+          <Card>
+            <CardHeader className="pb-3 border-b border-border/50">
+              <CardTitle className="text-base font-bold">البيانات العسكرية والشخصية</CardTitle>
+            </CardHeader>
+            <CardContent className="p-6">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <DetailItem icon={Shield} label="الرقم الحربي" value={member.force_number} dir="ltr" />
+                <DetailItem icon={CreditCard} label="الرقم الوطني" value={member.national_number} dir="ltr" />
+                <DetailItem icon={Calendar} label="تاريخ الميلاد" value={formatDate(member.date_of_birth)} />
+                <DetailItem icon={MapPin} label="مكان الميلاد" value={member.place_of_birth} />
+                <DetailItem icon={Droplets} label="فصيلة الدم" value={member.blood_type} />
+                <DetailItem icon={Phone} label="رقم الهاتف" value={member.phone} dir="ltr" />
+                <DetailItem icon={Calendar} label="تاريخ الالتحاق" value={formatDate(member.join_date)} />
+                <DetailItem icon={Shield} label="الفصيل (الإدارة)" value={member.faction_name ?? member.faction} />
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Pledges / Commitments */}
+          <Card>
+            <CardHeader className="pb-3 border-b border-border/50">
+              <CardTitle className="text-base font-bold">التعهدات والالتزامات</CardTitle>
+            </CardHeader>
+            <CardContent className="p-6">
+              <div className="flex gap-3.5 p-4 rounded-xl border border-border/50 bg-secondary/10">
+                <FileText className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                <p className="whitespace-pre-wrap text-sm text-foreground leading-relaxed flex-1">
+                  {member.pledges || "لا توجد تعهدات مسجلة على ذمة العضو."}
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+
+          <ProfileExtras member={member} />
+        </div>
+
+        {/* Documents Attachment widgets card */}
+        <div className="space-y-6">
+          <Card className="h-full">
+            <CardHeader className="pb-3 border-b border-border/50">
+              <CardTitle className="text-base font-bold">المستندات والوثائق المرفقة</CardTitle>
+            </CardHeader>
+            <CardContent className="p-6">
+              <DocumentUpload memberId={member.id} />
+            </CardContent>
+          </Card>
+        </div>
+      </div>
     </div>
   );
 }

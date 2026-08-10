@@ -13,6 +13,27 @@ def user_can_access_faction(user, faction_id):
     return user.factions.filter(id=faction_id).exists()
 
 
+def scope_queryset_to_user_factions(user, queryset, faction_lookup="faction"):
+    """Queryset counterpart of user_can_access_faction — shared by
+    ScopedQuerysetMixin (for viewsets) and any plain APIView that needs the
+    same faction-scoping rule over a multi-row queryset (e.g. the reports
+    app's batch ID-card / Excel export endpoints).
+    """
+    if not user or not user.is_authenticated:
+        return queryset.none()
+    if user.is_superuser:
+        return queryset
+
+    scopes = set(user.roles.values_list("scope", flat=True))
+    if "all" in scopes:
+        return queryset
+
+    faction_ids = list(user.factions.values_list("id", flat=True))
+    if not faction_ids:
+        return queryset.none()
+    return queryset.filter(**{f"{faction_lookup}__in": faction_ids})
+
+
 class HasPermission(BasePermission):
     """DRF permission class checking one permission codename via the Role
     engine (apps.core.models.role.Role / apps.core.permissions.registry).
@@ -71,17 +92,4 @@ class ScopedQuerysetMixin:
 
     def get_queryset(self):
         qs = super().get_queryset()
-        user = self.request.user
-        if not user or not user.is_authenticated:
-            return qs.none()
-        if user.is_superuser:
-            return qs
-
-        scopes = set(user.roles.values_list("scope", flat=True))
-        if "all" in scopes:
-            return qs
-
-        faction_ids = list(user.factions.values_list("id", flat=True))
-        if not faction_ids:
-            return qs.none()
-        return qs.filter(**{f"{self.faction_lookup}__in": faction_ids})
+        return scope_queryset_to_user_factions(self.request.user, qs, self.faction_lookup)

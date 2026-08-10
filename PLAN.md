@@ -5,12 +5,12 @@
 - [x] Phase 0 — Foundation fixes & hardening
 - [x] Phase 1 — Organization app, roles engine, app shell
 - [x] Phase 2 — Member core CRUD + search
-- [ ] Phase 3 — Settings: field requirements + role/user UI
-- [ ] Phase 4 — Profile extras (notes/tasks/evaluations/vacation)
-- [ ] Phase 5 — Printing, PDF, exports
-- [ ] Phase 6 — Approval workflow + notifications
-- [ ] Phase 7 — Audit UI, expiry alerts, backups, cron
-- [ ] Phase 8 — Hardening & deploy
+- [x] Phase 3 — Settings: field requirements + role/user UI
+- [x] Phase 4 — Profile extras (notes/tasks/evaluations/vacation)
+- [x] Phase 5 — Printing, PDF, exports
+- [x] Phase 6 — Approval workflow + notifications
+- [x] Phase 7 — Audit UI, expiry alerts, backups, cron
+- [x] Phase 8 — Hardening & deploy
 
 See [NEXT.md](NEXT.md) for the detailed current-state handoff (updated as work progresses).
 

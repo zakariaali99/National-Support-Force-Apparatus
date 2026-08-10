@@ -64,3 +64,21 @@ class UserSerializer(serializers.ModelSerializer):
         if factions is not None:
             instance.factions.set(factions)
         return instance
+
+
+class AssignableUserSerializer(serializers.ModelSerializer):
+    """Minimal, non-sensitive shape (no email/phone/roles) used to populate
+    "assign to" pickers (task assignment, future approval-routing) for any
+    authenticated user — deliberately not gated behind users.manage, unlike
+    UserSerializer above, since picking a colleague's name isn't the same
+    sensitivity as administering accounts.
+    """
+
+    full_name = serializers.SerializerMethodField()
+
+    class Meta:
+        model = User
+        fields = ["id", "full_name", "username"]
+
+    def get_full_name(self, obj):
+        return obj.get_full_name() or obj.username

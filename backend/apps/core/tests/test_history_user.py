@@ -15,7 +15,7 @@ breaks the fix.
 """
 
 from django.db import connection
-from django.test import TestCase, override_settings
+from django.test import TransactionTestCase, override_settings
 
 from rest_framework_simplejwt.tokens import RefreshToken
 
@@ -24,7 +24,7 @@ from apps.core.tests._history_probe import HistoryProbe
 
 
 @override_settings(ROOT_URLCONF="apps.core.tests._history_probe")
-class HistoryUserAttributionTests(TestCase):
+class HistoryUserAttributionTests(TransactionTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()

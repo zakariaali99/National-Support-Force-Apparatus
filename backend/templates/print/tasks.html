@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+<meta charset="utf-8" />
+{% include "print/_style.html" %}
+</head>
+<body>
+{% include "print/_header.html" with title="المهام: "|add:member.full_name %}
+
+{% if tasks %}
+<table>
+  <thead><tr><th>العنوان</th><th>المسندة إلى</th><th>الحالة</th><th>الاستحقاق</th></tr></thead>
+  <tbody>
+    {% for task in tasks %}
+    <tr>
+      <td>{{ task.title }}</td>
+      <td>{% if task.assigned_to %}{{ task.assigned_to.get_full_name|default:task.assigned_to.username }}{% else %}—{% endif %}</td>
+      <td>{{ task.get_status_display }}</td>
+      <td><bdi dir="ltr">{{ task.due_date|date:"Y-m-d"|default:"—" }}</bdi></td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p class="muted">لا توجد مهام مسجلة.</p>
+{% endif %}
+</body>
+</html>

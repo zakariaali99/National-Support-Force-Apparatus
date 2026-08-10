@@ -1,185 +1,163 @@
-# Handoff — What's Left
+# Handoff — Project Status
 
-Last updated: after Phase 2 (member core CRUD + search).
+Last updated: after Phase 8 (hardening & deploy) — **all 8 phases in PLAN.md are now implemented.**
 Full plan: [PLAN.md](PLAN.md).
 
 ## Current state
 
 - Backend: Django REST app, PostgreSQL (`nsfa_dev` locally, role `nsfa`/`nsfa`). Runs with
   `cd backend && source venv/bin/activate && python manage.py runserver 127.0.0.1:8000`.
-- Frontend: React 19 + Vite + Tailwind 4. Runs with `cd frontend && npm run dev` (proxies `/api` to :8000).
-  `.claude/launch.json` has a `frontend` preview config for the Browser-pane tool.
-- Local Postgres: started via `pg_ctl -D /opt/homebrew/var/postgresql@14 -l /opt/homebrew/var/log/postgresql@14.log start`
-  (NOT `brew services` — broken on this machine).
-- A `smoketest` / `SmokeTest123!` Django superuser exists in the dev DB.
-- All 45 backend tests pass (`python manage.py test`), `manage.py check --deploy` clean under a simulated
-  production env, `manage.py spectacular` clean (no schema warnings — keep it that way, see "Conventions"
-  below), frontend builds and lints clean.
-- Live-verified in the browser this session: login, RTL/dark-light theme, ranks/factions CRUD, permission
-  gating, member create/list/detail with rank/faction names resolving correctly, document-type dropdown.
+- Frontend: React 19 + Vite + Tailwind 4. Dev: `cd frontend && npm run dev` (proxies `/api` to :8000).
+  Production: `npm run build` — the app is now code-split (Phase 8), and Django serves it single-origin
+  (see "Single-origin deploy" below) — `.claude/launch.json` has a `frontend` preview config for the
+  Browser-pane tool.
+- Local Postgres: `pg_ctl -D /opt/homebrew/var/postgresql@14 -l /opt/homebrew/var/log/postgresql@14.log start`
+  (NOT `brew services` — broken on this machine). **Note:** `backend/config/settings/development.py` was
+  found locally modified to SQLite at the start of this session (uncommitted, contradicting this project's
+  documented "Postgres in dev too" decision and silently breaking `JSONField __contains` queries used by
+  the approval-workflow notifications) — it was reverted to the committed Postgres config. If dev ever
+  breaks with a "contains lookup is not supported" error, check this file hasn't drifted again.
+- A `smoketest` / `SmokeTest123!` Django superuser exists in the dev DB; `seed_system` management command
+  seeds a fuller demo dataset (admin/admin123 + ranks/factions/roles/members).
+- **153 backend tests pass** (`python manage.py test`), `manage.py check --deploy` clean, `manage.py
+  spectacular` clean (no schema warnings), frontend `npm run build`/`npm run lint` clean.
+- **Verification method this session:** the Browser-pane preview tool was unavailable for this entire
+  session (2026-08-10) — Phases 3 through 8 were all verified via automated checks only (backend test
+  suite including real `pg_dump`/`psql`/WeasyPrint/openpyxl round trips, `check --deploy`, schema
+  generation, frontend build+lint, and one manual restore drill against a throwaway Postgres database —
+  see Phase 7/8 below). **No phase in this range has been clicked through in an actual browser.** This is
+  the single most important thing to do next: open the app and click through each phase's demo criteria
+  (listed in PLAN.md's "Phased build order" section) before treating any of them as fully done.
 
-## Done: Phases 0-2
+## Done: Phases 0-8 (all of PLAN.md)
 
-**Phase 0** — audit-trail/JWT middleware fix, soft-delete `_base_manager` fix, conditional unique
-constraints, `phone` field fix, settings hardening.
+**Phases 0-3** — see git history and earlier versions of this file for full detail. Summary: foundation
+fixes (JWT audit middleware, soft-delete manager fix, conditional unique constraints), organization app +
+roles engine + RTL app shell, member core CRUD + Arabic search + private documents, settings (field
+requirements + roles/users UI).
 
-**Phase 1** — `apps/organization` (Rank, Faction, DocumentType — 3 system-seeded types: birth_certificate,
-passport, national_id_paper), `apps/core` permission registry + `Role` model + `HasPermission` /
-`ScopedQuerysetMixin`, 4 seeded system roles (admin/supervisor/data_entry/viewer), `/api/auth/me/`,
-frontend RTL shell (sidebar/drawer/theme/login).
+**Phase 4 — Profile extras.** `MemberNote`/`MemberTask`/`MemberEvaluation`/`VacationRequest`/
+`VacationTransaction` models; `apps/workflow` app with `Notification` (polled, `refetchInterval: 45s`, no
+websockets) — `NotificationBell` in the header, 4-tab `ProfileExtras` card on `MemberDetail`. Vacation
+balance is a denormalized cache kept correct by
+`apps/members/services/vacation.py::apply_vacation_transaction()` (`transaction.atomic()` +
+`select_for_update()`). Task assignment/reassignment auto-notifies the assignee. Added
+`GET /api/users/assignable/` (any authenticated user, minimal shape) so task-assignment pickers don't need
+full `users.manage`.
 
-**Phase 2** — `apps/members`:
-- `Member` model: 4 name fields + `search_name` (Arabic-normalized via `apps/members/utils/arabic.py`),
-  photo + photo_thumb (private storage, EXIF-stripped/downscaled via `apps/members/utils/uploads.py`),
-  force_number/national_number (conditional-unique, Arabic-Indic digit normalization on input),
-  date_of_birth, blood_type, rank/faction FKs, phone, pledges, join_date, `approval_status` +
-  `service_status` (two separate enums), vacation_balance_days (placeholder for Phase 4).
-- `MemberDocument` model: generic by `document_type`, content-sniffed (magic bytes, not trusted
-  extension), sha256, private storage. Served only via `GET /api/documents/<id>/download/`
-  (authenticated + permission-checked + faction-scope-checked; `_log_document_access()` hook in
-  `apps/members/views/document.py` is a deliberate no-op — Phase 7 fills it in).
-- Faction-scoped API (`ScopedQuerysetMixin` on `MemberViewSet`) — a supervisor only sees their assigned
-  faction's members.
-- Frontend: `MemberList` (search/filter/paginate), `MemberForm` (create/edit, all fields, photo upload),
-  `MemberDetail` (profile + documents), `DocumentUpload` widget. `AuthedImage` component +
-  `fetchAuthedBlobUrl()` helper for rendering/downloading private files (plain `<img src>` can't send the
-  JWT header).
-- 19 new tests: Arabic search matching, soft-delete-then-reuse of force/national numbers, faction scoping
-  (3 role scopes), upload content-sniffing (rejects spoofed extension), digit normalization, permission
-  gating, approval_status not editable via plain PATCH.
+**Phase 5 — Printing, PDF, exports.** `apps/reports/` app: WeasyPrint renderer
+(`apps/reports/renderer.py`, Cairo font embedded via `backend/static/fonts/`, `REPORTS_PDF_ENGINE` setting)
++ `apps/reports/composer.py` (pypdf concatenation — each section/document its own sheet, PDF-source
+documents pass through untouched, image documents wrap in a one-page HTML template). Section registry
+(`apps/reports/sections.py`) drives `GET /api/reports/sections/` and the frontend's `PrintDialog`.
+`GET /api/members/<id>/print/?sections=...&documents=...` (`&download=1`, `&preview=1` for a dev-only
+single-section HTML view — **not** `?format=html`, that collides with DRF's own content-negotiation query
+param and 404s). Batch ID cards (`GET /api/members/id-cards/?ids=...&qr=1`, 85.6×54mm pages, optional QR of
+force_number). Excel export (`GET /api/members/export/`, openpyxl write-only, `MAX_EXPORT_ROWS = 5000` hard
+cap surfaced via `X-Export-Truncated` header). `MemberList` has an "Export Excel" button honoring active
+filters; `MemberDetail` has the print dialog.
 
-**Reusable pieces future phases should use, not rewrite** (in addition to Phase 0/1's list in git history):
-- `apps/core/permissions/classes.py::user_can_access_faction(user, faction_id)` — single-object faction
-  check for plain APIViews (see `MemberDocumentDownloadView`); `ScopedQuerysetMixin` is the queryset-level
-  equivalent.
-- `apps/members/utils/arabic.py::normalize_ar()` / `normalize_digits()` — reuse for ANY future
-  Arabic-text search or numeric-ID field (e.g. passport_number if ever added).
-- `apps/members/utils/uploads.py::sniff_content_type() / validate_upload_size() / compute_sha256() /
-  process_photo()` — reuse verbatim for any future file upload (evaluation attachments, etc. if they ever
-  need files).
-- `frontend/src/components/ui/AuthedImage.jsx` + `fetchAuthedBlobUrl` (`features/members/api.js`) — use for
-  any future private-file preview/download.
-- `frontend/src/components/ui/Select.jsx`, `Textarea.jsx` — native-element wrappers, added this phase.
-- `Button asChild` (via `@radix-ui/react-slot`, installed this phase) — use for any Link-styled-as-button.
+**Phase 6 — Approval workflow.** `Member.approval_status` transitions ONLY through
+`POST /api/members/<id>/{submit,approve,reject}/` (`MemberViewSet` actions in
+`apps/members/views/member.py`) — never a plain PATCH (already read-only on `MemberSerializer` since Phase
+2). `submit`: draft/rejected → pending, notifies every `member.approve` holder in the member's faction
+except the submitter (`apps/workflow/services.py::users_with_permission_in_faction`, relies on Postgres
+`JSONField __contains` — see the SQLite note above for why this must stay Postgres). `approve`/`reject`:
+pending → approved/rejected, blocked if the actor is the member's `created_by` (creator cannot self-approve,
+enforced server-side not just hidden in the UI), notifies the creator. Frontend: submit/approve/reject
+buttons on `MemberDetail` (permission- and ownership-gated) + a dedicated `/members/approvals` queue page.
 
-## Conventions established — follow these in every remaining phase
+**Phase 7 — Audit UI, expiry alerts, backups, cron.** `ActivityLog` model (`apps/core/models/activity_log.py`
+— append-only, NOT a `BaseModel`, written only via `apps.core.activity.log_activity`) now actually logs
+`document_download` (the Phase-2 `_log_document_access` hook is wired), `print`, `export`, `login_failed`
+(had to catch the exception `TokenObtainPairView.post()` raises on bad credentials — it doesn't return a
+plain non-200 response, see `apps/core/views/auth.py`). `GET /api/audit/activity/` (permission `audit.view`)
++ `GET /api/audit/history/?model=member&id=5` (field-level diffs from the `HistoricalRecords` already
+attached since Phase 1/2 — `simple_history`'s `diff_against()`, registry in `apps/core/views/audit.py`).
+Frontend `AuditPage` + a `HistoryDialog` wired onto `MemberDetail`. `ScheduledJobRun` model
+(`apps/core/models/scheduled_job.py`) gives every cron command idempotency-per-period AND dead-cron
+detection (query the latest run per `name`, compare to how often it should fire). `DocumentExpiryAlert`
+(`apps/members/models/`) makes `check_document_expiry` idempotent per (document, expiry_date).
+`accrue_vacation` grants `MONTHLY_ACCRUAL_DAYS = 2` to active members, idempotent per calendar month.
+Encrypted backups: `backup_db`/`restore_db` commands (`apps/core/management/commands/`), `BackupRecord`
+model, `apps/core/backup_crypto.py`. **Deviation from PLAN.md:** uses Python's `cryptography` package
+(Fernet) instead of shelling out to `age`/`gpg` binaries — neither is guaranteed present on a bare VPS
+without an extra system package, `cryptography` ships as a normal wheel; same guarantee (unreadable without
+`BACKUP_ENCRYPTION_KEY`, key never touches the DB disk). `restore_db` takes `--file <path>` as the primary
+interface (not just `--backup-id`, which is an ORM lookup against the *currently connected* DB — useless in
+a real disaster where that DB, and its `BackupRecord` table, no longer exists). **The restore drill was
+actually run** during this session against a throwaway `nasf_restore_drill` Postgres database — real
+`pg_dump` → Fernet-encrypt → decrypt → `psql` restore, verified with a direct `SELECT count(*)` — not just
+written up. Frontend `BackupsPage` (run/list/download, staleness banner if the latest backup is >36h old).
+`deploy/crontab.example` wires all three jobs.
+
+**Phase 8 — Hardening & deploy.** Frontend code-split via `React.lazy`/`Suspense` per route in `App.jsx` —
+the flagged 662KB single chunk is now a 451KB main chunk + per-route chunks (2-30KB each), and the
+build-time "chunk larger than 500KB" warning is gone. Fixed a real bug this surfaced work adjacent to:
+`UserViewSet` paginated an unordered queryset (`UnorderedObjectListWarning`) — added `ordering =
+["username"]`. Permission-matrix test suite (`apps/core/tests/test_permission_matrix.py`) — derives
+expectations from `SYSTEM_ROLE_PRESETS` itself rather than hardcoding them, so it keeps failing loudly if a
+preset's permissions change. **Single-origin production deploy actually implemented, not just planned:**
+`FRONTEND_DIST`/`WHITENOISE_ROOT` settings + a `SPAIndexView` catch-all in `config/urls.py` (must stay last;
+serves `frontend/dist/index.html` for any non-`/api/`/non-`/admin/` path so React Router survives a hard
+refresh) — verified end-to-end this session: WhiteNoise correctly serves a real built JS asset (200,
+correct content-type) and the catch-all correctly returns the SPA shell for a client route while leaving
+`/api/auth/me/` alone (401, not swallowed). `deploy/README.md` — full runbook (Postgres setup, gunicorn +
+systemd unit, nginx + certbot, cron install, redeploy steps) plus the restore-drill section referenced
+above. **Known gap, deliberately not done:** an SVG version of the seal logo — the current
+`frontend/src/assets/nasf-seal.jpg` (447×447) is fine for the small sizes used throughout (favicons,
+sidebar/login avatars, ID cards ≤35mm) but commissioning a proper vector redraw of an official government
+seal is real graphic-design work, not something to fabricate from a code-agent session. Do this with an
+actual designer before any large-format print use (letterhead, posters).
+
+## Conventions established — follow these in every future change
+
+(Carried forward from Phase 3, still true, now with a few more entries.)
 
 - **DRF schema must stay clean.** Every `SerializerMethodField` needs `@extend_schema_field`; every plain
-  `APIView` (not ModelViewSet) needs `@extend_schema(...)` if DRF can't infer it. Verify with
-  `python manage.py spectacular --file /dev/null` — it must produce NO output (warnings surface in
-  `manage.py check` too, which is part of the Phase-end verification checklist below). Get this wrong and
-  a future phase's `check --deploy` gate silently starts failing.
-- **Raise `serializers.ValidationError` (or catch `django.core.exceptions.ValidationError` and re-raise
-  as DRF's) only from `validate()`/`validate_<field>()`, never from `create()`/`update()`.** DRF does not
-  catch exceptions raised during `.save()` — they surface as a raw 500. This bit the document-upload
-  serializer this phase (see `apps/members/serializers/document.py` — sniffing moved into `validate_file`).
-- **Permission scope defaults to `own_faction`.** A freshly-created `Role` with no explicit `scope` kwarg
-  needs either `scope="all"` or the test user needs `user.factions.add(...)`, or every list/detail call
-  returns empty/404. Two Phase-2 tests broke on exactly this before being fixed — don't re-learn it.
-- **`SoftDeleteModelViewSet.perform_destroy` soft-deletes; write tests with `Model.all_objects`, not
-  `Model.objects`, to assert the row still physically exists.**
-- Every new app: register in `INSTALLED_APPS` (`config/settings/base.py`), add its `urls.py` to
-  `config/urls.py` under `path("api/", include(...))`, register models in `admin.py`.
+  `APIView` needs `@extend_schema(...)`. Verify with `python manage.py spectacular --file /dev/null` — must
+  produce NO output.
+- **Raise `serializers.ValidationError` only from `validate()`/`validate_<field>()`, never `create()`/
+  `update()`.**
+- **Permission scope defaults to `own_faction`** — a fresh `Role` with no `scope` kwarg needs either
+  `scope="all"` or `user.factions.add(...)`.
+- **`SoftDeleteModelViewSet.perform_destroy` soft-deletes**; assert on `Model.all_objects`, not
+  `Model.objects`, in tests.
+- Every new app: register in `INSTALLED_APPS`, wire its `urls.py` under `path("api/", include(...))` in
+  `config/urls.py`, register models in `admin.py`.
+- **Approval-status-like fields (workflow state machines) are never plain-PATCH-writable** — always a
+  dedicated action/endpoint with its own permission and transition validation. `Member.approval_status` and
+  `VacationRequest.status` both follow this; keep doing it for any future state machine.
+- **DRF's `?format=` query param is reserved by content negotiation** — don't name a custom query param
+  `format`; it 404s. Learned the hard way on the print endpoint's dev-preview flag (now `?preview=1`).
+- **`django-simple-history` fields on possibly-`None` FKs**: don't chain `{{ x.related.field|default:...
+  }}` in a Django template when `x.related` can be `None` — it raises `VariableDoesNotExist` inside a
+  filter argument instead of resolving to empty. Guard with `{% if x.related %}`.
+- **`TokenObtainPairView.post()` raises `AuthenticationFailed` directly** rather than returning a non-200
+  response — anything hooking into login (rate limiting is already there; audit logging now too) must wrap
+  `super().post()` in try/except, not check `response.status_code` after the fact.
+- **Reusable pieces future work should use, not rewrite:** `apps.core.permissions.classes.
+  scope_queryset_to_user_factions()` (the plain-function counterpart of `ScopedQuerysetMixin`, for APIViews
+  that aren't ViewSets — see `apps/reports/views.py`); `apps.core.activity.log_activity()` (the only way to
+  write an `ActivityLog` row); `apps.core.models.ScheduledJobRun` (idempotency + dead-cron detection for
+  ANY future periodic command, not just the three that exist today).
 
-## Next: Phase 3 — Settings: field requirements + role/user UI (not started)
+## What's left / next steps
 
-Per PLAN.md, two halves:
+PLAN.md's 8 phases are all implemented. What remains is verification and polish, not new features:
 
-**Backend (mostly new):**
-- `apps/members/field_registry.py`: canonical list of Member fields — key, `label_ar`, type
-  (text/number/date/select/textarea/image/file), `default_required` (bool), `lockable` (bool — structural
-  fields: first_name, second_name, last_name, force_number, national_number, rank, faction must be
-  `lockable=False`, i.e. always required, can't be toggled off in the UI).
-- `apps/core/models/field_requirement.py::FieldRequirement`: `field_key` (unique), `is_required`,
-  `is_visible`, `order`. Mutable overrides ONLY — the registry above is the source of truth for what
-  fields *exist*; this table only overrides required/visible/order per field.
-- `management/commands/sync_field_requirements.py`: idempotent — for every key in the registry not yet in
-  `FieldRequirement`, create a row from `default_required`; don't touch existing rows. Run on deploy (call
-  it from a data migration too, so `migrate` alone gives a working default set).
-- `GET /api/settings/field-requirements/` (list, cached — plan says `cache.get_or_set`, invalidate on
-  `post_save` of `FieldRequirement`) + `PATCH` per row (permission: `settings.manage`, already in the
-  registry from Phase 1 — nothing to add there).
-- Enforce in `MemberSerializer`: on **create**, any `is_required=True` field missing from the payload is a
-  validation error; on **PATCH**, only validate fields present in the payload (so tightening a
-  requirement doesn't lock existing incomplete records out of being edited at all). Expose
-  `missing_required_fields` computed from this — the field already exists on `MemberSerializer`
-  (`apps/members/serializers/member.py`) returning `[]` as a placeholder; wire it to the real check here.
-- Role/User management: **the API already exists** (`RoleViewSet`/`UserViewSet` in
-  `apps/core/views/role.py` / `user.py`, wired at `/api/roles/` and `/api/users/` since Phase 1) — this
-  phase is purely the frontend UI for it, no backend work needed there. `RoleViewSet` also exposes
-  `GET /api/roles/permissions/` returning the grouped permission registry for the checkbox UI.
-
-**Frontend (`src/features/settings/`):**
-- `FieldRequirementsPage.jsx` — table of fields (label, required toggle, visible toggle), disabled/locked
-  rows for `lockable=False` fields with a tooltip explaining why.
-- `RolesPage.jsx` — list roles, create/edit with the permission checkboxes grouped exactly as
-  `PERMISSION_GROUPS` returns them (group key → Arabic group label → checkboxes), scope selector,
-  `is_system` roles read-only-name but still permission-editable (matches backend: `RoleViewSet` blocks
-  delete of `is_system`, not edit).
-- `SystemUsersPage.jsx` — list/create/edit users, role assignment (multi-select), faction assignment
-  (multi-select, relevant when the assigned role(s) have `scope="own_faction"`), activate/deactivate
-  (soft "delete" — `UserViewSet.perform_destroy` already sets `is_active=False`, doesn't hard-delete).
-- `src/features/members/formSchema.js` — build the zod schema and visible-field list for `MemberForm.jsx`
-  from `GET /api/settings/field-requirements/` at runtime, replacing the currently-hardcoded schema in
-  `MemberForm.jsx`. Keep the field *rendering* (each `<Field>` block) as-is; only required-ness and
-  visibility become data-driven. Structural fields stay hardcoded-required regardless of what the API
-  says (defense in depth, matches backend `lockable`).
-- Add "الإعدادات" (Settings) section to `navConfig.js`, gated by `settings.manage` / `roles.manage` /
-  `users.manage` as appropriate per sub-page (don't show the sidebar item to users without at least one of
-  those permissions — `useAuth().hasPermission` already supports this per-item, see existing gating
-  pattern in `RanksPage.jsx`).
-
-**Tests to write:** `sync_field_requirements` is idempotent (run twice, no duplicate/changed rows); a
-required-but-missing field is rejected on create; the same field missing on PATCH of an existing record is
-NOT rejected; a `lockable=False` field cannot be toggled via the API even if someone tries; role
-permission-checkbox save round-trips correctly; `UserViewSet` delete deactivates not hard-deletes.
-
-**Verification**: backend test suite, `check --deploy`, `spectacular` clean, frontend build+lint, then a
-live browser pass — toggle a field required in Settings, confirm `MemberForm` enforces it immediately;
-create a role with 2 permissions, assign to a test user, confirm their UI reflects exactly those 2.
-
-## After Phase 3, in order (see PLAN.md for full detail on each)
-
-- **Phase 4** — `MemberNote`, `MemberTask`, `MemberEvaluation`, `VacationRequest`, `VacationTransaction`
-  models (all `apps/members/models/`, BaseModel + HistoricalRecords like Member); `apps/workflow` app (new)
-  with `Notification` model, in-app only, polled every 45-60s via TanStack Query on the frontend (no
-  websockets). `Member.vacation_balance_days` becomes a real denormalized cache updated inside
-  `transaction.atomic()` + `select_for_update()` when a `VacationTransaction` is written.
-- **Phase 5** — `apps/reports/` app (new): WeasyPrint renderer (already verified working in this dev
-  environment — see Phase 0 setup) + pypdf composer, two-stage pipeline (HTML sections rendered to PDF;
-  sections whose source file is already a PDF pass through directly — see PLAN.md, do NOT try to inline a
-  PDF into an HTML `<img>`). Cairo font files already exist at `frontend/src/assets/fonts/` — copy/symlink
-  the same `.woff2` files (or re-fetch, same Google Fonts URLs are in this session's history) into
-  `backend/static/fonts/` for the PDF templates. Section registry drives the print popup + "select all".
-  Excel export via openpyxl write-only mode.
-- **Phase 6** — `apps/workflow` approval models (draft→pending→approved/rejected transitions via dedicated
-  endpoints, NOT plain PATCH — `Member.approval_status` is already read-only on the plain serializer from
-  Phase 2, by design, exactly so Phase 6 can own the transition). Creator cannot approve their own
-  submission — enforce in a permission class, not just hidden UI.
-- **Phase 7** — `ActivityLog` model (`apps/core/models/activity_log.py`, append-only, do NOT extend
-  `BaseModel` — no soft-delete on an audit log). Wire `_log_document_access()` in
-  `apps/members/views/document.py` (currently a no-op, deliberately left as the single call site). Attach
-  `HistoricalRecords` audit UI (history already being recorded since Phase 1/2 on Rank/Faction/DocumentType/
-  Member/MemberDocument — just needs a UI to browse it). `check_document_expiry` / `accrue_vacation` /
-  `backup_db` / `restore_db` management commands, `ScheduledJobRun`, encrypted backups.
-- **Phase 8** — code splitting (frontend bundle is 574KB single-chunk, flagged since Phase 1, not yet
-  fixed — do it here, not before), DB index/query audit, permission-matrix test suite across all
-  roles × endpoints, SVG version of the seal logo (current `nasf-seal.jpg` is 447×447, fine for the sizes
-  used so far — favicons, login/sidebar avatars, ≤80px — but Phase 5's ID card and Phase 8's letterhead
-  need higher fidelity), `deploy/` runbook (nginx + gunicorn + systemd, no Docker).
+1. **Live browser verification** (see "Current state" above — this is the priority). Walk through every
+   phase's demo criteria in PLAN.md's "Phased build order" section in an actual running browser. Nothing
+   from Phase 3 onward has been visually confirmed working this session.
+2. **SVG seal logo** — needs a human designer, not a code session (see Phase 8 above).
+3. Everything else called out as "not yet done" or "future work" inline in the summaries above (fpdf2
+   fallback renderer, N-up ID card layout, gunicorn/nginx actually deployed to a real VPS rather than just
+   documented) is optional polish beyond what PLAN.md asked for — revisit only if actually needed.
 
 ## Open decisions still deferred by the user (do not assume — ask if they become blocking)
 
-- Final hosting target (VPS vs shared) — user said "local only for now."
+- Final hosting target (VPS vs shared) — user said "local only for now." `deploy/README.md` documents a
+  generic VPS target per PLAN.md's decision but nothing has been deployed anywhere.
 - Already answered, do NOT re-ask: Arabic RTL + Latin numerals, server-side PDF, Postgres (dev+prod),
   custom roles with checkboxes, blood type + DOB added to Member (not gender), force_number globally
-  unique, no re-approval on edit after approval, in-app-only notifications.
-
-## Known rough edges to fix opportunistically (not blocking)
-
-- Frontend production bundle is a single 574KB chunk (Phase 8 fixes this).
-- `MemberDetail.jsx` has no notes/tasks/evaluations/vacation tabs yet — Phase 4 adds them directly to this
-  file, no restructuring needed first.
-- No print button on `MemberDetail.jsx` yet — Phase 5 adds it.
-- `MemberForm.jsx`'s zod schema is currently hardcoded (all fields required per PLAN.md's original field
-  list except third_name/phone/pledges/dates/blood_type) — Phase 3 makes this data-driven, see above.
+  unique, no re-approval on edit after approval, in-app-only notifications, single-origin deploy.

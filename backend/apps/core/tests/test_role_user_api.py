@@ -129,3 +129,21 @@ class UserApiTests(TestCase):
         self.assertEqual(response.status_code, 200, response.data)
         target.refresh_from_db()
         self.assertIn(role, target.roles.all())
+
+    def test_any_authenticated_user_can_list_assignable_users(self):
+        self.client.force_authenticate(self.plain_user)
+
+        response = self.client.get("/api/users/assignable/")
+
+        self.assertEqual(response.status_code, 200)
+        usernames = {row["username"] for row in response.data}
+        self.assertIn(self.plain_user.username, usernames)
+
+    def test_assignable_users_excludes_inactive(self):
+        inactive = User.objects.create_user(username="inactive-user", password="x", is_active=False)
+        self.client.force_authenticate(self.plain_user)
+
+        response = self.client.get("/api/users/assignable/")
+
+        usernames = {row["username"] for row in response.data}
+        self.assertNotIn(inactive.username, usernames)

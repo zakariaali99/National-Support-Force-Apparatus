@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 
-from .models import Role, User
+from .models import ActivityLog, BackupRecord, Role, ScheduledJobRun, User
 
 
 @admin.register(User)
@@ -23,3 +23,21 @@ class RoleAdmin(admin.ModelAdmin):
     list_display = ("name_ar", "name", "scope", "is_system")
     list_filter = ("scope", "is_system")
     search_fields = ("name_ar", "name")
+
+
+@admin.register(ActivityLog)
+class ActivityLogAdmin(admin.ModelAdmin):
+    list_display = ("created_at", "actor_username", "action", "target_model", "target_id")
+    list_filter = ("action", "target_model")
+    search_fields = ("actor_username", "description")
+
+
+@admin.register(ScheduledJobRun)
+class ScheduledJobRunAdmin(admin.ModelAdmin):
+    list_display = ("name", "period_key", "started_at", "finished_at", "success")
+    list_filter = ("name", "success")
+
+
+@admin.register(BackupRecord)
+class BackupRecordAdmin(admin.ModelAdmin):
+    list_display = ("created_at", "file_size", "encrypted", "created_by")

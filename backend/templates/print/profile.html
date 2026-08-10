@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+<meta charset="utf-8" />
+{% include "print/_style.html" %}
+</head>
+<body>
+{% include "print/_header.html" with title="الملف الشخصي" %}
+
+<div class="field-grid">
+  <div class="field"><div class="label">الاسم الكامل</div><div class="value">{{ member.full_name }}</div></div>
+  <div class="field"><div class="label">الرقم الحربي</div><div class="value"><bdi dir="ltr">{{ member.force_number }}</bdi></div></div>
+  <div class="field"><div class="label">الرقم الوطني</div><div class="value"><bdi dir="ltr">{{ member.national_number }}</bdi></div></div>
+  <div class="field"><div class="label">الرتبة</div><div class="value">{{ member.rank.name_ar }}</div></div>
+  <div class="field"><div class="label">الفصيل</div><div class="value">{{ member.faction.name_ar }}</div></div>
+  <div class="field"><div class="label">تاريخ الميلاد</div><div class="value"><bdi dir="ltr">{{ member.date_of_birth|date:"Y-m-d" }}</bdi></div></div>
+  <div class="field"><div class="label">مكان الميلاد</div><div class="value">{{ member.place_of_birth|default:"—" }}</div></div>
+  <div class="field"><div class="label">فصيلة الدم</div><div class="value"><bdi dir="ltr">{{ member.blood_type|default:"—" }}</bdi></div></div>
+  <div class="field"><div class="label">رقم الهاتف</div><div class="value"><bdi dir="ltr">{{ member.phone|default:"—" }}</bdi></div></div>
+  <div class="field"><div class="label">تاريخ الالتحاق</div><div class="value"><bdi dir="ltr">{{ member.join_date|date:"Y-m-d"|default:"—" }}</bdi></div></div>
+  <div class="field"><div class="label">حالة الخدمة</div><div class="value">{{ member.get_service_status_display }}</div></div>
+  <div class="field"><div class="label">حالة الاعتماد</div><div class="value">{{ member.get_approval_status_display }}</div></div>
+</div>
+
+<h2>التعهدات والالتزامات</h2>
+<p>{{ member.pledges|default:"لا توجد تعهدات مسجلة." }}</p>
+
+<p class="muted">تاريخ الطباعة: <bdi dir="ltr">{{ printed_at|date:"Y-m-d" }}</bdi></p>
+</body>
+</html>

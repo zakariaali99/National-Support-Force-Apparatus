@@ -1,6 +1,15 @@
 from django.contrib import admin
 
-from apps.members.models import FieldRequirement, Member, MemberDocument
+from apps.members.models import (
+    DocumentExpiryAlert,
+    FieldRequirement,
+    Member,
+    MemberDocument,
+    MemberEvaluation,
+    MemberNote,
+    MemberTask,
+)
+from apps.members.models.vacation import VacationRequest, VacationTransaction
 
 
 class MemberDocumentInline(admin.TabularInline):
@@ -37,3 +46,37 @@ class FieldRequirementAdmin(admin.ModelAdmin):
     list_display = ("field_key", "is_required", "is_visible", "order")
     list_filter = ("is_required", "is_visible")
     ordering = ("order",)
+
+
+@admin.register(MemberNote)
+class MemberNoteAdmin(admin.ModelAdmin):
+    list_display = ("member", "author", "is_pinned", "created_at")
+    list_filter = ("is_pinned",)
+
+
+@admin.register(MemberTask)
+class MemberTaskAdmin(admin.ModelAdmin):
+    list_display = ("member", "title", "assigned_to", "status", "priority", "due_date")
+    list_filter = ("status", "priority")
+
+
+@admin.register(MemberEvaluation)
+class MemberEvaluationAdmin(admin.ModelAdmin):
+    list_display = ("member", "period_start", "period_end", "score", "evaluator")
+
+
+@admin.register(VacationRequest)
+class VacationRequestAdmin(admin.ModelAdmin):
+    list_display = ("member", "start_date", "end_date", "days", "status")
+    list_filter = ("status",)
+
+
+@admin.register(VacationTransaction)
+class VacationTransactionAdmin(admin.ModelAdmin):
+    list_display = ("member", "days", "kind", "created_at")
+    list_filter = ("kind",)
+
+
+@admin.register(DocumentExpiryAlert)
+class DocumentExpiryAlertAdmin(admin.ModelAdmin):
+    list_display = ("document", "expiry_date", "created_at")

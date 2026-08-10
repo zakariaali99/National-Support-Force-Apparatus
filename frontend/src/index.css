@@ -13,54 +13,54 @@
    than fixed values) so utilities like `bg-background` stay reactive
    across the toggle instead of being locked in at build time. */
 :root {
-  --background: #faf7f0; /* cream */
-  --foreground: #16202e; /* deep navy-black text */
+  --background: #f8fafc; /* Clean slate light gray background */
+  --foreground: #0b1524; /* Deep navy text */
   --card: #ffffff;
-  --card-foreground: #16202e;
-  --primary: #0f2a4a; /* deep navy — primary actions */
+  --card-foreground: #0b1524;
+  --primary: #0a2540; /* Executive dark navy primary */
   --primary-foreground: #ffffff;
-  --secondary: #f1ece0;
-  --secondary-foreground: #16202e;
-  --accent: #b8860b; /* gold, from the seal's eagle */
-  --accent-foreground: #16202e;
-  --muted: #f1ece0;
-  --muted-foreground: #6b6255;
-  --border: #e5dfd0;
-  --input: #e5dfd0;
-  --ring: #0f2a4a;
-  --destructive: #b3261e;
+  --secondary: #f1f5f9; /* Soft slate gray */
+  --secondary-foreground: #0b1524;
+  --accent: #d4af37; /* Warm metallic gold */
+  --accent-foreground: #0b1524;
+  --muted: #f1f5f9;
+  --muted-foreground: #64748b; /* Cool gray slate */
+  --border: #e2e8f0;
+  --input: #e2e8f0;
+  --ring: #0a2540;
+  --destructive: #ef4444;
   --destructive-foreground: #ffffff;
-  --success: #1e7a46;
+  --success: #10b981; /* Fresh emerald green */
   --sidebar: #ffffff;
-  --sidebar-foreground: #16202e;
-  --sidebar-border: #e5dfd0;
-  --sidebar-accent: #f1ece0;
-  --sidebar-primary: #0f2a4a;
+  --sidebar-foreground: #0b1524;
+  --sidebar-border: #e2e8f0;
+  --sidebar-accent: #f8fafc;
+  --sidebar-primary: #0a2540;
 }
 
 .dark {
-  --background: #0b1524; /* navy */
-  --foreground: #f2ede1; /* cream text */
-  --card: #12203a;
-  --card-foreground: #f2ede1;
-  --primary: #d4af37; /* gold pops on navy in dark mode */
-  --primary-foreground: #14202e;
-  --secondary: #16233a;
-  --secondary-foreground: #f2ede1;
+  --background: #060e1a; /* True night navy background */
+  --foreground: #f8fafc; /* Crisp light gray text */
+  --card: #0d1b2a; /* Deep glass navy card bg */
+  --card-foreground: #f8fafc;
+  --primary: #d4af37; /* Metallic gold as primary in dark mode */
+  --primary-foreground: #060e1a;
+  --secondary: #1b263b;
+  --secondary-foreground: #f8fafc;
   --accent: #d4af37;
-  --accent-foreground: #14202e;
-  --muted: #16233a;
-  --muted-foreground: #9aa6b8;
-  --border: #22314a;
-  --input: #22314a;
+  --accent-foreground: #060e1a;
+  --muted: #1b263b;
+  --muted-foreground: #94a3b8;
+  --border: #1e293b;
+  --input: #1e293b;
   --ring: #d4af37;
-  --destructive: #e5484d;
-  --destructive-foreground: #14202e;
-  --success: #34c77b;
-  --sidebar: #0e1a2e;
-  --sidebar-foreground: #f2ede1;
-  --sidebar-border: #22314a;
-  --sidebar-accent: #16233a;
+  --destructive: #f87171;
+  --destructive-foreground: #060e1a;
+  --success: #34d399;
+  --sidebar: #09111e;
+  --sidebar-foreground: #f8fafc;
+  --sidebar-border: #1e293b;
+  --sidebar-accent: #1b263b;
   --sidebar-primary: #d4af37;
 }
 
@@ -94,11 +94,79 @@
 
 @layer base {
   * {
-    @apply border-border;
+    @apply border-border/80 transition-all duration-200;
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground antialiased;
     font-family: var(--font-sans);
+    /* Premium background radial highlights */
+    background-image: 
+      radial-gradient(at 0% 0%, rgba(212, 175, 55, 0.03) 0px, transparent 50%),
+      radial-gradient(at 100% 100%, rgba(10, 37, 64, 0.03) 0px, transparent 50%);
+  }
+
+  input, select, textarea {
+    @apply focus:border-primary/50 focus:ring-2 focus:ring-primary/20 hover:border-muted-foreground/30 rounded-xl transition-all;
+  }
+
+  button {
+    @apply active:scale-95 transition-transform;
   }
 }
+
+/* Premium Card & Layout Enhancements */
+.glass-card {
+  @apply bg-card/90 backdrop-blur-lg border border-border/60 shadow-sm hover:shadow-md transition-all rounded-2xl;
+}
+
+.glass-header {
+  @apply sticky top-0 z-40 bg-background/90 backdrop-blur-md border-b border-border/40;
+}
+
+.card-gold-accent {
+  @apply relative overflow-hidden before:absolute before:top-0 before:left-0 before:right-0 before:h-[3px] before:bg-gradient-to-r before:from-accent before:to-primary;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.99); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes slideUp {
+  from { transform: translateY(16px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes pulseGlow {
+  0%, 100% { opacity: 0.6; box-shadow: 0 0 8px rgba(16, 185, 129, 0.2); }
+  50% { opacity: 1; box-shadow: 0 0 16px rgba(16, 185, 129, 0.4); }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-slide-up {
+  animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.pulse-glow {
+  animation: pulseGlow 2s infinite ease-in-out;
+}
+
+/* Custom Arabic Scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-muted-foreground/15 rounded-full hover:bg-muted-foreground/30 transition-colors;
+}
+

@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+<meta charset="utf-8" />
+{% include "print/_style.html" %}
+</head>
+<body>
+{% include "print/_header.html" with title="ملاحظات: "|add:member.full_name %}
+
+{% if notes %}
+<table>
+  <thead><tr><th>الملاحظة</th><th>الكاتب</th><th>التاريخ</th></tr></thead>
+  <tbody>
+    {% for note in notes %}
+    <tr>
+      <td>{{ note.body }}</td>
+      <td>{% if note.author %}{{ note.author.get_full_name|default:note.author.username }}{% else %}—{% endif %}</td>
+      <td><bdi dir="ltr">{{ note.created_at|date:"Y-m-d" }}</bdi></td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p class="muted">لا توجد ملاحظات مسجلة.</p>
+{% endif %}
+</body>
+</html>

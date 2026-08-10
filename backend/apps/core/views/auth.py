@@ -9,6 +9,7 @@ from rest_framework_simplejwt.exceptions import TokenError
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView
 
+from apps.core.activity import log_activity
 from apps.core.permissions.registry import ALL_CODENAMES
 
 
@@ -22,6 +23,29 @@ class ThrottledTokenObtainPairView(TokenObtainPairView):
 
     throttle_classes = [ScopedRateThrottle]
     throttle_scope = "login"
+
+    def post(self, request, *args, **kwargs):
+        # TokenObtainPairView.post() raises AuthenticationFailed directly
+        # (via serializer.is_valid(raise_exception=True)) rather than
+        # returning a non-200 Response — the exception propagates straight
+        # past this method to DRF's dispatch(), so a bad-credentials
+        # attempt must be caught here, not detected via response.status_code.
+        try:
+            response = super().post(request, *args, **kwargs)
+        except Exception:
+            log_activity(
+                action="login_failed",
+                description=f"محاولة دخول فاشلة: {request.data.get('username', '')}",
+                request=request,
+            )
+            raise
+        if response.status_code != 200:
+            log_activity(
+                action="login_failed",
+                description=f"محاولة دخول فاشلة: {request.data.get('username', '')}",
+                request=request,
+            )
+        return response
 
 
 class LogoutSerializer(serializers.Serializer):

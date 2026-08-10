@@ -55,6 +55,21 @@ export function useDeleteMember() {
   });
 }
 
+function useMemberTransition(action) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, ...body }) => api.post(`members/${id}/${action}/`, body).then((r) => r.data),
+    onSuccess: (_data, { id }) => {
+      queryClient.invalidateQueries({ queryKey: ["members"] });
+      queryClient.invalidateQueries({ queryKey: ["members", "detail", String(id)] });
+    },
+  });
+}
+
+export const useSubmitMember = () => useMemberTransition("submit");
+export const useApproveMember = () => useMemberTransition("approve");
+export const useRejectMember = () => useMemberTransition("reject");
+
 export function useMemberDocuments(memberId) {
   return useQuery({
     queryKey: ["member-documents", memberId],

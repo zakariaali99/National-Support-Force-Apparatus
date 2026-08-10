@@ -21,7 +21,7 @@ duration of this test module only.
 """
 
 from django.db import connection, models
-from django.test import TestCase
+from django.test import TransactionTestCase
 
 from apps.core.models.base import BaseModel
 
@@ -40,7 +40,7 @@ class SoftDeleteTestChild(BaseModel):
         app_label = "core"
 
 
-class SoftDeleteBaseModelTests(TestCase):
+class SoftDeleteBaseModelTests(TransactionTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()

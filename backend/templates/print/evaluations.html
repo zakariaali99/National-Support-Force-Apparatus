@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+<meta charset="utf-8" />
+{% include "print/_style.html" %}
+</head>
+<body>
+{% include "print/_header.html" with title="التقييمات: "|add:member.full_name %}
+
+{% if evaluations %}
+<table>
+  <thead><tr><th>الفترة</th><th>الدرجة</th><th>الملاحظات</th><th>المُقيّم</th></tr></thead>
+  <tbody>
+    {% for ev in evaluations %}
+    <tr>
+      <td><bdi dir="ltr">{{ ev.period_start|date:"Y-m-d" }} — {{ ev.period_end|date:"Y-m-d" }}</bdi></td>
+      <td><bdi dir="ltr">{{ ev.score|default:"—" }}</bdi></td>
+      <td>{{ ev.body }}</td>
+      <td>{% if ev.evaluator %}{{ ev.evaluator.get_full_name|default:ev.evaluator.username }}{% else %}—{% endif %}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p class="muted">لا توجد تقييمات مسجلة.</p>
+{% endif %}
+</body>
+</html>

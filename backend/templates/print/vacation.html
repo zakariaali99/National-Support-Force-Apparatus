@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+<meta charset="utf-8" />
+{% include "print/_style.html" %}
+</head>
+<body>
+{% include "print/_header.html" with title="سجل الإجازات: "|add:member.full_name %}
+
+<p class="field"><span class="label">الرصيد الحالي</span> — <bdi dir="ltr" class="value">{{ member.vacation_balance_days }}</bdi> يوم</p>
+
+{% if requests %}
+<table>
+  <thead><tr><th>من</th><th>إلى</th><th>الأيام</th><th>الحالة</th></tr></thead>
+  <tbody>
+    {% for r in requests %}
+    <tr>
+      <td><bdi dir="ltr">{{ r.start_date|date:"Y-m-d" }}</bdi></td>
+      <td><bdi dir="ltr">{{ r.end_date|date:"Y-m-d" }}</bdi></td>
+      <td><bdi dir="ltr">{{ r.days }}</bdi></td>
+      <td>{{ r.get_status_display }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p class="muted">لا توجد طلبات إجازة مسجلة.</p>
+{% endif %}
+</body>
+</html>

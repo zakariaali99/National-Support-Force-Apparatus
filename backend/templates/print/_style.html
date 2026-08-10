@@ -1,0 +1,36 @@
+<style>
+  @page {
+    size: A4;
+    margin: 16mm 14mm;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: 'Cairo', sans-serif;
+    direction: rtl;
+    color: #1a1a1a;
+    font-size: 11pt;
+    line-height: 1.6;
+  }
+  h1, h2, h3 { margin: 0 0 8pt 0; }
+  h1 { font-size: 16pt; font-weight: 800; }
+  h2 { font-size: 13pt; font-weight: 700; border-bottom: 1.5pt solid #999; padding-bottom: 4pt; margin-bottom: 10pt; }
+  table { width: 100%; border-collapse: collapse; }
+  th, td { text-align: start; padding: 5pt 6pt; border-bottom: 0.5pt solid #ddd; font-size: 10pt; }
+  th { font-weight: 700; background: #f2f2f2; }
+  .header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 2pt solid #b8942f;
+    padding-bottom: 10pt;
+    margin-bottom: 14pt;
+  }
+  .header img { height: 40pt; }
+  .header .title { text-align: end; }
+  .field-grid { display: flex; flex-wrap: wrap; gap: 6pt 18pt; margin-bottom: 12pt; }
+  .field { min-width: 40%; }
+  .field .label { font-size: 8.5pt; color: #666; font-weight: 700; }
+  .field .value { font-size: 11pt; font-weight: 700; }
+  .muted { color: #777; font-size: 9pt; }
+  .footer { position: fixed; bottom: -10mm; left: 0; right: 0; text-align: center; font-size: 8pt; color: #999; }
+</style>
