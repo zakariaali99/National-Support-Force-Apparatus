@@ -8,7 +8,7 @@
 - [x] Phase 3 — Settings: field requirements + role/user UI
 - [x] Phase 4 — Profile extras (notes/tasks/evaluations/vacation)
 - [x] Phase 5 — Printing, PDF, exports
-- [x] Phase 6 — Approval workflow + notifications
+- [ ] Phase 6 — Approval workflow + notifications (implemented 2026-08-10, then reverted same day at user request — see NEXT.md)
 - [x] Phase 7 — Audit UI, expiry alerts, backups, cron
 - [x] Phase 8 — Hardening & deploy
 

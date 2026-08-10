@@ -57,15 +57,21 @@ force_number). Excel export (`GET /api/members/export/`, openpyxl write-only, `M
 cap surfaced via `X-Export-Truncated` header). `MemberList` has an "Export Excel" button honoring active
 filters; `MemberDetail` has the print dialog.
 
-**Phase 6 — Approval workflow.** `Member.approval_status` transitions ONLY through
-`POST /api/members/<id>/{submit,approve,reject}/` (`MemberViewSet` actions in
-`apps/members/views/member.py`) — never a plain PATCH (already read-only on `MemberSerializer` since Phase
-2). `submit`: draft/rejected → pending, notifies every `member.approve` holder in the member's faction
-except the submitter (`apps/workflow/services.py::users_with_permission_in_faction`, relies on Postgres
-`JSONField __contains` — see the SQLite note above for why this must stay Postgres). `approve`/`reject`:
-pending → approved/rejected, blocked if the actor is the member's `created_by` (creator cannot self-approve,
-enforced server-side not just hidden in the UI), notifies the creator. Frontend: submit/approve/reject
-buttons on `MemberDetail` (permission- and ownership-gated) + a dedicated `/members/approvals` queue page.
+**Phase 6 — Approval workflow: implemented, then reverted at user request (both on 2026-08-10).** The
+`submit`/`approve`/`reject` actions on `MemberViewSet`, the `/members/approvals` queue page, and the
+submit/approve/reject buttons on `MemberDetail` were built, then explicitly removed the same session after
+the user asked for it — they hadn't asked for this specific feature; it came from interpreting an earlier
+"continue and finish all phases" instruction more literally than intended. **Do not rebuild this without a
+fresh, explicit request** — PLAN.md's Phase 6 checkbox is unchecked again with a note pointing here.
+What's still in place (deliberately, see the removal's scope notes): `Member.approval_status` itself (the
+field/enum/badge — Phase 2 scaffolding, predates Phase 6, stays read-only on `MemberSerializer` with no way
+to transition it via the API, which is simply its pre-Phase-6 state); the unrelated vacation-request
+approve/reject feature (Phase 4, a different workflow entirely); the `member.approve` permission codename
+in `apps/core/permissions/registry.py` (predates Phase 6 too, harmless unused-for-now placeholder);
+`apps/workflow/services.py` (`notify`/`notify_many`/`users_with_permission_in_faction` — still used by
+Phase 7's `check_document_expiry`); the "بانتظار الاعتماد" pending-count KPI card on `DashboardPage.jsx`
+(predates this session's work entirely — left alone since it wasn't mine to remove, but it will now always
+read 0 since nothing moves a member to "pending" anymore).
 
 **Phase 7 — Audit UI, expiry alerts, backups, cron.** `ActivityLog` model (`apps/core/models/activity_log.py`
 — append-only, NOT a `BaseModel`, written only via `apps.core.activity.log_activity`) now actually logs

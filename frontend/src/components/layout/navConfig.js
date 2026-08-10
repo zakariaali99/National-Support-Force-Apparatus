@@ -1,4 +1,4 @@
-import { Archive, Building2, ClipboardCheck, LayoutDashboard, ScrollText, Settings, Shield, UserCheck, Users } from "lucide-react";
+import { Archive, Building2, LayoutDashboard, ScrollText, Settings, Shield, UserCheck, Users } from "lucide-react";
 
 // Central nav registry — later phases (Members, Settings, Audit, Backups,
 // ...) add entries here rather than editing Sidebar.jsx directly.
@@ -8,7 +8,6 @@ import { Archive, Building2, ClipboardCheck, LayoutDashboard, ScrollText, Settin
 export const NAV_ITEMS = [
   { to: "/", label: "لوحة التحكم", icon: LayoutDashboard, end: true },
   { to: "/members", label: "الأعضاء", icon: Users },
-  { to: "/members/approvals", label: "طلبات الاعتماد", icon: ClipboardCheck, permission: "member.approve" },
   { to: "/organization/ranks", label: "الرتب", icon: Shield },
   { to: "/organization/factions", label: "الفصائل", icon: Building2 },
   { to: "/settings/field-requirements", label: "متطلبات الحقول", icon: Settings, permission: "settings.manage" },

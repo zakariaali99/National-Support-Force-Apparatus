@@ -1,4 +1,4 @@
-import { Pencil, Trash2, Shield, Calendar, Phone, CreditCard, Droplets, MapPin, FileText, Send, Check, X } from "lucide-react";
+import { Pencil, Trash2, Shield, Calendar, Phone, CreditCard, Droplets, MapPin, FileText } from "lucide-react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 
 import { AuthedImage } from "../../components/ui/AuthedImage";
@@ -6,11 +6,10 @@ import { Button } from "../../components/ui/Button";
 import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/Card";
 import { Badge } from "../../components/ui/Badge";
 import { Skeleton } from "../../components/ui/Skeleton";
-import { showToast } from "../../components/ui/Toast";
 import { formatDate } from "../../lib/format";
 import { useAuth } from "../auth/AuthContext";
 import { HistoryDialog } from "../audit/HistoryDialog";
-import { useApproveMember, useDeleteMember, useMember, useRejectMember, useSubmitMember } from "./api";
+import { useDeleteMember, useMember } from "./api";
 import { approvalStatusLabel, serviceStatusLabel } from "./constants";
 import { DocumentUpload } from "./DocumentUpload";
 import { PrintDialog } from "./PrintDialog";
@@ -35,12 +34,9 @@ function DetailItem({ icon: Icon, label, value, dir }) {
 export function MemberDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { hasPermission, user } = useAuth();
+  const { hasPermission } = useAuth();
   const { data: member, isLoading } = useMember(id);
   const deleteMember = useDeleteMember();
-  const submitMember = useSubmitMember();
-  const approveMember = useApproveMember();
-  const rejectMember = useRejectMember();
 
   if (isLoading) {
     return (
@@ -77,40 +73,6 @@ export function MemberDetail() {
       navigate("/members");
     }
   }
-
-  async function handleSubmit() {
-    try {
-      await submitMember.mutateAsync({ id: member.id });
-      showToast("تم تقديم الملف للاعتماد");
-    } catch (err) {
-      showToast(err?.response?.data?.detail || "تعذر تقديم الملف", "error");
-    }
-  }
-
-  async function handleApprove() {
-    try {
-      await approveMember.mutateAsync({ id: member.id });
-      showToast("تم اعتماد الملف");
-    } catch (err) {
-      showToast(err?.response?.data?.detail || "تعذر اعتماد الملف", "error");
-    }
-  }
-
-  async function handleReject() {
-    const reason = window.prompt("سبب الرفض (اختياري):") || "";
-    try {
-      await rejectMember.mutateAsync({ id: member.id, reason });
-      showToast("تم رفض الملف");
-    } catch (err) {
-      showToast(err?.response?.data?.detail || "تعذر رفض الملف", "error");
-    }
-  }
-
-  const canSubmit =
-    hasPermission("member.edit") && ["draft", "rejected"].includes(member.approval_status);
-  const isOwnSubmission = user && member.created_by === user.id;
-  const canDecide =
-    hasPermission("member.approve") && member.approval_status === "pending" && !isOwnSubmission;
 
   function getServiceStatusVariant(status) {
     switch (status) {
@@ -162,35 +124,6 @@ export function MemberDetail() {
 
         {/* Action Toolbar */}
         <div className="flex items-center gap-2 relative z-10 sm:self-center">
-          {canSubmit && (
-            <Button size="sm" className="shadow-sm" onClick={handleSubmit} disabled={submitMember.isPending}>
-              <Send className="h-4 w-4 shrink-0" />
-              <span>تقديم للاعتماد</span>
-            </Button>
-          )}
-          {canDecide && (
-            <>
-              <Button
-                size="sm"
-                className="bg-success text-white hover:opacity-90 shadow-sm"
-                onClick={handleApprove}
-                disabled={approveMember.isPending}
-              >
-                <Check className="h-4 w-4 shrink-0" />
-                <span>اعتماد</span>
-              </Button>
-              <Button
-                size="sm"
-                variant="outline"
-                className="text-destructive border-destructive/20 hover:bg-destructive/10 shadow-sm"
-                onClick={handleReject}
-                disabled={rejectMember.isPending}
-              >
-                <X className="h-4 w-4 shrink-0" />
-                <span>رفض</span>
-              </Button>
-            </>
-          )}
           {hasPermission("member.print") && <PrintDialog member={member} />}
           {hasPermission("audit.view") && <HistoryDialog model="member" id={member.id} />}
           {hasPermission("member.edit") && (

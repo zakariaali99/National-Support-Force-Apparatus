@@ -10,7 +10,6 @@ import { ProtectedRoute } from "./features/auth/ProtectedRoute";
 // >500KB bundle flagged since Phase 1 (see NEXT.md). LoginPage/AppShell/
 // ProtectedRoute stay eager: they're needed before any route decision.
 const DashboardPage = lazy(() => import("./features/dashboard/DashboardPage").then((m) => ({ default: m.DashboardPage })));
-const ApprovalQueue = lazy(() => import("./features/members/ApprovalQueue").then((m) => ({ default: m.ApprovalQueue })));
 const MemberDetail = lazy(() => import("./features/members/MemberDetail").then((m) => ({ default: m.MemberDetail })));
 const MemberForm = lazy(() => import("./features/members/MemberForm").then((m) => ({ default: m.MemberForm })));
 const MemberList = lazy(() => import("./features/members/MemberList").then((m) => ({ default: m.MemberList })));
@@ -46,14 +45,6 @@ export default function App() {
             element={
               <Suspense fallback={<RouteFallback />}>
                 <MemberList />
-              </Suspense>
-            }
-          />
-          <Route
-            path="/members/approvals"
-            element={
-              <Suspense fallback={<RouteFallback />}>
-                <ApprovalQueue />
               </Suspense>
             }
           />

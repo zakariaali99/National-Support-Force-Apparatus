@@ -55,20 +55,40 @@ export function useDeleteMember() {
   });
 }
 
-function useMemberTransition(action) {
+export function useSubmitMember() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, ...body }) => api.post(`members/${id}/${action}/`, body).then((r) => r.data),
-    onSuccess: (_data, { id }) => {
+    mutationFn: (id) => api.post(`members/${id}/submit/`).then((r) => r.data),
+    onSuccess: (_, id) => {
       queryClient.invalidateQueries({ queryKey: ["members"] });
-      queryClient.invalidateQueries({ queryKey: ["members", "detail", String(id)] });
+      queryClient.invalidateQueries({ queryKey: ["members", "detail", id] });
     },
   });
 }
 
-export const useSubmitMember = () => useMemberTransition("submit");
-export const useApproveMember = () => useMemberTransition("approve");
-export const useRejectMember = () => useMemberTransition("reject");
+export function useApproveMember() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id }) => api.post(`members/${id}/approve/`).then((r) => r.data),
+    onSuccess: (_, { id }) => {
+      queryClient.invalidateQueries({ queryKey: ["members"] });
+      queryClient.invalidateQueries({ queryKey: ["members", "detail", id] });
+    },
+  });
+}
+
+export function useRejectMember() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, reason }) =>
+      api.post(`members/${id}/reject/`, { reason }).then((r) => r.data),
+    onSuccess: (_, { id }) => {
+      queryClient.invalidateQueries({ queryKey: ["members"] });
+      queryClient.invalidateQueries({ queryKey: ["members", "detail", id] });
+    },
+  });
+}
+
 
 export function useMemberDocuments(memberId) {
   return useQuery({

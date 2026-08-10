@@ -23,8 +23,6 @@ export function AppShell() {
       parts.push({ label: "الأعضاء", to: "/members" });
       if (path.endsWith("/new")) {
         parts.push({ label: "إضافة عضو جديد", to: path });
-      } else if (path.endsWith("/approvals")) {
-        parts.push({ label: "طلبات الاعتماد", to: path });
       } else if (path.includes("/edit")) {
         parts.push({ label: "تعديل بيانات العضو", to: path });
       } else if (path !== "/members") {

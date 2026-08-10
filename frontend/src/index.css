@@ -24,13 +24,23 @@
   --accent: #d4af37; /* Warm metallic gold */
   --accent-foreground: #0b1524;
   --muted: #f1f5f9;
-  --muted-foreground: #64748b; /* Cool gray slate */
-  --border: #e2e8f0;
-  --input: #e2e8f0;
+  /* Darkened from #64748b: that failed WCAG AA (4.34) against --secondary,
+     which is the background it sits on in tables and badges. 5.29 now. */
+  --muted-foreground: #586777; /* Cool gray slate */
+  --border: #e2e8f0; /* decorative card/section edges only */
+  /* Deliberately darker than --border: an input's boundary is the only
+     thing distinguishing it from the page (its fill is --card on a
+     near-identical --background), so it carries the WCAG 1.4.11
+     non-text-contrast burden that a decorative border doesn't. */
+  --input: #94a3b8;
   --ring: #0a2540;
-  --destructive: #ef4444;
+  /* red-500 #ef4444 scored 3.76 both as `text-destructive` (23 call sites)
+     and as white-on-red for the destructive button — both under 4.5. */
+  --destructive: #dc2626;
   --destructive-foreground: #ffffff;
-  --success: #10b981; /* Fresh emerald green */
+  /* emerald-500 #10b981 scored 2.54 as `text-success` (10 call sites);
+     emerald-600 still failed at 3.77, so this is emerald-700. */
+  --success: #047857;
   --sidebar: #ffffff;
   --sidebar-foreground: #0b1524;
   --sidebar-border: #e2e8f0;
@@ -51,8 +61,8 @@
   --accent-foreground: #060e1a;
   --muted: #1b263b;
   --muted-foreground: #94a3b8;
-  --border: #1e293b;
-  --input: #1e293b;
+  --border: #1e293b; /* decorative card/section edges only */
+  --input: #475569; /* see the light-mode note — form controls need a stronger edge */
   --ring: #d4af37;
   --destructive: #f87171;
   --destructive-foreground: #060e1a;
@@ -90,11 +100,68 @@
   --color-sidebar-primary: var(--sidebar-primary);
 
   --font-sans: "Cairo", ui-sans-serif, system-ui, sans-serif;
+
+  /* --- Typography scale -------------------------------------------------
+     Semantic Cairo size/line-height/weight pairs, so pages stop inventing
+     their own `text-xl font-black` combinations. `text-micro` in particular
+     formalizes the `text-[10px] font-bold` label pattern that had been
+     copy-pasted across nearly every card and table. */
+  --text-display: 2rem;
+  --text-display--line-height: 1.2;
+  --text-display--font-weight: 800;
+  --text-h1: 1.5rem;
+  --text-h1--line-height: 1.25;
+  --text-h1--font-weight: 800;
+  --text-h2: 1.125rem;
+  --text-h2--line-height: 1.35;
+  --text-h2--font-weight: 700;
+  --text-h3: 1rem;
+  --text-h3--line-height: 1.4;
+  --text-h3--font-weight: 700;
+  --text-body: 0.875rem;
+  --text-body--line-height: 1.6;
+  --text-caption: 0.75rem;
+  --text-caption--line-height: 1.5;
+  --text-caption--font-weight: 500;
+  --text-micro: 0.625rem;
+  --text-micro--line-height: 1.4;
+  --text-micro--font-weight: 700;
+
+  /* --- Radius scale --- semantic aliases over the raw rem values that
+     were being picked ad hoc (rounded-lg/xl/2xl) per component. */
+  --radius-control: 0.625rem; /* inputs, buttons */
+  --radius-card: 1rem; /* cards, panels */
+  --radius-panel: 1.25rem; /* dialogs, sheets */
+
+  /* --- Elevation --- */
+  --shadow-card: 0 1px 2px 0 rgb(11 21 36 / 0.04), 0 1px 3px 0 rgb(11 21 36 / 0.06);
+  --shadow-card-hover: 0 4px 12px -2px rgb(11 21 36 / 0.10), 0 2px 6px -2px rgb(11 21 36 / 0.06);
+  --shadow-overlay: 0 16px 48px -12px rgb(11 21 36 / 0.28);
+
+  /* --- Motion --- mirrored as JS constants in src/lib/motion.js; change
+     both together or GSAP timings will drift from the CSS ones. */
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-out-soft: cubic-bezier(0.33, 1, 0.68, 1);
+  --ease-in-out-soft: cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+/* Motion duration scale. Plain custom properties rather than @theme tokens
+   because they're consumed by hand-written CSS and read by lib/motion.js,
+   not as Tailwind `duration-*` utilities. */
+:root {
+  --duration-fast: 150ms;
+  --duration-base: 250ms;
+  --duration-slow: 400ms;
 }
 
 @layer base {
+  /* `transition-colors`, NOT `transition-all`: a universal transition-all
+     animates transform/opacity too, which (a) costs a style recalc on every
+     element and (b) fights GSAP — GSAP writes inline transforms each frame
+     and a CSS transition on the same property lags them by its duration.
+     Colors still transition so the dark-mode toggle stays smooth. */
   * {
-    @apply border-border/80 transition-all duration-200;
+    @apply border-border/80 transition-colors duration-200;
   }
 
   body {
@@ -154,6 +221,23 @@
 
 .pulse-glow {
   animation: pulseGlow 2s infinite ease-in-out;
+}
+
+/* Reduced motion. Covers everything CSS-driven; GSAP is handled separately
+   in JS (src/lib/motion.js::prefersReducedMotion) because inline styles set
+   by GSAP aren't affected by these declarations. Animations are reduced to
+   a near-zero duration rather than `animation: none` so that animations
+   which end in a visible state (fade-in ending at opacity 1) still land on
+   that state instead of never running and leaving content invisible. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 
 /* Custom Arabic Scrollbars */
