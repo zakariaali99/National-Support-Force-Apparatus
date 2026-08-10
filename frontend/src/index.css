@@ -13,65 +13,55 @@
    than fixed values) so utilities like `bg-background` stay reactive
    across the toggle instead of being locked in at build time. */
 :root {
-  --background: #f8fafc; /* Clean slate light gray background */
-  --foreground: #0b1524; /* Deep navy text */
+  --background: #f8fafc; /* Crisp slate background */
+  --foreground: #0f172a; /* Deep charcoal navy text */
   --card: #ffffff;
-  --card-foreground: #0b1524;
-  --primary: #0a2540; /* Executive dark navy primary */
+  --card-foreground: #0f172a;
+  --primary: #2563eb; /* Vibrant Hero UI Royal Blue */
   --primary-foreground: #ffffff;
   --secondary: #f1f5f9; /* Soft slate gray */
-  --secondary-foreground: #0b1524;
-  --accent: #d4af37; /* Warm metallic gold */
-  --accent-foreground: #0b1524;
+  --secondary-foreground: #0f172a;
+  --accent: #f59e0b; /* Vibrant Hero Amber */
+  --accent-foreground: #0f172a;
   --muted: #f1f5f9;
-  /* Darkened from #64748b: that failed WCAG AA (4.34) against --secondary,
-     which is the background it sits on in tables and badges. 5.29 now. */
-  --muted-foreground: #586777; /* Cool gray slate */
-  --border: #e2e8f0; /* decorative card/section edges only */
-  /* Deliberately darker than --border: an input's boundary is the only
-     thing distinguishing it from the page (its fill is --card on a
-     near-identical --background), so it carries the WCAG 1.4.11
-     non-text-contrast burden that a decorative border doesn't. */
-  --input: #94a3b8;
-  --ring: #0a2540;
-  /* red-500 #ef4444 scored 3.76 both as `text-destructive` (23 call sites)
-     and as white-on-red for the destructive button — both under 4.5. */
-  --destructive: #dc2626;
+  --muted-foreground: #64748b; /* Cool slate */
+  --border: #e2e8f0;
+  --input: #cbd5e1;
+  --ring: #2563eb;
+  --destructive: #ef4444;
   --destructive-foreground: #ffffff;
-  /* emerald-500 #10b981 scored 2.54 as `text-success` (10 call sites);
-     emerald-600 still failed at 3.77, so this is emerald-700. */
-  --success: #047857;
+  --success: #10b981;
   --sidebar: #ffffff;
-  --sidebar-foreground: #0b1524;
-  --sidebar-border: #e2e8f0;
+  --sidebar-foreground: #0f172a;
+  --sidebar-border: #f1f5f9;
   --sidebar-accent: #f8fafc;
-  --sidebar-primary: #0a2540;
+  --sidebar-primary: #2563eb;
 }
 
 .dark {
-  --background: #060e1a; /* True night navy background */
-  --foreground: #f8fafc; /* Crisp light gray text */
-  --card: #0d1b2a; /* Deep glass navy card bg */
+  --background: #090d16; /* Deep Hero Dark Midnight */
+  --foreground: #f8fafc; /* Crisp white text */
+  --card: #0f172a; /* Sleek Hero Glass Navy Card */
   --card-foreground: #f8fafc;
-  --primary: #d4af37; /* Metallic gold as primary in dark mode */
-  --primary-foreground: #060e1a;
-  --secondary: #1b263b;
+  --primary: #3b82f6; /* Hero Blue Glow in dark mode */
+  --primary-foreground: #ffffff;
+  --secondary: #1e293b;
   --secondary-foreground: #f8fafc;
-  --accent: #d4af37;
-  --accent-foreground: #060e1a;
-  --muted: #1b263b;
+  --accent: #fbbf24;
+  --accent-foreground: #090d16;
+  --muted: #1e293b;
   --muted-foreground: #94a3b8;
-  --border: #1e293b; /* decorative card/section edges only */
-  --input: #475569; /* see the light-mode note — form controls need a stronger edge */
-  --ring: #d4af37;
+  --border: #1e293b;
+  --input: #334155;
+  --ring: #3b82f6;
   --destructive: #f87171;
-  --destructive-foreground: #060e1a;
+  --destructive-foreground: #090d16;
   --success: #34d399;
-  --sidebar: #09111e;
+  --sidebar: #0b1120;
   --sidebar-foreground: #f8fafc;
   --sidebar-border: #1e293b;
-  --sidebar-accent: #1b263b;
-  --sidebar-primary: #d4af37;
+  --sidebar-accent: #1e293b;
+  --sidebar-primary: #3b82f6;
 }
 
 @theme inline {
