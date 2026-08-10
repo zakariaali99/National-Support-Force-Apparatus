@@ -52,7 +52,7 @@ export function useAssignableUsers() {
 export function useMemberNotes(memberId) {
   return useQuery({
     queryKey: ["member-notes", memberId],
-    queryFn: async () => (await api.get("member-notes/", { params: { member: memberId } })).data,
+    queryFn: async () => (await api.get("member-notes/", { params: { member: memberId } })).data.results ?? [],
     enabled: Boolean(memberId),
   });
 }
@@ -81,7 +81,7 @@ export function useDeleteMemberNote(memberId) {
 export function useMemberTasks(memberId) {
   return useQuery({
     queryKey: ["member-tasks", memberId],
-    queryFn: async () => (await api.get("member-tasks/", { params: { member: memberId } })).data,
+    queryFn: async () => (await api.get("member-tasks/", { params: { member: memberId } })).data.results ?? [],
     enabled: Boolean(memberId),
   });
 }
@@ -89,7 +89,7 @@ export function useMemberTasks(memberId) {
 export function useMyTasks() {
   return useQuery({
     queryKey: ["member-tasks", "mine"],
-    queryFn: async () => (await api.get("member-tasks/", { params: { assigned_to_me: 1 } })).data,
+    queryFn: async () => (await api.get("member-tasks/", { params: { assigned_to_me: 1 } })).data.results ?? [],
   });
 }
 
@@ -127,7 +127,7 @@ export function useDeleteMemberTask(memberId) {
 export function useMemberEvaluations(memberId) {
   return useQuery({
     queryKey: ["member-evaluations", memberId],
-    queryFn: async () => (await api.get("member-evaluations/", { params: { member: memberId } })).data,
+    queryFn: async () => (await api.get("member-evaluations/", { params: { member: memberId } })).data.results ?? [],
     enabled: Boolean(memberId),
   });
 }
@@ -156,7 +156,7 @@ export function useDeleteMemberEvaluation(memberId) {
 export function useVacationRequests(memberId) {
   return useQuery({
     queryKey: ["vacation-requests", memberId],
-    queryFn: async () => (await api.get("vacation-requests/", { params: { member: memberId } })).data,
+    queryFn: async () => (await api.get("vacation-requests/", { params: { member: memberId } })).data.results ?? [],
     enabled: Boolean(memberId),
   });
 }
@@ -164,7 +164,7 @@ export function useVacationRequests(memberId) {
 export function useVacationTransactions(memberId) {
   return useQuery({
     queryKey: ["vacation-transactions", memberId],
-    queryFn: async () => (await api.get("vacation-transactions/", { params: { member: memberId } })).data,
+    queryFn: async () => (await api.get("vacation-transactions/", { params: { member: memberId } })).data.results ?? [],
     enabled: Boolean(memberId),
   });
 }

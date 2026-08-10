@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Printer, Download, Loader2 } from "lucide-react";
 
 import { Button } from "../../components/ui/Button";
@@ -11,6 +11,7 @@ import {
   DialogTrigger,
 } from "../../components/ui/Dialog";
 import { showToast } from "../../components/ui/Toast";
+import { staggerIn } from "../../lib/motion";
 import { useReportSections, openAuthedPdf, downloadAuthedFile } from "../reports/api";
 import { useMemberDocuments } from "./api";
 
@@ -20,6 +21,16 @@ export function PrintDialog({ member }) {
   const [selectedSections, setSelectedSections] = useState(() => new Set(["profile"]));
   const [selectedDocuments, setSelectedDocuments] = useState(() => new Set());
   const [busy, setBusy] = useState(false);
+  const checklistRef = useRef(null);
+
+  useEffect(() => {
+    if (checklistRef.current && sections.length > 0) {
+      const tween = staggerIn(checklistRef.current.querySelectorAll("label"), { y: 8, duration: 0.2 });
+      return () => {
+        if (tween) tween.kill();
+      };
+    }
+  }, [sections.length, documents.length]);
 
   function toggle(set, setSet, key) {
     const next = new Set(set);
@@ -75,7 +86,7 @@ export function PrintDialog({ member }) {
           <DialogTitle>طباعة ملف العضو</DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-4 max-h-[50vh] overflow-y-auto pe-1">
+        <div ref={checklistRef} className="space-y-4 max-h-[50vh] overflow-y-auto pe-1">
           <div className="flex items-center justify-between">
             <p className="text-xs font-bold text-foreground">الأقسام</p>
             <button type="button" onClick={selectAll} className="text-[10px] font-bold text-primary hover:opacity-80">
@@ -84,12 +95,12 @@ export function PrintDialog({ member }) {
           </div>
           <div className="space-y-1.5">
             {sections.map((s) => (
-              <label key={s.key} className="flex items-center gap-2 text-sm cursor-pointer">
+              <label key={s.key} className="flex items-center gap-2 text-sm cursor-pointer hover:text-primary transition-colors">
                 <input
                   type="checkbox"
                   checked={selectedSections.has(s.key)}
                   onChange={() => toggle(selectedSections, setSelectedSections, s.key)}
-                  className="h-4 w-4 rounded border-input"
+                  className="h-4 w-4 rounded border-input text-primary focus:ring-primary"
                 />
                 {s.label_ar}
               </label>
@@ -101,12 +112,12 @@ export function PrintDialog({ member }) {
               <p className="text-xs font-bold text-foreground pt-2 border-t border-border/50">المستندات المرفقة</p>
               <div className="space-y-1.5">
                 {documents.map((d) => (
-                  <label key={d.id} className="flex items-center gap-2 text-sm cursor-pointer">
+                  <label key={d.id} className="flex items-center gap-2 text-sm cursor-pointer hover:text-primary transition-colors">
                     <input
                       type="checkbox"
                       checked={selectedDocuments.has(d.id)}
                       onChange={() => toggle(selectedDocuments, setSelectedDocuments, d.id)}
-                      className="h-4 w-4 rounded border-input"
+                      className="h-4 w-4 rounded border-input text-primary focus:ring-primary"
                     />
                     {d.document_type_name}
                   </label>

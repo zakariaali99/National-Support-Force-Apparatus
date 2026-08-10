@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader } from "../../components/ui/Card";
 import { Input } from "../../components/ui/Input";
 import { Label } from "../../components/ui/Label";
 import { Select } from "../../components/ui/Select";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "../../components/ui/Tabs";
 import { Textarea } from "../../components/ui/Textarea";
 import { showToast } from "../../components/ui/Toast";
 import { formatDate, formatDateTime, formatNumber } from "../../lib/format";
@@ -37,34 +38,33 @@ const TABS = [
 ];
 
 export function ProfileExtras({ member }) {
-  const [tab, setTab] = useState("notes");
-
   return (
     <Card>
-      <CardHeader className="pb-0 border-b border-border/50">
-        <div className="flex items-center gap-1 overflow-x-auto">
-          {TABS.map((t) => (
-            <button
-              key={t.key}
-              type="button"
-              onClick={() => setTab(t.key)}
-              className={`px-3.5 py-2.5 text-xs font-bold border-b-2 whitespace-nowrap transition-colors ${
-                tab === t.key
-                  ? "border-primary text-primary"
-                  : "border-transparent text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              {t.label}
-            </button>
-          ))}
-        </div>
-      </CardHeader>
-      <CardContent className="p-6">
-        {tab === "notes" && <NotesTab member={member} />}
-        {tab === "tasks" && <TasksTab member={member} />}
-        {tab === "evaluations" && <EvaluationsTab member={member} />}
-        {tab === "vacation" && <VacationTab member={member} />}
-      </CardContent>
+      <Tabs defaultValue="notes" className="w-full">
+        <CardHeader className="pb-0 border-b border-border/50">
+          <TabsList className="w-full justify-start">
+            {TABS.map((t) => (
+              <TabsTrigger key={t.key} value={t.key}>
+                {t.label}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+        </CardHeader>
+        <CardContent className="p-6">
+          <TabsContent value="notes">
+            <NotesTab member={member} />
+          </TabsContent>
+          <TabsContent value="tasks">
+            <TasksTab member={member} />
+          </TabsContent>
+          <TabsContent value="evaluations">
+            <EvaluationsTab member={member} />
+          </TabsContent>
+          <TabsContent value="vacation">
+            <VacationTab member={member} />
+          </TabsContent>
+        </CardContent>
+      </Tabs>
     </Card>
   );
 }

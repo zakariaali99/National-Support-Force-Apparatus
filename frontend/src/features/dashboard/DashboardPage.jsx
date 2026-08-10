@@ -1,3 +1,4 @@
+import { useEffect, useState, useRef } from "react";
 import { Link } from "react-router-dom";
 import { Users, UserCheck, ShieldAlert, Building2, UserPlus, Rss, ArrowLeft, ArrowUpRight } from "lucide-react";
 
@@ -6,11 +7,26 @@ import { useMembers } from "../members/api";
 import { factionsApi } from "../organization/api";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../components/ui/Card";
 import { Skeleton } from "../../components/ui/Skeleton";
-import { formatDate } from "../../lib/format";
+import { formatDate, formatNumber } from "../../lib/format";
+import { countUp, staggerIn } from "../../lib/motion";
+
+function AnimatedKpiValue({ value }) {
+  const [displayVal, setDisplayVal] = useState(0);
+
+  useEffect(() => {
+    const tween = countUp(value, setDisplayVal);
+    return () => {
+      if (tween) tween.kill();
+    };
+  }, [value]);
+
+  return <>{formatNumber(displayVal)}</>;
+}
 
 export function DashboardPage() {
   const { user } = useAuth();
   const displayName = [user?.first_name, user?.last_name].filter(Boolean).join(" ") || user?.username;
+  const cardsRef = useRef(null);
 
   // 1. Fetch KPI stats dynamically
   const { data: totalData, isLoading: isTotalLoading } = useMembers({ page_size: 1 });
@@ -21,6 +37,17 @@ export function DashboardPage() {
   // 2. Fetch recent members
   const { data: recentData, isLoading: isRecentLoading } = useMembers({ page_size: 5, ordering: "-created_at" });
   const recentMembers = recentData?.results || [];
+
+  const isAnyLoading = isTotalLoading || isActiveLoading || isPendingLoading || isFactionsLoading;
+
+  useEffect(() => {
+    if (!isAnyLoading && cardsRef.current) {
+      const tween = staggerIn(cardsRef.current.children, { y: 15, duration: 0.3 });
+      return () => {
+        if (tween) tween.kill();
+      };
+    }
+  }, [isAnyLoading]);
 
   const stats = [
     {
@@ -70,7 +97,7 @@ export function DashboardPage() {
       </div>
 
       {/* KPI Stats Grid */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div ref={cardsRef} className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {stats.map((stat, idx) => {
           const Icon = stat.icon;
           return (
@@ -83,7 +110,7 @@ export function DashboardPage() {
                   ) : (
                     <div className="flex items-center gap-2">
                       <h2 className="text-2xl font-extrabold tracking-tight text-foreground">
-                        {stat.value}
+                        <AnimatedKpiValue value={stat.value} />
                       </h2>
                       {stat.pulse && (
                         <span className="relative flex h-2.5 w-2.5">
