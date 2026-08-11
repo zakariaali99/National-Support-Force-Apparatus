@@ -1,5 +1,4 @@
 import { useState } from "react";
-
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Pencil, Plus, Trash2 } from "lucide-react";
 import { useForm } from "react-hook-form";
@@ -17,14 +16,19 @@ import { useAuth } from "../auth/AuthContext";
 import { factionsApi } from "./api";
 
 const schema = z.object({
-  code: z
-    .string()
-    .min(1, "الرمز مطلوب")
-    .regex(/^[a-z0-9-]+$/, "أحرف إنجليزية صغيرة وأرقام وشرطات فقط"),
   name_ar: z.string().min(1, "الاسم مطلوب"),
   description: z.string().optional(),
   is_active: z.boolean(),
 });
+
+function generateSlug(text) {
+  return (
+    text
+      .toLowerCase()
+      .replace(/[\s\W]+/g, "-")
+      .replace(/^-+|-+$/g, "") || `faction-${Date.now()}`
+  );
+}
 
 export function FactionsPage() {
   const { hasPermission } = useAuth();
@@ -39,17 +43,16 @@ export function FactionsPage() {
 
   const form = useForm({
     resolver: zodResolver(schema),
-    defaultValues: { code: "", name_ar: "", description: "", is_active: true },
+    defaultValues: { name_ar: "", description: "", is_active: true },
   });
 
   function openCreate() {
-    form.reset({ code: "", name_ar: "", description: "", is_active: true });
+    form.reset({ name_ar: "", description: "", is_active: true });
     setDialogState("create");
   }
 
   function openEdit(faction) {
     form.reset({
-      code: faction.code,
       name_ar: faction.name_ar,
       description: faction.description ?? "",
       is_active: faction.is_active,
@@ -59,9 +62,11 @@ export function FactionsPage() {
 
   async function onSubmit(values) {
     if (dialogState === "create") {
-      await createFaction.mutateAsync(values);
+      const code = generateSlug(values.name_ar);
+      await createFaction.mutateAsync({ ...values, code });
     } else {
-      await updateFaction.mutateAsync({ id: dialogState.id, ...values });
+      const code = dialogState.code || generateSlug(values.name_ar);
+      await updateFaction.mutateAsync({ id: dialogState.id, ...values, code });
     }
     setDialogState(null);
   }
@@ -73,13 +78,13 @@ export function FactionsPage() {
   }
 
   const columns = [
-    { key: "name_ar", label: "الاسم" },
-    { key: "code", label: "الرمز" },
+    { key: "name_ar", label: "اسم الفصيل / الإدارة" },
+    { key: "description", label: "الوصف والمهام" },
     {
       key: "is_active",
       label: "الحالة",
       render: (row) => (
-        <span className={row.is_active ? "text-success" : "text-muted-foreground"}>
+        <span className={row.is_active ? "text-success font-bold" : "text-muted-foreground"}>
           {row.is_active ? "مفعّل" : "معطّل"}
         </span>
       ),
@@ -95,7 +100,7 @@ export function FactionsPage() {
                   <Pencil className="h-4 w-4" />
                 </Button>
                 <Button variant="ghost" size="icon" onClick={() => onDelete(row)} aria-label="حذف">
-                  <Trash2 className="h-4 w-4" />
+                  <Trash2 className="h-4 w-4 text-destructive" />
                 </Button>
               </div>
             ),
@@ -106,50 +111,43 @@ export function FactionsPage() {
 
   return (
     <div className="space-y-4">
-      <Card>
-        <CardHeader className="flex-row items-center justify-between space-y-0">
+      <Card className="rounded-2xl border border-border/80 shadow-sm">
+        <CardHeader className="flex-row items-center justify-between space-y-0 pb-4">
           <div>
-            <CardTitle>الفصائل</CardTitle>
-            <CardDescription>الأقسام/الوحدات التي ينتمي إليها الأعضاء</CardDescription>
+            <CardTitle className="text-xl font-bold">فصائل وإدارات الجهاز</CardTitle>
+            <CardDescription className="text-xs">الأقسام والوحدات التنفيذية التي ينتمي إليها أعضاء القوة المساندة</CardDescription>
           </div>
           {canManage && (
-            <Button onClick={openCreate} size="sm">
-              <Plus className="h-4 w-4" />
-              إضافة فصيل
+            <Button onClick={openCreate} size="sm" className="shadow-xs">
+              <Plus className="h-4 w-4 me-1.5" />
+              إضافة فصيل جديد
             </Button>
           )}
         </CardHeader>
         <CardContent>
-          <DataTable columns={columns} rows={factions} isLoading={isLoading} emptyMessage="لا توجد فصائل بعد" />
+          <DataTable columns={columns} rows={factions} isLoading={isLoading} emptyMessage="لا توجد فصائل مسجلة بعد" />
         </CardContent>
       </Card>
 
       <Dialog open={Boolean(dialogState)} onOpenChange={(open) => !open && setDialogState(null)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{dialogState === "create" ? "إضافة فصيل" : "تعديل الفصيل"}</DialogTitle>
+            <DialogTitle>{dialogState === "create" ? "إضافة فصيل جديد" : "تعديل بيانات الفصيل"}</DialogTitle>
           </DialogHeader>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-2">
             <div className="space-y-1.5">
-              <Label htmlFor="faction-name">الاسم</Label>
-              <Input id="faction-name" {...form.register("name_ar")} />
+              <Label htmlFor="faction-name">اسم الفصيل / الإدارة</Label>
+              <Input id="faction-name" placeholder="اسم الفصيل بالعربية..." {...form.register("name_ar")} />
               {form.formState.errors.name_ar && (
                 <p className="text-xs text-destructive">{form.formState.errors.name_ar.message}</p>
               )}
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="faction-code">الرمز</Label>
-              <Input id="faction-code" dir="ltr" {...form.register("code")} />
-              {form.formState.errors.code && (
-                <p className="text-xs text-destructive">{form.formState.errors.code.message}</p>
-              )}
+              <Label htmlFor="faction-description">الوصف والمهام الفرعية</Label>
+              <Textarea id="faction-description" placeholder="اختياري..." {...form.register("description")} />
             </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="faction-description">الوصف</Label>
-              <Textarea id="faction-description" {...form.register("description")} />
-            </div>
-            <div className="flex items-center justify-between">
-              <Label htmlFor="faction-active">مفعّل</Label>
+            <div className="flex items-center justify-between pt-2">
+              <Label htmlFor="faction-active">تفعيل الفصيل في النظام</Label>
               <Switch
                 id="faction-active"
                 checked={form.watch("is_active")}

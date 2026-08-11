@@ -1,5 +1,4 @@
 import { useState } from "react";
-
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Pencil, Plus, Trash2 } from "lucide-react";
 import { useForm } from "react-hook-form";
@@ -16,14 +15,19 @@ import { useAuth } from "../auth/AuthContext";
 import { ranksApi } from "./api";
 
 const schema = z.object({
-  code: z
-    .string()
-    .min(1, "الرمز مطلوب")
-    .regex(/^[a-z0-9-]+$/, "أحرف إنجليزية صغيرة وأرقام وشرطات فقط"),
   name_ar: z.string().min(1, "الاسم مطلوب"),
   order: z.coerce.number().int().min(0),
   is_active: z.boolean(),
 });
+
+function generateSlug(text) {
+  return (
+    text
+      .toLowerCase()
+      .replace(/[\s\W]+/g, "-")
+      .replace(/^-+|-+$/g, "") || `rank-${Date.now()}`
+  );
+}
 
 export function RanksPage() {
   const { hasPermission } = useAuth();
@@ -34,22 +38,20 @@ export function RanksPage() {
   const updateRank = ranksApi.useUpdate();
   const removeRank = ranksApi.useRemove();
 
-  // null = closed, "create" = create mode, a rank object = editing that rank
   const [dialogState, setDialogState] = useState(null);
 
   const form = useForm({
     resolver: zodResolver(schema),
-    defaultValues: { code: "", name_ar: "", order: 0, is_active: true },
+    defaultValues: { name_ar: "", order: 0, is_active: true },
   });
 
   function openCreate() {
-    form.reset({ code: "", name_ar: "", order: ranks.length, is_active: true });
+    form.reset({ name_ar: "", order: ranks.length, is_active: true });
     setDialogState("create");
   }
 
   function openEdit(rank) {
     form.reset({
-      code: rank.code,
       name_ar: rank.name_ar,
       order: rank.order,
       is_active: rank.is_active,
@@ -59,9 +61,11 @@ export function RanksPage() {
 
   async function onSubmit(values) {
     if (dialogState === "create") {
-      await createRank.mutateAsync(values);
+      const code = generateSlug(values.name_ar);
+      await createRank.mutateAsync({ ...values, code });
     } else {
-      await updateRank.mutateAsync({ id: dialogState.id, ...values });
+      const code = dialogState.code || generateSlug(values.name_ar);
+      await updateRank.mutateAsync({ id: dialogState.id, ...values, code });
     }
     setDialogState(null);
   }
@@ -73,14 +77,13 @@ export function RanksPage() {
   }
 
   const columns = [
-    { key: "name_ar", label: "الاسم" },
-    { key: "code", label: "الرمز" },
-    { key: "order", label: "الترتيب" },
+    { key: "name_ar", label: "اسم الرتبة" },
+    { key: "order", label: "الترتيب القياسي" },
     {
       key: "is_active",
       label: "الحالة",
       render: (row) => (
-        <span className={row.is_active ? "text-success" : "text-muted-foreground"}>
+        <span className={row.is_active ? "text-success font-bold" : "text-muted-foreground"}>
           {row.is_active ? "مفعّلة" : "معطّلة"}
         </span>
       ),
@@ -96,7 +99,7 @@ export function RanksPage() {
                   <Pencil className="h-4 w-4" />
                 </Button>
                 <Button variant="ghost" size="icon" onClick={() => onDelete(row)} aria-label="حذف">
-                  <Trash2 className="h-4 w-4" />
+                  <Trash2 className="h-4 w-4 text-destructive" />
                 </Button>
               </div>
             ),
@@ -107,50 +110,43 @@ export function RanksPage() {
 
   return (
     <div className="space-y-4">
-      <Card>
-        <CardHeader className="flex-row items-center justify-between space-y-0">
+      <Card className="rounded-2xl border border-border/80 shadow-sm">
+        <CardHeader className="flex-row items-center justify-between space-y-0 pb-4">
           <div>
-            <CardTitle>الرتب</CardTitle>
-            <CardDescription>الرتب المتاحة لأعضاء الجهاز</CardDescription>
+            <CardTitle className="text-xl font-bold">رتب القوة</CardTitle>
+            <CardDescription className="text-xs">إدارة الرتب التسلسلية لأعضاء الجهاز الوطني</CardDescription>
           </div>
           {canManage && (
-            <Button onClick={openCreate} size="sm">
-              <Plus className="h-4 w-4" />
+            <Button onClick={openCreate} size="sm" className="shadow-xs">
+              <Plus className="h-4 w-4 me-1.5" />
               إضافة رتبة
             </Button>
           )}
         </CardHeader>
         <CardContent>
-          <DataTable columns={columns} rows={ranks} isLoading={isLoading} emptyMessage="لا توجد رتب بعد" />
+          <DataTable columns={columns} rows={ranks} isLoading={isLoading} emptyMessage="لا توجد رتب مسجلة بعد" />
         </CardContent>
       </Card>
 
       <Dialog open={Boolean(dialogState)} onOpenChange={(open) => !open && setDialogState(null)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{dialogState === "create" ? "إضافة رتبة" : "تعديل الرتبة"}</DialogTitle>
+            <DialogTitle>{dialogState === "create" ? "إضافة رتبة جديدة" : "تعديل بيانات الرتبة"}</DialogTitle>
           </DialogHeader>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-2">
             <div className="space-y-1.5">
-              <Label htmlFor="rank-name">الاسم</Label>
-              <Input id="rank-name" {...form.register("name_ar")} />
+              <Label htmlFor="rank-name">اسم الرتبة</Label>
+              <Input id="rank-name" placeholder="مثال: ملازم أول، عميد، ..." {...form.register("name_ar")} />
               {form.formState.errors.name_ar && (
                 <p className="text-xs text-destructive">{form.formState.errors.name_ar.message}</p>
               )}
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="rank-code">الرمز</Label>
-              <Input id="rank-code" dir="ltr" {...form.register("code")} />
-              {form.formState.errors.code && (
-                <p className="text-xs text-destructive">{form.formState.errors.code.message}</p>
-              )}
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="rank-order">الترتيب</Label>
+              <Label htmlFor="rank-order">رقم الترتيب التسلسلي</Label>
               <Input id="rank-order" type="number" {...form.register("order")} />
             </div>
-            <div className="flex items-center justify-between">
-              <Label htmlFor="rank-active">مفعّلة</Label>
+            <div className="flex items-center justify-between pt-2">
+              <Label htmlFor="rank-active">تفعيل الرتبة للنظام</Label>
               <Switch
                 id="rank-active"
                 checked={form.watch("is_active")}

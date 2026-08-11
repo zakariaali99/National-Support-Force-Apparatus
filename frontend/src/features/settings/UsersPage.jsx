@@ -2,8 +2,9 @@ import { useState } from "react";
 import { Plus, Trash2 } from "lucide-react";
 
 import { Button } from "../../components/ui/Button";
-import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/Card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "../../components/ui/Card";
 import { DataTable } from "../../components/ui/DataTable";
+import { Pagination } from "../../components/ui/Pagination";
 import {
   Dialog,
   DialogContent,
@@ -23,12 +24,13 @@ import {
   useUsers,
 } from "./api";
 
-
 export function UsersPage() {
-  const params = { page_size: 100 };
-  const { data: usersData, isLoading: isUsersLoading } = useUsers(params);
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
 
+  const { data: usersData, isLoading: isUsersLoading } = useUsers({ page, page_size: pageSize });
   const users = usersData?.results || [];
+  const totalCount = usersData?.count || 0;
 
   const { data: rolesData } = useRoles({ page_size: 100 });
   const roles = rolesData?.results || [];
@@ -262,19 +264,28 @@ export function UsersPage() {
         </Button>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>مستخدمو النظام</CardTitle>
+      <Card className="rounded-2xl border border-border/80 shadow-sm">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-xl font-bold">حسابات مستخدمي النظام</CardTitle>
+          <CardDescription className="text-xs">قائمة الحسابات المخولة للدخول وإدارة بيانات الجهاز</CardDescription>
         </CardHeader>
         <CardContent>
           <DataTable
             columns={columns}
             rows={users}
             isLoading={isUsersLoading}
-            emptyMessage="لا يوجد مستخدمون مضافون"
+            emptyMessage="لا يوجد مستخدمون مسجلون بعد"
           />
         </CardContent>
       </Card>
+
+      <Pagination
+        page={page}
+        pageSize={pageSize}
+        totalCount={totalCount}
+        onPageChange={setPage}
+        onPageSizeChange={setPageSize}
+      />
 
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
         <DialogContent className="w-[min(92vw,36rem)] max-h-[85vh] overflow-y-auto">

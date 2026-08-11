@@ -1,5 +1,7 @@
 # Frontend Visual/UX Rebuild — Plan
 
+> **RETIRED** — superseded by `plans/ui-rebuild-finish-plan.md`. Retained for reference.
+
 ## Context
 
 The app already has a working design system (navy/gold theme, glass-morphism

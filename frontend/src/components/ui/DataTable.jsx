@@ -1,25 +1,26 @@
 import { Skeleton } from "./Skeleton";
+import { cn } from "../../lib/utils";
 
-export function DataTable({ columns, rows, isLoading, emptyMessage = "لا توجد بيانات" }) {
+export function DataTable({ columns, rows, isLoading, emptyMessage = "لا توجد بيانات مسجلة" }) {
   if (isLoading) {
     return (
-      <div className="overflow-x-auto rounded-lg border border-border">
+      <div className="overflow-hidden rounded-2xl border border-border/80 bg-card shadow-sm">
         <table className="w-full text-sm">
-          <thead className="bg-secondary text-secondary-foreground">
+          <thead className="bg-secondary/60 text-foreground border-b border-border/60">
             <tr>
               {columns.map((col) => (
-                <th key={col.key} className="px-4 py-3 text-start font-medium">
+                <th key={col.key} className={cn("px-4 py-3.5 text-start font-bold text-xs uppercase tracking-wider text-muted-foreground", col.className)}>
                   {col.label}
                 </th>
               ))}
             </tr>
           </thead>
-          <tbody className="divide-y divide-border">
+          <tbody className="divide-y divide-border/60">
             {Array.from({ length: 5 }).map((_, rIdx) => (
-              <tr key={rIdx} className="hover:bg-secondary/50">
+              <tr key={rIdx}>
                 {columns.map((col) => (
-                  <td key={col.key} className="px-4 py-3">
-                    <Skeleton className="h-4 w-5/6" />
+                  <td key={col.key} className="px-4 py-3.5">
+                    <Skeleton className="h-4 w-4/5 rounded-md" />
                   </td>
                 ))}
               </tr>
@@ -29,27 +30,52 @@ export function DataTable({ columns, rows, isLoading, emptyMessage = "لا تو�
       </div>
     );
   }
-  if (!rows.length) {
-    return <div className="p-8 text-center text-sm text-muted-foreground">{emptyMessage}</div>;
+
+  if (!rows || rows.length === 0) {
+    return (
+      <div className="rounded-2xl border border-border/80 bg-card p-12 text-center shadow-sm">
+        <p className="text-sm font-medium text-muted-foreground">{emptyMessage}</p>
+      </div>
+    );
   }
+
   return (
-    <div className="overflow-x-auto rounded-lg border border-border">
-      <table className="w-full text-sm">
-        <thead className="bg-secondary text-secondary-foreground">
+    <div className="overflow-x-auto rounded-2xl border border-border/80 bg-card shadow-sm scrollbar-thin">
+      <table className="w-full text-sm border-collapse">
+        <thead className="bg-secondary/60 border-b border-border/80 text-foreground sticky top-0 backdrop-blur-md">
           <tr>
             {columns.map((col) => (
-              <th key={col.key} className="px-4 py-2.5 text-start font-medium">
+              <th
+                key={col.key}
+                className={cn(
+                  "px-4 py-3.5 text-start font-bold text-xs text-muted-foreground tracking-wider uppercase whitespace-nowrap",
+                  col.align === "center" && "text-center",
+                  col.align === "end" && "text-end",
+                  col.className
+                )}
+              >
                 {col.label}
               </th>
             ))}
           </tr>
         </thead>
-        <tbody className="divide-y divide-border">
-          {rows.map((row) => (
-            <tr key={row.id} className="hover:bg-secondary/50">
+        <tbody className="divide-y divide-border/60 bg-card">
+          {rows.map((row, rIdx) => (
+            <tr
+              key={row.id || rIdx}
+              className="hover:bg-secondary/40 transition-colors group"
+            >
               {columns.map((col) => (
-                <td key={col.key} className="px-4 py-2.5">
-                  {col.render ? col.render(row) : row[col.key]}
+                <td
+                  key={col.key}
+                  className={cn(
+                    "px-4 py-3.5 align-middle text-foreground font-medium whitespace-nowrap",
+                    col.align === "center" && "text-center",
+                    col.align === "end" && "text-end",
+                    col.cellClassName
+                  )}
+                >
+                  {col.render ? col.render(row) : row[col.key] ?? "—"}
                 </td>
               ))}
             </tr>

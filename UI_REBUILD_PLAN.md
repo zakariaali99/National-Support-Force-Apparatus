@@ -1,6 +1,10 @@
 # UI Rebuild — From Scratch
 
-**Status:** proposed, awaiting approval
+> **RETIRED** — superseded by `plans/ui-rebuild-finish-plan.md`. Retained for
+> reference. Its Phases 1–2 landed (tokens + primitives); the remaining phases
+> are executed under the new plan.
+
+**Status:** retired
 **Supersedes:** `FRONTEND_REBUILD_PLAN.md` (Phases A–F, partially executed — see "What actually landed" below)
 **Does not touch:** `PLAN.md` (backend). No API contract changes.
 
