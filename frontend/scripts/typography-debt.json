@@ -9,7 +9,7 @@
   "src/components/ui/Dialog.jsx": 2,
   "src/components/ui/Input.jsx": 1,
   "src/components/ui/Label.jsx": 1,
-  "src/components/ui/Select.jsx": 1,
+  "src/components/ui/Select.jsx": 0,
   "src/components/ui/Textarea.jsx": 1,
   "src/components/ui/Toast.jsx": 1,
   "src/features/audit/AuditPage.jsx": 2,
