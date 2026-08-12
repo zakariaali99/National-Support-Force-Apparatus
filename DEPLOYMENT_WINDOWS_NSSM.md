@@ -12,8 +12,8 @@
    - قم بتنزيله من [python.org](https://www.python.org/downloads/).
    - ⚠️ **هام جداً**: تأكد من تفعيل خيار **"Add Python to PATH"** عند التثبيت.
 
-2. **Node.js (الإصدار 18 أو أحدث)**:
-   - قم بتنزيله من [nodejs.org](https://nodejs.org/).
+2. **Node.js**:
+   - ⚡ **غير مطلوب على جهاز الويندوز**: واجهة المستعرض React SPA مضمنة ومبنية مسبقاً داخل المشروع (`frontend/dist`). يتم التشغيل بالكامل عبر خادم Python فقط.
 
 3. **أداة NSSM (Non-Sucking Service Manager)**:
    - قم بتنزيل الأداة من [nssm.cc/download](https://nssm.cc/download).

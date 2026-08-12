@@ -17,14 +17,6 @@ if %errorlevel% neq 0 (
     exit /b 1
 )
 
-REM 2. Check Node.js
-node --version >nul 2>&1
-if %errorlevel% neq 0 (
-    echo [ERROR] Node.js is not installed or not in PATH! Please install Node.js 18+ first.
-    pause
-    exit /b 1
-)
-
 echo [1/4] Setting up Python Virtual Environment (backend/venv)...
 if not exist "backend\venv" (
     python -m venv backend\venv
@@ -42,17 +34,16 @@ if exist "backend\wheels" (
 )
 
 echo.
-echo [3/4] Building Frontend SPA Application (frontend/dist)...
-cd frontend
-if exist "node_modules" (
-    echo Existing node_modules found. Building frontend...
-    call npm run build
+echo [3/4] Verifying Pre-Built Frontend SPA Application (frontend/dist)...
+if exist "frontend\dist\index.html" (
+    echo [OK] Pre-compiled frontend bundle found in frontend\dist. Node.js is NOT required.
 ) else (
-    echo Installing npm dependencies and building frontend...
+    echo [NOTICE] Pre-compiled bundle not found. Building frontend with Node.js...
+    cd frontend
     call npm install
     call npm run build
+    cd ..
 )
-cd ..
 
 echo.
 echo [4/4] Setting up Database and Migrations...
@@ -62,7 +53,7 @@ python backend\manage.py seed_system
 
 echo.
 echo =========================================================================
-echo   [SUCCESS] Deployment build completed successfully!
+echo   [SUCCESS] Deployment setup completed successfully!
 echo   To install as a Windows Background Service using NSSM, run:
 echo   nssm_install_services.bat
 echo =========================================================================
