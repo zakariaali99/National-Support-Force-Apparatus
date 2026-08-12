@@ -33,14 +33,25 @@ call backend\venv\Scripts\activate.bat
 
 echo.
 echo [2/4] Installing Backend Dependencies (requirements.txt + Waitress)...
-pip install --upgrade pip
-pip install -r backend\requirements.txt
+if exist "backend\wheels" (
+    echo Detected offline wheels directory. Installing packages offline...
+    pip install --no-index --find-links=backend\wheels -r backend\requirements.txt
+) else (
+    echo Installing packages from PyPI...
+    pip install -r backend\requirements.txt
+)
 
 echo.
 echo [3/4] Building Frontend SPA Application (frontend/dist)...
 cd frontend
-call npm install
-call npm run build
+if exist "node_modules" (
+    echo Existing node_modules found. Building frontend...
+    call npm run build
+) else (
+    echo Installing npm dependencies and building frontend...
+    call npm install
+    call npm run build
+)
 cd ..
 
 echo.
