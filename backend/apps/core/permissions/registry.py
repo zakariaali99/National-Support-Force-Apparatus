@@ -20,15 +20,15 @@ runtime through Settings).
 PERMISSION_GROUPS = [
     {
         "key": "members",
-        "label_ar": "الأعضاء",
+        "label_ar": "الأفراد",
         "permissions": {
-            "member.view": "عرض الأعضاء",
-            "member.create": "إضافة عضو",
-            "member.edit": "تعديل بيانات عضو",
-            "member.delete": "حذف عضو",
-            "member.approve": "اعتماد عضو جديد",
-            "member.export": "تصدير بيانات الأعضاء (Excel/PDF)",
-            "member.print": "طباعة ملفات الأعضاء",
+            "member.view": "عرض الأفراد",
+            "member.create": "إضافة فرد",
+            "member.edit": "تعديل بيانات فرد",
+            "member.delete": "حذف فرد",
+            "member.approve": "اعتماد فرد جديد",
+            "member.export": "تصدير بيانات الأفراد (Excel/PDF)",
+            "member.print": "طباعة ملفات الأفراد",
         },
     },
     {

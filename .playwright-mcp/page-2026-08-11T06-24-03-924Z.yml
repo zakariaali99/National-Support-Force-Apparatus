@@ -1,0 +1,136 @@
+- generic [ref=f37e4]:
+  - link "تخطَّ إلى المحتوى الرئيسي" [ref=f37e5] [cursor=pointer]:
+    - /url: "#main-content"
+  - complementary [ref=f37e6]:
+    - generic [ref=f37e7]:
+      - generic [ref=f37e8]:
+        - generic [ref=f37e9]:
+          - img "شعار الجهاز الوطني" [ref=f37e10]
+          - generic [ref=f37e11]:
+            - paragraph [ref=f37e12]: الجهاز الوطني
+            - paragraph [ref=f37e13]: للقوى المساندة
+        - button "طي القائمة" [ref=f37e14]
+      - navigation [ref=f37e18]:
+        - generic [ref=f37e19]:
+          - button "العامة والإدارة" [ref=f37e20] [cursor=pointer]
+          - generic [ref=f37e24]:
+            - link "لوحة التحكم" [active] [ref=f37e25] [cursor=pointer]:
+              - /url: /
+            - link "سجل الأعضاء" [ref=f37e32] [cursor=pointer]:
+              - /url: /members
+            - link "إضافة عضو جديد" [ref=f37e39] [cursor=pointer]:
+              - /url: /members/new
+        - generic [ref=f37e44]:
+          - button "الهيكل والتوزيع" [ref=f37e45] [cursor=pointer]
+          - generic [ref=f37e49]:
+            - link "الفصائل والكتائب" [ref=f37e50] [cursor=pointer]:
+              - /url: /organization/factions
+            - link "الرتب العسكرية" [ref=f37e56] [cursor=pointer]:
+              - /url: /organization/ranks
+        - generic [ref=f37e60]:
+          - button "الرقابة والنظام" [ref=f37e61] [cursor=pointer]
+          - generic [ref=f37e65]:
+            - link "سجل التدقيق" [ref=f37e66] [cursor=pointer]:
+              - /url: /audit
+            - link "النسخ الاحتياطية" [ref=f37e71] [cursor=pointer]:
+              - /url: /backups
+            - link "إعدادات النظام" [ref=f37e76] [cursor=pointer]:
+              - /url: /settings
+      - generic [ref=f37e81]:
+        - generic [ref=f37e82]: S
+        - generic [ref=f37e83]:
+          - paragraph [ref=f37e84]: smoketest
+          - paragraph [ref=f37e85]: مدير النظام
+  - generic [ref=f37e86]:
+    - banner [ref=f37e87]:
+      - navigation "مسار التنقل" [ref=f37e88]:
+        - link "الرئيسية" [ref=f37e90] [cursor=pointer]:
+          - /url: /
+        - generic [ref=f37e95]: إضافة عضو جديد
+      - generic [ref=f37e99]:
+        - button "فتح لوحة الأوامر (Ctrl+K / ⌘K)" [ref=f37e100]:
+          - generic [ref=f37e104]: بحث...
+          - generic [ref=f37e105]: Ctrl+K / ⌘K
+        - button "الإشعارات" [ref=f37e106]
+        - button "تبديل المظهر" [ref=f37e110]
+        - button "smoketest smoketest" [ref=f37e113]:
+          - img "smoketest" [ref=f37e114]:
+            - generic [ref=f37e115]: s
+          - generic [ref=f37e116]: smoketest
+    - main [ref=f37e117]:
+      - generic [ref=f37e118]:
+        - generic [ref=f37e120]:
+          - heading "تسجيل عضو جديد بالقوة" [level=1] [ref=f37e121]
+          - paragraph [ref=f37e122]: يرجى تعبئة كافة الحقول المطلوبة للتأكد من اكتمال الملف العسكري.
+        - generic [ref=f37e125]:
+          - generic [ref=f37e126]:
+            - heading "البيانات الشخصية" [level=3] [ref=f37e132]
+            - generic [ref=f37e133]:
+              - generic [ref=f37e134]: تعديل
+              - generic [ref=f37e140]:
+                - generic [ref=f37e141]: الصورة الشخصية
+                - generic [ref=f37e142] [cursor=pointer]:
+                  - generic [ref=f37e147]: اسحب الصورة أو اضغط هنا للاختيار
+                  - button "الصورة الشخصية" [ref=f37e148]
+            - generic [ref=f37e149]:
+              - generic [ref=f37e150]:
+                - generic [ref=f37e151]: الاسم الأول
+                - textbox [ref=f37e152]: عمر
+              - generic [ref=f37e153]:
+                - generic [ref=f37e154]: اسم الأب
+                - textbox [ref=f37e155]
+              - generic [ref=f37e156]:
+                - generic [ref=f37e157]: اسم الجد
+                - textbox [ref=f37e158]
+              - generic [ref=f37e159]:
+                - generic [ref=f37e160]: اللقب
+                - textbox [ref=f37e161]
+              - generic [ref=f37e162]:
+                - generic [ref=f37e163]: تاريخ الميلاد
+                - textbox [ref=f37e164]
+              - generic [ref=f37e165]:
+                - generic [ref=f37e166]: مكان الميلاد
+                - textbox [ref=f37e167]
+              - generic [ref=f37e168]:
+                - generic [ref=f37e169]: فصيلة الدم
+                - combobox [ref=f37e171]:
+                  - option "—" [selected]
+                  - option "A+"
+                  - option "A-"
+                  - option "B+"
+                  - option "B-"
+                  - option "AB+"
+                  - option "AB-"
+                  - option "O+"
+                  - option "O-"
+              - generic [ref=f37e172]:
+                - generic [ref=f37e173]: الرقم الوطني
+                - textbox [ref=f37e174]
+              - generic [ref=f37e175]:
+                - generic [ref=f37e176]: رقم الهاتف
+                - textbox [ref=f37e177]
+          - generic [ref=f37e178]:
+            - heading "البيانات العسكرية والتنظيمية" [level=3] [ref=f37e183]
+            - generic [ref=f37e184]:
+              - generic [ref=f37e185]:
+                - generic [ref=f37e186]: الرقم الحربي
+                - textbox [ref=f37e187]
+              - generic [ref=f37e188]:
+                - generic [ref=f37e189]: تاريخ الالتحاق
+                - textbox [ref=f37e190]
+              - generic [ref=f37e191]:
+                - generic [ref=f37e192]: الرتبة
+                - combobox "الرتبة" [ref=f37e193]:
+                  - generic [ref=f37e194]: اختر الرتبة
+              - generic [ref=f37e198]:
+                - generic [ref=f37e199]: الفصيل
+                - combobox "الفصيل" [ref=f37e200]:
+                  - generic [ref=f37e201]: اختر الفصيل
+          - generic [ref=f37e205]:
+            - heading "التعهدات" [level=3] [ref=f37e211]
+            - generic [ref=f37e212]:
+              - generic [ref=f37e213]: التعهدات والالتزامات العسكرية
+              - textbox [ref=f37e214]
+          - generic [ref=f37e215]:
+            - button "إلغاء" [ref=f37e216]
+            - button "إنشاء الملف" [ref=f37e217]

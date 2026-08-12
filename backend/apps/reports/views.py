@@ -33,6 +33,38 @@ class ReportSectionsView(APIView):
         )
 
 
+def _get_photo_data_uri(member):
+    """Safely convert member photo or photo thumbnail into a base64 Data URI
+    compatible with WeasyPrint offline PDF compilation. Checks both photo_thumb
+    and photo, ensuring file existence on storage before reading.
+    """
+    import base64
+    import logging
+    import mimetypes
+
+    logger = logging.getLogger(__name__)
+
+    for file_field in (member.photo_thumb, member.photo):
+        if not file_field or not file_field.name:
+            continue
+        try:
+            if not file_field.storage.exists(file_field.name):
+                continue
+            with file_field.storage.open(file_field.name, "rb") as f:
+                content = f.read()
+                if not content:
+                    continue
+                mime_type, _ = mimetypes.guess_type(file_field.name)
+                mime_type = mime_type or "image/jpeg"
+                encoded = base64.b64encode(content).decode("utf-8")
+                return f"data:{mime_type};base64,{encoded}"
+        except Exception as exc:
+            logger.warning("Failed reading photo %s for member %s: %s", file_field.name, member.pk, exc)
+            continue
+
+    return None
+
+
 class MemberPrintView(APIView):
     """GET /api/members/<id>/print/?sections=profile,notes&documents=3,5
 
@@ -47,11 +79,11 @@ class MemberPrintView(APIView):
     permission_classes = [IsAuthenticated]
 
     @extend_schema(
+        summary="طباعة ملف العضو كملف PDF",
         parameters=[
-            OpenApiParameter("sections", OpenApiTypes.STR, description="Comma-separated section keys"),
-            OpenApiParameter("documents", OpenApiTypes.STR, description="Comma-separated MemberDocument ids"),
-            OpenApiParameter("download", OpenApiTypes.INT, description="1 to force attachment download"),
-            OpenApiParameter("preview", OpenApiTypes.INT, description="1 for a dev-only single-section HTML preview instead of PDF"),
+            OpenApiParameter("sections", OpenApiTypes.STR, description="قائمة القطاعات المفصولة بفواصل"),
+            OpenApiParameter("documents", OpenApiTypes.STR, description="قائمة المستندات المفصولة بفواصل"),
+            OpenApiParameter("preview", OpenApiTypes.STR, description="1 لمعاينة HTML"),
         ],
         responses={200: OpenApiTypes.BINARY},
     )
@@ -64,7 +96,7 @@ class MemberPrintView(APIView):
         if not request.user.has_permission("member.print"):
             raise PermissionDenied("لا تملك صلاحية طباعة ملفات الأعضاء.")
         if not user_can_access_faction(request.user, member.faction_id):
-            raise PermissionDenied("لا تملك صلاحية الوصول لبيانات هذا الفصيل.")
+            raise PermissionDenied("لا تملك صلاحية الوصول لبيانات هذه الإدارة.")
 
         section_keys = [s for s in request.query_params.get("sections", "profile").split(",") if s]
         document_ids = [d for d in request.query_params.get("documents", "").split(",") if d]
@@ -73,12 +105,20 @@ class MemberPrintView(APIView):
         if unknown:
             return HttpResponseBadRequest(f"Unknown section key(s): {', '.join(unknown)}")
 
+        photo_uri = _get_photo_data_uri(member)
+
         contexts = {
-            "profile": {"member": member, "printed_at": timezone.now()},
+            "profile": {"member": member, "printed_at": timezone.now(), "photo_data_uri": photo_uri},
             "notes": {"member": member, "notes": member.notes.select_related("author").all()},
             "tasks": {"member": member, "tasks": member.tasks.select_related("assigned_to").all()},
             "evaluations": {"member": member, "evaluations": member.evaluations.select_related("evaluator").all()},
             "vacation": {"member": member, "requests": member.vacation_requests.all()},
+            "pledges": {
+                "member": member,
+                "pledges": member.pledges_list.select_related("created_by").all(),
+                "pledge_text": member.pledges,
+                "printed_at": timezone.now(),
+            },
         }
 
         if request.query_params.get("preview") == "1":
@@ -105,15 +145,18 @@ class MemberPrintView(APIView):
 
         merged = compose(pdf_chunks)
 
-        log_activity(
-            actor=request.user,
-            action="print",
-            target_model="Member",
-            target_id=member.id,
-            description=f"طباعة ملف: {member.full_name}",
-            metadata={"sections": section_keys, "documents": document_ids},
-            request=request,
-        )
+        try:
+            log_activity(
+                actor=request.user,
+                action="print",
+                target_model="Member",
+                target_id=member.id,
+                description=f"طباعة ملف: {member.full_name}",
+                metadata={"sections": section_keys, "documents": document_ids},
+                request=request,
+            )
+        except Exception:
+            pass
 
         disposition = "attachment" if request.query_params.get("download") else "inline"
         response = HttpResponse(merged, content_type="application/pdf")

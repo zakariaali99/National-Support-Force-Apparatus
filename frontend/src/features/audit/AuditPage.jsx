@@ -1,11 +1,12 @@
 import { useState } from "react";
 
 import { Badge } from "../../components/ui/Badge";
-import { Card, CardContent } from "../../components/ui/Card";
 import { Select } from "../../components/ui/Select";
 import { DataTable } from "../../components/ui/DataTable";
+import { PageHeader } from "../../components/ui/PageHeader";
+import { FilterBar } from "../../components/ui/FilterBar";
 import { Pagination } from "../../components/ui/Pagination";
-import { formatDateTime } from "../../lib/format";
+import { formatDate, formatTime } from "../../lib/format";
 import { useActivityLog } from "./api";
 
 const ACTION_LABELS = {
@@ -40,36 +41,35 @@ export function AuditPage() {
   const totalCount = data?.count ?? 0;
 
   const columns = [
-    { key: "created_at", label: "التاريخ والوقت", render: (r) => <bdi dir="ltr" className="font-mono text-xs">{formatDateTime(r.created_at)}</bdi> },
+    { key: "date", label: "التاريخ", render: (r) => <bdi dir="ltr" className="font-mono text-caption">{formatDate(r.created_at)}</bdi> },
+    { key: "time", label: "الوقت", render: (r) => <bdi dir="ltr" className="font-mono text-caption">{formatTime(r.created_at)}</bdi> },
     {
       key: "action",
       label: "نوع الإجراء",
       render: (r) => <Badge variant={ACTION_VARIANTS[r.action] || "outline"}>{ACTION_LABELS[r.action] || r.action}</Badge>,
     },
-    { key: "actor_username", label: "المستخدم المنفذ", render: (r) => <span className="font-bold">{r.actor_username || "—"}</span> },
+    { key: "actor_name", label: "المستخدم المنفذ", render: (r) => <span className="font-bold text-foreground">{r.actor_name || r.actor_username || "النظام"}</span> },
     { key: "description", label: "التفاصيل والبيان" },
-    { key: "ip_address", label: "عنوان IP", render: (r) => <bdi dir="ltr" className="font-mono text-xs">{r.ip_address || "—"}</bdi> },
+    { key: "ip_address", label: "عنوان IP", render: (r) => <bdi dir="ltr" className="font-mono text-caption">{r.ip_address || "—"}</bdi> },
   ];
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-black tracking-tight text-foreground">سجل التدقيق الأمني والنشاطات</h1>
-        <p className="text-xs text-muted-foreground font-medium mt-1">سجل الإجراءات الحساسة: تحميل المستندات، الطباعة، التصدير، ومحاولات الدخول.</p>
-      </div>
+      <PageHeader
+        title="سجل التدقيق الأمني والنشاطات"
+        description="سجل الإجراءات الحساسة: تحميل المستندات، الطباعة، التصدير، ومحاولات الدخول."
+      />
 
-      <Card className="rounded-2xl border border-border/80 shadow-sm">
-        <CardContent className="p-4">
-          <div className="max-w-xs">
-            <Select value={action} onChange={(e) => { setAction(e.target.value); setPage(1); }}>
-              <option value="">كل الإجراءات والأعمال</option>
-              {Object.entries(ACTION_LABELS).map(([key, label]) => (
-                <option key={key} value={key}>{label}</option>
-              ))}
-            </Select>
-          </div>
-        </CardContent>
-      </Card>
+      <FilterBar hideSearch>
+        <div className="max-w-xs">
+          <Select value={action} onChange={(e) => { setAction(e.target.value); setPage(1); }}>
+            <option value="">كل الإجراءات والأعمال</option>
+            {Object.entries(ACTION_LABELS).map(([key, label]) => (
+              <option key={key} value={key}>{label}</option>
+            ))}
+          </Select>
+        </div>
+      </FilterBar>
 
       <DataTable columns={columns} rows={rows} isLoading={isLoading} emptyMessage="لا توجد سجلات تدقيق مسجلة" />
 

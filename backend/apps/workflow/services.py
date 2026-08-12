@@ -13,13 +13,17 @@ from apps.workflow.models import Notification
 def users_with_permission_in_faction(codename, faction_id):
     """Every user who can act on a record in this faction: either an
     "all"-scoped role, or an "own_faction"-scoped role plus that faction
-    assigned. Relies on Postgres JSONField containment (`permissions`
-    stores a plain list of codenames) — matches this project's "Postgres,
-    dev too" decision, see PLAN.md.
+    assigned. Works on both PostgreSQL and SQLite backends.
     """
+    from django.db import connection
+
+    if connection.vendor == "postgresql":
+        qs = User.objects.filter(roles__permissions__contains=[codename])
+    else:
+        qs = User.objects.filter(roles__permissions__icontains=codename)
+
     return (
-        User.objects.filter(roles__permissions__contains=[codename])
-        .filter(Q(roles__scope="all") | (Q(roles__scope="own_faction") & Q(factions=faction_id)))
+        qs.filter(Q(roles__scope="all") | (Q(roles__scope="own_faction") & Q(factions=faction_id)))
         .distinct()
     )
 

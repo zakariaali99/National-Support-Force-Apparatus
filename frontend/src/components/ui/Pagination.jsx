@@ -73,11 +73,11 @@ export function Pagination({
             <Select
               value={pageSize}
               onChange={(e) => onPageSizeChange(Number(e.target.value))}
-              className="h-8 py-0 px-2 text-caption w-24 rounded-xl border-border/80 bg-card font-bold"
+              className="h-8 py-0 px-2.5 text-caption rounded-xl border-border/80 bg-card font-bold"
             >
               {pageSizeOptions.map((opt) => (
                 <option key={opt} value={opt}>
-                  {formatNumber(opt)} عنصر
+                  {formatNumber(opt)}
                 </option>
               ))}
             </Select>

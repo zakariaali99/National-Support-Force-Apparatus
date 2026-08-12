@@ -1,0 +1,18 @@
+[     372ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=aac92b9b:14333
+[     934ms] Error: useBlocker must be used within a data router.  See https://reactrouter.com/en/main/routers/picking-a-router.
+    at invariant (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=8209f8d6:166:79)
+    at useDataRouterContext (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=8209f8d6:4261:2)
+    at useBlocker (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=8209f8d6:4333:29)
+    at MemberFormInner (http://localhost:5173/src/features/members/MemberForm.jsx?t=1786428400317:131:18)
+    at Object.react_stack_bottom_frame (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=aac92b9b:12864:12)
+    at renderWithHooks (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=aac92b9b:4211:19)
+    at updateFunctionComponent (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=aac92b9b:5567:16)
+    at beginWork (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=aac92b9b:6138:20)
+    at runWithFiberInDEV (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=aac92b9b:850:66)
+    at performUnitOfWork (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=aac92b9b:8427:92)
+[     925ms] [WARNING] %s
+
+%s
+ An error occurred in the <MemberFormInner> component. Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://react.dev/link/error-boundaries to learn more about error boundaries. @ http://localhost:5173/@vite/client:528
+[  196040ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=aac92b9b:14333

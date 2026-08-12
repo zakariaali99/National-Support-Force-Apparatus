@@ -1,0 +1,6 @@
+[     599ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=aac92b9b:14333
+[  422172ms] [LOG] [vite] server connection lost. Polling for restart... @ http://localhost:5173/@vite/client:998
+[  424271ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=aac92b9b:14333
+[ 4007471ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:5173/api/notifications/unread_count/:0
+[ 4007548ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:5173/api/notifications/?ordering=-created_at:0
+[ 4309775ms] [LOG] [vite] server connection lost. Polling for restart... @ http://localhost:5173/@vite/client:998

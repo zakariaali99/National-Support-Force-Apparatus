@@ -25,7 +25,7 @@ export function ErrorState({
       )}
     >
       <AlertTriangle className="h-12 w-12 text-destructive/60" aria-hidden="true" />
-      <h3 className="text-h3 text-foreground">{title}</h3>
+      <h3 className="text-section font-bold text-fg">{title}</h3>
       <p className="text-caption text-muted-foreground max-w-sm">{description}</p>
       {onRetry && (
         <Button variant="outline" size="sm" onClick={onRetry} className="mt-2">

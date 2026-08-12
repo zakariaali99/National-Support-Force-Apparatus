@@ -1,0 +1,92 @@
+- generic [ref=f32e12]:
+  - link "تخطَّ إلى المحتوى الرئيسي" [ref=f32e13] [cursor=pointer]:
+    - /url: "#main-content"
+  - complementary [ref=f32e14]:
+    - generic [ref=f32e15]:
+      - generic [ref=f32e16]:
+        - generic [ref=f32e17]:
+          - img "شعار الجهاز الوطني" [ref=f32e18]
+          - generic [ref=f32e19]:
+            - paragraph [ref=f32e20]: الجهاز الوطني
+            - paragraph [ref=f32e21]: للقوى المساندة
+        - button "طي القائمة" [ref=f32e22]
+      - navigation [ref=f32e26]:
+        - generic [ref=f32e27]:
+          - button "العامة والإدارة" [ref=f32e28] [cursor=pointer]
+          - generic [ref=f32e32]:
+            - link "لوحة التحكم" [ref=f32e33] [cursor=pointer]:
+              - /url: /
+            - link "سجل الأعضاء" [ref=f32e40] [cursor=pointer]:
+              - /url: /members
+            - link "إضافة عضو جديد" [ref=f32e47] [cursor=pointer]:
+              - /url: /members/new
+        - generic [ref=f32e52]:
+          - button "الهيكل والتوزيع" [ref=f32e53] [cursor=pointer]
+          - generic [ref=f32e57]:
+            - link "الفصائل والكتائب" [ref=f32e58] [cursor=pointer]:
+              - /url: /organization/factions
+            - link "الرتب العسكرية" [ref=f32e64] [cursor=pointer]:
+              - /url: /organization/ranks
+        - generic [ref=f32e68]:
+          - button "الرقابة والنظام" [ref=f32e69] [cursor=pointer]
+          - generic [ref=f32e73]:
+            - link "سجل التدقيق" [ref=f32e74] [cursor=pointer]:
+              - /url: /audit
+            - link "النسخ الاحتياطية" [ref=f32e79] [cursor=pointer]:
+              - /url: /backups
+            - link "إعدادات النظام" [ref=f32e84] [cursor=pointer]:
+              - /url: /settings
+      - generic [ref=f32e89]:
+        - generic [ref=f32e90]: S
+        - generic [ref=f32e91]:
+          - paragraph [ref=f32e92]: smoketest
+          - paragraph [ref=f32e93]: مدير النظام
+  - generic [ref=f32e94]:
+    - banner [ref=f32e95]:
+      - navigation "مسار التنقل" [ref=f32e96]:
+        - link "الرئيسية" [ref=f32e98] [cursor=pointer]:
+          - /url: /
+        - link "الأعضاء" [ref=f32e106] [cursor=pointer]:
+          - /url: /members
+        - generic [ref=f32e108]: ملف العضو
+      - generic [ref=f32e112]:
+        - button "فتح لوحة الأوامر (Ctrl+K / ⌘K)" [ref=f32e113]:
+          - generic [ref=f32e117]: بحث...
+          - generic [ref=f32e118]: Ctrl+K / ⌘K
+        - button "الإشعارات" [ref=f32e119]
+        - button "تبديل المظهر" [ref=f32e123]
+        - button "smoketest smoketest" [ref=f32e126]:
+          - img "smoketest" [ref=f32e127]:
+            - generic [ref=f32e128]: s
+          - generic [ref=f32e129]: smoketest
+    - main [ref=f32e130]:
+      - generic [ref=f32e131]:
+        - generic [ref=f32e133]:
+          - generic [ref=f32e139]:
+            - heading "عادل مفتاح إبراهيم القره مانلي" [level=1] [ref=f32e140]
+            - generic [ref=f32e141]:
+              - generic [ref=f32e142]: نشط
+              - generic [ref=f32e146]: معتمد
+              - generic [ref=f32e147]: جندي
+          - generic [ref=f32e148]:
+            - button "طباعة الملف" [ref=f32e149]
+            - button "السجل" [ref=f32e155]
+            - link "تعديل" [ref=f32e161] [cursor=pointer]:
+              - /url: /members/13/edit
+            - button "حذف" [ref=f32e166]
+        - generic [ref=f32e171]:
+          - tablist [ref=f32e172]:
+            - tab "نظرة عامة" [ref=f32e173]
+            - tab "المستندات" [active] [selected] [ref=f32e177]
+            - tab "السجل الوظيفي" [ref=f32e180]
+            - tab "التعهدات" [ref=f32e184]
+          - tabpanel "المستندات" [ref=f32e252]:
+            - generic [ref=f32e253]:
+              - generic [ref=f32e254]:
+                - combobox [ref=f32e256]:
+                  - option "اختر نوع المستند" [selected]
+                  - option "شهادة الميلاد"
+                  - option "جواز السفر"
+                  - option "ورقة الرقم الوطني"
+                - generic [ref=f32e257]: رفع مستند
+              - paragraph [ref=f32e258]: لا توجد مستندات مرفوعة بعد

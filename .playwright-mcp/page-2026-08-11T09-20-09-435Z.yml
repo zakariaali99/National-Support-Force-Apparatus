@@ -1,0 +1,126 @@
+- generic:
+  - generic:
+    - generic:
+      - link:
+        - /url: "#main-content"
+        - text: تخطَّ إلى المحتوى الرئيسي
+      - complementary:
+        - generic:
+          - generic:
+            - generic:
+              - generic:
+                - paragraph: الجهاز الوطني
+                - paragraph: للقوى المساندة
+            - button
+          - navigation:
+            - generic:
+              - button:
+                - generic: العامة والإدارة
+              - generic:
+                - link:
+                  - /url: /
+                  - generic: لوحة التحكم
+                - link:
+                  - /url: /members
+                  - generic: سجل الأعضاء
+                - link:
+                  - /url: /members/new
+                  - generic: إضافة عضو جديد
+            - generic:
+              - button:
+                - generic: الهيكل والتوزيع
+              - generic:
+                - link:
+                  - /url: /organization/factions
+                  - generic: الفصائل والكتائب
+                - link:
+                  - /url: /organization/ranks
+                  - generic: الرتب العسكرية
+            - generic:
+              - button:
+                - generic: الرقابة والنظام
+              - generic:
+                - link:
+                  - /url: /audit
+                  - generic: سجل التدقيق
+                - link:
+                  - /url: /backups
+                  - generic: النسخ الاحتياطية
+                - link:
+                  - /url: /settings
+                  - generic: إعدادات النظام
+          - generic:
+            - generic: S
+            - generic:
+              - paragraph: smoketest
+              - paragraph: مدير النظام
+      - generic:
+        - banner:
+          - navigation:
+            - generic:
+              - link:
+                - /url: /
+                - generic: الرئيسية
+            - generic:
+              - link:
+                - /url: /members
+                - generic: الأعضاء
+            - generic: ملف العضو
+          - generic:
+            - button:
+              - generic: بحث...
+              - generic: Ctrl+K / ⌘K
+            - button
+            - button
+            - button:
+              - img:
+                - generic: s
+              - generic: smoketest
+        - main:
+          - generic:
+            - generic:
+              - generic:
+                - generic:
+                  - generic:
+                    - heading [level=1]: عادل مفتاح إبراهيم القره مانلي
+                    - generic:
+                      - generic: نشط
+                      - generic: معتمد
+                      - generic: جندي
+                - generic:
+                  - button:
+                    - generic: طباعة الملف
+                  - button:
+                    - generic: السجل
+                  - link:
+                    - /url: /members/13/edit
+                    - generic: تعديل
+                  - button:
+                    - generic: حذف
+            - generic:
+              - tablist:
+                - tab: نظرة عامة
+                - tab [selected]: المستندات
+                - tab: السجل الوظيفي
+                - tab: التعهدات
+              - tabpanel:
+                - generic:
+                  - generic:
+                    - generic:
+                      - combobox
+                    - generic: رفع مستند
+                  - list:
+                    - listitem:
+                      - generic:
+                        - paragraph: شهادة الميلاد
+                        - paragraph: test-doc.pdf
+                      - generic:
+                        - button
+                        - button [expanded]
+  - alertdialog [ref=f49e355]:
+    - generic [ref=f49e356]:
+      - heading "حذف المستند؟" [level=2] [ref=f49e357]
+      - paragraph [ref=f49e358]: سيتم حذف «test-doc.pdf» نهائيًا ولا يمكن التراجع عن هذه العملية.
+    - generic [ref=f49e359]:
+      - button "إلغاء" [active] [ref=f49e360]
+      - button "حذف" [ref=f49e361]

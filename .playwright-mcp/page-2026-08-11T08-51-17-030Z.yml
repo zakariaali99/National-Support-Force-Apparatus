@@ -1,0 +1,110 @@
+- generic [ref=f47e18]:
+  - link "تخطَّ إلى المحتوى الرئيسي" [ref=f47e19] [cursor=pointer]:
+    - /url: "#main-content"
+  - complementary [ref=f47e20]:
+    - generic [ref=f47e21]:
+      - generic [ref=f47e22]:
+        - generic [ref=f47e23]:
+          - img "شعار الجهاز الوطني" [ref=f47e24]
+          - generic [ref=f47e25]:
+            - paragraph [ref=f47e26]: الجهاز الوطني
+            - paragraph [ref=f47e27]: للقوى المساندة
+        - button "طي القائمة" [ref=f47e28]
+      - navigation [ref=f47e32]:
+        - generic [ref=f47e33]:
+          - button "العامة والإدارة" [ref=f47e34] [cursor=pointer]
+          - generic [ref=f47e38]:
+            - link "لوحة التحكم" [ref=f47e39] [cursor=pointer]:
+              - /url: /
+            - link "سجل الأعضاء" [ref=f47e46] [cursor=pointer]:
+              - /url: /members
+            - link "إضافة عضو جديد" [ref=f47e53] [cursor=pointer]:
+              - /url: /members/new
+        - generic [ref=f47e58]:
+          - button "الهيكل والتوزيع" [ref=f47e59] [cursor=pointer]
+          - generic [ref=f47e63]:
+            - link "الفصائل والكتائب" [ref=f47e64] [cursor=pointer]:
+              - /url: /organization/factions
+            - link "الرتب العسكرية" [ref=f47e70] [cursor=pointer]:
+              - /url: /organization/ranks
+        - generic [ref=f47e74]:
+          - button "الرقابة والنظام" [ref=f47e75] [cursor=pointer]
+          - generic [ref=f47e79]:
+            - link "سجل التدقيق" [ref=f47e80] [cursor=pointer]:
+              - /url: /audit
+            - link "النسخ الاحتياطية" [ref=f47e85] [cursor=pointer]:
+              - /url: /backups
+            - link "إعدادات النظام" [ref=f47e90] [cursor=pointer]:
+              - /url: /settings
+      - generic [ref=f47e95]:
+        - generic [ref=f47e96]: S
+        - generic [ref=f47e97]:
+          - paragraph [ref=f47e98]: smoketest
+          - paragraph [ref=f47e99]: مدير النظام
+  - generic [ref=f47e100]:
+    - banner [ref=f47e101]:
+      - navigation "مسار التنقل" [ref=f47e102]:
+        - link "الرئيسية" [ref=f47e104] [cursor=pointer]:
+          - /url: /
+        - link "الأعضاء" [ref=f47e112] [cursor=pointer]:
+          - /url: /members
+        - generic [ref=f47e114]: ملف العضو
+      - generic [ref=f47e118]:
+        - button "فتح لوحة الأوامر (Ctrl+K / ⌘K)" [ref=f47e119]:
+          - generic [ref=f47e123]: بحث...
+          - generic [ref=f47e124]: Ctrl+K / ⌘K
+        - button "الإشعارات" [ref=f47e125]
+        - button "تبديل المظهر" [ref=f47e129]
+        - button "smoketest smoketest" [ref=f47e132]:
+          - img "smoketest" [ref=f47e133]:
+            - generic [ref=f47e134]: s
+          - generic [ref=f47e135]: smoketest
+    - main [ref=f47e136]:
+      - generic [ref=f47e137]:
+        - generic [ref=f47e139]:
+          - generic [ref=f47e145]:
+            - heading "عادل مفتاح إبراهيم القره مانلي" [level=1] [ref=f47e146]
+            - generic [ref=f47e147]:
+              - generic [ref=f47e148]: نشط
+              - generic [ref=f47e152]: معتمد
+              - generic [ref=f47e153]: جندي
+          - generic [ref=f47e154]:
+            - button "طباعة الملف" [ref=f47e155]
+            - button "السجل" [ref=f47e161]
+            - link "تعديل" [ref=f47e167] [cursor=pointer]:
+              - /url: /members/13/edit
+            - button "حذف" [ref=f47e172]
+        - generic [ref=f47e177]:
+          - tablist [ref=f47e178]:
+            - tab "نظرة عامة" [selected] [ref=f47e179]
+            - tab "المستندات" [ref=f47e183]
+            - tab "السجل الوظيفي" [ref=f47e186]
+            - tab "التعهدات" [ref=f47e190]
+          - tabpanel "نظرة عامة" [ref=f47e194]:
+            - generic [ref=f47e195]:
+              - paragraph [ref=f47e197]: البيانات العسكرية والشخصية
+              - generic [ref=f47e199]:
+                - generic [ref=f47e204]:
+                  - paragraph [ref=f47e205]: الرقم الحربي
+                  - paragraph [ref=f47e206]: "10255"
+                - generic [ref=f47e211]:
+                  - paragraph [ref=f47e212]: الرقم الوطني
+                  - paragraph [ref=f47e213]: "119930382746"
+                - generic [ref=f47e218]:
+                  - paragraph [ref=f47e219]: تاريخ الميلاد
+                  - paragraph [ref=f47e220]: 21‏/08‏/1993
+                - generic [ref=f47e226]:
+                  - paragraph [ref=f47e227]: مكان الميلاد
+                  - paragraph [ref=f47e228]: طرابلس
+                - generic [ref=f47e234]:
+                  - paragraph [ref=f47e235]: فصيلة الدم
+                  - paragraph [ref=f47e236]: O+
+                - generic [ref=f47e241]:
+                  - paragraph [ref=f47e242]: رقم الهاتف
+                  - paragraph [ref=f47e243]: "0913334455"
+                - generic [ref=f47e248]:
+                  - paragraph [ref=f47e249]: تاريخ الالتحاق
+                  - paragraph [ref=f47e250]: 01‏/11‏/2020
+                - generic [ref=f47e255]:
+                  - paragraph [ref=f47e256]: الفصيل (الإدارة)
+                  - paragraph [ref=f47e257]: فصيل المشاة المقاتلة

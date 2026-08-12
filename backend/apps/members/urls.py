@@ -7,6 +7,7 @@ from apps.members.views.evaluation import MemberEvaluationViewSet
 from apps.members.views.field_requirement import FieldRequirementViewSet
 from apps.members.views.member import MemberViewSet
 from apps.members.views.note import MemberNoteViewSet
+from apps.members.views.pledge import MemberPledgeDownloadView, MemberPledgeViewSet
 from apps.members.views.task import MemberTaskViewSet
 from apps.members.views.vacation import VacationRequestViewSet, VacationTransactionViewSet
 
@@ -16,6 +17,7 @@ router.register("member-documents", MemberDocumentViewSet, basename="member-docu
 router.register("member-notes", MemberNoteViewSet, basename="member-note")
 router.register("member-tasks", MemberTaskViewSet, basename="member-task")
 router.register("member-evaluations", MemberEvaluationViewSet, basename="member-evaluation")
+router.register("member-pledges", MemberPledgeViewSet, basename="member-pledge")
 router.register("vacation-requests", VacationRequestViewSet, basename="vacation-request")
 router.register("vacation-transactions", VacationTransactionViewSet, basename="vacation-transaction")
 router.register(
@@ -24,4 +26,5 @@ router.register(
 
 urlpatterns = router.urls + [
     path("documents/<int:pk>/download/", MemberDocumentDownloadView.as_view(), name="document-download"),
+    path("member-pledges/<int:pk>/download/", MemberPledgeDownloadView.as_view(), name="pledge-download"),
 ]

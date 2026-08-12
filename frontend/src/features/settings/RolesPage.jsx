@@ -1,9 +1,12 @@
 import { useState } from "react";
 import { Plus, Trash2 } from "lucide-react";
 
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "../../components/ui/AlertDialog";
 import { Button } from "../../components/ui/Button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "../../components/ui/Card";
+import { Checkbox } from "../../components/ui/Checkbox";
 import { DataTable } from "../../components/ui/DataTable";
+import { PageHeader } from "../../components/ui/PageHeader";
 import { Pagination } from "../../components/ui/Pagination";
 import {
   Dialog,
@@ -15,6 +18,7 @@ import {
 import { Input } from "../../components/ui/Input";
 import { Label } from "../../components/ui/Label";
 import { Select } from "../../components/ui/Select";
+import { showToast } from "../../components/ui/Toast";
 import {
   useCreateRole,
   useDeleteRole,
@@ -24,8 +28,8 @@ import {
 } from "./api";
 
 const SCOPE_LABELS = {
-  all: "الكل — جميع الفصائل",
-  own_faction: "فصيله فقط",
+  all: "الكل — جميع الإدارات",
+  own_faction: "إدارته فقط",
   own_records: "السجلات التي أنشأها فقط",
 };
 
@@ -59,6 +63,7 @@ export function RolesPage() {
   const [scope, setScope] = useState("own_faction");
   const [permissions, setPermissions] = useState([]);
   const [validationError, setValidationError] = useState("");
+  const [roleToDelete, setRoleToDelete] = useState(null);
 
   function handleOpenCreate() {
     setEditingRole(null);
@@ -80,17 +85,19 @@ export function RolesPage() {
     setIsOpen(true);
   }
 
-  async function handleDelete(role) {
-    if (role.is_system) {
-      alert("لا يمكن حذف دور أساسي في النظام.");
+  async function handleDelete() {
+    if (!roleToDelete) return;
+    if (roleToDelete.is_system) {
+      setRoleToDelete(null);
+      showToast("لا يمكن حذف دور أساسي في النظام.", "error");
       return;
     }
-    if (window.confirm(`هل أنت متأكد من حذف الدور "${role.name_ar}"؟`)) {
-      try {
-        await deleteRole.mutateAsync(role.id);
-      } catch {
-        alert("تعذر حذف الدور.");
-      }
+    try {
+      await deleteRole.mutateAsync(roleToDelete.id);
+      setRoleToDelete(null);
+    } catch {
+      setRoleToDelete(null);
+      showToast("تعذر حذف الدور.", "error");
     }
   }
 
@@ -146,7 +153,7 @@ export function RolesPage() {
         <div className="flex items-center gap-2">
           <span className="font-bold text-foreground">{row.name_ar}</span>
           {row.is_system && (
-            <span className="bg-primary/10 text-primary text-micro font-bold px-2 py-0.5 rounded-full border border-primary/20">
+            <span className="bg-primary/10 text-primary text-caption font-bold px-2 py-0.5 rounded-full border border-primary/20">
               دور أساسي
             </span>
           )}
@@ -156,12 +163,12 @@ export function RolesPage() {
     {
       key: "scope",
       label: "نطاق الصلاحيات",
-      render: (row) => <span className="text-xs font-semibold">{SCOPE_LABELS[row.scope] || row.scope}</span>,
+      render: (row) => <span className="text-label font-semibold">{SCOPE_LABELS[row.scope] || row.scope}</span>,
     },
     {
       key: "description",
       label: "الوصف والمسؤوليات",
-      render: (row) => <span className="text-xs text-muted-foreground">{row.description || "—"}</span>,
+      render: (row) => <span className="text-label text-muted-foreground">{row.description || "—"}</span>,
     },
     {
       key: "actions",
@@ -172,14 +179,30 @@ export function RolesPage() {
             تعديل
           </Button>
           {!row.is_system && (
-            <Button
-              variant="outline"
-              size="sm"
-              className="text-destructive hover:bg-destructive/10"
-              onClick={() => handleDelete(row)}
-            >
-              <Trash2 className="h-4 w-4" />
-            </Button>
+            <AlertDialog open={roleToDelete?.id === row.id} onOpenChange={(open) => { if (!open) setRoleToDelete(null); }}>
+              <AlertDialogTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="text-destructive hover:bg-destructive/10"
+                  onClick={() => setRoleToDelete(row)}
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>حذف الدور؟</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    سيتم حذف دور «{row.name_ar}» نهائيًا ولا يمكن التراجع عن هذه العملية.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel onClick={() => setRoleToDelete(null)}>إلغاء</AlertDialogCancel>
+                  <AlertDialogAction onClick={handleDelete}>حذف</AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           )}
         </div>
       ),
@@ -188,23 +211,20 @@ export function RolesPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-black tracking-tight text-foreground">الأدوار والصلاحيات</h1>
-          <p className="text-xs text-muted-foreground font-medium mt-1">
-            إدارة مجموعات الصلاحيات ونطاق الوصول المتاح لأعضاء ومستخدمي النظام.
-          </p>
-        </div>
+      <PageHeader
+        title="الأدوار والصلاحيات"
+        description="إدارة مجموعات الصلاحيات ونطاق الوصول المتاح لأعضاء ومستخدمي النظام."
+      >
         <Button onClick={handleOpenCreate} size="sm" className="shadow-xs">
           <Plus className="me-1.5 h-4 w-4" />
           إضافة دور جديد
         </Button>
-      </div>
+      </PageHeader>
 
       <Card className="rounded-2xl border border-border/80 shadow-sm">
         <CardHeader className="pb-3">
-          <CardTitle className="text-xl font-bold">الأدوار المسجلة للنظام</CardTitle>
-          <CardDescription className="text-xs">الأدوار الوظيفية المحددة ونطاقات الصلاحية الممنوحة</CardDescription>
+          <CardTitle className="text-title font-bold">الأدوار المسجلة للنظام</CardTitle>
+          <CardDescription className="text-label">الأدوار الوظيفية المحددة ونطاقات الصلاحية الممنوحة</CardDescription>
         </CardHeader>
         <CardContent>
           <DataTable
@@ -267,28 +287,27 @@ export function RolesPage() {
             </div>
 
             <div className="border-t border-border/80 pt-4">
-              <Label className="text-sm font-extrabold text-foreground">جدول الصلاحيات التفصيلية</Label>
-              <p className="text-xs text-muted-foreground mb-3 font-medium">
+              <Label className="text-body font-bold text-foreground">جدول الصلاحيات التفصيلية</Label>
+              <p className="text-label text-muted-foreground mb-3 font-semibold">
                 حدد الصلاحيات الممنوحة لحامل هذا الدور في مختلف قطاعات النظام:
               </p>
 
               <div className="space-y-4 max-h-[35vh] overflow-y-auto border border-border/80 rounded-xl p-3 bg-secondary/20 scrollbar-thin">
                 {groups.map((group) => (
                   <div key={group.key} className="space-y-1.5">
-                    <h3 className="font-bold text-xs border-b border-border/60 pb-1 text-primary">
+                    <h3 className="font-bold text-label border-b border-border/60 pb-1 text-primary">
                       {group.label_ar}
                     </h3>
                     <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                       {Object.entries(group.permissions).map(([codename, labelAr]) => (
                         <label
                           key={codename}
-                          className="flex items-start gap-2 text-xs font-medium cursor-pointer hover:bg-secondary/40 p-1.5 rounded-lg transition-colors"
+                          className="flex items-start gap-2 text-label font-semibold cursor-pointer hover:bg-secondary/40 p-1.5 rounded-lg transition-colors"
                         >
-                          <input
-                            type="checkbox"
+                          <Checkbox
                             checked={permissions.includes(codename)}
-                            onChange={(e) => togglePermission(codename, e.target.checked)}
-                            className="mt-0.5 h-4 w-4 rounded border-border text-primary focus:ring-primary"
+                            onCheckedChange={(checked) => togglePermission(codename, Boolean(checked))}
+                            className="mt-0.5"
                           />
                           <span>{labelAr}</span>
                         </label>
@@ -300,7 +319,7 @@ export function RolesPage() {
             </div>
 
             {validationError && (
-              <p className="text-xs text-destructive font-bold bg-destructive/10 p-2.5 rounded-lg">{validationError}</p>
+              <p className="text-label text-destructive font-bold bg-destructive/10 p-2.5 rounded-lg">{validationError}</p>
             )}
 
             <DialogFooter>

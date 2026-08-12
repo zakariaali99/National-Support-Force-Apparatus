@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { Users, UserCheck, ShieldAlert, Building2, UserPlus, ArrowLeft, ArrowUpRight, Calendar, FileText } from "lucide-react";
 
@@ -8,21 +8,9 @@ import { factionsApi } from "../organization/api";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../components/ui/Card";
 import { Button } from "../../components/ui/Button";
 import { Skeleton } from "../../components/ui/Skeleton";
-import { formatDate, formatNumber } from "../../lib/format";
-import { countUp, staggerIn } from "../../lib/motion";
-
-function AnimatedKpiValue({ value }) {
-  const [displayVal, setDisplayVal] = useState(0);
-
-  useEffect(() => {
-    const tween = countUp(value, setDisplayVal);
-    return () => {
-      if (tween) tween.kill();
-    };
-  }, [value]);
-
-  return <>{formatNumber(displayVal)}</>;
-}
+import { StatCard } from "../../components/ui/StatCard";
+import { formatDate } from "../../lib/format";
+import { staggerIn } from "../../lib/motion";
 
 export function DashboardPage() {
   const { user } = useAuth();
@@ -41,7 +29,7 @@ export function DashboardPage() {
   const { data: activeData, isLoading: isActiveLoading } = useMembers({ page_size: 1, service_status: "active" });
   const { data: leaveData, isLoading: isLeaveLoading } = useMembers({ page_size: 1, service_status: "on_leave" });
   const { data: pendingData, isLoading: isPendingLoading } = useMembers({ page_size: 1, approval_status: "pending" });
-  const { data: factions = [], isLoading: isFactionsLoading } = factionsApi.useList();
+  const { isLoading: isFactionsLoading } = factionsApi.useList();
 
   // 2. Fetch recent members
   const { data: recentData, isLoading: isRecentLoading } = useMembers({ page_size: 5, ordering: "-created_at" });
@@ -50,9 +38,6 @@ export function DashboardPage() {
   const totalCount = totalData?.count ?? 0;
   const activeCount = activeData?.count ?? 0;
   const leaveCount = leaveData?.count ?? 0;
-
-  const activePercent = totalCount > 0 ? Math.round((activeCount / totalCount) * 100) : 0;
-  const leavePercent = totalCount > 0 ? Math.round((leaveCount / totalCount) * 100) : 0;
 
   const isAnyLoading = isTotalLoading || isActiveLoading || isPendingLoading || isFactionsLoading;
 
@@ -70,28 +55,28 @@ export function DashboardPage() {
       title: "إجمالي القوة المسجلة",
       value: totalCount,
       icon: Users,
-      color: "text-primary bg-primary/10",
+      tone: "primary",
       loading: isTotalLoading,
     },
     {
       title: "القوة العاملة بالخدمة",
       value: activeCount,
       icon: UserCheck,
-      color: "text-success bg-success/10",
+      tone: "success",
       loading: isActiveLoading,
     },
     {
-      title: "الأعضاء في إجازة",
+      title: "الأفراد في إجازة",
       value: leaveCount,
       icon: Calendar,
-      color: "text-warning bg-warning/10",
+      tone: "warning",
       loading: isLeaveLoading,
     },
     {
       title: "معاملات بانتظار الاعتماد",
       value: pendingData?.count ?? 0,
       icon: ShieldAlert,
-      color: "text-danger bg-danger/10",
+      tone: "danger",
       loading: isPendingLoading,
       pulse: (pendingData?.count ?? 0) > 0,
     },
@@ -111,7 +96,7 @@ export function DashboardPage() {
               أهلاً بك، {displayName} 👋
             </h1>
             <p className="text-label text-muted-foreground max-w-2xl font-medium">
-              لوحة التحكم الرئيسية لإدارة السجلات، شؤون الأعضاء، والهيكل التنظيمي بالجهاز الوطني للقوى المساندة.
+              لوحة التحكم الرئيسية لإدارة السجلات، شؤون الأفراد، والهيكل التنظيمي بالجهاز الوطني للقوى المساندة.
             </p>
           </div>
 
@@ -119,7 +104,7 @@ export function DashboardPage() {
             <Link to="/members/new">
               <Button size="sm" className="shadow-xs font-bold">
                 <UserPlus className="me-1.5 h-4 w-4" />
-                تسجيل عضو جديد
+                تسجيل فرد جديد
               </Button>
             </Link>
             <Link to="/members">
@@ -134,86 +119,10 @@ export function DashboardPage() {
 
       {/* KPI Stats Grid */}
       <div ref={cardsRef} className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {stats.map((stat, idx) => {
-          const Icon = stat.icon;
-          return (
-            <Card key={idx} className="hover:shadow-xs transition-shadow duration-200 border-border/80">
-              <CardContent className="p-5 flex items-center justify-between">
-                <div className="space-y-1">
-                  <p className="text-caption font-bold text-muted-foreground">{stat.title}</p>
-                  {stat.loading ? (
-                    <Skeleton className="h-8 w-16" />
-                  ) : (
-                    <div className="flex items-center gap-2">
-                      <h2 className="text-title font-extrabold tracking-tight text-foreground">
-                        <AnimatedKpiValue value={stat.value} />
-                      </h2>
-                      {stat.pulse && (
-                        <span className="relative flex h-2.5 w-2.5">
-                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-danger opacity-75"></span>
-                          <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-danger"></span>
-                        </span>
-                      )}
-                    </div>
-                  )}
-                </div>
-                <div className={`p-3 rounded-xl shrink-0 ${stat.color}`}>
-                  <Icon className="h-5 w-5" />
-                </div>
-              </CardContent>
-            </Card>
-          );
-        })}
+        {stats.map((stat, idx) => (
+          <StatCard key={idx} {...stat} />
+        ))}
       </div>
-
-      {/* Force Status Ratio Progress Bar */}
-      <Card className="border-border/80 shadow-xs">
-        <CardHeader className="pb-3">
-          <div className="flex items-center justify-between">
-            <CardTitle className="text-section font-bold">توزيع حالة القوة البشرية</CardTitle>
-            <span className="text-caption font-bold text-primary">
-              مجموع الفصائل: {formatNumber(factions.length)} فصيلاً
-            </span>
-          </div>
-          <CardDescription className="text-caption">
-            نسبة توزيع الأعضاء بين الخدمة الفعالة والتعزيز والإجازات الرسمية
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          <div className="h-3 w-full bg-secondary/60 rounded-full overflow-hidden flex dir-ltr">
-            <div
-              className="bg-success h-full transition-all duration-500"
-              style={{ width: `${activePercent}%` }}
-              title={`نشط: ${activePercent}%`}
-            />
-            <div
-              className="bg-warning h-full transition-all duration-500"
-              style={{ width: `${leavePercent}%` }}
-              title={`إجازة: ${leavePercent}%`}
-            />
-            <div
-              className="bg-danger/80 h-full transition-all duration-500"
-              style={{ width: `${Math.max(0, 100 - activePercent - leavePercent)}%` }}
-              title="آخر"
-            />
-          </div>
-
-          <div className="flex flex-wrap items-center justify-between text-caption font-semibold pt-1">
-            <div className="flex items-center gap-2">
-              <span className="h-3 w-3 rounded-full bg-success shrink-0" />
-              <span>قوة بالخدمة: <strong className="text-foreground">{formatNumber(activeCount)}</strong> ({formatNumber(activePercent)}%)</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="h-3 w-3 rounded-full bg-warning shrink-0" />
-              <span>في إجازة: <strong className="text-foreground">{formatNumber(leaveCount)}</strong> ({formatNumber(leavePercent)}%)</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="h-3 w-3 rounded-full bg-danger/80 shrink-0" />
-              <span>إيقاف / آخر: <strong className="text-foreground">{formatNumber(Math.max(0, totalCount - activeCount - leaveCount))}</strong></span>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
 
       {/* Main Dashboard Layout split */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
@@ -221,8 +130,8 @@ export function DashboardPage() {
         <Card className="lg:col-span-2 border-border/80 shadow-xs">
           <CardHeader className="flex flex-row items-center justify-between pb-3">
             <div>
-              <CardTitle className="text-section font-bold">أحدث الأعضاء المسجلين</CardTitle>
-              <CardDescription className="text-caption">سجل ببيانات آخر الأعضاء المضافين للمنظومة الإدارية</CardDescription>
+              <CardTitle className="text-section font-bold">أحدث الأفراد المسجلين</CardTitle>
+              <CardDescription className="text-caption">سجل ببيانات آخر الأفراد المضافين للمنظومة الإدارية</CardDescription>
             </div>
             <Link
               to="/members"
@@ -248,7 +157,7 @@ export function DashboardPage() {
                     <tr className="text-muted-foreground border-b border-border/80">
                       <th className="py-2.5 text-start font-bold">الاسم الكامل</th>
                       <th className="py-2.5 text-start font-bold">الرقم الحربي</th>
-                      <th className="py-2.5 text-start font-bold">الفصيل / الإدارة</th>
+                      <th className="py-2.5 text-start font-bold">الإدارة</th>
                       <th className="py-2.5 text-start font-bold">تاريخ القيد</th>
                     </tr>
                   </thead>
@@ -288,7 +197,7 @@ export function DashboardPage() {
                 <UserPlus className="h-5 w-5" />
               </div>
               <div className="text-start">
-                <p className="font-bold text-label">إضافة عضو جديد</p>
+                <p className="font-bold text-label">إضافة فرد جديد</p>
                 <p className="text-caption text-muted-foreground">إدخال سجل إداري جديد للقوة المساندة</p>
               </div>
             </Link>
@@ -301,7 +210,7 @@ export function DashboardPage() {
                 <Building2 className="h-5 w-5" />
               </div>
               <div className="text-start">
-                <p className="font-bold text-label">إدارة الفصائل والوحدات</p>
+                <p className="font-bold text-label">إدارة القطاعات والإدارات</p>
                 <p className="text-caption text-muted-foreground">عرض وتوزيع الوحدات والإدارات التنظيمية</p>
               </div>
             </Link>

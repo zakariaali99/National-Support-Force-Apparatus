@@ -17,7 +17,7 @@ CORS_ALLOW_ALL_ORIGINS = True
 DATABASES = {
     "default": dj_database_url.config(
         env="DATABASE_URL",
-        default="postgres://nsfa:nsfa@localhost:5432/nsfa_dev",
+        default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}",
         conn_max_age=600,
     )
 }

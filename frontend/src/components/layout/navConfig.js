@@ -1,19 +1,56 @@
-import { Archive, Building2, LayoutDashboard, ScrollText, Settings, Shield, UserCheck, Users } from "lucide-react";
+import {
+  Archive,
+  Building2,
+  LayoutDashboard,
+  ScrollText,
+  Settings,
+  Shield,
+  UserCheck,
+  UserPlus,
+  Users,
+} from "lucide-react";
 
-// Central nav registry — later phases (Members, Settings, Audit, Backups,
-// ...) add entries here rather than editing Sidebar.jsx directly.
-// `permission`, when set, hides the item entirely for users lacking that
-// codename (see useAuth().hasPermission); omit it for items every
-// authenticated user should see regardless of role.
-export const NAV_ITEMS = [
-  { to: "/", label: "لوحة التحكم", icon: LayoutDashboard, end: true },
-  { to: "/members", label: "الأعضاء", icon: Users },
-  { to: "/organization/ranks", label: "الرتب", icon: Shield },
-  { to: "/organization/factions", label: "الفصائل", icon: Building2 },
-  { to: "/settings/field-requirements", label: "متطلبات الحقول", icon: Settings, permission: "settings.manage" },
-  { to: "/settings/roles", label: "الأدوار والصلاحيات", icon: Shield, permission: "roles.manage" },
-  { to: "/settings/users", label: "مستخدمو النظام", icon: UserCheck, permission: "users.manage" },
-  { to: "/audit", label: "سجل التدقيق", icon: ScrollText, permission: "audit.view" },
-  { to: "/backups", label: "النسخ الاحتياطية", icon: Archive, permission: "backup.run" },
+// Central nav registry.
+export const NAV_GROUPS = [
+  {
+    id: "general",
+    title: "العامة والإدارة",
+    items: [
+      { to: "/", label: "لوحة التحكم", icon: LayoutDashboard, end: true, breadcrumb: "لوحة التحكم" },
+      { to: "/members", label: "سجل الأفراد", icon: Users, breadcrumb: "سجل الأفراد" },
+      { to: "/members/new", label: "إضافة فرد جديد", icon: UserPlus, permission: "member.create", breadcrumb: "إضافة فرد جديد" },
+      { to: "/inventory", label: "قسم الأسلحة والذخائر", icon: Shield, breadcrumb: "قسم الأسلحة والذخائر" },
+    ],
+  },
+  {
+    id: "structure",
+    title: "الهيكل والتوزيع",
+    items: [
+      { to: "/organization/factions", label: "الإدارات", icon: Building2, breadcrumb: "الإدارات" },
+      { to: "/organization/ranks", label: "الرتب العسكرية", icon: Shield, breadcrumb: "الرتب العسكرية" },
+    ],
+  },
+  {
+    id: "system",
+    title: "الرقابة والنظام",
+    items: [
+      { to: "/audit", label: "سجل التدقيق", icon: ScrollText, permission: "audit.view", breadcrumb: "سجل التدقيق" },
+      { to: "/backups", label: "النسخ الاحتياطية", icon: Archive, permission: "backup.run", breadcrumb: "النسخ الاحتياطية" },
+      { to: "/settings", label: "إعدادات النظام", icon: Settings, breadcrumb: "إعدادات النظام" },
+    ],
+  },
 ];
 
+// All route metadata for breadcrumbs and palette lookups
+export const ALL_NAV_ITEMS = [
+  ...NAV_GROUPS.flatMap((g) => g.items),
+  { to: "/settings/field-requirements", label: "متطلبات الحقول", icon: Settings, permission: "settings.manage", breadcrumb: "متطلبات الحقول" },
+  { to: "/settings/equipment-categories", label: "تصنيفات العتاد والأسلحة", icon: Settings, breadcrumb: "تصنيفات العتاد والأسلحة" },
+  { to: "/settings/roles", label: "الأدوار والصلاحيات", icon: Shield, permission: "roles.manage", breadcrumb: "الأدوار والصلاحيات" },
+  { to: "/settings/users", label: "مستخدمو النظام", icon: UserCheck, permission: "users.manage", breadcrumb: "مستخدمو النظام" },
+];
+
+// Flat index for lookups by path (breadcrumbs, palette).
+export const NAV_INDEX = Object.fromEntries(
+  ALL_NAV_ITEMS.map((item) => [item.to, item])
+);

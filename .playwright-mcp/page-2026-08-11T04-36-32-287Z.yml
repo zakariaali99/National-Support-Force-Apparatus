@@ -1,0 +1,175 @@
+- generic [ref=f4e18]:
+  - complementary [ref=f4e19]:
+    - generic [ref=f4e20]:
+      - generic [ref=f4e21]:
+        - generic [ref=f4e22]:
+          - img "شعار الجهاز الوطني للقوى المساندة" [ref=f4e23]
+          - generic [ref=f4e24]:
+            - paragraph [ref=f4e25]: الجهاز الوطني
+            - paragraph [ref=f4e26]: للقوى المساندة
+        - button "طَيّ القائمة" [ref=f4e27]
+      - navigation [ref=f4e31]:
+        - generic [ref=f4e32]:
+          - button "العامة" [ref=f4e33]
+          - generic [ref=f4e37]:
+            - link "لوحة التحكم" [ref=f4e38] [cursor=pointer]:
+              - /url: /
+            - link "الأعضاء" [ref=f4e46] [cursor=pointer]:
+              - /url: /members
+        - generic [ref=f4e53]:
+          - button "الهيكل التنظيمي" [ref=f4e54]
+          - generic [ref=f4e58]:
+            - link "الرتب" [ref=f4e59] [cursor=pointer]:
+              - /url: /organization/ranks
+            - link "الفصائل" [ref=f4e63] [cursor=pointer]:
+              - /url: /organization/factions
+        - generic [ref=f4e69]:
+          - button "الضبط والتهيئة" [ref=f4e70]
+          - generic [ref=f4e74]:
+            - link "متطلبات الحقول" [ref=f4e75] [cursor=pointer]:
+              - /url: /settings/field-requirements
+            - link "الأدوار والصلاحيات" [ref=f4e80] [cursor=pointer]:
+              - /url: /settings/roles
+            - link "مستخدمو النظام" [ref=f4e84] [cursor=pointer]:
+              - /url: /settings/users
+            - link "سجل التدقيق" [ref=f4e90] [cursor=pointer]:
+              - /url: /audit
+            - link "النسخ الاحتياطية" [ref=f4e95] [cursor=pointer]:
+              - /url: /backups
+      - generic [ref=f4e100]:
+        - generic [ref=f4e101]: S
+        - generic [ref=f4e102]:
+          - paragraph [ref=f4e103]: smoketest
+          - paragraph [ref=f4e104]: مدير النظام
+  - generic [ref=f4e105]:
+    - banner [ref=f4e106]:
+      - navigation [ref=f4e107]:
+        - generic [ref=f4e108]: لوحة التحكم
+      - generic [ref=f4e110]:
+        - button "الإشعارات" [ref=f4e111]
+        - button "تبديل المظهر" [ref=f4e115]
+        - button "smoketest smoketest" [ref=f4e118]:
+          - img "smoketest" [ref=f4e119]:
+            - generic [ref=f4e120]: s
+          - generic [ref=f4e121]: smoketest
+    - main [ref=f4e122]:
+      - generic [ref=f4e123]:
+        - generic [ref=f4e125]:
+          - generic [ref=f4e126]:
+            - generic [ref=f4e127]: الثلاثاء، 11 أغسطس 2026
+            - heading "أهلاً بك، smoketest 👋" [level=1] [ref=f4e131]
+            - paragraph [ref=f4e132]: لوحة التحكم الرئيسية لإدارة السجلات، شؤون الأعضاء، والهيكل التنظيمي بالجهاز الوطني للقوى المساندة.
+          - generic [ref=f4e133]:
+            - link [ref=f4e134] [cursor=pointer]:
+              - /url: /members/new
+              - button "تسجيل عضو جديد" [ref=f4e135]
+            - link [ref=f4e139] [cursor=pointer]:
+              - /url: /members
+              - button "السجل العام" [ref=f4e140]
+        - generic [ref=f4e144]:
+          - generic [ref=f4e146]:
+            - paragraph [ref=f4e147]: إجمالي القوة المسجلة
+            - heading "12" [level=2] [ref=f4e149]
+          - generic [ref=f4e157]:
+            - paragraph [ref=f4e158]: القوة العاملة بالخدمة
+            - heading "9" [level=2] [ref=f4e160]
+          - generic [ref=f4e167]:
+            - paragraph [ref=f4e168]: الأعضاء في إجازة
+            - heading "1" [level=2] [ref=f4e170]
+          - generic [ref=f4e175]:
+            - paragraph [ref=f4e176]: معاملات بانتظار الاعتماد
+            - heading "1" [level=2] [ref=f4e178]
+        - generic [ref=f4e185]:
+          - generic [ref=f4e186]:
+            - generic [ref=f4e187]:
+              - heading "توزيع حالة القوة البشرية" [level=2] [ref=f4e188]
+              - generic [ref=f4e189]: "مجموع الفصائل: 6 فصيلاً"
+            - paragraph [ref=f4e190]: نسبة توزيع الأعضاء بين الخدمة الفعالة والتعزيز والإجازات الرسمية
+          - generic [ref=f4e191]:
+            - generic [ref=f4e192]:
+              - 'generic "نشط: 75%" [ref=f4e193]'
+              - 'generic "إجازة: 8%" [ref=f4e194]'
+              - generic "آخر" [ref=f4e195]
+            - generic [ref=f4e196]:
+              - generic [ref=f4e199]:
+                - text: "قوة بالخدمة:"
+                - strong [ref=f4e200]: "9"
+                - text: (75%)
+              - generic [ref=f4e203]:
+                - text: "في إجازة:"
+                - strong [ref=f4e204]: "1"
+                - text: (8%)
+              - generic [ref=f4e207]:
+                - text: "إيقاف / آخر:"
+                - strong [ref=f4e208]: "2"
+        - generic [ref=f4e209]:
+          - generic [ref=f4e210]:
+            - generic [ref=f4e211]:
+              - generic [ref=f4e212]:
+                - heading "أحدث الأعضاء المسجلين" [level=2] [ref=f4e213]
+                - paragraph [ref=f4e214]: سجل ببيانات آخر الأعضاء المضافين للمنظومة الإدارية
+              - link "عرض السجل الكامل" [ref=f4e215] [cursor=pointer]:
+                - /url: /members
+            - table [ref=f4e221]:
+              - rowgroup [ref=f4e222]:
+                - row [ref=f4e223]:
+                  - columnheader "الاسم الكامل" [ref=f4e224]
+                  - columnheader "الرقم الحربي" [ref=f4e225]
+                  - columnheader "الفصيل / الإدارة" [ref=f4e226]
+                  - columnheader "تاريخ القيد" [ref=f4e227]
+              - rowgroup [ref=f4e228]:
+                - row [ref=f4e229]:
+                  - cell [ref=f4e230]:
+                    - link "عادل مفتاح إبراهيم القره مانلي" [ref=f4e231] [cursor=pointer]:
+                      - /url: /members/13
+                  - cell "10255" [ref=f4e236]
+                  - cell "فصيل المشاة المقاتلة" [ref=f4e237]
+                  - cell [ref=f4e238]
+                - row [ref=f4e239]:
+                  - cell [ref=f4e240]:
+                    - link "جمال صالح رمضان الباروني" [ref=f4e241] [cursor=pointer]:
+                      - /url: /members/12
+                  - cell "10232" [ref=f4e246]
+                  - cell "فصيل الدعم اللوجستي" [ref=f4e247]
+                  - cell [ref=f4e248]
+                - row [ref=f4e249]:
+                  - cell [ref=f4e250]:
+                    - link "طارق المهدي الهادي المنتصر" [ref=f4e251] [cursor=pointer]:
+                      - /url: /members/11
+                  - cell "10211" [ref=f4e256]
+                  - cell "فصيل الحماية والحراسة" [ref=f4e257]
+                  - cell [ref=f4e258]
+                - row [ref=f4e259]:
+                  - cell [ref=f4e260]:
+                    - link "عمر مصطفى عبد اللطيف السويحلي" [ref=f4e261] [cursor=pointer]:
+                      - /url: /members/10
+                  - cell "10190" [ref=f4e266]
+                  - cell "فصيل التدريب والتأهيل" [ref=f4e267]
+                  - cell [ref=f4e268]
+                - row [ref=f4e269]:
+                  - cell [ref=f4e270]:
+                    - link "فتحي عبد السلام محمد حليم" [ref=f4e271] [cursor=pointer]:
+                      - /url: /members/9
+                  - cell "10168" [ref=f4e276]
+                  - cell "فصيل المشاة المقاتلة" [ref=f4e277]
+                  - cell [ref=f4e278]
+          - generic [ref=f4e279]:
+            - generic [ref=f4e280]:
+              - heading "روابط وإجراءات سريعة" [level=2] [ref=f4e281]
+              - paragraph [ref=f4e282]: وصول سريع لمهام وأقسام الإدارة اليومية
+            - generic [ref=f4e283]:
+              - link [ref=f4e284] [cursor=pointer]:
+                - /url: /members/new
+                - generic [ref=f4e289]:
+                  - paragraph [ref=f4e290]: إضافة عضو جديد
+                  - paragraph [ref=f4e291]: إدخال سجل إداري جديد للقوة المساندة
+              - link [ref=f4e292] [cursor=pointer]:
+                - /url: /organization/factions
+                - generic [ref=f4e298]:
+                  - paragraph [ref=f4e299]: إدارة الفصائل والوحدات
+                  - paragraph [ref=f4e300]: عرض وتوزيع الوحدات والإدارات التنظيمية
+              - link [ref=f4e301] [cursor=pointer]:
+                - /url: /audit
+                - generic [ref=f4e306]:
+                  - paragraph [ref=f4e307]: سجل التدقيق والأمان
+                  - paragraph [ref=f4e308]: مراجعة العمليات والتعديلات المنفذة للنظام

@@ -56,5 +56,10 @@ class User(AbstractUser):
             return True
         return any(codename in (role.permissions or []) for role in self.roles.all())
 
+    @property
+    def full_name(self):
+        full = f"{self.first_name} {self.last_name}".strip()
+        return full or self.username
+
     def __str__(self):
         return self.username

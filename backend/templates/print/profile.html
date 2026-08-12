@@ -5,26 +5,53 @@
 {% include "print/_style.html" %}
 </head>
 <body>
-{% include "print/_header.html" with title="الملف الشخصي" %}
+{% include "print/_header.html" with title="ملف الفرد الشخصي" %}
 
+<!-- Individual Identity Header Card with Photo Box -->
+<div class="profile-top-card">
+  <div class="photo-frame">
+    {% if photo_data_uri %}
+      <img src="{{ photo_data_uri }}" alt="صورة الفرد" />
+    {% else %}
+      <div class="no-photo-text">صورة الفرد<br />(غير متوفرة)</div>
+    {% endif %}
+  </div>
+
+  <div class="profile-summary">
+    <div class="main-name">{{ member.full_name }}</div>
+    <div class="field-grid">
+      <div class="field"><div class="label">الرقم الحربي</div><div class="value"><bdi dir="ltr">{{ member.force_number }}</bdi></div></div>
+      <div class="field"><div class="label">الرتبة العسكرية</div><div class="value">{{ member.rank.name_ar }}</div></div>
+      <div class="field"><div class="label">الإدارة التابع لها</div><div class="value">{{ member.faction.name_ar }}</div></div>
+      <div class="field"><div class="label">حالة الخدمة</div><div class="value">{{ member.get_service_status_display }}</div></div>
+    </div>
+  </div>
+</div>
+
+<h2>البيانات الشخصية والسكنية</h2>
 <div class="field-grid">
-  <div class="field"><div class="label">الاسم الكامل</div><div class="value">{{ member.full_name }}</div></div>
-  <div class="field"><div class="label">الرقم الحربي</div><div class="value"><bdi dir="ltr">{{ member.force_number }}</bdi></div></div>
   <div class="field"><div class="label">الرقم الوطني</div><div class="value"><bdi dir="ltr">{{ member.national_number }}</bdi></div></div>
-  <div class="field"><div class="label">الرتبة</div><div class="value">{{ member.rank.name_ar }}</div></div>
-  <div class="field"><div class="label">الفصيل</div><div class="value">{{ member.faction.name_ar }}</div></div>
-  <div class="field"><div class="label">تاريخ الميلاد</div><div class="value"><bdi dir="ltr">{{ member.date_of_birth|date:"Y-m-d" }}</bdi></div></div>
+  <div class="field"><div class="label">رقم الهوية الشخصية</div><div class="value"><bdi dir="ltr">{{ member.id_card_number|default:"—" }}</bdi></div></div>
+  <div class="field"><div class="label">رقم جواز السفر</div><div class="value"><bdi dir="ltr">{{ member.passport_number|default:"—" }}</bdi></div></div>
+  <div class="field"><div class="label">اسم الأم</div><div class="value">{{ member.mother_name|default:"—" }}</div></div>
+  <div class="field"><div class="label">تاريخ الميلاد</div><div class="value"><bdi dir="ltr">{{ member.date_of_birth|date:"Y-m-d"|default:"—" }}</bdi></div></div>
   <div class="field"><div class="label">مكان الميلاد</div><div class="value">{{ member.place_of_birth|default:"—" }}</div></div>
   <div class="field"><div class="label">فصيلة الدم</div><div class="value"><bdi dir="ltr">{{ member.blood_type|default:"—" }}</bdi></div></div>
   <div class="field"><div class="label">رقم الهاتف</div><div class="value"><bdi dir="ltr">{{ member.phone|default:"—" }}</bdi></div></div>
-  <div class="field"><div class="label">تاريخ الالتحاق</div><div class="value"><bdi dir="ltr">{{ member.join_date|date:"Y-m-d"|default:"—" }}</bdi></div></div>
-  <div class="field"><div class="label">حالة الخدمة</div><div class="value">{{ member.get_service_status_display }}</div></div>
-  <div class="field"><div class="label">حالة الاعتماد</div><div class="value">{{ member.get_approval_status_display }}</div></div>
+  <div class="field"><div class="label">تاريخ الالتحاق بالخدمة</div><div class="value"><bdi dir="ltr">{{ member.join_date|date:"Y-m-d"|default:"—" }}</bdi></div></div>
+  <div class="field"><div class="label">السكن الحالي</div><div class="value">{{ member.current_residence|default:"—" }}</div></div>
+  <div class="field"><div class="label">أقرب نقطة دالة</div><div class="value">{{ member.nearest_landmark|default:"—" }}</div></div>
+  <div class="field"><div class="label">حالة اعتماد الملف</div><div class="value">{{ member.get_approval_status_display }}</div></div>
 </div>
 
-<h2>التعهدات والالتزامات</h2>
-<p>{{ member.pledges|default:"لا توجد تعهدات مسجلة." }}</p>
+{% if member.location_url %}
+<h2>الموقع الجغرافي (Google Maps)</h2>
+<div class="field" style="width: 100%;">
+  <div class="label">رابط خرائط جوجل</div>
+  <div class="value" style="word-break: break-all;"><bdi dir="ltr">{{ member.location_url }}</bdi></div>
+</div>
+{% endif %}
 
-<p class="muted">تاريخ الطباعة: <bdi dir="ltr">{{ printed_at|date:"Y-m-d" }}</bdi></p>
+<p class="muted" style="margin-top: 24pt;">تاريخ تجهيز وتحرير الطباعة: <bdi dir="ltr">{{ printed_at|date:"Y-m-d" }}</bdi></p>
 </body>
 </html>

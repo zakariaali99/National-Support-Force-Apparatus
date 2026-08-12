@@ -46,6 +46,12 @@ class VacationRequestViewSet(ScopedQuerysetMixin, SoftDeleteModelViewSet):
             vacation_request=vacation_request,
             created_by=request.user,
         )
+        # Automatically update member's service_status to 'on_leave' (في إجازة)
+        member = vacation_request.member
+        if member.service_status != "on_leave":
+            member.service_status = "on_leave"
+            member.save(update_fields=["service_status", "updated_at"])
+
         return Response(self.get_serializer(vacation_request).data)
 
     @action(detail=True, methods=["post"])
@@ -60,15 +66,26 @@ class VacationRequestViewSet(ScopedQuerysetMixin, SoftDeleteModelViewSet):
         return Response(self.get_serializer(vacation_request).data)
 
 
-class VacationTransactionViewSet(ScopedQuerysetMixin, mixins.ListModelMixin, viewsets.GenericViewSet):
-    """Read-only ledger view — transactions are only ever written by
-    apps.members.services.vacation.apply_vacation_transaction, never
-    through this API directly.
-    """
-
+class VacationTransactionViewSet(
+    ScopedQuerysetMixin, mixins.ListModelMixin, mixins.CreateModelMixin, viewsets.GenericViewSet
+):
     queryset = VacationTransaction.objects.select_related("member", "created_by").all()
     serializer_class = VacationTransactionSerializer
     permission_classes = [HasPermission]
-    permission_map = {"list": "member.view"}
+    permission_map = {"list": "member.view", "create": "member.edit"}
     faction_lookup = "member__faction"
     filterset_fields = ["member", "kind"]
+
+    def perform_create(self, serializer):
+        data = serializer.validated_data
+        member = data["member"]
+        days = data["days"]
+        reason = data.get("reason", "") or "تعديل إداري لرصيد الإجازات"
+        kind = "adjustment" if days >= 0 else "deduction"
+        apply_vacation_transaction(
+            member_id=member.id,
+            days=days,
+            kind=kind,
+            reason=reason,
+            created_by=self.request.user if self.request.user.is_authenticated else None,
+        )

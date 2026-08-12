@@ -1,0 +1,160 @@
+- generic [ref=f16e81]:
+  - link "تخطَّ إلى المحتوى الرئيسي" [ref=f16e82] [cursor=pointer]:
+    - /url: "#main-content"
+  - complementary [ref=f16e83]:
+    - generic [ref=f16e84]:
+      - generic [ref=f16e85]:
+        - generic [ref=f16e86]:
+          - img "شعار الجهاز الوطني" [ref=f16e87]
+          - generic [ref=f16e88]:
+            - paragraph [ref=f16e89]: الجهاز الوطني
+            - paragraph [ref=f16e90]: للقوى المساندة
+        - button "طي القائمة" [ref=f16e91]
+      - navigation [ref=f16e95]:
+        - generic [ref=f16e96]:
+          - button "العامة" [ref=f16e97] [cursor=pointer]
+          - generic [ref=f16e101]:
+            - link "لوحة التحكم" [ref=f16e102] [cursor=pointer]:
+              - /url: /
+            - link "الأعضاء" [ref=f16e109] [cursor=pointer]:
+              - /url: /members
+        - generic [ref=f16e116]:
+          - button "الهيكل التنظيمي" [ref=f16e117] [cursor=pointer]
+          - generic [ref=f16e121]:
+            - link "الرتب" [ref=f16e122] [cursor=pointer]:
+              - /url: /organization/ranks
+            - link "الفصائل" [ref=f16e126] [cursor=pointer]:
+              - /url: /organization/factions
+        - generic [ref=f16e132]:
+          - button "إعدادات النظام" [ref=f16e133] [cursor=pointer]
+          - generic [ref=f16e137]:
+            - link "متطلبات الحقول" [ref=f16e138] [cursor=pointer]:
+              - /url: /settings/field-requirements
+            - link "الأدوار والصلاحيات" [ref=f16e143] [cursor=pointer]:
+              - /url: /settings/roles
+            - link "مستخدمو النظام" [ref=f16e147] [cursor=pointer]:
+              - /url: /settings/users
+        - generic [ref=f16e153]:
+          - button "السجلات والصيانة" [ref=f16e154] [cursor=pointer]
+          - generic [ref=f16e158]:
+            - link "سجل التدقيق" [ref=f16e159] [cursor=pointer]:
+              - /url: /audit
+            - link "النسخ الاحتياطية" [ref=f16e164] [cursor=pointer]:
+              - /url: /backups
+      - generic [ref=f16e169]:
+        - generic [ref=f16e170]: S
+        - generic [ref=f16e171]:
+          - paragraph [ref=f16e172]: smoketest
+          - paragraph [ref=f16e173]: مدير النظام
+  - generic [ref=f16e174]:
+    - banner [ref=f16e175]:
+      - navigation "مسار التنقل" [ref=f16e176]:
+        - link "الرئيسية" [ref=f16e178] [cursor=pointer]:
+          - /url: /
+        - generic [ref=f16e183]: سجل التدقيق
+      - generic [ref=f16e187]:
+        - button "فتح لوحة الأوامر (⌘K)" [ref=f16e188]:
+          - generic [ref=f16e192]: بحث...
+          - generic [ref=f16e193]: ⌘K
+        - button "الإشعارات" [ref=f16e194]
+        - button "تبديل المظهر" [ref=f16e198]
+        - button "smoketest smoketest" [ref=f16e201]:
+          - img "smoketest" [ref=f16e202]:
+            - generic [ref=f16e203]: s
+          - generic [ref=f16e204]: smoketest
+    - main [ref=f16e205]:
+      - generic [ref=f16e206]:
+        - generic [ref=f16e208]:
+          - heading "سجل التدقيق الأمني والنشاطات" [level=1] [ref=f16e209]
+          - paragraph [ref=f16e210]: "سجل الإجراءات الحساسة: تحميل المستندات، الطباعة، التصدير، ومحاولات الدخول."
+        - combobox [ref=f16e216]:
+          - option "كل الإجراءات والأعمال" [selected]
+          - option "تحميل مستند"
+          - option "طباعة"
+          - option "تصدير"
+          - option "محاولة دخول فاشلة"
+          - option "تشغيل نسخة احتياطية"
+          - option "تحميل نسخة احتياطية"
+        - table [ref=f16e218]:
+          - rowgroup [ref=f16e219]:
+            - row [ref=f16e220]:
+              - columnheader "التاريخ والوقت" [ref=f16e221]
+              - columnheader "نوع الإجراء" [ref=f16e223]
+              - columnheader "المستخدم المنفذ" [ref=f16e225]
+              - columnheader "التفاصيل والبيان" [ref=f16e227]
+              - columnheader "عنوان IP" [ref=f16e229]
+          - rowgroup [ref=f16e231]:
+            - row [ref=f16e232]:
+              - cell "11‏/08‏/2026، 06:57 ص" [ref=f16e233]
+              - cell "تحميل نسخة احتياطية" [ref=f16e234]
+              - cell "admin" [ref=f16e236]
+              - cell [ref=f16e237]
+              - cell "127.0.0.1" [ref=f16e238]
+            - row [ref=f16e239]:
+              - cell "11‏/08‏/2026، 06:57 ص" [ref=f16e240]
+              - cell "تشغيل نسخة احتياطية" [ref=f16e241]
+              - cell "admin" [ref=f16e243]
+              - cell [ref=f16e244]
+              - cell "127.0.0.1" [ref=f16e245]
+            - row [ref=f16e246]:
+              - cell "11‏/08‏/2026، 06:56 ص" [ref=f16e247]
+              - cell "طباعة" [ref=f16e248]
+              - cell "admin" [ref=f16e250]
+              - 'cell "طباعة ملف: جمال صالح رمضان الباروني" [ref=f16e251]'
+              - cell "127.0.0.1" [ref=f16e252]
+            - row [ref=f16e253]:
+              - cell "11‏/08‏/2026، 06:55 ص" [ref=f16e254]
+              - cell "طباعة" [ref=f16e255]
+              - cell "admin" [ref=f16e257]
+              - 'cell "طباعة ملف: جمال صالح رمضان الباروني" [ref=f16e258]'
+              - cell "127.0.0.1" [ref=f16e259]
+            - row [ref=f16e260]:
+              - cell "10‏/08‏/2026، 05:05 م" [ref=f16e261]
+              - cell "طباعة" [ref=f16e262]
+              - cell "admin" [ref=f16e264]
+              - 'cell "طباعة ملف: جمال صالح رمضان الباروني" [ref=f16e265]'
+              - cell "127.0.0.1" [ref=f16e266]
+            - row [ref=f16e267]:
+              - cell "10‏/08‏/2026، 05:04 م" [ref=f16e268]
+              - cell "طباعة" [ref=f16e269]
+              - cell "admin" [ref=f16e271]
+              - 'cell "طباعة ملف: جمال صالح رمضان الباروني" [ref=f16e272]'
+              - cell "127.0.0.1" [ref=f16e273]
+            - row [ref=f16e274]:
+              - cell "10‏/08‏/2026، 05:04 م" [ref=f16e275]
+              - cell "طباعة" [ref=f16e276]
+              - cell "admin" [ref=f16e278]
+              - 'cell "طباعة ملف: جمال صالح رمضان الباروني" [ref=f16e279]'
+              - cell "127.0.0.1" [ref=f16e280]
+            - row [ref=f16e281]:
+              - cell "10‏/08‏/2026، 04:59 م" [ref=f16e282]
+              - cell "تصدير" [ref=f16e283]
+              - cell "admin" [ref=f16e285]
+              - cell "تصدير قائمة الأعضاء إلى Excel" [ref=f16e286]
+              - cell "127.0.0.1" [ref=f16e287]
+            - row [ref=f16e288]:
+              - cell "10‏/08‏/2026، 04:04 م" [ref=f16e289]
+              - cell "محاولة دخول فاشلة" [ref=f16e290]
+              - cell "—" [ref=f16e292]
+              - 'cell "محاولة دخول فاشلة: شيوهر" [ref=f16e293]'
+              - cell "127.0.0.1" [ref=f16e294]
+            - row [ref=f16e295]:
+              - cell "10‏/08‏/2026، 03:51 م" [ref=f16e296]
+              - cell "test_action" [ref=f16e297]
+              - cell "—" [ref=f16e299]
+              - cell "hi" [ref=f16e300]
+              - cell "—" [ref=f16e301]
+        - generic [ref=f16e302]:
+          - generic [ref=f16e303]:
+            - generic [ref=f16e304]: عرض 1 إلى 10 من إجمالي 10 سجل
+            - generic [ref=f16e306]:
+              - generic [ref=f16e307]: "العناصر / الصفحة:"
+              - combobox [ref=f16e309]:
+                - option "10 عنصر" [selected]
+                - option "25 عنصر"
+                - option "50 عنصر"
+                - option "100 عنصر"
+          - generic [ref=f16e310]:
+            - button "السابق" [disabled]
+            - button "1" [ref=f16e312]
+            - button "التالي" [disabled]

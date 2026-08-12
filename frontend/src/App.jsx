@@ -16,10 +16,13 @@ const MemberList = lazy(() => import("./features/members/MemberList").then((m) =
 const FactionsPage = lazy(() => import("./features/organization/FactionsPage").then((m) => ({ default: m.FactionsPage })));
 const RanksPage = lazy(() => import("./features/organization/RanksPage").then((m) => ({ default: m.RanksPage })));
 const FieldRequirementsPage = lazy(() => import("./features/settings/FieldRequirementsPage").then((m) => ({ default: m.FieldRequirementsPage })));
+const EquipmentCategoriesPage = lazy(() => import("./features/settings/EquipmentCategoriesPage").then((m) => ({ default: m.EquipmentCategoriesPage })));
+const SettingsHubPage = lazy(() => import("./features/settings/SettingsHubPage").then((m) => ({ default: m.SettingsHubPage })));
 const RolesPage = lazy(() => import("./features/settings/RolesPage").then((m) => ({ default: m.RolesPage })));
 const UsersPage = lazy(() => import("./features/settings/UsersPage").then((m) => ({ default: m.UsersPage })));
 const AuditPage = lazy(() => import("./features/audit/AuditPage").then((m) => ({ default: m.AuditPage })));
 const BackupsPage = lazy(() => import("./features/backups/BackupsPage").then((m) => ({ default: m.BackupsPage })));
+const InventoryPage = lazy(() => import("./features/inventory/InventoryPage").then((m) => ({ default: m.InventoryPage })));
 
 function RouteFallback() {
   return <div className="p-8 text-center text-sm text-muted-foreground">جارِ التحميل...</div>;
@@ -89,10 +92,34 @@ export default function App() {
             }
           />
           <Route
+            path="/inventory"
+            element={
+              <Suspense fallback={<RouteFallback />}>
+                <InventoryPage />
+              </Suspense>
+            }
+          />
+          <Route
+            path="/settings"
+            element={
+              <Suspense fallback={<RouteFallback />}>
+                <SettingsHubPage />
+              </Suspense>
+            }
+          />
+          <Route
             path="/settings/field-requirements"
             element={
               <Suspense fallback={<RouteFallback />}>
                 <FieldRequirementsPage />
+              </Suspense>
+            }
+          />
+          <Route
+            path="/settings/equipment-categories"
+            element={
+              <Suspense fallback={<RouteFallback />}>
+                <EquipmentCategoriesPage />
               </Suspense>
             }
           />

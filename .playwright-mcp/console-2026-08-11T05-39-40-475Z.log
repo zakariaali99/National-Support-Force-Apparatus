@@ -1,0 +1,23 @@
+[    1957ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:5173/src/components/ui/Avatar.jsx:0
+[    1957ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:5173/src/lib/format.js:0
+[    1957ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:5173/src/features/workflow/api.js:0
+[    1957ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:5173/src/components/ui/DropdownMenu.jsx:0
+[    1957ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:5173/src/assets/brand/nasf-seal.jpg?import:0
+[    1957ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:5173/src/components/ui/Label.jsx:0
+[    1957ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:5173/src/components/ui/Dialog.jsx:0
+[    1957ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:5173/src/lib/arabic.js:0
+[    1957ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:5173/src/features/members/api.js:0
+[    2226ms] [ERROR] WebSocket connection to 'ws://localhost:5173/?token=5FZ4H2bz_gSD' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:5173/@vite/client:867
+[    2236ms] [ERROR] WebSocket connection to 'ws://localhost:5173/?token=5FZ4H2bz_gSD' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:5173/@vite/client:877
+[    2238ms] [ERROR] [vite] failed to connect to websocket.
+your current setup:
+  (browser) localhost:5173/ <--[HTTP]--> localhost:5173/ (server)
+  (browser) localhost:5173/ <--[WebSocket (failing)]--> localhost:5173/ (server)
+Check out your Vite / network configuration and https://vite.dev/config/server-options.html#server-hmr . @ http://localhost:5173/@vite/client:528
+[    2247ms] [ERROR] Failed to send error to Vite server: TypeError: Cannot read properties of undefined (reading 'send')
+    at Object.send (http://localhost:5173/@vite/client:448:7)
+    at Object.send (http://localhost:5173/@vite/client:903:16)
+    at Object.send (http://localhost:5173/@vite/client:311:21)
+    at Object.send (http://localhost:5173/@vite/client:389:30)
+    at sendError (http://localhost:5173/@vite/client:490:19)
+    at sendLog (http://localhost:5173/@vite/client:518:11) @ http://localhost:5173/@vite/client:519

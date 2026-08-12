@@ -21,6 +21,7 @@ class MemberDocument(BaseModel):
     document_type = models.ForeignKey(
         "organization.DocumentType", on_delete=models.PROTECT, related_name="+"
     )
+    title = models.CharField(max_length=150, blank=True)
     file = models.FileField(upload_to=private_upload_path, storage=PrivateMediaStorage())
     # Original filename is display-only, NEVER used as the storage path —
     # it often carries PII (e.g. "passport_ahmed_altrhouni.pdf") and would

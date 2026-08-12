@@ -1,0 +1,72 @@
+[     597ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=02a42c70:14333
+[  245081ms] Error: Element type is invalid: expected a string (for built-in components) or a class/function (for composite components) but got: undefined. You likely forgot to export your component from the file it's defined in, or you might have mixed up default and named imports.
+
+Check the render method of `AlertDialogContent`.
+    at createFiberFromTypeAndProps (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=02a42c70:2815:21)
+    at createFiberFromElement (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=02a42c70:2826:11)
+    at createChild (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=02a42c70:3629:47)
+    at reconcileChildrenArray (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=02a42c70:3735:63)
+    at reconcileChildFibersImpl (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=02a42c70:3840:106)
+    at http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=02a42c70:3867:28
+    at reconcileChildren (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=02a42c70:5384:46)
+    at beginWork (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=02a42c70:6198:1569)
+    at runWithFiberInDEV (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=02a42c70:850:66)
+    at performUnitOfWork (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=02a42c70:8427:92)
+[  245076ms] [WARNING] %s
+
+%s
+ An error occurred in the <div> component. Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://react.dev/link/error-boundaries to learn more about error boundaries. @ http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=02a42c70:5255
+[  249447ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=02a42c70:14333
+[  274084ms] ReferenceError: totalCount is not defined
+    at DashboardPage (http://localhost:5173/src/features/dashboard/DashboardPage.jsx:63:11)
+    at Object.react_stack_bottom_frame (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=02a42c70:12864:12)
+    at renderWithHooks (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=02a42c70:4211:19)
+    at updateFunctionComponent (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=02a42c70:5567:16)
+    at beginWork (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=02a42c70:6118:628)
+    at runWithFiberInDEV (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=02a42c70:850:66)
+    at performUnitOfWork (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=02a42c70:8427:92)
+    at workLoopSync (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=02a42c70:8323:37)
+    at renderRootSync (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=02a42c70:8307:6)
+    at performWorkOnRoot (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=02a42c70:7992:27)
+[  274083ms] [WARNING] %s
+
+%s
+ An error occurred in the <DashboardPage> component. Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://react.dev/link/error-boundaries to learn more about error boundaries. @ http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=02a42c70:5255
+[  275772ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=02a42c70:14333
+[  276174ms] ReferenceError: totalCount is not defined
+    at DashboardPage (http://localhost:5173/src/features/dashboard/DashboardPage.jsx:63:11)
+    at Object.react_stack_bottom_frame (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=02a42c70:12864:12)
+    at renderWithHooks (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=02a42c70:4211:19)
+    at updateFunctionComponent (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=02a42c70:5567:16)
+    at beginWork (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=02a42c70:6118:628)
+    at runWithFiberInDEV (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=02a42c70:850:66)
+    at performUnitOfWork (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=02a42c70:8427:92)
+    at workLoopSync (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=02a42c70:8323:37)
+    at renderRootSync (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=02a42c70:8307:6)
+    at performWorkOnRoot (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=02a42c70:7992:27)
+[  276173ms] [WARNING] %s
+
+%s
+ An error occurred in the <DashboardPage> component. Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://react.dev/link/error-boundaries to learn more about error boundaries. @ http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=02a42c70:5255
+[  280728ms] [ERROR] WebSocket connection to 'ws://localhost:5173/?token=U8JWK0OIszJH' failed:  @ http://localhost:5173/@vite/client:867
+[  280736ms] [LOG] [vite] server connection lost. Polling for restart... @ http://localhost:5173/@vite/client:998
+[  284200ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=aac92b9b:14333
+[  285057ms] ReferenceError: totalCount is not defined
+    at DashboardPage (http://localhost:5173/src/features/dashboard/DashboardPage.jsx:63:11)
+    at Object.react_stack_bottom_frame (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=aac92b9b:12864:12)
+    at renderWithHooks (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=aac92b9b:4211:19)
+    at updateFunctionComponent (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=aac92b9b:5567:16)
+    at beginWork (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=aac92b9b:6118:628)
+    at runWithFiberInDEV (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=aac92b9b:850:66)
+    at performUnitOfWork (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=aac92b9b:8427:92)
+    at workLoopSync (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=aac92b9b:8323:37)
+    at renderRootSync (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=aac92b9b:8307:6)
+    at performWorkOnRoot (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=aac92b9b:7992:27)
+[  285049ms] [WARNING] %s
+
+%s
+ An error occurred in the <DashboardPage> component. Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://react.dev/link/error-boundaries to learn more about error boundaries. @ http://localhost:5173/@vite/client:528

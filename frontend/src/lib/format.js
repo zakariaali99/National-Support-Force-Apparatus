@@ -13,19 +13,30 @@ export function formatNumber(value, options) {
   return new Intl.NumberFormat(LOCALE, options).format(num);
 }
 
-export function formatDate(value, options = { year: "numeric", month: "2-digit", day: "2-digit" }) {
+export function formatDate(value) {
   if (!value) return "";
-  const date = value instanceof Date ? value : new Date(value);
-  if (Number.isNaN(date.getTime())) return "";
-  return new Intl.DateTimeFormat(LOCALE, options).format(date);
+  const d = value instanceof Date ? value : new Date(value);
+  if (Number.isNaN(d.getTime())) return "";
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${year}/${month}/${day}`;
 }
 
 export function formatDateTime(value) {
-  return formatDate(value, {
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
+  if (!value) return "";
+  return `${formatDate(value)} ${formatTime(value)}`;
+}
+
+export function formatTime(value) {
+  if (!value) return "";
+  const d = value instanceof Date ? value : new Date(value);
+  if (Number.isNaN(d.getTime())) return "";
+  let hours = d.getHours();
+  const minutes = String(d.getMinutes()).padStart(2, "0");
+  const seconds = String(d.getSeconds()).padStart(2, "0");
+  const ampm = hours >= 12 ? "م" : "ص";
+  hours = hours % 12 || 12;
+  const hoursStr = String(hours).padStart(2, "0");
+  return `${hoursStr}:${minutes}:${seconds} ${ampm}`;
 }

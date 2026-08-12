@@ -1,0 +1,14 @@
+- generic [ref=f39e4]:
+  - generic [ref=f39e5]:
+    - img "شعار الجهاز الوطني للقوى المساندة" [ref=f39e6]
+    - generic [ref=f39e7]:
+      - heading "الجهاز الوطني للقوى المساندة" [level=1] [ref=f39e8]
+      - paragraph [ref=f39e9]: تسجيل الدخول إلى النظام
+  - generic [ref=f39e10]:
+    - generic [ref=f39e11]:
+      - generic [ref=f39e12]: اسم المستخدم
+      - textbox "اسم المستخدم" [ref=f39e13]
+    - generic [ref=f39e14]:
+      - generic [ref=f39e15]: كلمة المرور
+      - textbox "كلمة المرور" [ref=f39e16]
+    - button "دخول" [ref=f39e17]

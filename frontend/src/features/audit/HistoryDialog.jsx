@@ -26,9 +26,9 @@ export function HistoryDialog({ model, id }) {
         </DialogHeader>
 
         <div className="space-y-3 max-h-[60vh] overflow-y-auto pe-1">
-          {isLoading && <p className="text-xs text-muted-foreground text-center py-4">جارِ التحميل...</p>}
+          {isLoading && <p className="text-caption text-muted-foreground text-center py-4">جارِ التحميل...</p>}
           {!isLoading && entries.length === 0 && (
-            <p className="text-xs text-muted-foreground text-center py-4">لا يوجد سجل تعديلات.</p>
+            <p className="text-caption text-muted-foreground text-center py-4">لا يوجد سجل تعديلات.</p>
           )}
           {entries.map((entry, idx) => (
             <div key={idx} className="p-3 rounded-xl border border-border/50 bg-card/40">
@@ -36,13 +36,13 @@ export function HistoryDialog({ model, id }) {
                 <Badge variant={TYPE_VARIANTS[entry.history_type] || "outline"}>
                   {TYPE_LABELS[entry.history_type] || entry.history_type}
                 </Badge>
-                <span className="text-xs font-bold text-foreground">{entry.history_user || "النظام"}</span>
-                <span className="text-[10px] text-muted-foreground"><bdi dir="ltr">{formatDateTime(entry.history_date)}</bdi></span>
+                <span className="text-label font-bold text-foreground">{entry.history_user || "النظام"}</span>
+                <span className="text-caption text-muted-foreground"><bdi dir="ltr">{formatDateTime(entry.history_date)}</bdi></span>
               </div>
               {entry.changes.length > 0 && (
                 <ul className="mt-2 space-y-1">
                   {entry.changes.map((c, cIdx) => (
-                    <li key={cIdx} className="text-xs text-muted-foreground">
+                    <li key={cIdx} className="text-caption text-muted-foreground">
                       <span className="font-semibold text-foreground">{c.field}</span>: من{" "}
                       <bdi dir="ltr">{c.old || "—"}</bdi> إلى <bdi dir="ltr">{c.new || "—"}</bdi>
                     </li>

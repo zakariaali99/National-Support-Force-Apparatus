@@ -29,6 +29,7 @@ INSTALLED_APPS = [
     "apps.members",
     "apps.workflow",
     "apps.reports",
+    "apps.equipment",
 ]
 
 # See apps/reports/renderer.py — engine abstraction for the PDF pipeline.
@@ -116,7 +117,7 @@ PRIVATE_MEDIA_ROOT = Path(
 # also reach every backup. See apps/core/backup_crypto.py for why
 # BACKUP_ENCRYPTION_KEY isn't required to be an exact Fernet key.
 BACKUP_ROOT = Path(os.environ.get("BACKUP_ROOT", BASE_DIR / "backups"))
-BACKUP_ENCRYPTION_KEY = os.environ.get("BACKUP_ENCRYPTION_KEY")
+BACKUP_ENCRYPTION_KEY = os.environ.get("BACKUP_ENCRYPTION_KEY") or SECRET_KEY
 
 # Single-origin production deploy (see PLAN.md/deploy/README.md): the built
 # frontend (`cd frontend && npm run build`) is served by Django/WhiteNoise

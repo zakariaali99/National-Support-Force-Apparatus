@@ -5,11 +5,12 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 
 import { Button } from "../../components/ui/Button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../components/ui/Card";
+import { Card, CardContent } from "../../components/ui/Card";
 import { DataTable } from "../../components/ui/DataTable";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "../../components/ui/Dialog";
 import { Input } from "../../components/ui/Input";
 import { Label } from "../../components/ui/Label";
+import { PageHeader } from "../../components/ui/PageHeader";
 import { Switch } from "../../components/ui/Switch";
 import { useAuth } from "../auth/AuthContext";
 import { ranksApi } from "./api";
@@ -110,20 +111,17 @@ export function RanksPage() {
 
   return (
     <div className="space-y-4">
-      <Card className="rounded-2xl border border-border/80 shadow-sm">
-        <CardHeader className="flex-row items-center justify-between space-y-0 pb-4">
-          <div>
-            <CardTitle className="text-xl font-bold">رتب القوة</CardTitle>
-            <CardDescription className="text-xs">إدارة الرتب التسلسلية لأعضاء الجهاز الوطني</CardDescription>
-          </div>
-          {canManage && (
-            <Button onClick={openCreate} size="sm" className="shadow-xs">
-              <Plus className="h-4 w-4 me-1.5" />
-              إضافة رتبة
-            </Button>
-          )}
-        </CardHeader>
-        <CardContent>
+      <PageHeader title="رتب القوة" description="إدارة الرتب التسلسلية لأعضاء الجهاز الوطني.">
+        {canManage && (
+          <Button onClick={openCreate} size="sm" className="shadow-xs">
+            <Plus className="h-4 w-4 me-1.5" />
+            إضافة رتبة
+          </Button>
+        )}
+      </PageHeader>
+
+      <Card className="rounded-2xl border border-border/80 shadow-sm overflow-hidden">
+        <CardContent className="p-0 overflow-hidden">
           <DataTable columns={columns} rows={ranks} isLoading={isLoading} emptyMessage="لا توجد رتب مسجلة بعد" />
         </CardContent>
       </Card>
@@ -138,7 +136,7 @@ export function RanksPage() {
               <Label htmlFor="rank-name">اسم الرتبة</Label>
               <Input id="rank-name" placeholder="مثال: ملازم أول، عميد، ..." {...form.register("name_ar")} />
               {form.formState.errors.name_ar && (
-                <p className="text-xs text-destructive">{form.formState.errors.name_ar.message}</p>
+                <p className="text-caption text-destructive">{form.formState.errors.name_ar.message}</p>
               )}
             </div>
             <div className="space-y-1.5">

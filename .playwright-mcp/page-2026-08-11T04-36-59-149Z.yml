@@ -1,0 +1,307 @@
+- generic [ref=f4e18]:
+  - complementary [ref=f4e19]:
+    - generic [ref=f4e20]:
+      - generic [ref=f4e21]:
+        - generic [ref=f4e22]:
+          - img "شعار الجهاز الوطني للقوى المساندة" [ref=f4e23]
+          - generic [ref=f4e24]:
+            - paragraph [ref=f4e25]: الجهاز الوطني
+            - paragraph [ref=f4e26]: للقوى المساندة
+        - button "طَيّ القائمة" [ref=f4e27]
+      - navigation [ref=f4e31]:
+        - generic [ref=f4e32]:
+          - button "العامة" [ref=f4e33]
+          - generic [ref=f4e37]:
+            - link "لوحة التحكم" [ref=f4e38] [cursor=pointer]:
+              - /url: /
+            - link "الأعضاء" [ref=f4e46] [cursor=pointer]:
+              - /url: /members
+        - generic [ref=f4e53]:
+          - button "الهيكل التنظيمي" [ref=f4e54]
+          - generic [ref=f4e58]:
+            - link "الرتب" [ref=f4e59] [cursor=pointer]:
+              - /url: /organization/ranks
+            - link "الفصائل" [ref=f4e63] [cursor=pointer]:
+              - /url: /organization/factions
+        - generic [ref=f4e69]:
+          - button "الضبط والتهيئة" [ref=f4e70]
+          - generic [ref=f4e74]:
+            - link "متطلبات الحقول" [ref=f4e75] [cursor=pointer]:
+              - /url: /settings/field-requirements
+            - link "الأدوار والصلاحيات" [ref=f4e80] [cursor=pointer]:
+              - /url: /settings/roles
+            - link "مستخدمو النظام" [ref=f4e84] [cursor=pointer]:
+              - /url: /settings/users
+            - link "سجل التدقيق" [ref=f4e90] [cursor=pointer]:
+              - /url: /audit
+            - link "النسخ الاحتياطية" [ref=f4e95] [cursor=pointer]:
+              - /url: /backups
+      - generic [ref=f4e100]:
+        - generic [ref=f4e101]: S
+        - generic [ref=f4e102]:
+          - paragraph [ref=f4e103]: smoketest
+          - paragraph [ref=f4e104]: مدير النظام
+  - generic [ref=f4e105]:
+    - banner [ref=f4e106]:
+      - navigation [ref=f4e107]:
+        - link "الرئيسية" [ref=f4e310] [cursor=pointer]:
+          - /url: /
+        - generic [ref=f4e315]: الأعضاء
+      - generic [ref=f4e110]:
+        - button "الإشعارات" [ref=f4e111]
+        - button "تبديل المظهر" [ref=f4e115]
+        - button "smoketest smoketest" [ref=f4e118]:
+          - img "smoketest" [ref=f4e119]:
+            - generic [ref=f4e120]: s
+          - generic [ref=f4e121]: smoketest
+    - main [ref=f4e122]:
+      - generic [ref=f4e319]:
+        - generic [ref=f4e320]:
+          - generic [ref=f4e321]:
+            - heading "سجل أعضاء القوة" [level=1] [ref=f4e322]
+            - paragraph [ref=f4e323]: إدارة وعرض ملفات أعضاء الجهاز الوطني بالقوة المساندة مع تنفيذ الإجراءات السريعة والبحث المتقدم.
+          - generic [ref=f4e324]:
+            - button "تصدير Excel" [ref=f4e325]
+            - generic [ref=f4e329]:
+              - button "عرض جدول" [ref=f4e330]
+              - button "عرض شبكي" [ref=f4e332]
+            - link "إضافة عضو جديد" [ref=f4e335] [cursor=pointer]:
+              - /url: /members/new
+        - generic [ref=f4e338]:
+          - searchbox "بحث بالاسم الكامل، الرقم الحربي، أو الرقم الوطني..." [ref=f4e340]
+          - generic [ref=f4e341]:
+            - generic [ref=f4e342]:
+              - generic [ref=f4e343]: الفصيل (الإدارة)
+              - combobox [ref=f4e344]:
+                - generic [ref=f4e345]: كل الفصائل
+            - generic [ref=f4e349]:
+              - generic [ref=f4e350]: الرتبة العسكرية
+              - combobox [ref=f4e351]:
+                - generic [ref=f4e352]: كل الرتب
+            - generic [ref=f4e356]:
+              - generic [ref=f4e357]: الحالة العسكرية
+              - combobox [ref=f4e359]:
+                - option "كل الحالات" [selected]
+                - option "نشط"
+                - option "موقوف"
+                - option "في إجازة"
+                - option "متقاعد"
+                - option "متوفى"
+        - table [ref=f4e796]:
+          - rowgroup [ref=f4e797]:
+            - row [ref=f4e798]:
+              - columnheader "#" [ref=f4e799]
+              - columnheader "الاسم الكامل" [ref=f4e800]
+              - columnheader "الرقم الحربي" [ref=f4e801]
+              - columnheader "الرقم الوطني" [ref=f4e802]
+              - columnheader "الرتبة العسكرية" [ref=f4e803]
+              - columnheader "الفصيل (الإدارة)" [ref=f4e804]
+              - columnheader "الحالة" [ref=f4e805]
+              - columnheader "الإجراءات السريعة" [ref=f4e806]
+          - rowgroup [ref=f4e807]:
+            - row [ref=f4e860]:
+              - cell [ref=f4e861]
+              - cell [ref=f4e866]:
+                - link "جمال صالح رمضان الباروني" [ref=f4e867] [cursor=pointer]:
+                  - /url: /members/12
+              - cell "10232" [ref=f4e872]
+              - cell "119870283746" [ref=f4e873]
+              - cell "رئيس عرفاء" [ref=f4e874]
+              - cell "فصيل الدعم اللوجستي" [ref=f4e875]
+              - cell [ref=f4e876]:
+                - button "نشط" [ref=f4e877]
+              - cell [ref=f4e882]:
+                - generic [ref=f4e883]:
+                  - button "إضافة ملاحظة" [ref=f4e884]
+                  - button "إسناد مهمة" [ref=f4e888]
+                  - button "إضافة تقييم" [ref=f4e892]
+                  - button "طباعة الملف" [ref=f4e895]
+                  - link "الملف الكامل" [ref=f4e900] [cursor=pointer]:
+                    - /url: /members/12
+            - row [ref=f4e901]:
+              - cell [ref=f4e902]
+              - cell [ref=f4e907]:
+                - link "سالم عبد الله عمر الترهوني" [ref=f4e908] [cursor=pointer]:
+                  - /url: /members/3
+              - cell "10041" [ref=f4e913]
+              - cell "119880293847" [ref=f4e914]
+              - cell "مقدم" [ref=f4e915]
+              - cell "فصيل الحماية والحراسة" [ref=f4e916]
+              - cell [ref=f4e917]:
+                - button "نشط" [ref=f4e918]
+              - cell [ref=f4e923]:
+                - generic [ref=f4e924]:
+                  - button "إضافة ملاحظة" [ref=f4e925]
+                  - button "إسناد مهمة" [ref=f4e929]
+                  - button "إضافة تقييم" [ref=f4e933]
+                  - button "طباعة الملف" [ref=f4e936]
+                  - link "الملف الكامل" [ref=f4e941] [cursor=pointer]:
+                    - /url: /members/3
+            - row [ref=f4e942]:
+              - cell [ref=f4e943]
+              - cell [ref=f4e948]:
+                - link "خالد مسعود سعيد الزنتاني" [ref=f4e949] [cursor=pointer]:
+                  - /url: /members/5
+              - cell "10082" [ref=f4e954]
+              - cell "119920492837" [ref=f4e955]
+              - cell "ملازم أول" [ref=f4e956]
+              - cell "فصيل التدريب والتأهيل" [ref=f4e957]
+              - cell [ref=f4e958]:
+                - button "نشط" [ref=f4e959]
+              - cell [ref=f4e964]:
+                - generic [ref=f4e965]:
+                  - button "إضافة ملاحظة" [ref=f4e966]
+                  - button "إسناد مهمة" [ref=f4e970]
+                  - button "إضافة تقييم" [ref=f4e974]
+                  - button "طباعة الملف" [ref=f4e977]
+                  - link "الملف الكامل" [ref=f4e982] [cursor=pointer]:
+                    - /url: /members/5
+            - row [ref=f4e983]:
+              - cell [ref=f4e984]
+              - cell [ref=f4e989]:
+                - link "عمر مصطفى عبد اللطيف السويحلي" [ref=f4e990] [cursor=pointer]:
+                  - /url: /members/10
+              - cell "10190" [ref=f4e995]
+              - cell "119890982736" [ref=f4e996]
+              - cell "عريف" [ref=f4e997]
+              - cell "فصيل التدريب والتأهيل" [ref=f4e998]
+              - cell [ref=f4e999]:
+                - button "متقاعد" [ref=f4e1000]
+              - cell [ref=f4e1002]:
+                - generic [ref=f4e1003]:
+                  - button "إضافة ملاحظة" [ref=f4e1004]
+                  - button "إسناد مهمة" [ref=f4e1008]
+                  - button "إضافة تقييم" [ref=f4e1012]
+                  - button "طباعة الملف" [ref=f4e1015]
+                  - link "الملف الكامل" [ref=f4e1020] [cursor=pointer]:
+                    - /url: /members/10
+            - row [ref=f4e1021]:
+              - cell [ref=f4e1022]
+              - cell [ref=f4e1027]:
+                - link "عبد الرحمن مفتاح ناجي الطرابلسي" [ref=f4e1028] [cursor=pointer]:
+                  - /url: /members/7
+              - cell "10122" [ref=f4e1033]
+              - cell "119950682734" [ref=f4e1034]
+              - cell "ملازم" [ref=f4e1035]
+              - cell "فصيل المشاة المقاتلة" [ref=f4e1036]
+              - cell [ref=f4e1037]:
+                - button "في إجازة" [ref=f4e1038]
+              - cell [ref=f4e1040]:
+                - generic [ref=f4e1041]:
+                  - button "إضافة ملاحظة" [ref=f4e1042]
+                  - button "إسناد مهمة" [ref=f4e1046]
+                  - button "إضافة تقييم" [ref=f4e1050]
+                  - button "طباعة الملف" [ref=f4e1053]
+                  - link "الملف الكامل" [ref=f4e1058] [cursor=pointer]:
+                    - /url: /members/7
+            - row [ref=f4e1059]:
+              - cell [ref=f4e1060]
+              - cell [ref=f4e1065]:
+                - link "أبوبكر السنوسي مسعود الغرياني" [ref=f4e1066] [cursor=pointer]:
+                  - /url: /members/8
+              - cell "10145" [ref=f4e1071]
+              - cell "119910738274" [ref=f4e1072]
+              - cell "رائد" [ref=f4e1073]
+              - cell "فصيل الإسناد الناري" [ref=f4e1074]
+              - cell [ref=f4e1075]:
+                - button "نشط" [ref=f4e1076]
+              - cell [ref=f4e1081]:
+                - generic [ref=f4e1082]:
+                  - button "إضافة ملاحظة" [ref=f4e1083]
+                  - button "إسناد مهمة" [ref=f4e1087]
+                  - button "إضافة تقييم" [ref=f4e1091]
+                  - button "طباعة الملف" [ref=f4e1094]
+                  - link "الملف الكامل" [ref=f4e1099] [cursor=pointer]:
+                    - /url: /members/8
+            - row [ref=f4e1100]:
+              - cell [ref=f4e1101]
+              - cell [ref=f4e1106]:
+                - link "صلاح عمر عثمان القذافي" [ref=f4e1107] [cursor=pointer]:
+                  - /url: /members/6
+              - cell "10103" [ref=f4e1112]
+              - cell "119830582736" [ref=f4e1113]
+              - cell "عميد" [ref=f4e1114]
+              - cell "فصيل القيادة والسيطرة" [ref=f4e1115]
+              - cell [ref=f4e1116]:
+                - button "نشط" [ref=f4e1117]
+              - cell [ref=f4e1122]:
+                - generic [ref=f4e1123]:
+                  - button "إضافة ملاحظة" [ref=f4e1124]
+                  - button "إسناد مهمة" [ref=f4e1128]
+                  - button "إضافة تقييم" [ref=f4e1132]
+                  - button "طباعة الملف" [ref=f4e1135]
+                  - link "الملف الكامل" [ref=f4e1140] [cursor=pointer]:
+                    - /url: /members/6
+            - row [ref=f4e1141]:
+              - cell [ref=f4e1142]
+              - cell [ref=f4e1147]:
+                - link "طارق المهدي الهادي المنتصر" [ref=f4e1148] [cursor=pointer]:
+                  - /url: /members/11
+              - cell "10211" [ref=f4e1153]
+              - cell "119940182736" [ref=f4e1154]
+              - cell "جندي" [ref=f4e1155]
+              - cell "فصيل الحماية والحراسة" [ref=f4e1156]
+              - cell [ref=f4e1157]:
+                - button "نشط" [ref=f4e1158]
+              - cell [ref=f4e1163]:
+                - generic [ref=f4e1164]:
+                  - button "إضافة ملاحظة" [ref=f4e1165]
+                  - button "إسناد مهمة" [ref=f4e1169]
+                  - button "إضافة تقييم" [ref=f4e1173]
+                  - button "طباعة الملف" [ref=f4e1176]
+                  - link "الملف الكامل" [ref=f4e1181] [cursor=pointer]:
+                    - /url: /members/11
+            - row [ref=f4e808]:
+              - cell [ref=f4e809]
+              - cell [ref=f4e814]:
+                - link "أحمد علي محمد الورفلي" [ref=f4e815] [cursor=pointer]:
+                  - /url: /members/2
+              - cell "10029" [ref=f4e820]
+              - cell "119850192837" [ref=f4e821]
+              - cell "عقيد" [ref=f4e822]
+              - cell "فصيل القيادة والسيطرة" [ref=f4e823]
+              - cell [ref=f4e824]:
+                - button "نشط" [ref=f4e825]
+              - cell [ref=f4e830]:
+                - generic [ref=f4e831]:
+                  - button "إضافة ملاحظة" [ref=f4e832]
+                  - button "إسناد مهمة" [ref=f4e836]
+                  - button "إضافة تقييم" [ref=f4e840]
+                  - button "طباعة الملف" [ref=f4e843]
+                  - link "الملف الكامل" [ref=f4e848] [cursor=pointer]:
+                    - /url: /members/2
+            - row [ref=f4e1182]:
+              - cell [ref=f4e1183]
+              - cell [ref=f4e1188]:
+                - link "فتحي عبد السلام محمد حليم" [ref=f4e1189] [cursor=pointer]:
+                  - /url: /members/9
+              - cell "10168" [ref=f4e1194]
+              - cell "119860827364" [ref=f4e1195]
+              - cell "رائد" [ref=f4e1196]
+              - cell "فصيل المشاة المقاتلة" [ref=f4e1197]
+              - cell [ref=f4e1198]:
+                - button "موقوف" [ref=f4e1199]
+              - cell [ref=f4e1201]:
+                - generic [ref=f4e1202]:
+                  - button "إضافة ملاحظة" [ref=f4e1203]
+                  - button "إسناد مهمة" [ref=f4e1207]
+                  - button "إضافة تقييم" [ref=f4e1211]
+                  - button "طباعة الملف" [ref=f4e1214]
+                  - link "الملف الكامل" [ref=f4e1219] [cursor=pointer]:
+                    - /url: /members/9
+        - generic [ref=f4e849]:
+          - generic [ref=f4e850]:
+            - generic [ref=f4e851]: عرض 1 إلى 10 من إجمالي 12 سجل
+            - generic [ref=f4e853]:
+              - generic [ref=f4e854]: "العناصر / الصفحة:"
+              - combobox [ref=f4e856]:
+                - option "10 عنصر" [selected]
+                - option "25 عنصر"
+                - option "50 عنصر"
+                - option "100 عنصر"
+          - generic [ref=f4e857]:
+            - button "السابق" [disabled]
+            - generic [ref=f4e858]:
+              - button "1" [ref=f4e859]
+              - button "2" [ref=f4e1220]
+            - button "التالي" [ref=f4e1221]

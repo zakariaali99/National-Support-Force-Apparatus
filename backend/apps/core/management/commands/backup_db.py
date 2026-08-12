@@ -1,8 +1,11 @@
 import hashlib
+import io
+import os
 import subprocess
 from datetime import date
 
 from django.conf import settings
+from django.core.management import call_command
 from django.core.management.base import BaseCommand, CommandError
 from django.db import connection
 
@@ -11,21 +14,26 @@ from apps.core.models import BackupRecord, ScheduledJobRun
 
 
 class Command(BaseCommand):
-    help = "Dump the database with pg_dump, encrypt it, and record a BackupRecord. Postgres-only."
+    def add_arguments(self, parser):
+        parser.add_argument("--force", action="store_true", help="Force backup even if already run today")
 
     def handle(self, *args, **options):
-        if connection.vendor != "postgresql":
-            raise CommandError("backup_db only supports the postgresql engine.")
-
+        force = options.get("force", False)
         period_key = date.today().isoformat()
         job, created = ScheduledJobRun.objects.get_or_create(name="backup_db", period_key=period_key)
-        if not created and job.success:
+        if not force and not created and job.success:
             self.stdout.write(self.style.WARNING(f"backup_db already ran successfully for {period_key}; skipping."))
             return
 
         db = connection.settings_dict
         try:
-            dump = self._run_pg_dump(db)
+            if connection.vendor == "sqlite":
+                dump = self._run_sqlite_dump()
+            elif connection.vendor == "postgresql":
+                dump = self._run_pg_dump(db)
+            else:
+                dump = self._run_sqlite_dump()
+
             encrypted = encrypt_bytes(dump)
 
             settings.BACKUP_ROOT.mkdir(parents=True, exist_ok=True)
@@ -45,6 +53,25 @@ class Command(BaseCommand):
             job.mark_failure(detail=str(exc))
             raise
 
+    def _run_sqlite_dump(self):
+        buf = io.StringIO()
+        call_command(
+            "dumpdata",
+            "core.User",
+            "core.Role",
+            "core.ActivityLog",
+            "core.BackupRecord",
+            "organization",
+            "members",
+            "workflow",
+            exclude=["contenttypes", "auth.permission"],
+            natural_foreign=True,
+            natural_primary=True,
+            indent=2,
+            stdout=buf,
+        )
+        return buf.getvalue().encode("utf-8")
+
     def _run_pg_dump(self, db):
         cmd = [
             "pg_dump",
@@ -55,10 +82,7 @@ class Command(BaseCommand):
             "-U", db.get("USER") or "",
             db.get("NAME"),
         ]
-        env = {}
-        import os
-
-        env.update(os.environ)
+        env = dict(os.environ)
         if db.get("PASSWORD"):
             env["PGPASSWORD"] = db["PASSWORD"]
 

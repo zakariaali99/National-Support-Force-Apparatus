@@ -18,7 +18,7 @@ export function EmptyState({ icon: Icon = Inbox, title, description, action, cla
       )}
     >
       <Icon className="h-12 w-12 text-muted-foreground/40" aria-hidden="true" />
-      <h3 className="text-h3 text-foreground">{title}</h3>
+      <h3 className="text-section font-bold text-fg">{title}</h3>
       {description && <p className="text-caption text-muted-foreground max-w-sm">{description}</p>}
       {action && <div className="mt-2">{action}</div>}
     </div>

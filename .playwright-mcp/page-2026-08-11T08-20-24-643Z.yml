@@ -1,0 +1,99 @@
+- generic [ref=f41e4]:
+  - link "تخطَّ إلى المحتوى الرئيسي" [ref=f41e5] [cursor=pointer]:
+    - /url: "#main-content"
+  - complementary [ref=f41e6]:
+    - generic [ref=f41e7]:
+      - generic [ref=f41e8]:
+        - generic [ref=f41e9]:
+          - img "شعار الجهاز الوطني" [ref=f41e10]
+          - generic [ref=f41e11]:
+            - paragraph [ref=f41e12]: الجهاز الوطني
+            - paragraph [ref=f41e13]: للقوى المساندة
+        - button "طي القائمة" [ref=f41e14]
+      - navigation [ref=f41e18]:
+        - generic [ref=f41e19]:
+          - button "العامة والإدارة" [ref=f41e20] [cursor=pointer]
+          - generic [ref=f41e24]:
+            - link "لوحة التحكم" [ref=f41e25] [cursor=pointer]:
+              - /url: /
+            - link "سجل الأعضاء" [ref=f41e32] [cursor=pointer]:
+              - /url: /members
+            - link "إضافة عضو جديد" [ref=f41e39] [cursor=pointer]:
+              - /url: /members/new
+        - generic [ref=f41e44]:
+          - button "الهيكل والتوزيع" [ref=f41e45] [cursor=pointer]
+          - generic [ref=f41e49]:
+            - link "الفصائل والكتائب" [ref=f41e50] [cursor=pointer]:
+              - /url: /organization/factions
+            - link "الرتب العسكرية" [ref=f41e56] [cursor=pointer]:
+              - /url: /organization/ranks
+        - generic [ref=f41e60]:
+          - button "الرقابة والنظام" [ref=f41e61] [cursor=pointer]
+          - generic [ref=f41e65]:
+            - link "سجل التدقيق" [ref=f41e66] [cursor=pointer]:
+              - /url: /audit
+            - link "النسخ الاحتياطية" [ref=f41e71] [cursor=pointer]:
+              - /url: /backups
+            - link "إعدادات النظام" [ref=f41e76] [cursor=pointer]:
+              - /url: /settings
+      - generic [ref=f41e81]:
+        - generic [ref=f41e82]: S
+        - generic [ref=f41e83]:
+          - paragraph [ref=f41e84]: smoketest
+          - paragraph [ref=f41e85]: مدير النظام
+  - generic [ref=f41e86]:
+    - banner [ref=f41e87]:
+      - navigation "مسار التنقل" [ref=f41e88]:
+        - link "الرئيسية" [ref=f41e90] [cursor=pointer]:
+          - /url: /
+        - link "الأعضاء" [ref=f41e98] [cursor=pointer]:
+          - /url: /members
+        - generic [ref=f41e100]: ملف العضو
+      - generic [ref=f41e104]:
+        - button "فتح لوحة الأوامر (Ctrl+K / ⌘K)" [ref=f41e105]:
+          - generic [ref=f41e109]: بحث...
+          - generic [ref=f41e110]: Ctrl+K / ⌘K
+        - button "الإشعارات" [ref=f41e111]
+        - button "تبديل المظهر" [ref=f41e115]
+        - button "smoketest smoketest" [ref=f41e118]:
+          - img "smoketest" [ref=f41e119]:
+            - generic [ref=f41e120]: s
+          - generic [ref=f41e121]: smoketest
+    - main [ref=f41e122]:
+      - generic [ref=f41e123]:
+        - generic [ref=f41e125]:
+          - generic [ref=f41e131]:
+            - heading "عادل مفتاح إبراهيم القره مانلي" [level=1] [ref=f41e132]
+            - generic [ref=f41e133]:
+              - generic [ref=f41e134]: نشط
+              - generic [ref=f41e138]: معتمد
+              - generic [ref=f41e139]: جندي
+          - generic [ref=f41e140]:
+            - button "طباعة الملف" [ref=f41e141]
+            - button "السجل" [ref=f41e147]
+            - link "تعديل" [ref=f41e153] [cursor=pointer]:
+              - /url: /members/13/edit
+            - button "حذف" [ref=f41e158]
+        - generic [ref=f41e163]:
+          - tablist [ref=f41e164]:
+            - tab "نظرة عامة" [ref=f41e165]
+            - tab "المستندات" [ref=f41e169]
+            - tab "السجل الوظيفي" [active] [selected] [ref=f41e172]
+            - tab "التعهدات" [ref=f41e176]
+          - tabpanel "السجل الوظيفي" [ref=f41e244]:
+            - generic [ref=f41e246]:
+              - tablist [ref=f41e248]:
+                - tab "الملاحظات" [selected] [ref=f41e249]
+                - tab "المهام" [ref=f41e250]
+                - tab "التقييمات" [ref=f41e251]
+                - tab "الإجازات" [ref=f41e252]
+              - tabpanel "الملاحظات" [ref=f41e254]:
+                - generic [ref=f41e255]:
+                  - generic [ref=f41e256]:
+                    - textbox "أضف ملاحظة جديدة..." [ref=f41e257]
+                    - button [ref=f41e258]
+                  - generic [ref=f41e261]:
+                    - generic [ref=f41e262]:
+                      - paragraph [ref=f41e263]: hi
+                      - paragraph [ref=f41e264]: — • 11‏/08‏/2026، 07:45 ص
+                    - button [ref=f41e265]

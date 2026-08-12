@@ -1,9 +1,6 @@
 import { useEffect, useState } from "react";
 import {
-  ChevronLeft,
-  ChevronRight,
   Plus,
-  Search,
   Grid,
   List,
   HelpCircle,
@@ -14,8 +11,7 @@ import {
   CheckSquare,
   Star,
   Printer,
-  MoreHorizontal,
-  Zap,
+  UserCheck,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 
@@ -30,6 +26,8 @@ import { Combobox } from "../../components/ui/Combobox";
 import { Badge } from "../../components/ui/Badge";
 import { Skeleton } from "../../components/ui/Skeleton";
 import { Pagination } from "../../components/ui/Pagination";
+import { PageHeader } from "../../components/ui/PageHeader";
+import { FilterBar } from "../../components/ui/FilterBar";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "../../components/ui/Dialog";
 import { Textarea } from "../../components/ui/Textarea";
 import { showToast } from "../../components/ui/Toast";
@@ -105,8 +103,6 @@ export function MemberList() {
     }
   }
 
-  const activeFiltersCount = [faction, rank, serviceStatus].filter(Boolean).length + (search ? 1 : 0);
-
   async function handleExport() {
     setExporting(true);
     try {
@@ -134,116 +130,137 @@ export function MemberList() {
   return (
     <div className="space-y-6">
       {/* Top Banner Row */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-2xl font-black tracking-tight text-foreground">سجل أعضاء القوة</h1>
-          <p className="text-xs text-muted-foreground font-medium mt-1">
-            إدارة وعرض ملفات أعضاء الجهاز الوطني بالقوة المساندة مع تنفيذ الإجراءات السريعة والبحث المتقدم.
-          </p>
+      <PageHeader
+        title="سجل أفراد القوة"
+        description="إدارة وعرض ملفات أفراد الجهاز الوطني بالقوة المساندة مع تنفيذ الإجراءات السريعة والبحث المتقدم."
+      >
+        {canExport && (
+          <Button variant="outline" size="sm" disabled={exporting} onClick={handleExport} className="shadow-sm">
+            {exporting ? <Loader2 className="me-2 h-4 w-4 animate-spin" /> : <FileSpreadsheet className="me-2 h-4 w-4 text-emerald-600" />}
+            تصدير Excel
+          </Button>
+        )}
+        {/* View Mode Toggles */}
+        <div className="flex rounded-xl border border-border p-1 bg-secondary/30">
+          <button
+            type="button"
+            onClick={() => setViewMode("list")}
+            className={cn(
+              "p-1.5 rounded-lg transition-all",
+              viewMode === "list"
+                ? "bg-card text-foreground shadow-xs font-bold"
+                : "text-muted-foreground hover:text-foreground"
+            )}
+            title="عرض جدول"
+            aria-label="عرض جدول"
+          >
+            <List className="h-4 w-4" />
+          </button>
+          <button
+            type="button"
+            onClick={() => setViewMode("grid")}
+            className={cn(
+              "p-1.5 rounded-lg transition-all",
+              viewMode === "grid"
+                ? "bg-card text-foreground shadow-xs font-bold"
+                : "text-muted-foreground hover:text-foreground"
+            )}
+            title="عرض شبكي"
+            aria-label="عرض شبكي"
+          >
+            <Grid className="h-4 w-4" />
+          </button>
         </div>
-        <div className="flex items-center gap-2 sm:self-center shrink-0">
-          {canExport && (
-            <Button variant="outline" size="sm" disabled={exporting} onClick={handleExport} className="shadow-sm">
-              {exporting ? <Loader2 className="me-2 h-4 w-4 animate-spin" /> : <FileSpreadsheet className="me-2 h-4 w-4 text-emerald-600" />}
-              تصدير Excel
-            </Button>
-          )}
-          {canCreate && (
-            <Button asChild size="sm" className="shadow-md">
-              <Link to="/members/new">
-                <Plus className="me-1.5 h-4 w-4" />
-                إضافة عضو جديد
-              </Link>
-            </Button>
-          )}
-        </div>
-      </div>
+        {canCreate && (
+          <Button asChild size="sm" className="shadow-md">
+            <Link to="/members/new">
+              <Plus className="me-1.5 h-4 w-4" />
+              إضافة فرد جديد
+            </Link>
+          </Button>
+        )}
+      </PageHeader>
 
       {/* Filter and View Selector Controls */}
-      <Card className="shadow-sm border-border/80 bg-card">
-        <CardContent className="p-4 space-y-4">
-          <div className="flex flex-col gap-3 md:flex-row md:items-center justify-between">
-            {/* Search Input */}
-            <div className="relative flex-1">
-              <Search className="pointer-events-none absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                placeholder="بحث بالاسم الكامل، الرقم الحربي، أو الرقم الوطني..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="ps-9"
-              />
-            </div>
-
-            {/* View Mode Toggles */}
-            <div className="flex items-center gap-2 self-end">
-              {activeFiltersCount > 0 && (
-                <Badge variant="info" className="text-micro py-1">
-                  مصفاة نشطة: {activeFiltersCount}
-                </Badge>
-              )}
-              <div className="flex rounded-xl border border-border p-1 bg-secondary/30">
-                <button
-                  onClick={() => setViewMode("list")}
-                  className={cn(
-                    "p-1.5 rounded-lg transition-all",
-                    viewMode === "list"
-                      ? "bg-card text-foreground shadow-xs font-bold"
-                      : "text-muted-foreground hover:text-foreground"
-                  )}
-                  title="عرض جدول"
-                >
-                  <List className="h-4 w-4" />
-                </button>
-                <button
-                  onClick={() => setViewMode("grid")}
-                  className={cn(
-                    "p-1.5 rounded-lg transition-all",
-                    viewMode === "grid"
-                      ? "bg-card text-foreground shadow-xs font-bold"
-                      : "text-muted-foreground hover:text-foreground"
-                  )}
-                  title="عرض شبكي"
-                >
-                  <Grid className="h-4 w-4" />
-                </button>
-              </div>
-            </div>
-          </div>
-
-          {/* Combobox & Dropdown Filters */}
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-            <div className="space-y-1">
-              <Label className="text-micro font-bold text-muted-foreground">الفصيل (الإدارة)</Label>
-              <Combobox
-                options={factions.map((f) => ({ value: String(f.id), label: f.name_ar }))}
-                value={faction}
-                onChange={setFaction}
-                placeholder="كل الفصائل"
-              />
-            </div>
-            <div className="space-y-1">
-              <Label className="text-micro font-bold text-muted-foreground">الرتبة العسكرية</Label>
-              <Combobox
-                options={ranks.map((r) => ({ value: String(r.id), label: r.name_ar }))}
-                value={rank}
-                onChange={setRank}
-                placeholder="كل الرتب"
-              />
-            </div>
-            <div className="space-y-1">
-              <Label className="text-micro font-bold text-muted-foreground">الحالة العسكرية</Label>
-              <Select value={serviceStatus} onChange={(e) => setServiceStatus(e.target.value)}>
-                <option value="">كل الحالات</option>
-                {SERVICE_STATUS_OPTIONS.map((o) => (
-                  <option key={o.value} value={o.value}>
-                    {o.label}
-                  </option>
-                ))}
-              </Select>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+      <FilterBar
+        search={search}
+        onSearch={setSearch}
+        searchPlaceholder="بحث بالاسم الكامل، الرقم الحربي، أو الرقم الوطني..."
+        chips={[
+          ...(search
+            ? [
+                {
+                  key: "search",
+                  label: `بحث: ${search}`,
+                  onRemove: () => setSearch(""),
+                },
+              ]
+            : []),
+          ...(faction
+            ? [
+                {
+                  key: "faction",
+                  label: factions.find((f) => String(f.id) === faction)?.name_ar ?? "الإدارة",
+                  onRemove: () => setFaction(""),
+                },
+              ]
+            : []),
+          ...(rank
+            ? [
+                {
+                  key: "rank",
+                  label: ranks.find((r) => String(r.id) === rank)?.name_ar ?? "الرتبة",
+                  onRemove: () => setRank(""),
+                },
+              ]
+            : []),
+          ...(serviceStatus
+            ? [
+                {
+                  key: "service_status",
+                  label: serviceStatusLabel(serviceStatus),
+                  onRemove: () => setServiceStatus(""),
+                },
+              ]
+            : []),
+        ]}
+        onClearAll={() => {
+          setSearch("");
+          setFaction("");
+          setRank("");
+          setServiceStatus("");
+        }}
+      >
+        <div className="space-y-1">
+          <Label className="text-micro font-bold text-muted-foreground">الإدارة</Label>
+          <Combobox
+            options={factions.map((f) => ({ value: String(f.id), label: f.name_ar }))}
+            value={faction}
+            onChange={setFaction}
+            placeholder="كل الإدارات"
+          />
+        </div>
+        <div className="space-y-1">
+          <Label className="text-micro font-bold text-muted-foreground">الرتبة العسكرية</Label>
+          <Combobox
+            options={ranks.map((r) => ({ value: String(r.id), label: r.name_ar }))}
+            value={rank}
+            onChange={setRank}
+            placeholder="كل الرتب"
+          />
+        </div>
+        <div className="space-y-1">
+          <Label className="text-micro font-bold text-muted-foreground">حالة الخدمة</Label>
+          <Select value={serviceStatus} onChange={(e) => setServiceStatus(e.target.value)}>
+            <option value="">جميع الحالات</option>
+            {SERVICE_STATUS_OPTIONS.map((opt) => (
+              <option key={opt.value} value={opt.value}>
+                {opt.label}
+              </option>
+            ))}
+          </Select>
+        </div>
+      </FilterBar>
 
       {/* Grid or Table Members Presentation */}
       {isLoading ? (
@@ -257,7 +274,7 @@ export function MemberList() {
           <HelpCircle className="h-12 w-12 text-muted-foreground/45" />
           <h3 className="font-bold text-base text-foreground">لا يوجد نتائج تطابق معايير البحث</h3>
           <p className="text-xs text-muted-foreground max-w-xs">
-            يرجى التأكد من كلمة البحث أو إلغاء تحديد بعض الفلاتر لإظهار الأعضاء.
+            يرجى التأكد من كلمة البحث أو إلغاء تحديد بعض الفلاتر لإظهار الأفراد.
           </p>
         </div>
       ) : viewMode === "list" ? (
@@ -379,18 +396,17 @@ export function MemberList() {
                       >
                         <Star className="h-4 w-4" />
                       </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8 rounded-lg text-muted-foreground hover:text-foreground"
-                        title="طباعة الملف"
-                        onClick={() => setActiveProcedure({ type: "print", member })}
-                      >
-                        <Printer className="h-4 w-4" />
-                      </Button>
-                      <Button asChild variant="outline" size="sm" className="ms-1 h-8 rounded-lg">
-                        <Link to={`/members/${member.id}`}>الملف الكامل</Link>
-                      </Button>
+                      {canEdit && (
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 rounded-lg text-muted-foreground hover:text-foreground"
+                          title="تعديل الحالة الإدارية"
+                          onClick={() => setActiveProcedure({ type: "status", member })}
+                        >
+                          <UserCheck className="h-4 w-4 text-primary" />
+                        </Button>
+                      )}
                     </div>
                   </td>
                 </tr>
@@ -471,8 +487,15 @@ export function MemberList() {
       {activeProcedure?.type === "eval" && (
         <QuickEvalModal member={activeProcedure.member} onClose={() => setActiveProcedure(null)} />
       )}
+      {activeProcedure?.type === "status" && (
+        <QuickStatusModal member={activeProcedure.member} onClose={() => setActiveProcedure(null)} />
+      )}
       {activeProcedure?.type === "print" && (
-        <PrintDialog member={activeProcedure.member} />
+        <PrintDialog
+          open={true}
+          onOpenChange={(open) => !open && setActiveProcedure(null)}
+          member={activeProcedure.member}
+        />
       )}
     </div>
   );
@@ -642,6 +665,66 @@ function QuickEvalModal({ member, onClose }) {
             </Button>
             <Button type="submit" disabled={createEval.isPending}>
               حفظ التقييم
+            </Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function QuickStatusModal({ member, onClose }) {
+  const updateMember = useUpdateMember();
+  const [serviceStatus, setServiceStatus] = useState(member.service_status || "active");
+  const [approvalStatus, setApprovalStatus] = useState(member.approval_status || "draft");
+
+  async function handleSubmit(e) {
+    e.preventDefault();
+    try {
+      await updateMember.mutateAsync({
+        id: member.id,
+        service_status: serviceStatus,
+        approval_status: approvalStatus,
+      });
+      showToast(`تم تحديث حالة العضو ${member.full_name}`);
+      onClose();
+    } catch {
+      showToast("تعذر تحديث حالة العضو", "error");
+    }
+  }
+
+  return (
+    <Dialog open onOpenChange={onClose}>
+      <DialogContent className="max-w-md">
+        <DialogHeader>
+          <DialogTitle>تعديل الحالة الإدارية — {member.full_name}</DialogTitle>
+        </DialogHeader>
+        <form onSubmit={handleSubmit} className="space-y-4 py-2">
+          <div className="space-y-1.5">
+            <Label required>حالة الخدمة (Service Status)</Label>
+            <Select value={serviceStatus} onChange={(e) => setServiceStatus(e.target.value)}>
+              <option value="active">نشط / بالخدمة (Active)</option>
+              <option value="on_leave">في إجازة (On Leave)</option>
+              <option value="suspended">موقوف (Suspended)</option>
+              <option value="retired">متقاعد (Retired)</option>
+              <option value="deceased">متوفى (Deceased)</option>
+            </Select>
+          </div>
+          <div className="space-y-1.5">
+            <Label required>حالة الاعتماد (Approval Status)</Label>
+            <Select value={approvalStatus} onChange={(e) => setApprovalStatus(e.target.value)}>
+              <option value="draft">مسودة (Draft)</option>
+              <option value="pending">قيد الاعتماد (Pending)</option>
+              <option value="approved">معتمد (Approved)</option>
+              <option value="rejected">مرفوض (Rejected)</option>
+            </Select>
+          </div>
+          <DialogFooter>
+            <Button type="button" variant="outline" onClick={onClose}>
+              إلغاء
+            </Button>
+            <Button type="submit" disabled={updateMember.isPending}>
+              حفظ الحالة
             </Button>
           </DialogFooter>
         </form>

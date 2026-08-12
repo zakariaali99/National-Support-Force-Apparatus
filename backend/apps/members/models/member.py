@@ -72,9 +72,17 @@ class Member(BaseModel):
     national_number = models.CharField(
         max_length=12, db_index=True, validators=[national_number_validator]
     )
+    id_card_number = models.CharField(max_length=50, blank=True)
+    passport_number = models.CharField(max_length=50, blank=True)
     date_of_birth = models.DateField(null=True, blank=True)
     place_of_birth = models.CharField(max_length=150, blank=True)
     blood_type = models.CharField(max_length=3, choices=BLOOD_TYPE_CHOICES, blank=True)
+    mother_name = models.CharField(max_length=150, blank=True)
+    current_residence = models.CharField(max_length=255, blank=True)
+    nearest_landmark = models.CharField(max_length=255, blank=True)
+    location_url = models.URLField(max_length=500, blank=True)
+    latitude = models.DecimalField(max_digits=10, decimal_places=7, null=True, blank=True)
+    longitude = models.DecimalField(max_digits=10, decimal_places=7, null=True, blank=True)
 
     rank = models.ForeignKey("organization.Rank", on_delete=models.PROTECT, related_name="members")
     faction = models.ForeignKey(

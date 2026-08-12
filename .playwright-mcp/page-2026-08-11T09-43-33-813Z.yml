@@ -1,0 +1,279 @@
+- generic:
+  - generic:
+    - generic:
+      - link:
+        - /url: "#main-content"
+        - text: تخطَّ إلى المحتوى الرئيسي
+      - complementary:
+        - generic:
+          - generic:
+            - generic:
+              - generic:
+                - paragraph: الجهاز الوطني
+                - paragraph: للقوى المساندة
+            - button
+          - navigation:
+            - generic:
+              - button:
+                - generic: العامة والإدارة
+              - generic:
+                - link:
+                  - /url: /
+                  - generic: لوحة التحكم
+                - link:
+                  - /url: /members
+                  - generic: سجل الأعضاء
+                - link:
+                  - /url: /members/new
+                  - generic: إضافة عضو جديد
+            - generic:
+              - button:
+                - generic: الهيكل والتوزيع
+              - generic:
+                - link:
+                  - /url: /organization/factions
+                  - generic: الفصائل والكتائب
+                - link:
+                  - /url: /organization/ranks
+                  - generic: الرتب العسكرية
+            - generic:
+              - button:
+                - generic: الرقابة والنظام
+              - generic:
+                - link:
+                  - /url: /audit
+                  - generic: سجل التدقيق
+                - link:
+                  - /url: /backups
+                  - generic: النسخ الاحتياطية
+                - link:
+                  - /url: /settings
+                  - generic: إعدادات النظام
+          - generic:
+            - generic: S
+            - generic:
+              - paragraph: smoketest
+              - paragraph: مدير النظام
+      - generic:
+        - banner:
+          - navigation:
+            - generic:
+              - link:
+                - /url: /
+                - generic: الرئيسية
+            - generic: الأدوار والصلاحيات
+          - generic:
+            - button:
+              - generic: بحث...
+              - generic: Ctrl+K / ⌘K
+            - button
+            - button
+            - button:
+              - img:
+                - generic: s
+              - generic: smoketest
+        - main:
+          - generic:
+            - generic:
+              - generic:
+                - heading [level=1]: الأدوار والصلاحيات
+                - paragraph: إدارة مجموعات الصلاحيات ونطاق الوصول المتاح لأعضاء ومستخدمي النظام.
+              - generic:
+                - button: إضافة دور جديد
+            - generic:
+              - generic:
+                - heading [level=2]: الأدوار المسجلة للنظام
+                - paragraph: الأدوار الوظيفية المحددة ونطاقات الصلاحية الممنوحة
+              - generic:
+                - generic:
+                  - table:
+                    - rowgroup:
+                      - row:
+                        - columnheader:
+                          - generic: اسم الدور الوظيفي
+                        - columnheader:
+                          - generic: نطاق الصلاحيات
+                        - columnheader:
+                          - generic: الوصف والمسؤوليات
+                        - columnheader
+                    - rowgroup:
+                      - row:
+                        - cell:
+                          - generic:
+                            - generic: مشرف
+                            - generic: دور أساسي
+                        - cell: فصيله فقط
+                        - cell: —
+                        - cell:
+                          - generic:
+                            - button: تعديل
+                      - row:
+                        - cell:
+                          - generic:
+                            - generic: مطّلع
+                            - generic: دور أساسي
+                        - cell: فصيله فقط
+                        - cell: —
+                        - cell:
+                          - generic:
+                            - button: تعديل
+                      - row:
+                        - cell:
+                          - generic:
+                            - generic: إدخال بيانات
+                            - generic: دور أساسي
+                        - cell: فصيله فقط
+                        - cell: —
+                        - cell:
+                          - generic:
+                            - button: تعديل
+                      - row:
+                        - cell:
+                          - generic:
+                            - generic: مدير النظام
+                            - generic: دور أساسي
+                        - cell: الكل — جميع الفصائل
+                        - cell: —
+                        - cell:
+                          - generic:
+                            - button: تعديل
+                      - row:
+                        - cell:
+                          - generic: zakaria
+                        - cell: الكل — جميع الفصائل
+                        - cell: this is me
+                        - cell:
+                          - generic:
+                            - button: تعديل
+                            - button
+            - generic:
+              - generic:
+                - generic: عرض 1 إلى 5 من إجمالي 5 سجل
+                - generic:
+                  - generic: "العناصر / الصفحة:"
+                  - generic:
+                    - combobox
+              - generic:
+                - button [disabled]: السابق
+                - generic:
+                  - button: "1"
+                - button [disabled]: التالي
+  - dialog [ref=f51e328]:
+    - heading "إضافة دور جديد" [level=2] [ref=f51e330]
+    - generic [ref=f51e331]:
+      - generic [ref=f51e332]:
+        - generic [ref=f51e333]: اسم الدور الوظيفي (بالعربية)
+        - textbox "اسم الدور الوظيفي (بالعربية)" [ref=f51e334]:
+          - /placeholder: "مثال: مسؤول فصيل، مدخل بيانات، مشرف عام..."
+      - generic [ref=f51e335]:
+        - generic [ref=f51e336]:
+          - generic [ref=f51e337]: نطاق الوصول الافتراضي
+          - combobox "نطاق الوصول الافتراضي" [ref=f51e339]:
+            - option "الكل — جميع الفصائل"
+            - option "فصيله فقط" [selected]
+            - option "السجلات التي أنشأها فقط"
+        - generic [ref=f51e340]:
+          - generic [ref=f51e341]: وصف وتفاصيل الدور
+          - textbox "وصف وتفاصيل الدور" [ref=f51e342]:
+            - /placeholder: وصف مختصر للمسؤوليات...
+      - generic [ref=f51e343]:
+        - generic [ref=f51e344]: جدول الصلاحيات التفصيلية
+        - paragraph [ref=f51e345]: "حدد الصلاحيات الممنوحة لحامل هذا الدور في مختلف قطاعات النظام:"
+        - generic [ref=f51e346]:
+          - generic [ref=f51e347]:
+            - heading "الأعضاء" [level=3] [ref=f51e348]
+            - generic [ref=f51e349]:
+              - generic [ref=f51e350] [cursor=pointer]:
+                - checkbox "عرض الأعضاء" [checked] [active] [ref=f51e351]
+                - checkbox [checked]
+                - generic [ref=f51e352]: عرض الأعضاء
+              - generic [ref=f51e353] [cursor=pointer]:
+                - checkbox "إضافة عضو" [ref=f51e354]
+                - checkbox
+                - generic [ref=f51e355]: إضافة عضو
+              - generic [ref=f51e356] [cursor=pointer]:
+                - checkbox "تعديل بيانات عضو" [ref=f51e357]
+                - checkbox
+                - generic [ref=f51e358]: تعديل بيانات عضو
+              - generic [ref=f51e359] [cursor=pointer]:
+                - checkbox "حذف عضو" [ref=f51e360]
+                - checkbox
+                - generic [ref=f51e361]: حذف عضو
+              - generic [ref=f51e362] [cursor=pointer]:
+                - checkbox "اعتماد عضو جديد" [ref=f51e363]
+                - checkbox
+                - generic [ref=f51e364]: اعتماد عضو جديد
+              - generic [ref=f51e365] [cursor=pointer]:
+                - checkbox "تصدير بيانات الأعضاء (Excel/PDF)" [ref=f51e366]
+                - checkbox
+                - generic [ref=f51e367]: تصدير بيانات الأعضاء (Excel/PDF)
+              - generic [ref=f51e368] [cursor=pointer]:
+                - checkbox "طباعة ملفات الأعضاء" [ref=f51e369]
+                - checkbox
+                - generic [ref=f51e370]: طباعة ملفات الأعضاء
+          - generic [ref=f51e371]:
+            - heading "المستندات" [level=3] [ref=f51e372]
+            - generic [ref=f51e373]:
+              - generic [ref=f51e374] [cursor=pointer]:
+                - checkbox "عرض المستندات" [ref=f51e375]
+                - checkbox
+                - generic [ref=f51e376]: عرض المستندات
+              - generic [ref=f51e377] [cursor=pointer]:
+                - checkbox "رفع المستندات" [ref=f51e378]
+                - checkbox
+                - generic [ref=f51e379]: رفع المستندات
+              - generic [ref=f51e380] [cursor=pointer]:
+                - checkbox "تحميل النسخة الأصلية للمستند" [ref=f51e381]
+                - checkbox
+                - generic [ref=f51e382]: تحميل النسخة الأصلية للمستند
+          - generic [ref=f51e383]:
+            - heading "المهام والإجازات" [level=3] [ref=f51e384]
+            - generic [ref=f51e385]:
+              - generic [ref=f51e386] [cursor=pointer]:
+                - checkbox "إسناد المهام" [ref=f51e387]
+                - checkbox
+                - generic [ref=f51e388]: إسناد المهام
+              - generic [ref=f51e389] [cursor=pointer]:
+                - checkbox "اعتماد طلبات الإجازة" [ref=f51e390]
+                - checkbox
+                - generic [ref=f51e391]: اعتماد طلبات الإجازة
+          - generic [ref=f51e392]:
+            - heading "الهيكل التنظيمي" [level=3] [ref=f51e393]
+            - generic [ref=f51e395] [cursor=pointer]:
+              - checkbox "إدارة الرتب والفصائل وأنواع المستندات" [ref=f51e396]
+              - checkbox
+              - generic [ref=f51e397]: إدارة الرتب والفصائل وأنواع المستندات
+          - generic [ref=f51e398]:
+            - heading "الإعدادات" [level=3] [ref=f51e399]
+            - generic [ref=f51e400]:
+              - generic [ref=f51e401] [cursor=pointer]:
+                - checkbox "إدارة إعدادات النظام العامة" [ref=f51e402]
+                - checkbox
+                - generic [ref=f51e403]: إدارة إعدادات النظام العامة
+              - generic [ref=f51e404] [cursor=pointer]:
+                - checkbox "إدارة مستخدمي النظام" [ref=f51e405]
+                - checkbox
+                - generic [ref=f51e406]: إدارة مستخدمي النظام
+              - generic [ref=f51e407] [cursor=pointer]:
+                - checkbox "إدارة الأدوار والصلاحيات" [ref=f51e408]
+                - checkbox
+                - generic [ref=f51e409]: إدارة الأدوار والصلاحيات
+          - generic [ref=f51e410]:
+            - heading "التدقيق والنسخ الاحتياطي" [level=3] [ref=f51e411]
+            - generic [ref=f51e412]:
+              - generic [ref=f51e413] [cursor=pointer]:
+                - checkbox "عرض سجل التدقيق" [ref=f51e414]
+                - checkbox
+                - generic [ref=f51e415]: عرض سجل التدقيق
+              - generic [ref=f51e416] [cursor=pointer]:
+                - checkbox "تشغيل نسخة احتياطية" [ref=f51e417]
+                - checkbox
+                - generic [ref=f51e418]: تشغيل نسخة احتياطية
+              - generic [ref=f51e419] [cursor=pointer]:
+                - checkbox "تحميل نسخة احتياطية" [ref=f51e420]
+                - checkbox
+                - generic [ref=f51e421]: تحميل نسخة احتياطية
+      - generic [ref=f51e422]:
+        - button "إلغاء" [ref=f51e423]
+        - button "حفظ الدور" [ref=f51e424]
+    - button "إغلاق" [ref=f51e425]

@@ -2,10 +2,11 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { api } from "../../lib/api";
 
-export function useMembers(params) {
+export function useMembers(params, { enabled } = {}) {
   return useQuery({
     queryKey: ["members", params],
     queryFn: async () => (await api.get("members/", { params })).data,
+    enabled,
   });
 }
 
@@ -120,6 +121,39 @@ export function useDeleteMemberDocument(memberId) {
   return useMutation({
     mutationFn: (id) => api.delete(`member-documents/${id}/`),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["member-documents", memberId] }),
+  });
+}
+
+export function useMemberPledges(memberId) {
+  return useQuery({
+    queryKey: ["member-pledges", memberId],
+    queryFn: async () => (await api.get("member-pledges/", { params: { member: memberId, page_size: 100 } })).data.results,
+    enabled: Boolean(memberId),
+  });
+}
+
+export function useCreateMemberPledge() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ member, title, description, attachment, issue_date }) => {
+      const formData = new FormData();
+      formData.append("member", member);
+      formData.append("title", title);
+      if (description) formData.append("description", description);
+      if (attachment) formData.append("attachment", attachment);
+      if (issue_date) formData.append("issue_date", issue_date);
+      return api.post("member-pledges/", formData).then((r) => r.data);
+    },
+    onSuccess: (_, { member }) =>
+      queryClient.invalidateQueries({ queryKey: ["member-pledges", member] }),
+  });
+}
+
+export function useDeleteMemberPledge(memberId) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id) => api.delete(`member-pledges/${id}/`),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["member-pledges", memberId] }),
   });
 }
 

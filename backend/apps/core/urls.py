@@ -5,7 +5,13 @@ from rest_framework_simplejwt.views import TokenRefreshView, TokenVerifyView
 
 from apps.core.views.audit import ActivityLogViewSet, HistoryView
 from apps.core.views.auth import LogoutView, MeView, ThrottledTokenObtainPairView
-from apps.core.views.backup import BackupDownloadView, BackupListView, BackupRunView
+from apps.core.views.backup import (
+    BackupDownloadView,
+    BackupListView,
+    BackupMergeView,
+    BackupRestoreView,
+    BackupRunView,
+)
 from apps.core.views.role import RoleViewSet
 from apps.core.views.user import UserViewSet
 
@@ -24,5 +30,9 @@ urlpatterns = [
     path("backups/", BackupListView.as_view(), name="backup-list"),
     path("backups/run/", BackupRunView.as_view(), name="backup-run"),
     path("backups/<int:pk>/download/", BackupDownloadView.as_view(), name="backup-download"),
+    path("backups/<int:pk>/restore/", BackupRestoreView.as_view(), name="backup-restore"),
+    path("backups/restore-upload/", BackupRestoreView.as_view(), name="backup-restore-upload"),
+    path("backups/<int:pk>/merge/", BackupMergeView.as_view(), name="backup-merge"),
+    path("backups/merge-upload/", BackupMergeView.as_view(), name="backup-merge-upload"),
     path("", include(router.urls)),
 ]

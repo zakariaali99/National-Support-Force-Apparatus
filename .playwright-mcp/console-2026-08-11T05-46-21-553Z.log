@@ -1,0 +1,19 @@
+[     304ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=aac92b9b:14333
+[   18761ms] Error: Element type is invalid: expected a string (for built-in components) or a class/function (for composite components) but got: undefined. You likely forgot to export your component from the file it's defined in, or you might have mixed up default and named imports.
+
+Check the render method of `AlertDialogContent`.
+    at createFiberFromTypeAndProps (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=aac92b9b:2815:21)
+    at createFiberFromElement (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=aac92b9b:2826:11)
+    at createChild (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=aac92b9b:3629:47)
+    at reconcileChildrenArray (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=aac92b9b:3735:63)
+    at reconcileChildFibersImpl (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=aac92b9b:3840:106)
+    at http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=aac92b9b:3867:28
+    at reconcileChildren (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=aac92b9b:5384:46)
+    at beginWork (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=aac92b9b:6198:1569)
+    at runWithFiberInDEV (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=aac92b9b:850:66)
+    at performUnitOfWork (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=aac92b9b:8427:92)
+[   18761ms] [WARNING] %s
+
+%s
+ An error occurred in the <div> component. Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://react.dev/link/error-boundaries to learn more about error boundaries. @ http://localhost:5173/@vite/client:528

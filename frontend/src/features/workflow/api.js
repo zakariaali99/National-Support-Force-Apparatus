@@ -187,6 +187,18 @@ export function useDecideVacationRequest(memberId) {
       queryClient.invalidateQueries({ queryKey: ["vacation-requests", memberId] });
       queryClient.invalidateQueries({ queryKey: ["vacation-transactions", memberId] });
       queryClient.invalidateQueries({ queryKey: ["members", "detail", String(memberId)] });
+      queryClient.invalidateQueries({ queryKey: ["members"] });
+    },
+  });
+}
+
+export function useCreateVacationTransaction() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (payload) => (await api.post("vacation-transactions/", payload)).data,
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["vacation-transactions", variables.member] });
+      queryClient.invalidateQueries({ queryKey: ["members", "detail", String(variables.member)] });
     },
   });
 }

@@ -1,0 +1,310 @@
+- generic:
+  - generic:
+    - generic:
+      - link:
+        - /url: "#main-content"
+        - text: تخطَّ إلى المحتوى الرئيسي
+      - complementary:
+        - generic:
+          - generic:
+            - generic:
+              - generic:
+                - paragraph: الجهاز الوطني
+                - paragraph: للقوى المساندة
+            - button
+          - navigation:
+            - generic:
+              - button:
+                - generic: العامة والإدارة
+              - generic:
+                - link:
+                  - /url: /
+                  - generic: لوحة التحكم
+                - link:
+                  - /url: /members
+                  - generic: سجل الأعضاء
+                - link:
+                  - /url: /members/new
+                  - generic: إضافة عضو جديد
+            - generic:
+              - button:
+                - generic: الهيكل والتوزيع
+              - generic:
+                - link:
+                  - /url: /organization/factions
+                  - generic: الفصائل والكتائب
+                - link:
+                  - /url: /organization/ranks
+                  - generic: الرتب العسكرية
+            - generic:
+              - button:
+                - generic: الرقابة والنظام
+              - generic:
+                - link:
+                  - /url: /audit
+                  - generic: سجل التدقيق
+                - link:
+                  - /url: /backups
+                  - generic: النسخ الاحتياطية
+                - link:
+                  - /url: /settings
+                  - generic: إعدادات النظام
+          - generic:
+            - generic: S
+            - generic:
+              - paragraph: smoketest
+              - paragraph: مدير النظام
+      - generic:
+        - banner:
+          - navigation:
+            - generic:
+              - link:
+                - /url: /
+                - generic: الرئيسية
+            - generic: مستخدمو النظام
+          - generic:
+            - button:
+              - generic: بحث...
+              - generic: Ctrl+K / ⌘K
+            - button
+            - button
+            - button:
+              - img:
+                - generic: s
+              - generic: smoketest
+        - main:
+          - generic:
+            - generic:
+              - generic:
+                - heading [level=1]: مستخدمو النظام
+                - paragraph: إدارة الحسابات المسؤولة عن تشغيل وإدخال البيانات على النظام.
+              - generic:
+                - button: إضافة مستخدم جديد
+            - generic:
+              - generic:
+                - heading [level=2]: حسابات مستخدمي النظام
+                - paragraph: قائمة الحسابات المخولة للدخول وإدارة بيانات الجهاز
+              - generic:
+                - generic:
+                  - table:
+                    - rowgroup:
+                      - row:
+                        - columnheader:
+                          - generic: اسم المستخدم / الحساب
+                        - columnheader:
+                          - generic: الاسم الكامل
+                        - columnheader:
+                          - generic: الأدوار
+                        - columnheader:
+                          - generic: الحالة
+                        - columnheader:
+                          - generic: رقم الهاتف
+                        - columnheader
+                    - rowgroup:
+                      - row:
+                        - cell:
+                          - generic:
+                            - generic: admin
+                            - generic: admin@nasf.ly
+                        - cell:
+                          - generic: Zakaria Ali
+                        - cell:
+                          - generic: مدير النظام
+                        - cell:
+                          - generic: نشط
+                        - cell: —
+                        - cell:
+                          - generic:
+                            - button: تعديل
+                            - button
+                      - row:
+                        - cell:
+                          - generic:
+                            - generic: dataentry1
+                            - generic: dataentry@nsfa.gov.ly
+                        - cell:
+                          - generic: خالد الزنتاني
+                        - cell:
+                          - generic: إدخال بيانات
+                        - cell:
+                          - generic: نشط
+                        - cell: —
+                        - cell:
+                          - generic:
+                            - button: تعديل
+                            - button
+                      - row:
+                        - cell:
+                          - generic:
+                            - generic: smoketest
+                            - generic: smoketest@example.com
+                        - cell
+                        - cell:
+                          - generic: مطّلع
+                        - cell:
+                          - generic: نشط
+                        - cell: —
+                        - cell:
+                          - generic:
+                            - button: تعديل
+                            - button
+                      - row:
+                        - cell:
+                          - generic:
+                            - generic: supervisor1
+                            - generic: supervisor@nsfa.gov.ly
+                        - cell:
+                          - generic: سالم الترهوني
+                        - cell:
+                          - generic: مشرف
+                        - cell:
+                          - generic: نشط
+                        - cell: —
+                        - cell:
+                          - generic:
+                            - button: تعديل
+                            - button
+                      - row:
+                        - cell:
+                          - generic:
+                            - generic: viewer1
+                            - generic: viewer@nsfa.gov.ly
+                        - cell:
+                          - generic: عمر السويحلي
+                        - cell:
+                          - generic: مطّلع
+                        - cell:
+                          - generic: نشط
+                        - cell: —
+                        - cell:
+                          - generic:
+                            - button: تعديل
+                            - button
+                      - row:
+                        - cell:
+                          - generic:
+                            - generic: zakaria
+                            - generic: zakaria.ali.sweasi@gmail.com
+                        - cell:
+                          - generic: Zakaria Ali
+                        - cell:
+                          - generic: مطّلع
+                        - cell:
+                          - generic: نشط
+                        - cell: "0910000000"
+                        - cell:
+                          - generic:
+                            - button: تعديل
+                            - button
+            - generic:
+              - generic:
+                - generic: عرض 1 إلى 6 من إجمالي 6 سجل
+                - generic:
+                  - generic: "العناصر / الصفحة:"
+                  - generic:
+                    - combobox
+              - generic:
+                - button [disabled]: السابق
+                - generic:
+                  - button: "1"
+                - button [disabled]: التالي
+  - dialog [ref=f58e278]:
+    - 'heading "تعديل بيانات المستخدم: dataentry1" [level=2] [ref=f58e280]'
+    - generic [ref=f58e281]:
+      - generic [ref=f58e282]:
+        - generic [ref=f58e283]:
+          - generic [ref=f58e284]: اسم المستخدم (للدخول)
+          - textbox "اسم المستخدم (للدخول)" [disabled] [ref=f58e285]:
+            - /placeholder: e.g. ahmed_99
+            - text: dataentry1
+        - generic [ref=f58e286]:
+          - generic [ref=f58e287]: كلمة المرور (اتركه فارغاً لعدم التغيير)
+          - textbox "كلمة المرور (اتركه فارغاً لعدم التغيير)" [ref=f58e288]:
+            - /placeholder: "********"
+      - generic [ref=f58e289]:
+        - generic [ref=f58e290]:
+          - generic [ref=f58e291]: الاسم الأول
+          - textbox "الاسم الأول" [ref=f58e292]: خالد
+        - generic [ref=f58e293]:
+          - generic [ref=f58e294]: اللقب / الكنية
+          - textbox "اللقب / الكنية" [ref=f58e295]:
+            - /placeholder: اللقب
+            - text: الزنتاني
+      - generic [ref=f58e296]:
+        - generic [ref=f58e297]:
+          - generic [ref=f58e298]: البريد الإلكتروني
+          - textbox "البريد الإلكتروني" [ref=f58e299]:
+            - /placeholder: mail@example.com
+            - text: dataentry@nsfa.gov.ly
+        - generic [ref=f58e300]:
+          - generic [ref=f58e301]: رقم الهاتف
+          - textbox "رقم الهاتف" [ref=f58e302]:
+            - /placeholder: 09XXXXXXXX
+      - generic [ref=f58e303]:
+        - generic [ref=f58e304]:
+          - generic [ref=f58e305]: الحساب نشط
+          - switch "الحساب نشط" [checked] [ref=f58e306] [cursor=pointer]
+          - checkbox [checked]
+        - generic [ref=f58e307]:
+          - generic [ref=f58e308]: حساب مؤكد
+          - switch "حساب مؤكد" [ref=f58e309] [cursor=pointer]
+          - checkbox
+        - generic [ref=f58e310]:
+          - generic [ref=f58e311]: حق دخول الإدارة
+          - switch "حق دخول الإدارة" [checked] [ref=f58e312] [cursor=pointer]
+          - checkbox [checked]
+      - generic [ref=f58e313]:
+        - generic [ref=f58e314]: تعيين الأدوار
+        - generic [ref=f58e315]:
+          - generic [ref=f58e316] [cursor=pointer]:
+            - checkbox "مشرف" [ref=f58e317]
+            - checkbox
+            - generic [ref=f58e318]: مشرف
+          - generic [ref=f58e319] [cursor=pointer]:
+            - checkbox "مطّلع" [ref=f58e320]
+            - checkbox
+            - generic [ref=f58e321]: مطّلع
+          - generic [ref=f58e322] [cursor=pointer]:
+            - checkbox "إدخال بيانات" [checked] [ref=f58e323]
+            - checkbox [checked]
+            - generic [ref=f58e324]: إدخال بيانات
+          - generic [ref=f58e325] [cursor=pointer]:
+            - checkbox "مدير النظام" [ref=f58e326]
+            - checkbox
+            - generic [ref=f58e327]: مدير النظام
+          - generic [ref=f58e328] [cursor=pointer]:
+            - checkbox "zakaria" [ref=f58e329]
+            - checkbox
+            - generic [ref=f58e330]: zakaria
+      - generic [ref=f58e331]:
+        - generic [ref=f58e332]: تعيين الفصائل (الإدارات)
+        - paragraph [ref=f58e333]: هذا المستخدم لديه أدوار محدودة بفصيله. حدد الفصائل التي يسمح له بالوصول إليها.
+        - generic [ref=f58e334]:
+          - generic [ref=f58e335] [cursor=pointer]:
+            - checkbox "فصيل الإسناد الناري" [ref=f58e336]
+            - checkbox
+            - generic [ref=f58e337]: فصيل الإسناد الناري
+          - generic [ref=f58e338] [cursor=pointer]:
+            - checkbox "فصيل التدريب والتأهيل" [ref=f58e339]
+            - checkbox
+            - generic [ref=f58e340]: فصيل التدريب والتأهيل
+          - generic [ref=f58e341] [cursor=pointer]:
+            - checkbox "فصيل الحماية والحراسة" [checked] [active] [ref=f58e342]
+            - checkbox [checked]
+            - generic [ref=f58e343]: فصيل الحماية والحراسة
+          - generic [ref=f58e344] [cursor=pointer]:
+            - checkbox "فصيل الدعم اللوجستي" [checked] [ref=f58e345]
+            - checkbox [checked]
+            - generic [ref=f58e346]: فصيل الدعم اللوجستي
+          - generic [ref=f58e347] [cursor=pointer]:
+            - checkbox "فصيل القيادة والسيطرة" [ref=f58e348]
+            - checkbox
+            - generic [ref=f58e349]: فصيل القيادة والسيطرة
+          - generic [ref=f58e350] [cursor=pointer]:
+            - checkbox "فصيل المشاة المقاتلة" [checked] [ref=f58e351]
+            - checkbox [checked]
+            - generic [ref=f58e352]: فصيل المشاة المقاتلة
+      - generic [ref=f58e353]:
+        - button "إلغاء" [ref=f58e354]
+        - button "تعديل البيانات" [ref=f58e355]
+    - button "إغلاق" [ref=f58e356]

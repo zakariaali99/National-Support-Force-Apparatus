@@ -1,0 +1,278 @@
+- generic:
+  - generic:
+    - generic:
+      - link:
+        - /url: "#main-content"
+        - text: تخطَّ إلى المحتوى الرئيسي
+      - complementary:
+        - generic:
+          - generic:
+            - generic:
+              - generic:
+                - paragraph: الجهاز الوطني
+                - paragraph: للقوى المساندة
+            - button
+          - navigation:
+            - generic:
+              - button:
+                - generic: العامة
+              - generic:
+                - link:
+                  - /url: /
+                  - generic: لوحة التحكم
+                - link:
+                  - /url: /members
+                  - generic: الأعضاء
+            - generic:
+              - button:
+                - generic: الهيكل التنظيمي
+              - generic:
+                - link:
+                  - /url: /organization/ranks
+                  - generic: الرتب
+                - link:
+                  - /url: /organization/factions
+                  - generic: الفصائل
+            - generic:
+              - button:
+                - generic: إعدادات النظام
+              - generic:
+                - link:
+                  - /url: /settings/field-requirements
+                  - generic: متطلبات الحقول
+                - link:
+                  - /url: /settings/roles
+                  - generic: الأدوار والصلاحيات
+                - link:
+                  - /url: /settings/users
+                  - generic: مستخدمو النظام
+            - generic:
+              - button:
+                - generic: السجلات والصيانة
+              - generic:
+                - link:
+                  - /url: /audit
+                  - generic: سجل التدقيق
+                - link:
+                  - /url: /backups
+                  - generic: النسخ الاحتياطية
+          - generic:
+            - generic: S
+            - generic:
+              - paragraph: smoketest
+              - paragraph: مدير النظام
+      - generic:
+        - banner:
+          - navigation:
+            - generic: لوحة التحكم
+          - generic:
+            - button [active]:
+              - generic: بحث...
+              - generic: ⌘K
+            - button
+            - button
+            - button:
+              - img:
+                - generic: s
+              - generic: smoketest
+        - main:
+          - generic:
+            - generic:
+              - generic:
+                - generic:
+                  - generic: الثلاثاء، 11 أغسطس 2026
+                  - heading [level=1]: أهلاً بك، smoketest 👋
+                  - paragraph: لوحة التحكم الرئيسية لإدارة السجلات، شؤون الأعضاء، والهيكل التنظيمي بالجهاز الوطني للقوى المساندة.
+                - generic:
+                  - link:
+                    - /url: /members/new
+                    - button: تسجيل عضو جديد
+                  - link:
+                    - /url: /members
+                    - button: السجل العام
+            - generic:
+              - generic:
+                - generic:
+                  - paragraph: إجمالي القوة المسجلة
+                  - generic:
+                    - heading [level=2]: "12"
+              - generic:
+                - generic:
+                  - paragraph: القوة العاملة بالخدمة
+                  - generic:
+                    - heading [level=2]: "9"
+              - generic:
+                - generic:
+                  - paragraph: الأعضاء في إجازة
+                  - generic:
+                    - heading [level=2]: "1"
+              - generic:
+                - generic:
+                  - paragraph: معاملات بانتظار الاعتماد
+                  - generic:
+                    - heading [level=2]: "1"
+            - generic:
+              - generic:
+                - generic:
+                  - heading [level=2]: توزيع حالة القوة البشرية
+                  - generic: "مجموع الفصائل: 6 فصيلاً"
+                - paragraph: نسبة توزيع الأعضاء بين الخدمة الفعالة والتعزيز والإجازات الرسمية
+              - generic:
+                - generic:
+                  - generic:
+                    - generic:
+                      - text: "قوة بالخدمة:"
+                      - strong: "9"
+                      - text: (75%)
+                  - generic:
+                    - generic:
+                      - text: "في إجازة:"
+                      - strong: "1"
+                      - text: (8%)
+                  - generic:
+                    - generic:
+                      - text: "إيقاف / آخر:"
+                      - strong: "2"
+            - generic:
+              - generic:
+                - generic:
+                  - generic:
+                    - heading [level=2]: أحدث الأعضاء المسجلين
+                    - paragraph: سجل ببيانات آخر الأعضاء المضافين للمنظومة الإدارية
+                  - link:
+                    - /url: /members
+                    - generic: عرض السجل الكامل
+                - generic:
+                  - generic:
+                    - table:
+                      - rowgroup:
+                        - row:
+                          - columnheader: الاسم الكامل
+                          - columnheader: الرقم الحربي
+                          - columnheader: الفصيل / الإدارة
+                          - columnheader: تاريخ القيد
+                      - rowgroup:
+                        - row:
+                          - cell:
+                            - link:
+                              - /url: /members/13
+                              - generic: عادل مفتاح إبراهيم القره مانلي
+                          - cell: "10255"
+                          - cell: فصيل المشاة المقاتلة
+                          - cell
+                        - row:
+                          - cell:
+                            - link:
+                              - /url: /members/12
+                              - generic: جمال صالح رمضان الباروني
+                          - cell: "10232"
+                          - cell: فصيل الدعم اللوجستي
+                          - cell
+                        - row:
+                          - cell:
+                            - link:
+                              - /url: /members/11
+                              - generic: طارق المهدي الهادي المنتصر
+                          - cell: "10211"
+                          - cell: فصيل الحماية والحراسة
+                          - cell
+                        - row:
+                          - cell:
+                            - link:
+                              - /url: /members/10
+                              - generic: عمر مصطفى عبد اللطيف السويحلي
+                          - cell: "10190"
+                          - cell: فصيل التدريب والتأهيل
+                          - cell
+                        - row:
+                          - cell:
+                            - link:
+                              - /url: /members/9
+                              - generic: فتحي عبد السلام محمد حليم
+                          - cell: "10168"
+                          - cell: فصيل المشاة المقاتلة
+                          - cell
+              - generic:
+                - generic:
+                  - heading [level=2]: روابط وإجراءات سريعة
+                  - paragraph: وصول سريع لمهام وأقسام الإدارة اليومية
+                - generic:
+                  - link:
+                    - /url: /members/new
+                    - generic:
+                      - paragraph: إضافة عضو جديد
+                      - paragraph: إدخال سجل إداري جديد للقوة المساندة
+                  - link:
+                    - /url: /organization/factions
+                    - generic:
+                      - paragraph: إدارة الفصائل والوحدات
+                      - paragraph: عرض وتوزيع الوحدات والإدارات التنظيمية
+                  - link:
+                    - /url: /audit
+                    - generic:
+                      - paragraph: سجل التدقيق والأمان
+                      - paragraph: مراجعة العمليات والتعديلات المنفذة للنظام
+  - dialog [ref=f15e308]:
+    - generic [ref=f15e309]:
+      - generic [ref=f15e310]: لوحة الأوامر
+      - generic [ref=f15e311]:
+        - combobox "لوحة الأوامر" [expanded] [ref=f15e315]
+        - generic [ref=f15e316]: Esc
+      - listbox "النتائج" [ref=f15e317]:
+        - generic [ref=f15e318]:
+          - generic [ref=f15e319]: الصفحات
+          - group "الصفحات" [ref=f15e320]:
+            - option "لوحة التحكم العامة" [selected] [ref=f15e321] [cursor=pointer]:
+              - generic [ref=f15e327]: لوحة التحكم
+              - generic [ref=f15e328]: العامة
+            - option "الأعضاء العامة" [ref=f15e329] [cursor=pointer]:
+              - generic [ref=f15e335]: الأعضاء
+              - generic [ref=f15e336]: العامة
+            - option "الرتب الهيكل التنظيمي" [ref=f15e337] [cursor=pointer]:
+              - generic [ref=f15e340]: الرتب
+              - generic [ref=f15e341]: الهيكل التنظيمي
+            - option "الفصائل الهيكل التنظيمي" [ref=f15e342] [cursor=pointer]:
+              - generic [ref=f15e347]: الفصائل
+              - generic [ref=f15e348]: الهيكل التنظيمي
+            - option "متطلبات الحقول إعدادات النظام" [ref=f15e349] [cursor=pointer]:
+              - generic [ref=f15e353]: متطلبات الحقول
+              - generic [ref=f15e354]: إعدادات النظام
+            - option "الأدوار والصلاحيات إعدادات النظام" [ref=f15e355] [cursor=pointer]:
+              - generic [ref=f15e358]: الأدوار والصلاحيات
+              - generic [ref=f15e359]: إعدادات النظام
+            - option "مستخدمو النظام إعدادات النظام" [ref=f15e360] [cursor=pointer]:
+              - generic [ref=f15e365]: مستخدمو النظام
+              - generic [ref=f15e366]: إعدادات النظام
+            - option "سجل التدقيق السجلات والصيانة" [ref=f15e367] [cursor=pointer]:
+              - generic [ref=f15e371]: سجل التدقيق
+              - generic [ref=f15e372]: السجلات والصيانة
+            - option "النسخ الاحتياطية السجلات والصيانة" [ref=f15e373] [cursor=pointer]:
+              - generic [ref=f15e377]: النسخ الاحتياطية
+              - generic [ref=f15e378]: السجلات والصيانة
+          - generic [ref=f15e379]: الأعضاء
+          - group "الأعضاء" [ref=f15e380]:
+            - option "جمال صالح رمضان الباروني 10232" [ref=f15e381] [cursor=pointer]:
+              - generic [ref=f15e387]: جمال صالح رمضان الباروني
+              - generic [ref=f15e388]: "10232"
+            - option "سالم عبد الله عمر الترهوني 10041" [ref=f15e389] [cursor=pointer]:
+              - generic [ref=f15e395]: سالم عبد الله عمر الترهوني
+              - generic [ref=f15e396]: "10041"
+            - option "خالد مسعود سعيد الزنتاني 10082" [ref=f15e397] [cursor=pointer]:
+              - generic [ref=f15e403]: خالد مسعود سعيد الزنتاني
+              - generic [ref=f15e404]: "10082"
+            - option "عمر مصطفى عبد اللطيف السويحلي 10190" [ref=f15e405] [cursor=pointer]:
+              - generic [ref=f15e411]: عمر مصطفى عبد اللطيف السويحلي
+              - generic [ref=f15e412]: "10190"
+            - option "عبد الرحمن مفتاح ناجي الطرابلسي 10122" [ref=f15e413] [cursor=pointer]:
+              - generic [ref=f15e419]: عبد الرحمن مفتاح ناجي الطرابلسي
+              - generic [ref=f15e420]: "10122"
+            - option "أبوبكر السنوسي مسعود الغرياني 10145" [ref=f15e421] [cursor=pointer]:
+              - generic [ref=f15e427]: أبوبكر السنوسي مسعود الغرياني
+              - generic [ref=f15e428]: "10145"
+            - option "صلاح عمر عثمان القذافي 10103" [ref=f15e429] [cursor=pointer]:
+              - generic [ref=f15e435]: صلاح عمر عثمان القذافي
+              - generic [ref=f15e436]: "10103"
+            - option "طارق المهدي الهادي المنتصر 10211" [ref=f15e437] [cursor=pointer]:
+              - generic [ref=f15e443]: طارق المهدي الهادي المنتصر
+              - generic [ref=f15e444]: "10211"
+    - button "إغلاق" [ref=f15e445]

@@ -1,0 +1,183 @@
+- generic:
+  - generic:
+    - generic:
+      - link:
+        - /url: "#main-content"
+        - text: تخطَّ إلى المحتوى الرئيسي
+      - complementary:
+        - generic:
+          - generic:
+            - generic:
+              - generic:
+                - paragraph: الجهاز الوطني
+                - paragraph: للقوى المساندة
+            - button
+          - navigation:
+            - generic:
+              - button:
+                - generic: العامة والإدارة
+              - generic:
+                - link:
+                  - /url: /
+                  - generic: لوحة التحكم
+                - link:
+                  - /url: /members
+                  - generic: سجل الأعضاء
+                - link:
+                  - /url: /members/new
+                  - generic: إضافة عضو جديد
+            - generic:
+              - button:
+                - generic: الهيكل والتوزيع
+              - generic:
+                - link:
+                  - /url: /organization/factions
+                  - generic: الفصائل والكتائب
+                - link:
+                  - /url: /organization/ranks
+                  - generic: الرتب العسكرية
+            - generic:
+              - button:
+                - generic: الرقابة والنظام
+              - generic:
+                - link:
+                  - /url: /audit
+                  - generic: سجل التدقيق
+                - link:
+                  - /url: /backups
+                  - generic: النسخ الاحتياطية
+                - link:
+                  - /url: /settings
+                  - generic: إعدادات النظام
+          - generic:
+            - generic: S
+            - generic:
+              - paragraph: smoketest
+              - paragraph: مدير النظام
+      - generic:
+        - banner:
+          - navigation:
+            - generic:
+              - link:
+                - /url: /
+                - generic: الرئيسية
+            - generic:
+              - link:
+                - /url: /members
+                - generic: الأعضاء
+            - generic: ملف العضو
+          - generic:
+            - button:
+              - generic: بحث...
+              - generic: Ctrl+K / ⌘K
+            - button
+            - button
+            - button:
+              - img:
+                - generic: s
+              - generic: smoketest
+        - main:
+          - generic:
+            - generic:
+              - generic:
+                - generic:
+                  - generic:
+                    - heading [level=1]: عادل مفتاح إبراهيم القره مانلي
+                    - generic:
+                      - generic: نشط
+                      - generic: معتمد
+                      - generic: جندي
+                - generic:
+                  - button [expanded]:
+                    - generic: طباعة الملف
+                  - button:
+                    - generic: السجل
+                  - link:
+                    - /url: /members/13/edit
+                    - generic: تعديل
+                  - button:
+                    - generic: حذف
+            - generic:
+              - tablist:
+                - tab [selected]: نظرة عامة
+                - tab: المستندات
+                - tab: السجل الوظيفي
+                - tab: التعهدات
+              - tabpanel:
+                - generic:
+                  - generic:
+                    - paragraph: البيانات العسكرية والشخصية
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic:
+                          - paragraph: الرقم الحربي
+                          - paragraph: "10255"
+                      - generic:
+                        - generic:
+                          - paragraph: الرقم الوطني
+                          - paragraph: "119930382746"
+                      - generic:
+                        - generic:
+                          - paragraph: تاريخ الميلاد
+                          - paragraph: 21‏/08‏/1993
+                      - generic:
+                        - generic:
+                          - paragraph: مكان الميلاد
+                          - paragraph: طرابلس
+                      - generic:
+                        - generic:
+                          - paragraph: فصيلة الدم
+                          - paragraph: O+
+                      - generic:
+                        - generic:
+                          - paragraph: رقم الهاتف
+                          - paragraph: "0913334455"
+                      - generic:
+                        - generic:
+                          - paragraph: تاريخ الالتحاق
+                          - paragraph: 01‏/11‏/2020
+                      - generic:
+                        - generic:
+                          - paragraph: الفصيل (الإدارة)
+                          - paragraph: فصيل المشاة المقاتلة
+  - dialog [ref=f46e245]:
+    - generic [ref=f46e246]:
+      - generic [ref=f46e247]:
+        - heading "طباعة وتصدير ملف العضو" [level=2] [ref=f46e248]
+        - generic [ref=f46e254]: "10255"
+      - generic [ref=f46e255]:
+        - generic [ref=f46e256]: ع
+        - generic [ref=f46e257]:
+          - heading "عادل مفتاح إبراهيم القره مانلي" [level=4] [ref=f46e258]
+          - generic [ref=f46e259]:
+            - generic [ref=f46e260]:
+              - text: "الرتبة:"
+              - strong [ref=f46e261]: جندي
+            - generic [ref=f46e262]:
+              - text: "| الفصيل:"
+              - strong [ref=f46e263]: فصيل المشاة المقاتلة
+    - generic [ref=f46e264]:
+      - generic [ref=f46e265]:
+        - generic [ref=f46e266]: "الأقسام والتقرير المطلوب:"
+        - button "تحديد كافة الأقسام" [active] [ref=f46e267]
+      - generic [ref=f46e268]:
+        - generic [ref=f46e269] [cursor=pointer]:
+          - checkbox "الملف الشخصي" [checked]
+          - generic [ref=f46e270]: الملف الشخصي
+        - generic [ref=f46e271] [cursor=pointer]:
+          - checkbox "الملاحظات"
+          - generic [ref=f46e272]: الملاحظات
+        - generic [ref=f46e273] [cursor=pointer]:
+          - checkbox "المهام" [checked]
+          - generic [ref=f46e274]: المهام
+        - generic [ref=f46e275] [cursor=pointer]:
+          - checkbox "التقييمات" [checked]
+          - generic [ref=f46e276]: التقييمات
+        - generic [ref=f46e277] [cursor=pointer]:
+          - checkbox "سجل الإجازات" [checked]
+          - generic [ref=f46e278]: سجل الإجازات
+    - generic [ref=f46e279]:
+      - button "تنزيل PDF" [ref=f46e280]
+      - button "فتح ومعاينة الطباعة" [ref=f46e284]
+    - button "إغلاق" [ref=f46e289]

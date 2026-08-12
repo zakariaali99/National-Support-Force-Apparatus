@@ -16,6 +16,7 @@ SECTION_REGISTRY = [
     {"key": "tasks", "label_ar": "المهام", "template": "print/tasks.html", "order": 3},
     {"key": "evaluations", "label_ar": "التقييمات", "template": "print/evaluations.html", "order": 4},
     {"key": "vacation", "label_ar": "سجل الإجازات", "template": "print/vacation.html", "order": 5},
+    {"key": "pledges", "label_ar": "التعهدات والالتزامات", "template": "print/pledges.html", "order": 6},
 ]
 
 SECTION_BY_KEY = {s["key"]: s for s in SECTION_REGISTRY}

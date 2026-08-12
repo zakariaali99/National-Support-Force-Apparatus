@@ -1,44 +1,46 @@
 import { useState } from "react";
+
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Pencil, Plus, Trash2 } from "lucide-react";
+import { Plus, Pencil, Trash2 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
+import { Badge } from "../../components/ui/Badge";
 import { Button } from "../../components/ui/Button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../components/ui/Card";
+import { Card, CardContent } from "../../components/ui/Card";
 import { DataTable } from "../../components/ui/DataTable";
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "../../components/ui/Dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "../../components/ui/Dialog";
 import { Input } from "../../components/ui/Input";
 import { Label } from "../../components/ui/Label";
+import { PageHeader } from "../../components/ui/PageHeader";
 import { Switch } from "../../components/ui/Switch";
 import { Textarea } from "../../components/ui/Textarea";
+import { showToast } from "../../components/ui/Toast";
 import { useAuth } from "../auth/AuthContext";
 import { factionsApi } from "./api";
 
 const schema = z.object({
-  name_ar: z.string().min(1, "الاسم مطلوب"),
+  name_ar: z.string().min(1, "اسم الإدارة مطلوب"),
   description: z.string().optional(),
-  is_active: z.boolean(),
+  is_active: z.boolean().default(true),
 });
-
-function generateSlug(text) {
-  return (
-    text
-      .toLowerCase()
-      .replace(/[\s\W]+/g, "-")
-      .replace(/^-+|-+$/g, "") || `faction-${Date.now()}`
-  );
-}
 
 export function FactionsPage() {
   const { hasPermission } = useAuth();
-  const canManage = hasPermission("organization.manage");
+  const canManage = hasPermission("structure.manage");
 
-  const { data: factions = [], isLoading } = factionsApi.useList({ ordering: "name_ar" });
-  const createFaction = factionsApi.useCreate();
-  const updateFaction = factionsApi.useUpdate();
-  const removeFaction = factionsApi.useRemove();
+  const { data: factions = [], isLoading } = factionsApi.useList();
+  const createMutation = factionsApi.useCreate();
+  const updateMutation = factionsApi.useUpdate();
+  const deleteMutation = factionsApi.useDelete();
 
+  // 'create' | { edit: Faction } | null
   const [dialogState, setDialogState] = useState(null);
 
   const form = useForm({
@@ -54,53 +56,75 @@ export function FactionsPage() {
   function openEdit(faction) {
     form.reset({
       name_ar: faction.name_ar,
-      description: faction.description ?? "",
+      description: faction.description || "",
       is_active: faction.is_active,
     });
-    setDialogState(faction);
+    setDialogState({ edit: faction });
   }
 
   async function onSubmit(values) {
-    if (dialogState === "create") {
-      const code = generateSlug(values.name_ar);
-      await createFaction.mutateAsync({ ...values, code });
-    } else {
-      const code = dialogState.code || generateSlug(values.name_ar);
-      await updateFaction.mutateAsync({ id: dialogState.id, ...values, code });
+    try {
+      if (dialogState === "create") {
+        await createMutation.mutateAsync(values);
+        showToast("تمت إضافة الإدارة بنجاح", "success");
+      } else if (dialogState?.edit) {
+        await updateMutation.mutateAsync({
+          id: dialogState.edit.id,
+          payload: values,
+        });
+        showToast("تم تحديث الإدارة بنجاح", "success");
+      }
+      setDialogState(null);
+    } catch {
+      showToast("حدث خطأ أثناء الحفظ", "error");
     }
-    setDialogState(null);
   }
 
-  async function onDelete(faction) {
-    if (window.confirm(`هل تريد حذف الفصيل "${faction.name_ar}"؟`)) {
-      await removeFaction.mutateAsync(faction.id);
+  async function handleDelete(faction) {
+    if (window.confirm(`هل تريد حذف الإدارة "${faction.name_ar}"؟`)) {
+      try {
+        await deleteMutation.mutateAsync(faction.id);
+        showToast("تم حذف الإدارة", "success");
+      } catch {
+        showToast("تعذر حذف الإدارة", "error");
+      }
     }
   }
 
   const columns = [
-    { key: "name_ar", label: "اسم الفصيل / الإدارة" },
-    { key: "description", label: "الوصف والمهام" },
+    { key: "name_ar", label: "اسم الإدارة" },
     {
-      key: "is_active",
+      key: "description",
+      label: "الوصف والمهام",
+      render: (r) => r.description || "—",
+    },
+    {
+      key: "status",
       label: "الحالة",
-      render: (row) => (
-        <span className={row.is_active ? "text-success font-bold" : "text-muted-foreground"}>
-          {row.is_active ? "مفعّل" : "معطّل"}
-        </span>
+      render: (r) => (
+        <Badge variant={r.is_active ? "success" : "muted"}>
+          {r.is_active ? "نشط" : "غير نشط"}
+        </Badge>
       ),
     },
     ...(canManage
       ? [
           {
             key: "actions",
-            label: "",
-            render: (row) => (
-              <div className="flex justify-end gap-1">
-                <Button variant="ghost" size="icon" onClick={() => openEdit(row)} aria-label="تعديل">
+            label: "إجراءات",
+            className: "text-center w-24",
+            render: (r) => (
+              <div className="flex items-center justify-center gap-1">
+                <Button size="icon" variant="ghost" onClick={() => openEdit(r)}>
                   <Pencil className="h-4 w-4" />
                 </Button>
-                <Button variant="ghost" size="icon" onClick={() => onDelete(row)} aria-label="حذف">
-                  <Trash2 className="h-4 w-4 text-destructive" />
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  className="text-danger hover:bg-danger/10"
+                  onClick={() => handleDelete(r)}
+                >
+                  <Trash2 className="h-4 w-4" />
                 </Button>
               </div>
             ),
@@ -111,35 +135,32 @@ export function FactionsPage() {
 
   return (
     <div className="space-y-4">
-      <Card className="rounded-2xl border border-border/80 shadow-sm">
-        <CardHeader className="flex-row items-center justify-between space-y-0 pb-4">
-          <div>
-            <CardTitle className="text-xl font-bold">فصائل وإدارات الجهاز</CardTitle>
-            <CardDescription className="text-xs">الأقسام والوحدات التنفيذية التي ينتمي إليها أعضاء القوة المساندة</CardDescription>
-          </div>
-          {canManage && (
-            <Button onClick={openCreate} size="sm" className="shadow-xs">
-              <Plus className="h-4 w-4 me-1.5" />
-              إضافة فصيل جديد
-            </Button>
-          )}
-        </CardHeader>
-        <CardContent>
-          <DataTable columns={columns} rows={factions} isLoading={isLoading} emptyMessage="لا توجد فصائل مسجلة بعد" />
+      <PageHeader title="إدارات وقطاعات الجهاز" description="الأقسام والإدارات التنفيذية التي ينتمي إليها أعضاء القوة المساندة.">
+        {canManage && (
+          <Button onClick={openCreate} size="sm" className="shadow-xs font-bold">
+            <Plus className="h-4 w-4 me-1.5" />
+            إضافة إدارة جديدة
+          </Button>
+        )}
+      </PageHeader>
+
+      <Card className="rounded-2xl border border-border/80 shadow-sm overflow-hidden">
+        <CardContent className="p-0 overflow-hidden">
+          <DataTable columns={columns} rows={factions} isLoading={isLoading} emptyMessage="لا توجد إدارات مسجلة بعد" />
         </CardContent>
       </Card>
 
       <Dialog open={Boolean(dialogState)} onOpenChange={(open) => !open && setDialogState(null)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{dialogState === "create" ? "إضافة فصيل جديد" : "تعديل بيانات الفصيل"}</DialogTitle>
+            <DialogTitle>{dialogState === "create" ? "إضافة إدارة جديدة" : "تعديل بيانات الإدارة"}</DialogTitle>
           </DialogHeader>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-2">
             <div className="space-y-1.5">
-              <Label htmlFor="faction-name">اسم الفصيل / الإدارة</Label>
-              <Input id="faction-name" placeholder="اسم الفصيل بالعربية..." {...form.register("name_ar")} />
+              <Label htmlFor="faction-name">اسم الإدارة</Label>
+              <Input id="faction-name" placeholder="اسم الإدارة بالعربية..." {...form.register("name_ar")} />
               {form.formState.errors.name_ar && (
-                <p className="text-xs text-destructive">{form.formState.errors.name_ar.message}</p>
+                <p className="text-caption text-destructive">{form.formState.errors.name_ar.message}</p>
               )}
             </div>
             <div className="space-y-1.5">
@@ -147,7 +168,7 @@ export function FactionsPage() {
               <Textarea id="faction-description" placeholder="اختياري..." {...form.register("description")} />
             </div>
             <div className="flex items-center justify-between pt-2">
-              <Label htmlFor="faction-active">تفعيل الفصيل في النظام</Label>
+              <Label htmlFor="faction-active">تفعيل الإدارة في النظام</Label>
               <Switch
                 id="faction-active"
                 checked={form.watch("is_active")}
@@ -158,7 +179,7 @@ export function FactionsPage() {
               <Button type="button" variant="outline" onClick={() => setDialogState(null)}>
                 إلغاء
               </Button>
-              <Button type="submit" disabled={form.formState.isSubmitting}>
+              <Button type="submit" disabled={form.formState.isSubmitting} className="font-bold">
                 حفظ
               </Button>
             </DialogFooter>

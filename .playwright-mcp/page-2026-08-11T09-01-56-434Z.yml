@@ -1,0 +1,92 @@
+- generic [ref=f49e4]:
+  - link "تخطَّ إلى المحتوى الرئيسي" [ref=f49e5] [cursor=pointer]:
+    - /url: "#main-content"
+  - complementary [ref=f49e6]:
+    - generic [ref=f49e7]:
+      - generic [ref=f49e8]:
+        - generic [ref=f49e9]:
+          - img "شعار الجهاز الوطني" [ref=f49e10]
+          - generic [ref=f49e11]:
+            - paragraph [ref=f49e12]: الجهاز الوطني
+            - paragraph [ref=f49e13]: للقوى المساندة
+        - button "طي القائمة" [ref=f49e14]
+      - navigation [ref=f49e18]:
+        - generic [ref=f49e19]:
+          - button "العامة والإدارة" [ref=f49e20] [cursor=pointer]
+          - generic [ref=f49e24]:
+            - link "لوحة التحكم" [ref=f49e25] [cursor=pointer]:
+              - /url: /
+            - link "سجل الأعضاء" [ref=f49e32] [cursor=pointer]:
+              - /url: /members
+            - link "إضافة عضو جديد" [ref=f49e39] [cursor=pointer]:
+              - /url: /members/new
+        - generic [ref=f49e44]:
+          - button "الهيكل والتوزيع" [ref=f49e45] [cursor=pointer]
+          - generic [ref=f49e49]:
+            - link "الفصائل والكتائب" [ref=f49e50] [cursor=pointer]:
+              - /url: /organization/factions
+            - link "الرتب العسكرية" [ref=f49e56] [cursor=pointer]:
+              - /url: /organization/ranks
+        - generic [ref=f49e60]:
+          - button "الرقابة والنظام" [ref=f49e61] [cursor=pointer]
+          - generic [ref=f49e65]:
+            - link "سجل التدقيق" [ref=f49e66] [cursor=pointer]:
+              - /url: /audit
+            - link "النسخ الاحتياطية" [ref=f49e71] [cursor=pointer]:
+              - /url: /backups
+            - link "إعدادات النظام" [ref=f49e76] [cursor=pointer]:
+              - /url: /settings
+      - generic [ref=f49e81]:
+        - generic [ref=f49e82]: S
+        - generic [ref=f49e83]:
+          - paragraph [ref=f49e84]: smoketest
+          - paragraph [ref=f49e85]: مدير النظام
+  - generic [ref=f49e86]:
+    - banner [ref=f49e87]:
+      - navigation "مسار التنقل" [ref=f49e88]:
+        - link "الرئيسية" [ref=f49e90] [cursor=pointer]:
+          - /url: /
+        - link "الأعضاء" [ref=f49e98] [cursor=pointer]:
+          - /url: /members
+        - generic [ref=f49e100]: ملف العضو
+      - generic [ref=f49e104]:
+        - button "فتح لوحة الأوامر (Ctrl+K / ⌘K)" [ref=f49e105]:
+          - generic [ref=f49e109]: بحث...
+          - generic [ref=f49e110]: Ctrl+K / ⌘K
+        - button "الإشعارات" [ref=f49e111]
+        - button "تبديل المظهر" [ref=f49e115]
+        - button "smoketest smoketest" [ref=f49e118]:
+          - img "smoketest" [ref=f49e119]:
+            - generic [ref=f49e120]: s
+          - generic [ref=f49e121]: smoketest
+    - main [ref=f49e122]:
+      - generic [ref=f49e123]:
+        - generic [ref=f49e125]:
+          - generic [ref=f49e131]:
+            - heading "عادل مفتاح إبراهيم القره مانلي" [level=1] [ref=f49e132]
+            - generic [ref=f49e133]:
+              - generic [ref=f49e134]: نشط
+              - generic [ref=f49e138]: معتمد
+              - generic [ref=f49e139]: جندي
+          - generic [ref=f49e140]:
+            - button "طباعة الملف" [ref=f49e141]
+            - button "السجل" [ref=f49e147]
+            - link "تعديل" [ref=f49e153] [cursor=pointer]:
+              - /url: /members/13/edit
+            - button "حذف" [ref=f49e158]
+        - generic [ref=f49e163]:
+          - tablist [ref=f49e164]:
+            - tab "نظرة عامة" [ref=f49e165]
+            - tab "المستندات" [active] [selected] [ref=f49e169]
+            - tab "السجل الوظيفي" [ref=f49e172]
+            - tab "التعهدات" [ref=f49e176]
+          - tabpanel "المستندات" [ref=f49e244]:
+            - generic [ref=f49e245]:
+              - generic [ref=f49e246]:
+                - combobox [ref=f49e248]:
+                  - option "اختر نوع المستند" [selected]
+                  - option "شهادة الميلاد"
+                  - option "جواز السفر"
+                  - option "ورقة الرقم الوطني"
+                - generic [ref=f49e249]: رفع مستند
+              - heading "لا توجد مستندات مرفوعة بعد" [level=3] [ref=f49e254]

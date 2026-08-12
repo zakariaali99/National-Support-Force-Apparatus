@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+<meta charset="utf-8" />
+{% include "print/_style.html" %}
+</head>
+<body>
+{% include "print/_header.html" with title="سجل التعهدات والالتزامات" %}
+
+<div style="margin-bottom: 14pt;">
+  <p style="font-size: 11pt; font-weight: 700; color: #0a2540;">
+    سجل التعهدات الخاص بالفرد: {{ member.full_name }} (<bdi dir="ltr">{{ member.force_number }}</bdi>)
+  </p>
+</div>
+
+{% if pledge_text %}
+<div style="background: #f8fafc; border: 1pt solid #cbd5e1; border-radius: 6pt; padding: 10pt 12pt; margin-bottom: 14pt;">
+  <div style="font-size: 9pt; font-weight: 700; color: #64748b; margin-bottom: 4pt;">التعهد الأساسي / ملاحظات الالتزام:</div>
+  <div style="font-size: 10.5pt; font-weight: 600; color: #0f172a; line-height: 1.5;">{{ pledge_text }}</div>
+</div>
+{% endif %}
+
+<h2>قائمة التعهدات والوثائق المعتمدة</h2>
+{% if pledges %}
+<table>
+  <thead>
+    <tr>
+      <th style="width: 5%;">#</th>
+      <th style="width: 30%;">عنوان التعهد</th>
+      <th style="width: 45%;">التفاصيل / البيان</th>
+      <th style="width: 20%;">تاريخ الإصدار</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for pledge in pledges %}
+    <tr>
+      <td>{{ forloop.counter }}</td>
+      <td><strong>{{ pledge.title }}</strong></td>
+      <td>{{ pledge.description|default:"—" }}</td>
+      <td><bdi dir="ltr">{{ pledge.issue_date|date:"Y-m-d"|default:"—" }}</bdi></td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p class="muted">لا توجد تعهدات تفصيلية مضافة في السجل.</p>
+{% endif %}
+
+<p class="muted" style="margin-top: 24pt;">تاريخ تجهيز وتحرير الطباعة: <bdi dir="ltr">{{ printed_at|date:"Y-m-d" }}</bdi></p>
+</body>
+</html>

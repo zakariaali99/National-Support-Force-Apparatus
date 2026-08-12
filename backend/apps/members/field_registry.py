@@ -27,6 +27,8 @@ FIELD_REGISTRY = [
         "default_required": True,
         "lockable": False,
     },
+    {"key": "id_card_number", "label_ar": "رقم الهوية شخصية", "type": "text", "default_required": False, "lockable": True},
+    {"key": "passport_number", "label_ar": "رقم جواز السفر", "type": "text", "default_required": False, "lockable": True},
     {
         "key": "date_of_birth",
         "label_ar": "تاريخ الميلاد",
@@ -42,8 +44,12 @@ FIELD_REGISTRY = [
         "lockable": True,
     },
     {"key": "blood_type", "label_ar": "فصيلة الدم", "type": "select", "default_required": False, "lockable": True},
+    {"key": "mother_name", "label_ar": "اسم الأم", "type": "text", "default_required": False, "lockable": True},
+    {"key": "current_residence", "label_ar": "السكن الحالي", "type": "text", "default_required": False, "lockable": True},
+    {"key": "nearest_landmark", "label_ar": "أقرب نقطة دالة", "type": "text", "default_required": False, "lockable": True},
+    {"key": "location_url", "label_ar": "رابط الموقع الجغرافي", "type": "text", "default_required": False, "lockable": True},
     {"key": "rank", "label_ar": "الرتبة", "type": "select", "default_required": True, "lockable": False},
-    {"key": "faction", "label_ar": "الفصيل", "type": "select", "default_required": True, "lockable": False},
+    {"key": "faction", "label_ar": "الإدارة", "type": "select", "default_required": True, "lockable": False},
     {"key": "phone", "label_ar": "رقم الهاتف", "type": "text", "default_required": False, "lockable": True},
     {"key": "pledges", "label_ar": "التعهدات", "type": "textarea", "default_required": False, "lockable": True},
     {

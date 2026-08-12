@@ -1,5 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/Card";
 import { DataTable } from "../../components/ui/DataTable";
+import { PageHeader } from "../../components/ui/PageHeader";
 import { Switch } from "../../components/ui/Switch";
 import { useFieldRequirements, useUpdateFieldRequirement } from "./api";
 
@@ -41,7 +42,7 @@ export function FieldRequirementsPage() {
             }
           />
           {!row.lockable && (
-            <span className="text-xs text-muted-foreground bg-secondary px-2 py-0.5 rounded-full">
+            <span className="text-caption text-muted-foreground bg-secondary px-2 py-0.5 rounded-full">
               أساسي (إجباري)
             </span>
           )}
@@ -61,7 +62,7 @@ export function FieldRequirementsPage() {
             }
           />
           {!row.lockable && (
-            <span className="text-xs text-muted-foreground bg-secondary px-2 py-0.5 rounded-full">
+            <span className="text-caption text-muted-foreground bg-secondary px-2 py-0.5 rounded-full">
               أساسي (مرئي دائماً)
             </span>
           )}
@@ -72,14 +73,10 @@ export function FieldRequirementsPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">إعدادات الحقول</h1>
-          <p className="text-sm text-muted-foreground">
-            تخصيص متطلبات إدخال البيانات ورؤيتها لاستمارة إضافة وتعديل الأعضاء.
-          </p>
-        </div>
-      </div>
+      <PageHeader
+        title="إعدادات الحقول"
+        description="تخصيص متطلبات إدخال البيانات ورؤيتها لاستمارة إضافة وتعديل الأفراد."
+      />
 
       <Card>
         <CardHeader>

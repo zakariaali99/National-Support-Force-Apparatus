@@ -3,7 +3,9 @@ import { Plus, Trash2 } from "lucide-react";
 
 import { Button } from "../../components/ui/Button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "../../components/ui/Card";
+import { Checkbox } from "../../components/ui/Checkbox";
 import { DataTable } from "../../components/ui/DataTable";
+import { PageHeader } from "../../components/ui/PageHeader";
 import { Pagination } from "../../components/ui/Pagination";
 import {
   Dialog,
@@ -175,7 +177,7 @@ export function UsersPage() {
       render: (row) => (
         <div className="flex flex-col">
           <span className="font-semibold">{row.username}</span>
-          <span className="text-xs text-muted-foreground">{row.email || "لا يوجد بريد إلكتروني"}</span>
+          <span className="text-caption text-muted-foreground">{row.email || "لا يوجد بريد إلكتروني"}</span>
         </div>
       ),
     },
@@ -198,12 +200,12 @@ export function UsersPage() {
             return (
               <span
                 key={roleId}
-                className="bg-primary/10 text-primary text-[11px] font-medium px-2 py-0.5 rounded-full"
+                className="bg-primary/10 text-primary text-caption font-semibold px-2 py-0.5 rounded-full"
               >
                 {roleObj?.name_ar || `دور #${roleId}`}
               </span>
             );
-          }) || <span className="text-muted-foreground text-xs">—</span>}
+          }) || <span className="text-muted-foreground text-caption">—</span>}
         </div>
       ),
     },
@@ -212,7 +214,7 @@ export function UsersPage() {
       label: "الحالة",
       render: (row) => (
         <span
-          className={`inline-flex px-2 py-0.5 rounded-full text-xs font-semibold ${
+          className={`inline-flex px-2 py-0.5 rounded-full text-label font-semibold ${
             row.is_active
               ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400"
               : "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400"
@@ -251,23 +253,20 @@ export function UsersPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">مستخدمو النظام</h1>
-          <p className="text-sm text-muted-foreground">
-            إدارة الحسابات المسؤولة عن تشغيل وإدخال البيانات على النظام.
-          </p>
-        </div>
+      <PageHeader
+        title="مستخدمو النظام"
+        description="إدارة الحسابات المسؤولة عن تشغيل وإدخال البيانات على النظام."
+      >
         <Button onClick={handleOpenCreate}>
           <Plus className="me-2 h-4 w-4" />
           إضافة مستخدم جديد
         </Button>
-      </div>
+      </PageHeader>
 
       <Card className="rounded-2xl border border-border/80 shadow-sm">
         <CardHeader className="pb-3">
-          <CardTitle className="text-xl font-bold">حسابات مستخدمي النظام</CardTitle>
-          <CardDescription className="text-xs">قائمة الحسابات المخولة للدخول وإدارة بيانات الجهاز</CardDescription>
+          <CardTitle className="text-title font-bold">حسابات مستخدمي النظام</CardTitle>
+          <CardDescription className="text-label">قائمة الحسابات المخولة للدخول وإدارة بيانات الجهاز</CardDescription>
         </CardHeader>
         <CardContent>
           <DataTable
@@ -384,18 +383,17 @@ export function UsersPage() {
             </div>
 
             <div className="border-t border-border pt-4">
-              <Label className="text-base font-bold">تعيين الأدوار</Label>
+              <Label className="text-body font-bold">تعيين الأدوار</Label>
               <div className="grid grid-cols-2 gap-2 mt-2 max-h-[15vh] overflow-y-auto border border-border rounded-lg p-2.5 bg-secondary/15">
                 {roles.map((role) => (
                   <label
                     key={role.id}
-                    className="flex items-center gap-2 text-sm cursor-pointer hover:bg-secondary/40 p-1 rounded"
+                    className="flex items-center gap-2 text-label cursor-pointer hover:bg-secondary/40 p-1 rounded"
                   >
-                    <input
-                      type="checkbox"
+                    <Checkbox
                       checked={selectedRoles.includes(role.id)}
-                      onChange={() => toggleRoleSelection(role.id)}
-                      className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+                      onCheckedChange={(checked) => toggleRoleSelection(role.id)}
+                      className="h-4 w-4"
                     />
                     <span>{role.name_ar}</span>
                   </label>
@@ -405,21 +403,20 @@ export function UsersPage() {
 
             {showFactionSelector && (
               <div className="border-t border-border pt-4">
-                <Label className="text-base font-bold">تعيين الفصائل (الإدارات)</Label>
-                <p className="text-xs text-muted-foreground mb-1.5">
-                  هذا المستخدم لديه أدوار محدودة بفصيله. حدد الفصائل التي يسمح له بالوصول إليها.
+                <Label className="text-body font-bold">تعيين الإدارات المصرح بها</Label>
+                <p className="text-label text-muted-foreground mb-1.5">
+                  هذا المستخدم لديه أدوار محدودة بإدارته. حدد الإدارات التي يسمح له بالوصول إليها.
                 </p>
                 <div className="grid grid-cols-2 gap-2 max-h-[15vh] overflow-y-auto border border-border rounded-lg p-2.5 bg-secondary/15">
                   {factions.map((f) => (
                     <label
                       key={f.id}
-                      className="flex items-center gap-2 text-sm cursor-pointer hover:bg-secondary/40 p-1 rounded"
+                      className="flex items-center gap-2 text-label cursor-pointer hover:bg-secondary/40 p-1 rounded"
                     >
-                      <input
-                        type="checkbox"
+                      <Checkbox
                         checked={selectedFactions.includes(f.id)}
-                        onChange={() => toggleFactionSelection(f.id)}
-                        className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+                        onCheckedChange={(checked) => toggleFactionSelection(f.id)}
+                        className="h-4 w-4"
                       />
                       <span>{f.name_ar}</span>
                     </label>
@@ -429,7 +426,7 @@ export function UsersPage() {
             )}
 
             {validationError && (
-              <p className="text-sm text-destructive font-medium">{validationError}</p>
+              <p className="text-body text-destructive font-semibold">{validationError}</p>
             )}
 
             <DialogFooter>

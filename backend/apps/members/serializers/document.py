@@ -19,6 +19,7 @@ class MemberDocumentSerializer(serializers.ModelSerializer):
             "member",
             "document_type",
             "document_type_name",
+            "title",
             "file",
             "original_name",
             "content_type",
@@ -33,7 +34,7 @@ class MemberDocumentSerializer(serializers.ModelSerializer):
 
     @extend_schema_field(serializers.URLField())
     def get_download_url(self, obj):
-        return f"/api/documents/{obj.id}/download/"
+        return f"documents/{obj.id}/download/"
 
     def validate_file(self, value):
         # Sniff here (during is_valid()) rather than in create() — a

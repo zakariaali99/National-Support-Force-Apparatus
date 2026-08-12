@@ -23,6 +23,7 @@ urlpatterns = [
     path("api/", include("apps.reports.urls")),
     path("api/", include("apps.members.urls")),
     path("api/", include("apps.workflow.urls")),
+    path("api/", include("apps.equipment.urls")),
 ]
 
 if settings.DEBUG:

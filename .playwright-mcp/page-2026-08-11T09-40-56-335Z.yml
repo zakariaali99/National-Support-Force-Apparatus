@@ -1,0 +1,61 @@
+- generic [ref=f51e3]:
+  - link "تخطَّ إلى المحتوى الرئيسي" [ref=f51e4] [cursor=pointer]:
+    - /url: "#main-content"
+  - complementary [ref=f51e5]:
+    - generic [ref=f51e6]:
+      - generic [ref=f51e7]:
+        - generic [ref=f51e8]:
+          - img "شعار الجهاز الوطني" [ref=f51e9]
+          - generic [ref=f51e10]:
+            - paragraph [ref=f51e11]: الجهاز الوطني
+            - paragraph [ref=f51e12]: للقوى المساندة
+        - button "طي القائمة" [ref=f51e13]
+      - navigation [ref=f51e17]:
+        - generic [ref=f51e18]:
+          - button "العامة والإدارة" [ref=f51e19] [cursor=pointer]
+          - generic [ref=f51e23]:
+            - link "لوحة التحكم" [ref=f51e24] [cursor=pointer]:
+              - /url: /
+            - link "سجل الأعضاء" [ref=f51e31] [cursor=pointer]:
+              - /url: /members
+            - link "إضافة عضو جديد" [ref=f51e38] [cursor=pointer]:
+              - /url: /members/new
+        - generic [ref=f51e43]:
+          - button "الهيكل والتوزيع" [ref=f51e44] [cursor=pointer]
+          - generic [ref=f51e48]:
+            - link "الفصائل والكتائب" [ref=f51e49] [cursor=pointer]:
+              - /url: /organization/factions
+            - link "الرتب العسكرية" [ref=f51e55] [cursor=pointer]:
+              - /url: /organization/ranks
+        - generic [ref=f51e59]:
+          - button "الرقابة والنظام" [ref=f51e60] [cursor=pointer]
+          - generic [ref=f51e64]:
+            - link "سجل التدقيق" [ref=f51e65] [cursor=pointer]:
+              - /url: /audit
+            - link "النسخ الاحتياطية" [ref=f51e70] [cursor=pointer]:
+              - /url: /backups
+            - link "إعدادات النظام" [ref=f51e75] [cursor=pointer]:
+              - /url: /settings
+      - generic [ref=f51e80]:
+        - generic [ref=f51e81]: S
+        - generic [ref=f51e82]:
+          - paragraph [ref=f51e83]: smoketest
+          - paragraph [ref=f51e84]: مدير النظام
+  - generic [ref=f51e85]:
+    - banner [ref=f51e86]:
+      - navigation "مسار التنقل" [ref=f51e87]:
+        - link "الرئيسية" [ref=f51e89] [cursor=pointer]:
+          - /url: /
+        - generic [ref=f51e94]: إعدادات النظام
+      - generic [ref=f51e98]:
+        - button "فتح لوحة الأوامر (Ctrl+K / ⌘K)" [ref=f51e99]:
+          - generic [ref=f51e103]: بحث...
+          - generic [ref=f51e104]: Ctrl+K / ⌘K
+        - button "الإشعارات" [ref=f51e105]
+        - button "تبديل المظهر" [ref=f51e109]
+        - button "smoketest smoketest" [ref=f51e112]:
+          - img "smoketest" [ref=f51e113]:
+            - generic [ref=f51e114]: s
+          - generic [ref=f51e115]: smoketest
+    - main [ref=f51e116]:
+      - generic [ref=f51e117]: جارِ التحميل...
