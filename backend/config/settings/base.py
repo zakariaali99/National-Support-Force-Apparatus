@@ -129,6 +129,8 @@ BACKUP_ENCRYPTION_KEY = os.environ.get("BACKUP_ENCRYPTION_KEY") or SECRET_KEY
 # runs on its own Vite dev server instead — see FRONTEND_DIST.exists()
 # guard below and in config/urls.py.
 FRONTEND_DIST = BASE_DIR.parent / "frontend" / "dist"
+if not FRONTEND_DIST.exists():
+    FRONTEND_DIST = BASE_DIR / "frontend_dist"
 if FRONTEND_DIST.exists():
     WHITENOISE_ROOT = str(FRONTEND_DIST)
 

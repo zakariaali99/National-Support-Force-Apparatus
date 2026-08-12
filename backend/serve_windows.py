@@ -52,8 +52,9 @@ except Exception as e:
 # Load WSGI Application
 django_app = get_wsgi_application()
 
-# Frontend SPA Static Directory
 FRONTEND_DIST_DIR = Path(__file__).resolve().parent.parent / "frontend" / "dist"
+if not FRONTEND_DIST_DIR.exists():
+    FRONTEND_DIST_DIR = Path(__file__).resolve().parent / "frontend_dist"
 
 class SinglePortApp:
     """WSGI Middleware that routes /api/ requests to Django,
