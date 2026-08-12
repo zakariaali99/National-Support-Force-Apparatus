@@ -232,14 +232,40 @@ export function AuditPage() {
                   </p>
                 </div>
 
-                <div className="p-3 rounded-xl border border-border/60 bg-card space-y-1">
-                  <div className="flex items-center gap-1.5 text-muted-foreground font-bold">
-                    <Laptop className="h-4 w-4 text-primary" />
-                    <span>المكون / المستهدف</span>
+                <div className="p-3.5 rounded-xl border border-border/60 bg-card space-y-1.5 sm:col-span-2">
+                  <div className="flex items-center justify-between text-muted-foreground font-bold">
+                    <div className="flex items-center gap-1.5">
+                      <Laptop className="h-4 w-4 text-primary" />
+                      <span>المكون / المستهدف</span>
+                    </div>
+                    {selectedRecord.target_model && (
+                      <span className="font-mono text-micro text-muted-foreground bg-muted px-2 py-0.5 rounded">
+                        {selectedRecord.target_model} #{selectedRecord.target_id}
+                      </span>
+                    )}
                   </div>
-                  <p className="font-bold text-foreground">
-                    {selectedRecord.target_model ? `${selectedRecord.target_model} (#${selectedRecord.target_id || "—"})` : "—"}
-                  </p>
+
+                  <div className="flex items-center flex-wrap gap-2 pt-0.5">
+                    <span className="font-extrabold text-foreground text-body-sm">
+                      {selectedRecord.metadata?.item_name ||
+                        selectedRecord.metadata?.target_name ||
+                        (selectedRecord.target_model
+                          ? `${selectedRecord.target_model} (#${selectedRecord.target_id || "—"})`
+                          : "—")}
+                    </span>
+
+                    {selectedRecord.metadata?.serial_number && (
+                      <span className="font-mono font-bold text-caption bg-amber-500/15 border border-amber-500/30 text-amber-800 dark:text-amber-300 px-2.5 py-0.5 rounded-md dir-ltr" dir="ltr">
+                        رقم تسلسلي: {selectedRecord.metadata.serial_number}
+                      </span>
+                    )}
+
+                    {selectedRecord.metadata?.assigned_member && (
+                      <span className="font-bold text-caption bg-primary/10 border border-primary/20 text-primary px-2.5 py-0.5 rounded-md">
+                        مستلم العهدة: {selectedRecord.metadata.assigned_member}
+                      </span>
+                    )}
+                  </div>
                 </div>
               </div>
 

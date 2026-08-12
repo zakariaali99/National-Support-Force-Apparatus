@@ -45,6 +45,12 @@ class InventoryItemViewSet(ModelViewSet):
             target_model="InventoryItem",
             target_id=item.id,
             description=f"تسجيل سلاح/عتاد جديد للجرد: {item.name} (رقم تسلسلي: {item.serial_number or '—'})",
+            metadata={
+                "item_name": item.name,
+                "serial_number": item.serial_number or "",
+                "caliber": item.caliber or "",
+                "status": item.status,
+            },
             request=self.request,
         )
 
@@ -68,13 +74,21 @@ class InventoryItemViewSet(ModelViewSet):
             notes=notes,
         )
 
-        member_name = getattr(item.assigned_member, "full_name", "") or "الفدر"
+        member_name = getattr(item.assigned_member, "full_name", "") or "الفرد"
+        force_num = getattr(item.assigned_member, "force_number", "") or ""
+
         log_activity(
             actor=request.user,
             action="inventory_custody_assign",
             target_model="InventoryItem",
             target_id=item.id,
             description=f"تسليم عهدة قطعة السلاح/العتاد ({item.name}) للفرد ({member_name})",
+            metadata={
+                "item_name": item.name,
+                "serial_number": item.serial_number or "",
+                "assigned_member": member_name,
+                "force_number": force_num,
+            },
             request=request,
         )
 
@@ -106,6 +120,11 @@ class InventoryItemViewSet(ModelViewSet):
             target_model="InventoryItem",
             target_id=item.id,
             description=f"إرجاع عهدة السلاح/العتاد ({item.name}) إلى المخزن الرئيسي" + (f" (كانت بحوزة {member_name})" if member_name else ""),
+            metadata={
+                "item_name": item.name,
+                "serial_number": item.serial_number or "",
+                "released_from_member": member_name,
+            },
             request=request,
         )
 
