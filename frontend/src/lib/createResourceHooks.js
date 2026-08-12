@@ -45,5 +45,5 @@ export function createResourceHooks(key, endpoint) {
     });
   }
 
-  return { useList, useCreate, useUpdate, useRemove };
+  return { useList, useCreate, useUpdate, useRemove, useDelete: useRemove };
 }
