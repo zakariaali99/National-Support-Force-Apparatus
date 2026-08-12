@@ -16,6 +16,9 @@ const ACTION_LABELS = {
   login_failed: "محاولة دخول فاشلة",
   backup_run: "تشغيل نسخة احتياطية",
   backup_download: "تحميل نسخة احتياطية",
+  inventory_create: "تسجيل عتاد/سلاح بالجرد",
+  inventory_custody_assign: "تسليم عهدة فردية",
+  inventory_custody_release: "إرجاع عهدة للمخزن",
 };
 
 const ACTION_VARIANTS = {
@@ -25,6 +28,9 @@ const ACTION_VARIANTS = {
   export: "secondary",
   backup_run: "success",
   backup_download: "warning",
+  inventory_create: "success",
+  inventory_custody_assign: "info",
+  inventory_custody_release: "warning",
 };
 
 export function AuditPage() {

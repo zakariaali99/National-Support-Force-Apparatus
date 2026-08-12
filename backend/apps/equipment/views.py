@@ -4,6 +4,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
+from apps.core.activity import log_activity
 from apps.equipment.models import InventoryCategory, InventoryItem, CustodyRecord
 from apps.equipment.serializers import (
     InventoryCategorySerializer,
@@ -36,6 +37,17 @@ class InventoryItemViewSet(ModelViewSet):
             qs = qs.filter(name__icontains=search_param) | qs.filter(serial_number__icontains=search_param)
         return qs
 
+    def perform_create(self, serializer):
+        item = serializer.save()
+        log_activity(
+            actor=self.request.user,
+            action="inventory_create",
+            target_model="InventoryItem",
+            target_id=item.id,
+            description=f"تسجيل سلاح/عتاد جديد للجرد: {item.name} (رقم تسلسلي: {item.serial_number or '—'})",
+            request=self.request,
+        )
+
     @action(detail=True, methods=["post"], url_path="assign-custody")
     def assign_custody(self, request, pk=None):
         item = self.get_object()
@@ -56,6 +68,16 @@ class InventoryItemViewSet(ModelViewSet):
             notes=notes,
         )
 
+        member_name = getattr(item.assigned_member, "full_name", "") or "الفدر"
+        log_activity(
+            actor=request.user,
+            action="inventory_custody_assign",
+            target_model="InventoryItem",
+            target_id=item.id,
+            description=f"تسليم عهدة قطعة السلاح/العتاد ({item.name}) للفرد ({member_name})",
+            request=request,
+        )
+
         return Response(InventoryItemSerializer(item).data)
 
     @action(detail=True, methods=["post"], url_path="release-custody")
@@ -63,9 +85,12 @@ class InventoryItemViewSet(ModelViewSet):
         item = self.get_object()
         notes = request.data.get("notes", "")
 
+        member = item.assigned_member
+        member_name = getattr(member, "full_name", "") if member else ""
+
         CustodyRecord.objects.create(
             item=item,
-            member=item.assigned_member,
+            member=member,
             faction=item.faction,
             action="returned",
             issued_by=request.user,
@@ -74,6 +99,15 @@ class InventoryItemViewSet(ModelViewSet):
 
         item.assigned_member = None
         item.save()
+
+        log_activity(
+            actor=request.user,
+            action="inventory_custody_release",
+            target_model="InventoryItem",
+            target_id=item.id,
+            description=f"إرجاع عهدة السلاح/العتاد ({item.name}) إلى المخزن الرئيسي" + (f" (كانت بحوزة {member_name})" if member_name else ""),
+            request=request,
+        )
 
         return Response(InventoryItemSerializer(item).data)
 
