@@ -432,8 +432,13 @@ function ModalVacationForm({ member, onSuccess }) {
       });
       showToast("تم تعديل رصيد الإجازات بنجاح");
       onSuccess();
-    } catch {
-      showToast("تعذر تعديل الرصيد", "error");
+    } catch (err) {
+      const errMsg =
+        err?.response?.data?.detail ||
+        err?.response?.data?.non_field_errors?.[0] ||
+        err?.response?.data?.days?.[0] ||
+        "تعذر تعديل الرصيد";
+      showToast(errMsg, "error");
     }
   }
 

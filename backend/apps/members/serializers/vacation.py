@@ -56,4 +56,4 @@ class VacationTransactionSerializer(serializers.ModelSerializer):
     class Meta:
         model = VacationTransaction
         fields = ["id", "member", "days", "kind", "reason", "vacation_request", "created_by", "created_at"]
-        read_only_fields = fields
+        read_only_fields = ["id", "kind", "vacation_request", "created_by", "created_at"]

@@ -82,10 +82,11 @@ class VacationTransactionViewSet(
         days = data["days"]
         reason = data.get("reason", "") or "تعديل إداري لرصيد الإجازات"
         kind = "adjustment" if days >= 0 else "deduction"
-        apply_vacation_transaction(
+        instance = apply_vacation_transaction(
             member_id=member.id,
             days=days,
             kind=kind,
             reason=reason,
             created_by=self.request.user if self.request.user.is_authenticated else None,
         )
+        serializer.instance = instance
