@@ -512,7 +512,7 @@ function ModalVacationForm({ member, onSuccess }) {
               <h4 className="font-bold text-body text-foreground">تسوية وتعديل رصيد الإجازات السنوي</h4>
             </div>
             <div className="px-3 py-1 rounded-xl bg-amber-500/15 border border-amber-500/30 text-caption font-bold text-amber-700">
-              الرصيد المتاح الحالي: <span className="font-mono text-body-sm font-extrabold">{formatNumber(member.vacation_balance_days)} يوم</span>
+              الرصيد المتاح الحالي: <span className="font-mono text-body-sm font-bold">{formatNumber(member.vacation_balance_days)} يوم</span>
             </div>
           </div>
 

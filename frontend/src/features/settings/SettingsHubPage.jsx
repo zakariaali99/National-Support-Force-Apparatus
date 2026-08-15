@@ -131,7 +131,7 @@ export function SettingsHubPage() {
           return (
             <div key={group.id} className="space-y-3">
               <div>
-                <h2 className="text-section font-extrabold text-foreground">{group.title}</h2>
+                <h2 className="text-section font-bold text-foreground">{group.title}</h2>
                 <p className="text-caption text-muted-foreground">{group.subtitle}</p>
               </div>
 

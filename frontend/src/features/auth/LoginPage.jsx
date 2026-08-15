@@ -69,7 +69,7 @@ export function LoginPage() {
             </div>
 
             <div className="space-y-1.5 pt-1">
-              <h1 className="text-section font-extrabold text-foreground tracking-tight">
+              <h1 className="text-section font-bold text-foreground tracking-tight">
                 الجهاز الوطني للقوى المساندة
               </h1>
               <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary font-bold text-caption">

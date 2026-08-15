@@ -202,7 +202,7 @@ export function AuditPage() {
                     <User className="h-4 w-4 text-primary" />
                     <span>المستخدم المنفذ</span>
                   </div>
-                  <p className="font-extrabold text-foreground text-body-sm">
+                  <p className="font-bold text-foreground text-body-sm">
                     {selectedRecord.actor_name || selectedRecord.actor_username || "النظام"}
                   </p>
                   {selectedRecord.actor_username && (
@@ -246,7 +246,7 @@ export function AuditPage() {
                   </div>
 
                   <div className="flex items-center flex-wrap gap-2 pt-0.5">
-                    <span className="font-extrabold text-foreground text-body-sm">
+                    <span className="font-bold text-foreground text-body-sm">
                       {selectedRecord.metadata?.item_name ||
                         selectedRecord.metadata?.target_name ||
                         (selectedRecord.target_model
@@ -297,7 +297,7 @@ export function AuditPage() {
                     <Info className="h-4 w-4 text-primary" />
                     <span>بيانات وسوم النظام الإضافية (Metadata)</span>
                   </div>
-                  <pre className="p-3 rounded-xl bg-slate-900 text-slate-100 font-mono text-xs overflow-x-auto dir-ltr max-h-40" dir="ltr">
+                  <pre className="p-3 rounded-xl bg-slate-900 text-slate-100 font-mono text-caption overflow-x-auto dir-ltr max-h-40" dir="ltr">
                     {JSON.stringify(selectedRecord.metadata, null, 2)}
                   </pre>
                 </div>

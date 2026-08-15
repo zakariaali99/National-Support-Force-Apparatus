@@ -129,7 +129,7 @@ export function InventoryPage() {
           <CardContent className="p-4 flex items-center justify-between">
             <div>
               <p className="text-caption font-bold text-muted-foreground">إجمالي قطع العتاد والأسلحة</p>
-              <h3 className="text-display font-extrabold text-foreground mt-1">{formatNumber(totalCount)}</h3>
+              <h3 className="text-display font-bold text-foreground mt-1">{formatNumber(totalCount)}</h3>
             </div>
             <div className="p-3 rounded-2xl bg-primary/10 text-primary">
               <Shield className="h-6 w-6" />
@@ -141,7 +141,7 @@ export function InventoryPage() {
           <CardContent className="p-4 flex items-center justify-between">
             <div>
               <p className="text-caption font-bold text-muted-foreground">قطع صالحة بالخدمة</p>
-              <h3 className="text-display font-extrabold text-success mt-1">{formatNumber(goodCount)}</h3>
+              <h3 className="text-display font-bold text-success mt-1">{formatNumber(goodCount)}</h3>
             </div>
             <div className="p-3 rounded-2xl bg-success/10 text-success">
               <PackageCheck className="h-6 w-6" />
@@ -153,7 +153,7 @@ export function InventoryPage() {
           <CardContent className="p-4 flex items-center justify-between">
             <div>
               <p className="text-caption font-bold text-muted-foreground">مسلمة كعهدة شخصية</p>
-              <h3 className="text-display font-extrabold text-info mt-1">{formatNumber(custodyCount)}</h3>
+              <h3 className="text-display font-bold text-info mt-1">{formatNumber(custodyCount)}</h3>
             </div>
             <div className="p-3 rounded-2xl bg-info/10 text-info">
               <UserCheck className="h-6 w-6" />
@@ -165,7 +165,7 @@ export function InventoryPage() {
           <CardContent className="p-4 flex items-center justify-between">
             <div>
               <p className="text-caption font-bold text-muted-foreground">تحت الصيانة / التالفة</p>
-              <h3 className="text-display font-extrabold text-danger mt-1">{formatNumber(maintenanceCount)}</h3>
+              <h3 className="text-display font-bold text-danger mt-1">{formatNumber(maintenanceCount)}</h3>
             </div>
             <div className="p-3 rounded-2xl bg-danger/10 text-danger">
               <AlertTriangle className="h-6 w-6" />
@@ -246,10 +246,10 @@ export function InventoryPage() {
                   {items.map((item, idx) => (
                     <tr key={item.id} className="hover:bg-primary/5 transition-colors">
                       <td className="px-4 py-3 font-mono font-bold text-muted-foreground">{idx + 1}</td>
-                      <td className="px-4 py-3 font-extrabold text-foreground">{item.name}</td>
+                      <td className="px-4 py-3 font-bold text-foreground">{item.name}</td>
                       <td className="px-4 py-3">
                         {item.serial_number ? (
-                          <span className="font-mono font-bold text-xs bg-muted/70 text-foreground px-2 py-1 rounded-md inline-block dir-ltr" dir="ltr">
+                          <span className="font-mono font-bold text-caption bg-muted/70 text-foreground px-2 py-1 rounded-md inline-block dir-ltr" dir="ltr">
                             {item.serial_number}
                           </span>
                         ) : (
