@@ -24,6 +24,8 @@ urlpatterns = [
     path("api/", include("apps.members.urls")),
     path("api/", include("apps.workflow.urls")),
     path("api/", include("apps.equipment.urls")),
+    path("api/", include("apps.transportation.urls")),
+    path("api/", include("apps.attendance.urls")),
 ]
 
 if settings.DEBUG:

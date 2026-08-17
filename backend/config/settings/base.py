@@ -30,6 +30,8 @@ INSTALLED_APPS = [
     "apps.workflow",
     "apps.reports",
     "apps.equipment",
+    "apps.transportation",
+    "apps.attendance",
 ]
 
 # See apps/reports/renderer.py — engine abstraction for the PDF pipeline.

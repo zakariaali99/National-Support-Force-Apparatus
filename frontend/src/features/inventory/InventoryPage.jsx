@@ -1,10 +1,24 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Shield, Plus, Filter, Search, PackageCheck, AlertTriangle, Layers, UserCheck } from "lucide-react";
+import {
+  Shield,
+  Plus,
+  Filter,
+  Search,
+  PackageCheck,
+  AlertTriangle,
+  Layers,
+  UserCheck,
+  Package,
+  Wrench,
+  Boxes,
+  RotateCcw,
+  CheckCircle,
+} from "lucide-react";
 
 import { api } from "../../lib/api";
 import { PageHeader } from "../../components/ui/PageHeader";
-import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/Card";
+import { Card, CardContent } from "../../components/ui/Card";
 import { Button } from "../../components/ui/Button";
 import { Input } from "../../components/ui/Input";
 import { Select } from "../../components/ui/Select";
@@ -13,33 +27,51 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Label } from "../../components/ui/Label";
 import { Textarea } from "../../components/ui/Textarea";
 import { showToast } from "../../components/ui/Toast";
-import { formatNumber } from "../../lib/format";
+import { StatCard } from "../../components/ui/StatCard";
 
 export function InventoryPage() {
   const queryClient = useQueryClient();
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("");
+  const [typeTab, setTypeTab] = useState("all");
+
   const [addModalOpen, setAddModalOpen] = useState(false);
   const [custodyModalOpen, setCustodyModalOpen] = useState(false);
+  const [returnModalOpen, setReturnModalOpen] = useState(false);
+  const [damageModalOpen, setDamageModalOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
 
   const [formData, setFormData] = useState({
     name: "",
     category: "",
+    item_code: "",
+    size_spec: "",
     serial_number: "",
     caliber: "",
     model_name: "",
     total_quantity: "1",
+    available_quantity: "1",
     status: "good",
     notes: "",
   });
 
   const [custodyData, setCustodyData] = useState({
     member_id: "",
+    quantity: "1",
     notes: "",
   });
 
-  const [categoryFilter, setCategoryFilter] = useState("");
+  const [returnData, setReturnData] = useState({
+    quantity: "1",
+    notes: "",
+  });
+
+  const [damageData, setDamageData] = useState({
+    quantity: "1",
+    source: "custody",
+    notes: "",
+  });
 
   const { data: rawCategories = [] } = useQuery({
     queryKey: ["equipment-categories"],
@@ -59,29 +91,61 @@ export function InventoryPage() {
   });
   const items = Array.isArray(rawItems) ? rawItems : (rawItems?.results ?? []);
 
+  const filteredItems = useMemo(() => {
+    if (typeTab === "weapons") {
+      return items.filter((i) => ["rifle", "pistol", "machine_gun", "ammo"].includes(i.category_type));
+    }
+    if (typeTab === "warehouse") {
+      return items.filter((i) => !["rifle", "pistol", "machine_gun", "ammo"].includes(i.category_type));
+    }
+    return items;
+  }, [items, typeTab]);
+
   const { data: members = [] } = useQuery({
     queryKey: ["members-lookup"],
     queryFn: async () => (await api.get("members/?page_size=200")).data.results ?? [],
   });
 
+  // Calculate high-level stock statistics
+  const stats = useMemo(() => {
+    let totalItems = 0;
+    let totalQty = 0;
+    let availableQty = 0;
+    let assignedQty = 0;
+    let damagedQty = 0;
+
+    items.forEach((item) => {
+      totalItems += 1;
+      totalQty += item.total_quantity || 1;
+      availableQty += item.available_quantity || 0;
+      assignedQty += item.assigned_quantity || 0;
+      damagedQty += item.damaged_quantity || 0;
+    });
+
+    return { totalItems, totalQty, availableQty, assignedQty, damagedQty };
+  }, [items]);
+
   const createItemMutation = useMutation({
     mutationFn: async (payload) => (await api.post("equipment/items/", payload)).data,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["equipment-items"] });
-      showToast("تم تسجيل السلاح / العتاد بنجاح", "success");
+      showToast("تم تسجيل الصنف / السلاح بنجاح", "success");
       setAddModalOpen(false);
       setFormData({
         name: "",
         category: "",
+        item_code: "",
+        size_spec: "",
         serial_number: "",
         caliber: "",
         model_name: "",
         total_quantity: "1",
+        available_quantity: "1",
         status: "good",
         notes: "",
       });
     },
-    onError: () => showToast("تعذر تسجيل القطعة", "error"),
+    onError: () => showToast("تعذر تسجيل الصنف", "error"),
   });
 
   const assignCustodyMutation = useMutation({
@@ -89,243 +153,277 @@ export function InventoryPage() {
       (await api.post(`equipment/items/${itemId}/assign-custody/`, payload)).data,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["equipment-items"] });
-      showToast("تم تسليم العهدة بنجاح", "success");
+      showToast("تم تسليم العهدة وخصمها من رصيد المخزن المتاح بنجاح", "success");
       setCustodyModalOpen(false);
     },
-    onError: () => showToast("تعذر تسليم العهدة", "error"),
+    onError: (err) => showToast(err?.response?.data?.detail || "تعذر تسليم العهدة", "error"),
   });
 
   const releaseCustodyMutation = useMutation({
-    mutationFn: async (itemId) =>
-      (await api.post(`equipment/items/${itemId}/release-custody/`, {})).data,
+    mutationFn: async ({ itemId, payload }) =>
+      (await api.post(`equipment/items/${itemId}/release-custody/`, payload)).data,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["equipment-items"] });
-      showToast("تم إرجاع العهدة إلى المخزن بنجاح", "success");
+      showToast("تم إرجاع العهدة وإضافتها لرصيد المخزن المتاح", "success");
+      setReturnModalOpen(false);
     },
     onError: () => showToast("تعذر إرجاع العهدة", "error"),
   });
 
-  const totalCount = items.length;
-  const goodCount = items.filter((i) => i.status === "good").length;
-  const custodyCount = items.filter((i) => i.assigned_member).length;
-  const maintenanceCount = items.filter((i) => i.status === "maintenance" || i.status === "damaged").length;
+  const markDamagedMutation = useMutation({
+    mutationFn: async ({ itemId, payload }) =>
+      (await api.post(`equipment/items/${itemId}/mark-damaged/`, payload)).data,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["equipment-items"] });
+      showToast("تم تسجيل التالف في سجل التوالف بنجاح", "success");
+      setDamageModalOpen(false);
+    },
+    onError: () => showToast("تعذر تسجيل التالف", "error"),
+  });
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" dir="rtl">
       <PageHeader
-        title="قسم الأسلحة والذخائر بالجرد"
-        description="سجل إدارة وحصر قطع السلاح والذخائر والعتاد وتتبع العهد الشخصية والإدارية."
-        actions={
-          <Button onClick={() => setAddModalOpen(true)} className="font-bold shadow-xs">
-            <Plus className="h-4 w-4 me-1.5" />
-            إضافة قطعة / عتاد جديد
-          </Button>
-        }
-      />
+        title="المستودع وإدارة المخازن والعهدة"
+        description="جرد الأسلحة، العتاد، والمهمات وتتبع حركة تسليم وارتداد وتلف العهدة بشكل فوري."
+      >
+        <Button variant="primary" onClick={() => setAddModalOpen(true)} className="gap-1.5">
+          <Plus className="w-4 h-4" />
+          <span>تسجيل صنف / عتاد جديد</span>
+        </Button>
+      </PageHeader>
 
-      {/* Overview Metric Cards */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <Card className="border border-border/70 shadow-xs">
-          <CardContent className="p-4 flex items-center justify-between">
-            <div>
-              <p className="text-caption font-bold text-muted-foreground">إجمالي قطع العتاد والأسلحة</p>
-              <h3 className="text-display font-bold text-foreground mt-1">{formatNumber(totalCount)}</h3>
-            </div>
-            <div className="p-3 rounded-2xl bg-primary/10 text-primary">
-              <Shield className="h-6 w-6" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="border border-border/70 shadow-xs">
-          <CardContent className="p-4 flex items-center justify-between">
-            <div>
-              <p className="text-caption font-bold text-muted-foreground">قطع صالحة بالخدمة</p>
-              <h3 className="text-display font-bold text-success mt-1">{formatNumber(goodCount)}</h3>
-            </div>
-            <div className="p-3 rounded-2xl bg-success/10 text-success">
-              <PackageCheck className="h-6 w-6" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="border border-border/70 shadow-xs">
-          <CardContent className="p-4 flex items-center justify-between">
-            <div>
-              <p className="text-caption font-bold text-muted-foreground">مسلمة كعهدة شخصية</p>
-              <h3 className="text-display font-bold text-info mt-1">{formatNumber(custodyCount)}</h3>
-            </div>
-            <div className="p-3 rounded-2xl bg-info/10 text-info">
-              <UserCheck className="h-6 w-6" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="border border-border/70 shadow-xs">
-          <CardContent className="p-4 flex items-center justify-between">
-            <div>
-              <p className="text-caption font-bold text-muted-foreground">تحت الصيانة / التالفة</p>
-              <h3 className="text-display font-bold text-danger mt-1">{formatNumber(maintenanceCount)}</h3>
-            </div>
-            <div className="p-3 rounded-2xl bg-danger/10 text-danger">
-              <AlertTriangle className="h-6 w-6" />
-            </div>
-          </CardContent>
-        </Card>
+      {/* KPI Stats Cards */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        <StatCard title="إجمالي المخزون المملوك" value={stats.totalQty} icon={Boxes} variant="default" />
+        <StatCard title="المتاح في المستودع" value={stats.availableQty} icon={PackageCheck} variant="success" />
+        <StatCard title="المسلّم كعهدة للأفراد" value={stats.assignedQty} icon={UserCheck} variant="gold" />
+        <StatCard title="التالف والمكهن" value={stats.damagedQty} icon={AlertTriangle} variant="danger" />
       </div>
 
-      {/* Filter and Search Toolbar */}
-      <Card className="border border-border/80 shadow-2xs">
-        <CardContent className="p-4">
-          <div className="flex flex-col md:flex-row gap-3 items-center justify-between">
-            <div className="relative w-full md:w-80">
-              <Search className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="ابحث بالاسم أو الرقم التسلسلي..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="ps-9"
-              />
-            </div>
-            <div className="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
-              <Select value={categoryFilter} onChange={(e) => setCategoryFilter(e.target.value)} className="w-full sm:w-48">
-                <option value="">كافة التصنيفات</option>
-                {categories.map((cat) => (
-                  <option key={cat.id} value={cat.id}>
-                    {cat.name_ar}
-                  </option>
-                ))}
-              </Select>
+      {/* Tabs & Search Controls */}
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        {/* Category Tabs */}
+        <div className="flex items-center gap-1.5 p-1 bg-canvas rounded-lg border border-line">
+          <button
+            onClick={() => setTypeTab("all")}
+            className={`px-3 py-1.5 rounded-md text-body-sm font-semibold transition-colors ${
+              typeTab === "all" ? "bg-surface text-navy shadow-sm" : "text-navy-muted hover:text-navy"
+            }`}
+          >
+            كافة الأصناف ({items.length})
+          </button>
+          <button
+            onClick={() => setTypeTab("weapons")}
+            className={`px-3 py-1.5 rounded-md text-body-sm font-semibold transition-colors ${
+              typeTab === "weapons" ? "bg-surface text-navy shadow-sm" : "text-navy-muted hover:text-navy"
+            }`}
+          >
+            قسم التسليح والذخائر
+          </button>
+          <button
+            onClick={() => setTypeTab("warehouse")}
+            className={`px-3 py-1.5 rounded-md text-body-sm font-semibold transition-colors ${
+              typeTab === "warehouse" ? "bg-surface text-navy shadow-sm" : "text-navy-muted hover:text-navy"
+            }`}
+          >
+            قسم المخزن والمهمات
+          </button>
+        </div>
 
-              <Select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="w-full sm:w-44">
-                <option value="">كافة الحالات</option>
-                <option value="good">صالح للاستعمال</option>
-                <option value="maintenance">تحت الصيانة</option>
-                <option value="damaged">تالف / غير صالح</option>
-              </Select>
-            </div>
+        {/* Filter Inputs */}
+        <div className="flex items-center gap-2">
+          <div className="relative min-w-[240px]">
+            <Search className="w-4 h-4 absolute right-3 top-3 text-navy-muted" />
+            <Input
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="بحث بالاسم، الكود، المقاس، أو الرقم التسلسلي..."
+              className="pr-9 text-body-sm"
+            />
           </div>
-        </CardContent>
-      </Card>
+          <Select
+            value={statusFilter}
+            onValueChange={setStatusFilter}
+            options={[
+              { value: "", label: "كافة الحالات" },
+              { value: "good", label: "صالح للاستعمال" },
+              { value: "maintenance", label: "تحت الصيانة" },
+              { value: "damaged", label: "تالف / مكهن" },
+            ]}
+          />
+        </div>
+      </div>
 
       {/* Inventory Table */}
-      <Card className="border border-border/80 shadow-sm overflow-hidden">
-        <CardHeader className="bg-muted/20 border-b border-border/60 flex flex-row items-center justify-between py-3.5">
-          <CardTitle className="text-body font-bold flex items-center gap-2">
-            <Layers className="h-5 w-5 text-primary" />
-            <span>جدول حصر الأسلحة والعتاد</span>
-          </CardTitle>
-          <Badge variant="secondary" className="font-mono font-bold">
-            عدد السجلات: {formatNumber(items.length)}
-          </Badge>
-        </CardHeader>
-        <CardContent className="p-0">
+      <Card>
+        <CardContent className="p-0 overflow-x-auto">
           {isLoading ? (
-            <div className="p-8 text-center text-muted-foreground">جارِ تحميل سجلات الجرد...</div>
-          ) : items.length === 0 ? (
-            <div className="p-12 text-center space-y-3">
-              <Shield className="h-10 w-10 text-muted-foreground mx-auto opacity-40" />
-              <p className="font-bold text-body text-muted-foreground">لا توجد قطع سلاح أو ذخيرة مسجلة بالجرد حالياً.</p>
-            </div>
+            <div className="p-8 text-center text-navy-muted">جاري تحميل سجلات المخزن...</div>
+          ) : filteredItems.length === 0 ? (
+            <div className="p-8 text-center text-navy-muted">لا توجد أصناف تطابق شروط البحث الحالية.</div>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-start border-collapse text-body-sm">
-                <thead>
-                  <tr className="border-b border-border/80 bg-muted/40 font-bold text-muted-foreground text-caption">
-                    <th className="px-4 py-3 text-start w-12">م</th>
-                    <th className="px-4 py-3 text-start">الاسم / النوع</th>
-                    <th className="px-4 py-3 text-start">الرقم التسلسلي</th>
-                    <th className="px-4 py-3 text-start">العيار / الموديل</th>
-                    <th className="px-4 py-3 text-start">التصنيف</th>
-                    <th className="px-4 py-3 text-start">الحالة التشغيلية</th>
-                    <th className="px-4 py-3 text-start">موقعية العهدة</th>
-                    <th className="px-4 py-3 text-center w-36">الإجراءات</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-border/60">
-                  {items.map((item, idx) => (
-                    <tr key={item.id} className="hover:bg-primary/5 transition-colors">
-                      <td className="px-4 py-3 font-mono font-bold text-muted-foreground">{idx + 1}</td>
-                      <td className="px-4 py-3 font-bold text-foreground">{item.name}</td>
-                      <td className="px-4 py-3">
-                        {item.serial_number ? (
-                          <span className="font-mono font-bold text-caption bg-muted/70 text-foreground px-2 py-1 rounded-md inline-block dir-ltr" dir="ltr">
-                            {item.serial_number}
-                          </span>
-                        ) : (
-                          <span className="text-muted-foreground">—</span>
-                        )}
-                      </td>
-                      <td className="px-4 py-3 font-medium text-foreground">{item.caliber || item.model_name || "—"}</td>
-                      <td className="px-4 py-3">
-                        <Badge variant="outline" className="font-semibold">
-                          {item.category_name || "عام"}
-                        </Badge>
-                      </td>
-                      <td className="px-4 py-3">
-                        <Badge
-                          variant={
-                            item.status === "good"
-                              ? "success"
-                              : item.status === "maintenance"
-                              ? "warning"
-                              : "destructive"
-                          }
-                          className="font-bold"
+            <table className="w-full text-right text-body-sm">
+              <thead className="bg-canvas border-b border-line text-navy-muted font-semibold">
+                <tr>
+                  <th className="p-3.5">اسم الصنف / السلاح</th>
+                  <th className="p-3.5">الكود / الرقم التسلسلي</th>
+                  <th className="p-3.5">المقاس / المواصفة</th>
+                  <th className="p-3.5">التصنيف</th>
+                  <th className="p-3.5 text-center">المتاح / الإجمالي</th>
+                  <th className="p-3.5">حالة الصنف</th>
+                  <th className="p-3.5">موقع العهدة الحالية</th>
+                  <th className="p-3.5 text-center min-w-[200px]">حركات العهدة</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-line">
+                {filteredItems.map((item) => (
+                  <tr key={item.id} className="hover:bg-canvas/50 transition-colors">
+                    {/* Item Name */}
+                    <td className="p-3.5">
+                      <div className="font-semibold text-navy text-body">{item.name}</div>
+                      {item.caliber && <div className="text-caption text-gold-dark font-medium">{item.caliber}</div>}
+                    </td>
+
+                    {/* Code & Serial */}
+                    <td className="p-3.5 font-mono text-body-sm">
+                      {item.item_code && (
+                        <span className="block font-semibold text-navy">{item.item_code}</span>
+                      )}
+                      {item.serial_number ? (
+                        <span className="text-caption text-navy-muted bg-canvas px-1.5 py-0.5 rounded border border-line dir-ltr inline-block">
+                          {item.serial_number}
+                        </span>
+                      ) : (
+                        <span className="text-caption text-navy-muted">—</span>
+                      )}
+                    </td>
+
+                    {/* Size / Spec */}
+                    <td className="p-3.5 text-body-sm font-medium text-navy">
+                      {item.size_spec || "—"}
+                    </td>
+
+                    {/* Category */}
+                    <td className="p-3.5">
+                      <Badge variant="outline">{item.category_name || "عام"}</Badge>
+                    </td>
+
+                    {/* Stock Counters */}
+                    <td className="p-3.5 text-center">
+                      <div className="flex items-center justify-center gap-1.5 font-mono">
+                        <span className="font-bold text-success text-body">{item.available_quantity ?? item.total_quantity}</span>
+                        <span className="text-navy-muted">/</span>
+                        <span className="font-semibold text-navy">{item.total_quantity}</span>
+                      </div>
+                      {item.assigned_quantity > 0 && (
+                        <div className="text-caption text-gold-dark font-medium mt-0.5">
+                          ({item.assigned_quantity} مسلّمة)
+                        </div>
+                      )}
+                    </td>
+
+                    {/* Status */}
+                    <td className="p-3.5">
+                      <Badge
+                        variant={
+                          item.status === "good"
+                            ? "success"
+                            : item.status === "maintenance"
+                            ? "warning"
+                            : "danger"
+                        }
+                      >
+                        {item.status === "good"
+                          ? "صالح للاستعمال"
+                          : item.status === "maintenance"
+                          ? "تحت الصيانة"
+                          : "تالف / مكهن"}
+                      </Badge>
+                    </td>
+
+                    {/* Current Custody Location */}
+                    <td className="p-3.5">
+                      {item.assigned_member_name ? (
+                        <div>
+                          <div className="font-semibold text-navy text-body-sm">{item.assigned_member_name}</div>
+                          <div className="text-caption text-navy-muted font-mono">{item.assigned_member_force_number}</div>
+                        </div>
+                      ) : (
+                        <span className="px-2 py-0.5 rounded bg-navy/5 border border-line text-caption font-semibold text-navy">
+                          بالمخزن الرئيسي
+                        </span>
+                      )}
+                    </td>
+
+                    {/* Custody Actions */}
+                    <td className="p-3.5 text-center">
+                      <div className="flex items-center justify-center gap-1.5">
+                        {/* Issue Custody */}
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => {
+                            setSelectedItem(item);
+                            setCustodyData({ member_id: "", quantity: "1", notes: "" });
+                            setCustodyModalOpen(true);
+                          }}
+                          disabled={(item.available_quantity ?? item.total_quantity) <= 0}
+                          title="تسليم عهدة"
                         >
-                          {item.status === "good" ? "صالح للاستعمال" : item.status === "maintenance" ? "تحت الصيانة" : "تالف / غير صالح"}
-                        </Badge>
-                      </td>
-                      <td className="px-4 py-3">
-                        {item.assigned_member_name ? (
-                          <div className="space-y-0.5">
-                            <p className="font-bold text-foreground">{item.assigned_member_name}</p>
-                            <p className="text-caption font-mono text-muted-foreground" dir="ltr">{item.assigned_member_force_number}</p>
-                          </div>
-                        ) : (
-                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-caption font-bold">
-                            بالمخزن الرئيسي
-                          </span>
-                        )}
-                      </td>
-                      <td className="px-4 py-3 text-center">
-                        {item.assigned_member ? (
+                          تسليم
+                        </Button>
+
+                        {/* Return Custody */}
+                        {item.assigned_quantity > 0 && (
                           <Button
                             size="sm"
                             variant="outline"
-                            className="text-danger border-danger/30 hover:bg-danger/10 font-bold"
-                            onClick={() => releaseCustodyMutation.mutate(item.id)}
-                          >
-                            إرجاع للمخزن
-                          </Button>
-                        ) : (
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="font-bold"
+                            className="text-success border-success/30 hover:bg-success-bg"
                             onClick={() => {
                               setSelectedItem(item);
-                              setCustodyModalOpen(true);
+                              setReturnData({ quantity: String(item.assigned_quantity), notes: "" });
+                              setReturnModalOpen(true);
                             }}
+                            title="إرجاع للمخزن"
                           >
-                            تسليم عهدة
+                            إرجاع
                           </Button>
                         )}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+
+                        {/* Mark Damaged */}
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="text-danger hover:bg-danger-bg p-1"
+                          onClick={() => {
+                            setSelectedItem(item);
+                            setDamageData({
+                              quantity: "1",
+                              source: item.assigned_quantity > 0 ? "custody" : "warehouse",
+                              notes: "",
+                            });
+                            setDamageModalOpen(true);
+                          }}
+                          title="تسجيل تالف / مكهن"
+                        >
+                          <AlertTriangle className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           )}
         </CardContent>
       </Card>
 
-      {/* Modal Add Item */}
+      {/* Modal 1: Add New Item */}
       <Dialog open={addModalOpen} onOpenChange={setAddModalOpen}>
-        <DialogContent className="max-w-lg">
+        <DialogContent className="max-w-lg" dir="rtl">
           <DialogHeader>
-            <DialogTitle>تسجيل سلاح / عتاد جديد بالجرد</DialogTitle>
+            <DialogTitle className="text-title text-navy">تسجيل صنف / عتاد جديد بالمخزن</DialogTitle>
           </DialogHeader>
           <form
             onSubmit={(e) => {
@@ -333,37 +431,53 @@ export function InventoryPage() {
               createItemMutation.mutate({
                 ...formData,
                 total_quantity: parseInt(formData.total_quantity, 10) || 1,
+                available_quantity: parseInt(formData.total_quantity, 10) || 1,
               });
             }}
-            className="space-y-4"
+            className="space-y-4 pt-2"
           >
             <div className="space-y-1.5">
-              <Label required>اسم السلاح / العتاد</Label>
+              <Label className="text-label text-navy">اسم الصنف أو السلاح *</Label>
               <Input
                 required
-                placeholder="مثال: بندقية كلاشينكوف AK-47"
+                placeholder="مثال: بندقية كلاشينكوف / بدلة عسكرية صحراوي"
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
               />
             </div>
+
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <Label required>التصنيف</Label>
+                <Label className="text-label text-navy">التصنيف المخزني *</Label>
                 <Select
-                  required
                   value={formData.category}
-                  onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                >
-                  <option value="">اختر التصنيف</option>
-                  {categories.map((c) => (
-                    <option key={c.id} value={c.id}>
-                      {c.name_ar}
-                    </option>
-                  ))}
-                </Select>
+                  onValueChange={(val) => setFormData({ ...formData, category: val })}
+                  options={categories.map((c) => ({ value: String(c.id), label: c.name_ar }))}
+                />
               </div>
+
               <div className="space-y-1.5">
-                <Label>الرقم التسلسلي</Label>
+                <Label className="text-label text-navy">رقم / كود الصنف</Label>
+                <Input
+                  placeholder="مثال: WPN-001 / UNIF-XL"
+                  value={formData.item_code}
+                  onChange={(e) => setFormData({ ...formData, item_code: e.target.value })}
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <Label className="text-label text-navy">المقاس أو المواصفة</Label>
+                <Input
+                  placeholder="مثال: مقاس XL / 42 / 7.62 مم"
+                  value={formData.size_spec}
+                  onChange={(e) => setFormData({ ...formData, size_spec: e.target.value })}
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <Label className="text-label text-navy">الرقم التسلسلي (إن وجد)</Label>
                 <Input
                   dir="ltr"
                   placeholder="SN-998822"
@@ -372,52 +486,59 @@ export function InventoryPage() {
                 />
               </div>
             </div>
+
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <Label>العيار (Caliber)</Label>
+                <Label className="text-label text-navy">الكمية الإجمالية *</Label>
                 <Input
-                  placeholder="7.62x39 mm"
-                  value={formData.caliber}
-                  onChange={(e) => setFormData({ ...formData, caliber: e.target.value })}
+                  type="number"
+                  min="1"
+                  required
+                  value={formData.total_quantity}
+                  onChange={(e) => setFormData({ ...formData, total_quantity: e.target.value })}
                 />
               </div>
+
               <div className="space-y-1.5">
-                <Label>حالة القطعة</Label>
+                <Label className="text-label text-navy">الحالة الفنية</Label>
                 <Select
                   value={formData.status}
-                  onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-                >
-                  <option value="good">صالح للاستعمال</option>
-                  <option value="maintenance">تحت الصيانة</option>
-                  <option value="damaged">تالف / غير صالح</option>
-                </Select>
+                  onValueChange={(val) => setFormData({ ...formData, status: val })}
+                  options={[
+                    { value: "good", label: "صالح للاستعمال" },
+                    { value: "maintenance", label: "تحت الصيانة" },
+                    { value: "damaged", label: "تالف / مكهن" },
+                  ]}
+                />
               </div>
             </div>
+
             <div className="space-y-1.5">
-              <Label>ملاحظات الجرد</Label>
+              <Label className="text-label text-navy">ملاحظات الصنف</Label>
               <Textarea
-                placeholder="أي ملاحظات فنية حول حالة السلاح أو العتاد..."
+                placeholder="أي تفاصيل فنية أو موقع التخزين في المستودع..."
                 value={formData.notes}
                 onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
               />
             </div>
-            <DialogFooter>
+
+            <DialogFooter className="gap-2 sm:gap-0 pt-2 border-t border-line">
               <Button type="button" variant="outline" onClick={() => setAddModalOpen(false)}>
                 إلغاء
               </Button>
-              <Button type="submit" disabled={createItemMutation.isPending}>
-                حفظ وتسجيل بالجرد
+              <Button type="submit" variant="primary" disabled={createItemMutation.isPending}>
+                حفظ وإضافة للمخزن
               </Button>
             </DialogFooter>
           </form>
         </DialogContent>
       </Dialog>
 
-      {/* Modal Custody Assign */}
+      {/* Modal 2: Issue Custody */}
       <Dialog open={custodyModalOpen} onOpenChange={setCustodyModalOpen}>
-        <DialogContent className="max-w-md">
+        <DialogContent className="max-w-md" dir="rtl">
           <DialogHeader>
-            <DialogTitle>تسليم عهدة سلاح لفرد</DialogTitle>
+            <DialogTitle className="text-title text-navy">تسليم عهدة لفرد من المخزن</DialogTitle>
           </DialogHeader>
           <form
             onSubmit={(e) => {
@@ -425,50 +546,205 @@ export function InventoryPage() {
               if (selectedItem) {
                 assignCustodyMutation.mutate({
                   itemId: selectedItem.id,
-                  payload: custodyData,
+                  payload: {
+                    member_id: parseInt(custodyData.member_id, 10),
+                    quantity: parseInt(custodyData.quantity, 10) || 1,
+                    notes: custodyData.notes,
+                  },
                 });
               }
             }}
-            className="space-y-4"
+            className="space-y-4 pt-2"
           >
-            <div className="p-3 rounded-xl border border-primary/20 bg-primary/5 space-y-1">
-              <p className="font-bold text-foreground text-body-sm">{selectedItem?.name}</p>
-              {selectedItem?.serial_number && (
-                <p className="text-caption font-mono text-muted-foreground" dir="ltr">SN: {selectedItem.serial_number}</p>
-              )}
+            <div className="p-3 rounded-lg border border-gold-border bg-gold-bg/30 space-y-1">
+              <p className="font-bold text-navy text-body">{selectedItem?.name}</p>
+              <div className="text-caption text-navy-muted flex items-center justify-between">
+                <span>المقاس: {selectedItem?.size_spec || "—"}</span>
+                <span className="font-mono font-bold text-success">
+                  الرصيد المتاح: {selectedItem?.available_quantity} قطعة
+                </span>
+              </div>
             </div>
 
             <div className="space-y-1.5">
-              <Label required>اختر الفرد المستلم للعهدة</Label>
+              <Label className="text-label text-navy">اختر الفرد المستلم للعهدة *</Label>
               <Select
-                required
                 value={custodyData.member_id}
-                onChange={(e) => setCustodyData({ ...custodyData, member_id: e.target.value })}
-              >
-                <option value="">اختر الفرد من السجل</option>
-                {members.map((m) => (
-                  <option key={m.id} value={m.id}>
-                    {m.full_name} ({m.force_number})
-                  </option>
-                ))}
-              </Select>
+                onValueChange={(val) => setCustodyData({ ...custodyData, member_id: val })}
+                options={members.map((m) => ({
+                  value: String(m.id),
+                  label: `${m.full_name} (${m.force_number || "بدون رقم"})`,
+                }))}
+              />
             </div>
 
             <div className="space-y-1.5">
-              <Label>ملاحظات التسليم</Label>
+              <Label className="text-label text-navy">الكمية المسلمة *</Label>
+              <Input
+                type="number"
+                min="1"
+                max={selectedItem?.available_quantity || 1}
+                value={custodyData.quantity}
+                onChange={(e) => setCustodyData({ ...custodyData, quantity: e.target.value })}
+                required
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <Label className="text-label text-navy">ملاحظات التسليم</Label>
               <Textarea
-                placeholder="تاريخ أو شروط التسليم..."
+                placeholder="أمر الصرف أو سبب تسليم العهدة..."
                 value={custodyData.notes}
                 onChange={(e) => setCustodyData({ ...custodyData, notes: e.target.value })}
               />
             </div>
 
-            <DialogFooter>
+            <DialogFooter className="gap-2 sm:gap-0 pt-2 border-t border-line">
               <Button type="button" variant="outline" onClick={() => setCustodyModalOpen(false)}>
                 إلغاء
               </Button>
-              <Button type="submit" disabled={assignCustodyMutation.isPending}>
-                تأكيد وتسليم العهدة
+              <Button type="submit" variant="primary" disabled={assignCustodyMutation.isPending}>
+                تأكيد تسليم العهدة
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Modal 3: Return Custody */}
+      <Dialog open={returnModalOpen} onOpenChange={setReturnModalOpen}>
+        <DialogContent className="max-w-md" dir="rtl">
+          <DialogHeader>
+            <DialogTitle className="text-title text-navy">إرجاع عهدة إلى المستودع</DialogTitle>
+          </DialogHeader>
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              if (selectedItem) {
+                releaseCustodyMutation.mutate({
+                  itemId: selectedItem.id,
+                  payload: {
+                    quantity: parseInt(returnData.quantity, 10) || 1,
+                    notes: returnData.notes,
+                  },
+                });
+              }
+            }}
+            className="space-y-4 pt-2"
+          >
+            <div className="p-3 rounded-lg border border-line bg-canvas space-y-1">
+              <p className="font-bold text-navy text-body">{selectedItem?.name}</p>
+              <p className="text-caption text-navy-muted">
+                الكمية المسلمة حالياً: <span className="font-bold text-navy">{selectedItem?.assigned_quantity}</span>
+              </p>
+            </div>
+
+            <div className="space-y-1.5">
+              <Label className="text-label text-navy">الكمية المرتدة للمخزن *</Label>
+              <Input
+                type="number"
+                min="1"
+                max={selectedItem?.assigned_quantity || 1}
+                value={returnData.quantity}
+                onChange={(e) => setReturnData({ ...returnData, quantity: e.target.value })}
+                required
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <Label className="text-label text-navy">ملاحظات الإرجاع</Label>
+              <Textarea
+                placeholder="حالة الصنف عند الارتداد..."
+                value={returnData.notes}
+                onChange={(e) => setReturnData({ ...returnData, notes: e.target.value })}
+              />
+            </div>
+
+            <DialogFooter className="gap-2 sm:gap-0 pt-2 border-t border-line">
+              <Button type="button" variant="outline" onClick={() => setReturnModalOpen(false)}>
+                إلغاء
+              </Button>
+              <Button type="submit" variant="primary" disabled={releaseCustodyMutation.isPending}>
+                تأكيد الإرجاع للمستودع
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Modal 4: Mark Damaged */}
+      <Dialog open={damageModalOpen} onOpenChange={setDamageModalOpen}>
+        <DialogContent className="max-w-md" dir="rtl">
+          <DialogHeader>
+            <DialogTitle className="text-title text-danger flex items-center gap-2">
+              <AlertTriangle className="w-5 h-5" />
+              <span>تسجيل صنف تالف / مكهن</span>
+            </DialogTitle>
+          </DialogHeader>
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              if (selectedItem) {
+                markDamagedMutation.mutate({
+                  itemId: selectedItem.id,
+                  payload: {
+                    quantity: parseInt(damageData.quantity, 10) || 1,
+                    source: damageData.source,
+                    notes: damageData.notes,
+                  },
+                });
+              }
+            }}
+            className="space-y-4 pt-2"
+          >
+            <div className="p-3 rounded-lg border border-danger-border bg-danger-bg/20 space-y-1">
+              <p className="font-bold text-navy text-body">{selectedItem?.name}</p>
+              <p className="text-caption text-danger">
+                سيتم خصم الكمية التالفة نهائياً من رصيد العهدة أو المخزن وإضافتها لسجل التوالف.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <Label className="text-label text-navy">مصدر التلف *</Label>
+                <Select
+                  value={damageData.source}
+                  onValueChange={(val) => setDamageData({ ...damageData, source: val })}
+                  options={[
+                    { value: "custody", label: "من عهدة الفرد" },
+                    { value: "warehouse", label: "من المخزن مباشرة" },
+                  ]}
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <Label className="text-label text-navy">الكمية التالفة *</Label>
+                <Input
+                  type="number"
+                  min="1"
+                  value={damageData.quantity}
+                  onChange={(e) => setDamageData({ ...damageData, quantity: e.target.value })}
+                  required
+                />
+              </div>
+            </div>
+
+            <div className="space-y-1.5">
+              <Label className="text-label text-navy">سبب التلف ومحضر الإثبات *</Label>
+              <Textarea
+                required
+                placeholder="شرح أسباب التلف أو الكسر أو الفقدان..."
+                value={damageData.notes}
+                onChange={(e) => setDamageData({ ...damageData, notes: e.target.value })}
+              />
+            </div>
+
+            <DialogFooter className="gap-2 sm:gap-0 pt-2 border-t border-line">
+              <Button type="button" variant="outline" onClick={() => setDamageModalOpen(false)}>
+                إلغاء
+              </Button>
+              <Button type="submit" variant="danger" disabled={markDamagedMutation.isPending}>
+                تسجيل التالف
               </Button>
             </DialogFooter>
           </form>

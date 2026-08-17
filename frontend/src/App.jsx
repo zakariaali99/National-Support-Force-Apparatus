@@ -23,6 +23,10 @@ const UsersPage = lazy(() => import("./features/settings/UsersPage").then((m) =>
 const AuditPage = lazy(() => import("./features/audit/AuditPage").then((m) => ({ default: m.AuditPage })));
 const BackupsPage = lazy(() => import("./features/backups/BackupsPage").then((m) => ({ default: m.BackupsPage })));
 const InventoryPage = lazy(() => import("./features/inventory/InventoryPage").then((m) => ({ default: m.InventoryPage })));
+const VehiclesPage = lazy(() => import("./features/transportation/VehiclesPage"));
+const DailyAttendancePage = lazy(() => import("./features/attendance/DailyAttendancePage"));
+const MonthlyAttendancePage = lazy(() => import("./features/attendance/MonthlyAttendancePage"));
+const ShiftRostersPage = lazy(() => import("./features/attendance/ShiftRostersPage"));
 
 function RouteFallback() {
   return <div className="p-8 text-center text-sm text-muted-foreground">جارِ التحميل...</div>;
@@ -72,6 +76,38 @@ export default function App() {
             element={
               <Suspense fallback={<RouteFallback />}>
                 <MemberForm />
+              </Suspense>
+            }
+          />
+          <Route
+            path="/attendance"
+            element={
+              <Suspense fallback={<RouteFallback />}>
+                <DailyAttendancePage />
+              </Suspense>
+            }
+          />
+          <Route
+            path="/attendance/monthly"
+            element={
+              <Suspense fallback={<RouteFallback />}>
+                <MonthlyAttendancePage />
+              </Suspense>
+            }
+          />
+          <Route
+            path="/attendance/rosters"
+            element={
+              <Suspense fallback={<RouteFallback />}>
+                <ShiftRostersPage />
+              </Suspense>
+            }
+          />
+          <Route
+            path="/transportation"
+            element={
+              <Suspense fallback={<RouteFallback />}>
+                <VehiclesPage />
               </Suspense>
             }
           />

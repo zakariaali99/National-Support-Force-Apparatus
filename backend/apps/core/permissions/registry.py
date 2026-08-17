@@ -49,6 +49,30 @@ PERMISSION_GROUPS = [
         },
     },
     {
+        "key": "transportation",
+        "label_ar": "النقلية والمركبات",
+        "permissions": {
+            "transportation.view": "عرض سجل المركبات والآليات",
+            "transportation.manage": "إدارة وتعديل سجل المركبات والآليات",
+        },
+    },
+    {
+        "key": "equipment",
+        "label_ar": "العتاد والمخازن والتسليح",
+        "permissions": {
+            "equipment.view": "عرض الأسلحة والعتاد والمخزن",
+            "equipment.manage": "إدارة الأصناف وحركة العهد والمخزون",
+        },
+    },
+    {
+        "key": "attendance",
+        "label_ar": "التمام والورديات",
+        "permissions": {
+            "attendance.view": "عرض التمام اليومي والشهري والورديات",
+            "attendance.record": "تسجيل وإدارة التمام وحساب الخصومات",
+        },
+    },
+    {
         "key": "organization",
         "label_ar": "الهيكل التنظيمي",
         "permissions": {

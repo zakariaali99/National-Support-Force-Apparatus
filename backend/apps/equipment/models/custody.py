@@ -7,6 +7,7 @@ from apps.core.models.base import BaseModel
 CUSTODY_ACTION_CHOICES = [
     ("assigned", "تسليم عهدة"),
     ("returned", "إرجاع عهدة"),
+    ("damaged", "تسجيل تالف / مكهن"),
     ("maintenance", "إحالة للصيانة"),
 ]
 

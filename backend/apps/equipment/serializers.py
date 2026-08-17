@@ -21,6 +21,7 @@ class InventoryCategorySerializer(serializers.ModelSerializer):
 
 class InventoryItemSerializer(serializers.ModelSerializer):
     category_name = serializers.CharField(source="category.name_ar", read_only=True)
+    category_type = serializers.CharField(source="category.category_type", read_only=True)
     faction_name = serializers.CharField(source="faction.name_ar", read_only=True)
     assigned_member_name = serializers.CharField(source="assigned_member.full_name", read_only=True)
     assigned_member_force_number = serializers.CharField(source="assigned_member.force_number", read_only=True)
@@ -31,12 +32,17 @@ class InventoryItemSerializer(serializers.ModelSerializer):
             "id",
             "category",
             "category_name",
+            "category_type",
             "name",
+            "item_code",
             "serial_number",
+            "size_spec",
             "caliber",
             "model_name",
             "total_quantity",
             "available_quantity",
+            "assigned_quantity",
+            "damaged_quantity",
             "status",
             "faction",
             "faction_name",

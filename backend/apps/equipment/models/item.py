@@ -10,6 +10,10 @@ EQUIPMENT_TYPE_CHOICES = [
     ("machine_gun", "رشاش / سلاح متوسط"),
     ("ammo", "ذخيرة"),
     ("armor", "عتاد وتجهيزات شخصية"),
+    ("uniform", "مهمات وملابس عسكرية"),
+    ("comm", "أجهزة اتصال ولاسلكي"),
+    ("medical", "معدات طبية وإسعاف"),
+    ("general", "مهمات ومخزن عام"),
     ("other", "أخرى"),
 ]
 
@@ -22,7 +26,7 @@ ITEM_STATUS_CHOICES = [
 
 
 class InventoryCategory(BaseModel):
-    """Category of weapon, ammunition, or tactical gear."""
+    """Category of weapon, ammunition, tactical gear, or warehouse equipment."""
 
     code = models.SlugField(max_length=50, unique=True)
     name_ar = models.CharField(max_length=100)
@@ -31,25 +35,32 @@ class InventoryCategory(BaseModel):
 
     class Meta:
         ordering = ["name_ar"]
-        verbose_name = "تصنيف العتاد والأسلحة"
-        verbose_name_plural = "تصنيفات العتاد والأسلحة"
+        verbose_name = "تصنيف العتاد والمخزن"
+        verbose_name_plural = "تصنيفات العتاد والمخزن"
 
     def __str__(self):
         return self.name_ar
 
 
 class InventoryItem(BaseModel):
-    """Arms, ammunition, or equipment inventory record."""
+    """Arms, ammunition, tactical gear, or warehouse inventory record."""
 
     category = models.ForeignKey(
         InventoryCategory, on_delete=models.PROTECT, related_name="items"
     )
-    name = models.CharField(max_length=150)
-    serial_number = models.CharField(max_length=100, db_index=True, blank=True)
-    caliber = models.CharField(max_length=50, blank=True)  # العيار (مثال: 7.62x39, 9x19)
-    model_name = models.CharField(max_length=100, blank=True)
-    total_quantity = models.PositiveIntegerField(default=1)
-    available_quantity = models.PositiveIntegerField(default=1)
+    name = models.CharField(max_length=150, help_text="اسم الصنف أو السلاح")
+    item_code = models.CharField(max_length=100, db_index=True, blank=True, help_text="رقم الصنف أو الكود المخزني")
+    serial_number = models.CharField(max_length=100, db_index=True, blank=True, help_text="الرقم التسلسلي")
+    size_spec = models.CharField(max_length=100, blank=True, help_text="المقاس / العيار / المواصفة")
+    caliber = models.CharField(max_length=50, blank=True, help_text="العيار (إن وجد)")
+    model_name = models.CharField(max_length=100, blank=True, help_text="الموديل أو الطراز")
+
+    # Inventory Quantities tracking
+    total_quantity = models.PositiveIntegerField(default=1, help_text="إجمالي الكمية المملوكة")
+    available_quantity = models.PositiveIntegerField(default=1, help_text="الكمية المتوفرة بالمستودع")
+    assigned_quantity = models.PositiveIntegerField(default=0, help_text="الكمية المسلّمة كعهدة")
+    damaged_quantity = models.PositiveIntegerField(default=0, help_text="الكمية التالفة / المستبعدة")
+
     status = models.CharField(max_length=20, choices=ITEM_STATUS_CHOICES, default="good", db_index=True)
     faction = models.ForeignKey(
         "organization.Faction", null=True, blank=True, on_delete=models.SET_NULL, related_name="inventory_items"

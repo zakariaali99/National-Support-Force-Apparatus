@@ -1,7 +1,12 @@
 import {
   Archive,
   Building2,
+  CalendarCheck2,
+  CalendarDays,
+  Car,
+  Clock,
   LayoutDashboard,
+  PackageCheck,
   ScrollText,
   Settings,
   Shield,
@@ -14,19 +19,35 @@ import {
 export const NAV_GROUPS = [
   {
     id: "general",
-    title: "العامة والإدارة",
+    title: "العامة وشؤون الأفراد",
     items: [
       { to: "/", label: "لوحة التحكم", icon: LayoutDashboard, end: true, breadcrumb: "لوحة التحكم" },
       { to: "/members", label: "سجل الأفراد", icon: Users, breadcrumb: "سجل الأفراد" },
       { to: "/members/new", label: "إضافة فرد جديد", icon: UserPlus, permission: "member.create", breadcrumb: "إضافة فرد جديد" },
-      { to: "/inventory", label: "قسم الأسلحة والذخائر", icon: Shield, breadcrumb: "قسم الأسلحة والذخائر" },
+    ],
+  },
+  {
+    id: "attendance",
+    title: "التمام والانضباط والورديات",
+    items: [
+      { to: "/attendance", label: "التمام اليومي", icon: CalendarCheck2, breadcrumb: "التمام اليومي" },
+      { to: "/attendance/monthly", label: "التمام الشهري", icon: CalendarDays, breadcrumb: "التمام الشهري" },
+      { to: "/attendance/rosters", label: "فصائل النوبات والورديات", icon: Clock, breadcrumb: "فصائل النوبات والورديات" },
+    ],
+  },
+  {
+    id: "logistics",
+    title: "النقلية والإمداد والتسليح",
+    items: [
+      { to: "/transportation", label: "قسم النقلية والمركبات", icon: Car, breadcrumb: "قسم النقلية والمركبات" },
+      { to: "/inventory", label: "المستودع والمخزن والعهد", icon: PackageCheck, breadcrumb: "المستودع والمخزن والعهد" },
     ],
   },
   {
     id: "structure",
     title: "الهيكل والتوزيع",
     items: [
-      { to: "/organization/factions", label: "الإدارات", icon: Building2, breadcrumb: "الإدارات" },
+      { to: "/organization/factions", label: "الإدارات والفصائل", icon: Building2, breadcrumb: "الإدارات والفصائل" },
       { to: "/organization/ranks", label: "الرتب العسكرية", icon: Shield, breadcrumb: "الرتب العسكرية" },
     ],
   },

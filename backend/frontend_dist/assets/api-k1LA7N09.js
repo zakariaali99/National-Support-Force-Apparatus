@@ -1,0 +1,1 @@
+import{t as e}from"./createResourceHooks-CJWFQg58.js";var t=e(`ranks`,`ranks/`),n=e(`factions`,`factions/`),r=n.useList;n.useCreate,n.useUpdate,n.useDelete,t.useList,t.useCreate,t.useUpdate,t.useDelete;export{t as n,r,n as t};
