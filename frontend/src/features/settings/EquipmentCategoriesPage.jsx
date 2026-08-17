@@ -181,3 +181,5 @@ export function EquipmentCategoriesPage() {
     </div>
   );
 }
+
+export default EquipmentCategoriesPage;

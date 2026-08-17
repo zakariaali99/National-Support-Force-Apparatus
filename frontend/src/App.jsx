@@ -9,20 +9,20 @@ import { ProtectedRoute } from "./features/auth/ProtectedRoute";
 // fetched on first navigation instead of all landing in the single
 // >500KB bundle flagged since Phase 1 (see NEXT.md). LoginPage/AppShell/
 // ProtectedRoute stay eager: they're needed before any route decision.
-const DashboardPage = lazy(() => import("./features/dashboard/DashboardPage").then((m) => ({ default: m.DashboardPage })));
-const MemberDetail = lazy(() => import("./features/members/MemberDetail").then((m) => ({ default: m.MemberDetail })));
-const MemberForm = lazy(() => import("./features/members/MemberForm").then((m) => ({ default: m.MemberForm })));
-const MemberList = lazy(() => import("./features/members/MemberList").then((m) => ({ default: m.MemberList })));
-const FactionsPage = lazy(() => import("./features/organization/FactionsPage").then((m) => ({ default: m.FactionsPage })));
-const RanksPage = lazy(() => import("./features/organization/RanksPage").then((m) => ({ default: m.RanksPage })));
-const FieldRequirementsPage = lazy(() => import("./features/settings/FieldRequirementsPage").then((m) => ({ default: m.FieldRequirementsPage })));
-const EquipmentCategoriesPage = lazy(() => import("./features/settings/EquipmentCategoriesPage").then((m) => ({ default: m.EquipmentCategoriesPage })));
-const SettingsHubPage = lazy(() => import("./features/settings/SettingsHubPage").then((m) => ({ default: m.SettingsHubPage })));
-const RolesPage = lazy(() => import("./features/settings/RolesPage").then((m) => ({ default: m.RolesPage })));
-const UsersPage = lazy(() => import("./features/settings/UsersPage").then((m) => ({ default: m.UsersPage })));
-const AuditPage = lazy(() => import("./features/audit/AuditPage").then((m) => ({ default: m.AuditPage })));
-const BackupsPage = lazy(() => import("./features/backups/BackupsPage").then((m) => ({ default: m.BackupsPage })));
-const InventoryPage = lazy(() => import("./features/inventory/InventoryPage").then((m) => ({ default: m.InventoryPage })));
+const DashboardPage = lazy(() => import("./features/dashboard/DashboardPage").then((m) => ({ default: m.DashboardPage || m.default })));
+const MemberDetail = lazy(() => import("./features/members/MemberDetail").then((m) => ({ default: m.MemberDetail || m.default })));
+const MemberForm = lazy(() => import("./features/members/MemberForm").then((m) => ({ default: m.MemberForm || m.default })));
+const MemberList = lazy(() => import("./features/members/MemberList").then((m) => ({ default: m.MemberList || m.default })));
+const FactionsPage = lazy(() => import("./features/organization/FactionsPage").then((m) => ({ default: m.FactionsPage || m.default })));
+const RanksPage = lazy(() => import("./features/organization/RanksPage").then((m) => ({ default: m.RanksPage || m.default })));
+const FieldRequirementsPage = lazy(() => import("./features/settings/FieldRequirementsPage").then((m) => ({ default: m.FieldRequirementsPage || m.default })));
+const EquipmentCategoriesPage = lazy(() => import("./features/settings/EquipmentCategoriesPage").then((m) => ({ default: m.EquipmentCategoriesPage || m.default })));
+const SettingsHubPage = lazy(() => import("./features/settings/SettingsHubPage").then((m) => ({ default: m.SettingsHubPage || m.default })));
+const RolesPage = lazy(() => import("./features/settings/RolesPage").then((m) => ({ default: m.RolesPage || m.default })));
+const UsersPage = lazy(() => import("./features/settings/UsersPage").then((m) => ({ default: m.UsersPage || m.default })));
+const AuditPage = lazy(() => import("./features/audit/AuditPage").then((m) => ({ default: m.AuditPage || m.default })));
+const BackupsPage = lazy(() => import("./features/backups/BackupsPage").then((m) => ({ default: m.BackupsPage || m.default })));
+const InventoryPage = lazy(() => import("./features/inventory/InventoryPage").then((m) => ({ default: m.InventoryPage || m.default })));
 const VehiclesPage = lazy(() => import("./features/transportation/VehiclesPage").then((m) => ({ default: m.VehiclesPage || m.default })));
 const DailyAttendancePage = lazy(() => import("./features/attendance/DailyAttendancePage").then((m) => ({ default: m.DailyAttendancePage || m.default })));
 const MonthlyAttendancePage = lazy(() => import("./features/attendance/MonthlyAttendancePage").then((m) => ({ default: m.MonthlyAttendancePage || m.default })));

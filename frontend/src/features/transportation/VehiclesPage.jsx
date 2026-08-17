@@ -19,7 +19,11 @@ import {
   CheckCircle,
   Pencil,
   Trash2,
+  FileCheck2,
+  QrCode,
 } from "lucide-react";
+import { VehicleTripVoucherDialog } from "./VehicleTripVoucherDialog";
+import { AssetQRCode } from "../../components/qr/AssetQRCode";
 
 const VEHICLE_STATUS_BADGES = {
   ready: { variant: "success", label: "جاهزة للخدمة" },
@@ -49,6 +53,9 @@ export default function VehiclesPage() {
   const [formOpen, setFormOpen] = useState(false);
   const [editingVehicle, setEditingVehicle] = useState(null);
   const [deletingVehicle, setDeletingVehicle] = useState(null);
+  const [tripVoucherOpen, setTripVoucherOpen] = useState(false);
+  const [qrModalOpen, setQrModalOpen] = useState(false);
+  const [selectedVehicle, setSelectedVehicle] = useState(null);
 
   const { data: factions = [] } = useFactions();
   const deleteVehicle = useDeleteVehicle();
@@ -181,7 +188,33 @@ export default function VehiclesPage() {
       header: "الإجراءات",
       id: "actions",
       cell: (v) => (
-        <div className="flex items-center gap-1.5 justify-end">
+        <div className="flex items-center gap-1 justify-end">
+          <Button
+            variant="outline"
+            size="sm"
+            className="h-8 px-2 text-blue-700 dark:text-blue-400 border-blue-200 dark:border-blue-800 hover:bg-blue-50 dark:hover:bg-blue-950/40 shadow-2xs"
+            onClick={() => {
+              setSelectedVehicle(v);
+              setTripVoucherOpen(true);
+            }}
+            title="طباعة أمر تحرك وبطاقة تشغيل للمركبة"
+          >
+            <FileCheck2 className="w-3.5 h-3.5" />
+          </Button>
+
+          <Button
+            variant="outline"
+            size="sm"
+            className="h-8 px-2 text-indigo-700 dark:text-indigo-400 border-indigo-200 dark:border-indigo-800 hover:bg-indigo-50 dark:hover:bg-indigo-950/40 shadow-2xs"
+            onClick={() => {
+              setSelectedVehicle(v);
+              setQrModalOpen(true);
+            }}
+            title="توليد ملصق QR للمركبة"
+          >
+            <QrCode className="w-3.5 h-3.5" />
+          </Button>
+
           <Button
             variant="ghost"
             size="sm"
@@ -358,6 +391,23 @@ export default function VehiclesPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Official Vehicle Trip Order Voucher Dialog */}
+      <VehicleTripVoucherDialog
+        vehicle={selectedVehicle}
+        open={tripVoucherOpen}
+        onOpenChange={setTripVoucherOpen}
+      />
+
+      {/* Printable Vehicle QR Tag Modal */}
+      <AssetQRCode
+        title={selectedVehicle?.name}
+        subtitle={`لوحة: ${selectedVehicle?.plate_number || "—"} • هيكل: ${selectedVehicle?.chassis_number || "—"}`}
+        code={selectedVehicle?.chassis_number || selectedVehicle?.plate_number || `VEH-${selectedVehicle?.id}`}
+        type="vehicle"
+        open={qrModalOpen}
+        onOpenChange={setQrModalOpen}
+      />
     </div>
   );
 }

@@ -165,3 +165,5 @@ export function RanksPage() {
     </div>
   );
 }
+
+export default RanksPage;

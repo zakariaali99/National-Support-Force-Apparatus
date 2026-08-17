@@ -341,3 +341,5 @@ export function RolesPage() {
     </div>
   );
 }
+
+export default RolesPage;

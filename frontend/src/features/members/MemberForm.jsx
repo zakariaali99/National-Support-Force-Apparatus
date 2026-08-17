@@ -470,3 +470,5 @@ function Field({ label, error, htmlFor, children }) {
     </div>
   );
 }
+
+export default MemberForm;

@@ -11,6 +11,9 @@ import { Skeleton } from "../../components/ui/Skeleton";
 import { StatCard } from "../../components/ui/StatCard";
 import { formatDate } from "../../lib/format";
 import { staggerIn } from "../../lib/motion";
+import { AttendanceTrendChart } from "../../components/charts/AttendanceTrendChart";
+import { FleetStatusChart } from "../../components/charts/FleetStatusChart";
+import { InventoryDistributionChart } from "../../components/charts/InventoryDistributionChart";
 
 export function DashboardPage() {
   const { user } = useAuth();
@@ -262,6 +265,18 @@ export function DashboardPage() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Visual Analytics & Performance Charts Section */}
+      <div className="space-y-6">
+        <AttendanceTrendChart />
+
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+          <FleetStatusChart />
+          <InventoryDistributionChart />
+        </div>
+      </div>
     </div>
   );
 }
+
+export default DashboardPage;

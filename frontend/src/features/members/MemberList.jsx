@@ -736,3 +736,5 @@ function QuickStatusModal({ member, onClose }) {
     </Dialog>
   );
 }
+
+export default MemberList;

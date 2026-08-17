@@ -63,7 +63,7 @@ export function StatCard({
           {loading ? (
             <Skeleton className="h-10 w-24 bg-white/10" />
           ) : (
-            <h3 className="text-4xl lg:text-5xl font-bold tracking-tight text-white mb-1">
+            <h3 className="text-display font-bold tracking-tight text-white mb-1">
               <AnimatedValue value={value} />
             </h3>
           )}
@@ -95,7 +95,7 @@ export function StatCard({
           {loading ? (
             <Skeleton className="h-10 w-24 bg-white/20" />
           ) : (
-            <h3 className="text-4xl lg:text-5xl font-bold tracking-tight text-white mb-1">
+            <h3 className="text-display font-bold tracking-tight text-white mb-1">
               <AnimatedValue value={value} />
             </h3>
           )}
@@ -121,7 +121,7 @@ export function StatCard({
           <Skeleton className="h-9 w-20" />
         ) : (
           <div className="flex items-center gap-2">
-            <h3 className="text-3xl lg:text-4xl font-bold tracking-tight text-slate-900 dark:text-white">
+            <h3 className="text-display font-bold tracking-tight text-slate-900 dark:text-white">
               <AnimatedValue value={value} />
             </h3>
             {pulse && (

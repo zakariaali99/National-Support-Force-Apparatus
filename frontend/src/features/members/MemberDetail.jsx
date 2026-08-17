@@ -230,3 +230,5 @@ export function MemberDetail() {
     </>
   );
 }
+
+export default MemberDetail;

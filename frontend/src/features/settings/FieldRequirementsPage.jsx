@@ -94,3 +94,5 @@ export function FieldRequirementsPage() {
     </div>
   );
 }
+
+export default FieldRequirementsPage;

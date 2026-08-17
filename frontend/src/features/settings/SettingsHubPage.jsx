@@ -177,3 +177,5 @@ export function SettingsHubPage() {
     </div>
   );
 }
+
+export default SettingsHubPage;

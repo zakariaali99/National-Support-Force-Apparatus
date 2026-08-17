@@ -14,6 +14,9 @@ import {
   Boxes,
   RotateCcw,
   CheckCircle,
+  FileCheck2,
+  QrCode,
+  Printer,
 } from "lucide-react";
 
 import { api } from "../../lib/api";
@@ -28,6 +31,8 @@ import { Label } from "../../components/ui/Label";
 import { Textarea } from "../../components/ui/Textarea";
 import { showToast } from "../../components/ui/Toast";
 import { StatCard } from "../../components/ui/StatCard";
+import { CustodyHandoverVoucherDialog } from "./CustodyHandoverVoucherDialog";
+import { AssetQRCode } from "../../components/qr/AssetQRCode";
 
 export function InventoryPage() {
   const queryClient = useQueryClient();
@@ -40,6 +45,8 @@ export function InventoryPage() {
   const [custodyModalOpen, setCustodyModalOpen] = useState(false);
   const [returnModalOpen, setReturnModalOpen] = useState(false);
   const [damageModalOpen, setDamageModalOpen] = useState(false);
+  const [voucherModalOpen, setVoucherModalOpen] = useState(false);
+  const [qrModalOpen, setQrModalOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
 
   const [formData, setFormData] = useState({
@@ -420,6 +427,34 @@ export function InventoryPage() {
                             إرجاع
                           </Button>
                         )}
+
+                        {/* Print Voucher */}
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="h-8 px-2 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-white/10 hover:bg-slate-50 dark:hover:bg-white/10 shadow-2xs"
+                          onClick={() => {
+                            setSelectedItem(item);
+                            setVoucherModalOpen(true);
+                          }}
+                          title="طباعة محضر تسليم واستلام عهدة"
+                        >
+                          <FileCheck2 className="w-3.5 h-3.5 text-[#2B95E8]" />
+                        </Button>
+
+                        {/* QR Tag */}
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="h-8 px-2 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-white/10 hover:bg-slate-50 dark:hover:bg-white/10 shadow-2xs"
+                          onClick={() => {
+                            setSelectedItem(item);
+                            setQrModalOpen(true);
+                          }}
+                          title="توليد وطباعة ملصق QR للصنف"
+                        >
+                          <QrCode className="w-3.5 h-3.5 text-[#5468D4]" />
+                        </Button>
 
                         {/* Mark Damaged */}
                         <Button
@@ -804,6 +839,23 @@ export function InventoryPage() {
           </form>
         </DialogContent>
       </Dialog>
+
+      {/* Official Custody Handover Voucher Dialog */}
+      <CustodyHandoverVoucherDialog
+        item={selectedItem}
+        open={voucherModalOpen}
+        onOpenChange={setVoucherModalOpen}
+      />
+
+      {/* Printable Asset QR Code Tag Modal */}
+      <AssetQRCode
+        title={selectedItem?.name}
+        subtitle={`${selectedItem?.category_name || "مهمات"} • كود: ${selectedItem?.code || "—"}`}
+        code={selectedItem?.serial_number || selectedItem?.code || `INV-${selectedItem?.id}`}
+        type="inventory"
+        open={qrModalOpen}
+        onOpenChange={setQrModalOpen}
+      />
     </div>
   );
 }

@@ -30,12 +30,12 @@ export function NotificationBell() {
         <Button
           variant="ghost"
           size="icon"
-          className="relative"
+          className="relative rounded-2xl h-10 w-10 text-gray-300 hover:text-white bg-white/5 hover:bg-white/10 border border-white/10 shadow-xs"
           aria-label={count > 0 ? `الإشعارات، ${formatNumber(count)} غير مقروءة` : "الإشعارات"}
         >
-          <Bell className="h-5 w-5" aria-hidden="true" />
+          <Bell className="h-4 w-4" aria-hidden="true" />
           {count > 0 && (
-            <span className="absolute -top-1 -end-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-destructive px-1 text-micro text-destructive-foreground">
+            <span className="absolute -top-1 -end-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-[#2B95E8] px-1 text-micro font-bold text-white shadow-sm">
               {/* formatNumber keeps this Latin-numeral like the rest of the UI */}
               {count > 9 ? "9+" : formatNumber(count)}
             </span>

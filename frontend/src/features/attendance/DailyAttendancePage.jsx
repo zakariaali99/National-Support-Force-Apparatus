@@ -20,7 +20,9 @@ import {
   Save,
   CheckCheck,
   AlertCircle,
+  Printer,
 } from "lucide-react";
+import { DailyAttendancePrintDialog } from "./DailyAttendancePrintDialog";
 
 const ATTENDANCE_STATUS_OPTIONS = [
   { value: "present", label: "حاضر" },
@@ -33,13 +35,14 @@ const ATTENDANCE_STATUS_OPTIONS = [
   { value: "mission", label: "مأمورية / تكليف" },
 ];
 
-export default function DailyAttendancePage() {
+export function DailyAttendancePage() {
   const [selectedDate, setSelectedDate] = useState(() => {
     return new Date().toISOString().split("T")[0];
   });
   const [selectedFaction, setSelectedFaction] = useState("all");
   const [localRows, setLocalRows] = useState([]);
   const [saveSuccessMsg, setSaveSuccessMsg] = useState("");
+  const [printModalOpen, setPrintModalOpen] = useState(false);
 
   const { data: factions = [] } = useFactions();
 
@@ -164,18 +167,27 @@ export default function DailyAttendancePage() {
         <div className="flex items-center gap-2">
           <Button
             variant="outline"
-            onClick={markAllOnDutyPresent}
-            className="gap-1.5"
+            onClick={() => setPrintModalOpen(true)}
+            className="gap-1.5 rounded-xl font-bold"
             disabled={localRows.length === 0}
           >
-            <CheckCheck className="w-4 h-4 text-success" />
+            <Printer className="w-4 h-4 text-[#2B95E8]" />
+            <span>طباعة الكشف الرسمي</span>
+          </Button>
+          <Button
+            variant="outline"
+            onClick={markAllOnDutyPresent}
+            className="gap-1.5 rounded-xl font-bold"
+            disabled={localRows.length === 0}
+          >
+            <CheckCheck className="w-4 h-4 text-emerald-600" />
             <span>تسجيل حضور كافة مستحقي الخدمة</span>
           </Button>
           <Button
             variant="primary"
             onClick={handleSaveAll}
             disabled={recordBulk.isPending || localRows.length === 0}
-            className="gap-1.5"
+            className="gap-1.5 rounded-xl font-bold"
           >
             <Save className="w-4 h-4" />
             <span>{recordBulk.isPending ? "جاري الحفظ..." : "حفظ التمام اليومي"}</span>
@@ -324,7 +336,7 @@ export default function DailyAttendancePage() {
                           max="24"
                           value={row.late_hours}
                           onChange={(e) => handleRowChange(row.member_id, "late_hours", e.target.value)}
-                          className="w-20 font-mono text-center"
+                          className="w-20 h-9 rounded-xl font-mono text-center text-caption"
                           placeholder="0"
                         />
                       </td>
@@ -338,7 +350,7 @@ export default function DailyAttendancePage() {
                           onChange={(e) =>
                             handleRowChange(row.member_id, "early_departure_hours", e.target.value)
                           }
-                          className="w-20 font-mono text-center"
+                          className="w-20 h-9 rounded-xl font-mono text-center text-caption"
                           placeholder="0"
                         />
                       </td>
@@ -350,17 +362,17 @@ export default function DailyAttendancePage() {
                           max="24"
                           value={row.excused_hours}
                           onChange={(e) => handleRowChange(row.member_id, "excused_hours", e.target.value)}
-                          className="w-24 font-mono text-center"
+                          className="w-24 h-9 rounded-xl font-mono text-center text-caption"
                           placeholder="ساعات"
                         />
                       </td>
                       <td className="p-3 font-mono">
                         {parseFloat(calculatedDeduction) > 0 ? (
-                          <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-rose-50 text-rose-700 dark:bg-rose-950/50 dark:text-rose-300 border border-rose-200/60 font-bold text-caption">
+                          <span className="inline-flex items-center px-2.5 py-1 rounded-xl bg-rose-50 text-rose-700 dark:bg-rose-950/50 dark:text-rose-300 border border-rose-200/60 font-bold text-caption">
                             -{calculatedDeduction} يوم
                           </span>
                         ) : (
-                          <span className="text-slate-400 text-caption">0</span>
+                          <span className="text-slate-400 text-caption font-medium">0</span>
                         )}
                       </td>
                       <td className="p-3">
@@ -368,7 +380,7 @@ export default function DailyAttendancePage() {
                           value={row.notes}
                           onChange={(e) => handleRowChange(row.member_id, "notes", e.target.value)}
                           placeholder="سبب التأخير أو رقم الإذن..."
-                          className="text-caption"
+                          className="h-9 rounded-xl text-caption"
                         />
                       </td>
                     </tr>
@@ -379,6 +391,17 @@ export default function DailyAttendancePage() {
           </table>
         </CardContent>
       </Card>
+
+      {/* Official Daily Attendance Print Dialog */}
+      <DailyAttendancePrintDialog
+        rows={localRows}
+        date={selectedDate}
+        factionName={factions.find((f) => String(f.id) === String(selectedFaction))?.name_ar}
+        open={printModalOpen}
+        onOpenChange={setPrintModalOpen}
+      />
     </div>
   );
 }
+
+export default DailyAttendancePage;

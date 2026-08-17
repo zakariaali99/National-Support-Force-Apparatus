@@ -189,3 +189,5 @@ export function FactionsPage() {
     </div>
   );
 }
+
+export default FactionsPage;

@@ -6,7 +6,7 @@ import { Button } from "../../components/ui/Button";
 import { Badge } from "../../components/ui/Badge";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "../../components/ui/Card";
 import { PageHeader } from "../../components/ui/PageHeader";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "../../components/ui/Dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "../../components/ui/Dialog";
 import { Input } from "../../components/ui/Input";
 import { Label } from "../../components/ui/Label";
 import { Select } from "../../components/ui/Select";
@@ -26,7 +26,7 @@ const PATTERN_OPTIONS = [
   { value: "custom", label: "دورة مخصصة" },
 ];
 
-export default function ShiftRostersPage() {
+export function ShiftRostersPage() {
   const [editingGroup, setEditingGroup] = useState(null);
   const [formOpen, setFormOpen] = useState(false);
   const [testDate, setTestDate] = useState(() => new Date().toISOString().split("T")[0]);
@@ -433,3 +433,5 @@ export default function ShiftRostersPage() {
     </div>
   );
 }
+
+export default ShiftRostersPage;

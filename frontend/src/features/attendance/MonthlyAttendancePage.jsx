@@ -34,7 +34,7 @@ const STATUS_CHIPS = {
   unrecorded: { code: "—", bg: "bg-transparent text-slate-300 dark:text-slate-700 border-transparent", title: "غير مسجل" },
 };
 
-export default function MonthlyAttendancePage() {
+export function MonthlyAttendancePage() {
   const currentDate = new Date();
   const [selectedYear, setSelectedYear] = useState(String(currentDate.getFullYear()));
   const [selectedMonth, setSelectedMonth] = useState(String(currentDate.getMonth() + 1));
@@ -290,3 +290,5 @@ export default function MonthlyAttendancePage() {
     </div>
   );
 }
+
+export default MonthlyAttendancePage;
