@@ -23,7 +23,7 @@ import { Button } from "../../components/ui/Button";
 import { Input } from "../../components/ui/Input";
 import { Select } from "../../components/ui/Select";
 import { Badge } from "../../components/ui/Badge";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "../../components/ui/Dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "../../components/ui/Dialog";
 import { Label } from "../../components/ui/Label";
 import { Textarea } from "../../components/ui/Textarea";
 import { showToast } from "../../components/ui/Toast";
@@ -204,27 +204,33 @@ export function InventoryPage() {
       {/* Tabs & Search Controls */}
       <div className="flex flex-wrap items-center justify-between gap-4">
         {/* Category Tabs */}
-        <div className="flex items-center gap-1.5 p-1 bg-canvas rounded-lg border border-line">
+        <div className="flex items-center gap-1 p-1 bg-slate-100 dark:bg-slate-800/80 rounded-xl border border-slate-200/60 dark:border-slate-700/60">
           <button
             onClick={() => setTypeTab("all")}
-            className={`px-3 py-1.5 rounded-md text-body-sm font-semibold transition-colors ${
-              typeTab === "all" ? "bg-surface text-navy shadow-sm" : "text-navy-muted hover:text-navy"
+            className={`px-3.5 py-1.5 rounded-lg text-body-sm font-semibold transition-all ${
+              typeTab === "all"
+                ? "bg-surface text-slate-900 dark:text-slate-100 shadow-xs"
+                : "text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200"
             }`}
           >
             كافة الأصناف ({items.length})
           </button>
           <button
             onClick={() => setTypeTab("weapons")}
-            className={`px-3 py-1.5 rounded-md text-body-sm font-semibold transition-colors ${
-              typeTab === "weapons" ? "bg-surface text-navy shadow-sm" : "text-navy-muted hover:text-navy"
+            className={`px-3.5 py-1.5 rounded-lg text-body-sm font-semibold transition-all ${
+              typeTab === "weapons"
+                ? "bg-surface text-slate-900 dark:text-slate-100 shadow-xs"
+                : "text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200"
             }`}
           >
             قسم التسليح والذخائر
           </button>
           <button
             onClick={() => setTypeTab("warehouse")}
-            className={`px-3 py-1.5 rounded-md text-body-sm font-semibold transition-colors ${
-              typeTab === "warehouse" ? "bg-surface text-navy shadow-sm" : "text-navy-muted hover:text-navy"
+            className={`px-3.5 py-1.5 rounded-lg text-body-sm font-semibold transition-all ${
+              typeTab === "warehouse"
+                ? "bg-surface text-slate-900 dark:text-slate-100 shadow-xs"
+                : "text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200"
             }`}
           >
             قسم المخزن والمهمات
@@ -233,13 +239,13 @@ export function InventoryPage() {
 
         {/* Filter Inputs */}
         <div className="flex items-center gap-2">
-          <div className="relative min-w-[240px]">
-            <Search className="w-4 h-4 absolute right-3 top-3 text-navy-muted" />
+          <div className="relative min-w-[260px]">
+            <Search className="w-4 h-4 absolute right-3 top-3 text-slate-400" />
             <Input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="بحث بالاسم، الكود، المقاس، أو الرقم التسلسلي..."
-              className="pr-9 text-body-sm"
+              placeholder="بحث بالاسم، الكود، أو السيريال..."
+              className="pr-9"
             />
           </div>
           <Select
@@ -256,15 +262,15 @@ export function InventoryPage() {
       </div>
 
       {/* Inventory Table */}
-      <Card>
+      <Card className="overflow-hidden">
         <CardContent className="p-0 overflow-x-auto">
           {isLoading ? (
-            <div className="p-8 text-center text-navy-muted">جاري تحميل سجلات المخزن...</div>
+            <div className="p-8 text-center text-slate-500">جاري تحميل سجلات المخزن...</div>
           ) : filteredItems.length === 0 ? (
-            <div className="p-8 text-center text-navy-muted">لا توجد أصناف تطابق شروط البحث الحالية.</div>
+            <div className="p-8 text-center text-slate-500">لا توجد أصناف تطابق شروط البحث الحالية.</div>
           ) : (
             <table className="w-full text-right text-body-sm">
-              <thead className="bg-canvas border-b border-line text-navy-muted font-semibold">
+              <thead className="bg-slate-50/80 dark:bg-slate-800/40 border-b border-slate-200/80 dark:border-slate-800 text-slate-500 font-semibold">
                 <tr>
                   <th className="p-3.5">اسم الصنف / السلاح</th>
                   <th className="p-3.5">الكود / الرقم التسلسلي</th>
@@ -273,51 +279,51 @@ export function InventoryPage() {
                   <th className="p-3.5 text-center">المتاح / الإجمالي</th>
                   <th className="p-3.5">حالة الصنف</th>
                   <th className="p-3.5">موقع العهدة الحالية</th>
-                  <th className="p-3.5 text-center min-w-[200px]">حركات العهدة</th>
+                  <th className="p-3.5 text-center min-w-[190px]">حركات العهدة</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-line">
+              <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                 {filteredItems.map((item) => (
-                  <tr key={item.id} className="hover:bg-canvas/50 transition-colors">
+                  <tr key={item.id} className="hover:bg-slate-50/70 dark:hover:bg-slate-800/30 transition-colors">
                     {/* Item Name */}
                     <td className="p-3.5">
-                      <div className="font-semibold text-navy text-body">{item.name}</div>
-                      {item.caliber && <div className="text-caption text-gold-dark font-medium">{item.caliber}</div>}
+                      <div className="font-semibold text-slate-900 dark:text-slate-100">{item.name}</div>
+                      {item.caliber && <div className="text-caption text-amber-700 dark:text-amber-300 font-mono font-medium">{item.caliber}</div>}
                     </td>
 
                     {/* Code & Serial */}
-                    <td className="p-3.5 font-mono text-body-sm">
+                    <td className="p-3.5 font-mono text-caption">
                       {item.item_code && (
-                        <span className="block font-semibold text-navy">{item.item_code}</span>
+                        <span className="block font-semibold text-slate-800 dark:text-slate-200">{item.item_code}</span>
                       )}
                       {item.serial_number ? (
-                        <span className="text-caption text-navy-muted bg-canvas px-1.5 py-0.5 rounded border border-line dir-ltr inline-block">
+                        <span className="text-slate-500 dir-ltr inline-block">
                           {item.serial_number}
                         </span>
                       ) : (
-                        <span className="text-caption text-navy-muted">—</span>
+                        <span className="text-slate-400">—</span>
                       )}
                     </td>
 
                     {/* Size / Spec */}
-                    <td className="p-3.5 text-body-sm font-medium text-navy">
+                    <td className="p-3.5 text-body-sm text-slate-700 dark:text-slate-300 font-medium">
                       {item.size_spec || "—"}
                     </td>
 
                     {/* Category */}
                     <td className="p-3.5">
-                      <Badge variant="outline">{item.category_name || "عام"}</Badge>
+                      <Badge variant="secondary">{item.category_name || "عام"}</Badge>
                     </td>
 
                     {/* Stock Counters */}
-                    <td className="p-3.5 text-center">
-                      <div className="flex items-center justify-center gap-1.5 font-mono">
-                        <span className="font-bold text-success text-body">{item.available_quantity ?? item.total_quantity}</span>
-                        <span className="text-navy-muted">/</span>
-                        <span className="font-semibold text-navy">{item.total_quantity}</span>
+                    <td className="p-3.5 text-center font-mono">
+                      <div className="flex items-center justify-center gap-1.5">
+                        <span className="font-bold text-emerald-700 dark:text-emerald-400 text-body">{item.available_quantity ?? item.total_quantity}</span>
+                        <span className="text-slate-400">/</span>
+                        <span className="font-semibold text-slate-800 dark:text-slate-200">{item.total_quantity}</span>
                       </div>
                       {item.assigned_quantity > 0 && (
-                        <div className="text-caption text-gold-dark font-medium mt-0.5">
+                        <div className="text-caption text-amber-700 dark:text-amber-400 font-medium mt-0.5">
                           ({item.assigned_quantity} مسلّمة)
                         </div>
                       )}
@@ -346,11 +352,11 @@ export function InventoryPage() {
                     <td className="p-3.5">
                       {item.assigned_member_name ? (
                         <div>
-                          <div className="font-semibold text-navy text-body-sm">{item.assigned_member_name}</div>
-                          <div className="text-caption text-navy-muted font-mono">{item.assigned_member_force_number}</div>
+                          <div className="font-semibold text-slate-900 dark:text-slate-100 text-body-sm">{item.assigned_member_name}</div>
+                          <div className="text-caption text-slate-500 font-mono">{item.assigned_member_force_number}</div>
                         </div>
                       ) : (
-                        <span className="px-2 py-0.5 rounded bg-navy/5 border border-line text-caption font-semibold text-navy">
+                        <span className="px-2.5 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-caption font-semibold text-slate-600 dark:text-slate-300">
                           بالمخزن الرئيسي
                         </span>
                       )}
@@ -362,7 +368,7 @@ export function InventoryPage() {
                         {/* Issue Custody */}
                         <Button
                           size="sm"
-                          variant="outline"
+                          variant="soft-blue"
                           onClick={() => {
                             setSelectedItem(item);
                             setCustodyData({ member_id: "", quantity: "1", notes: "" });
@@ -378,8 +384,7 @@ export function InventoryPage() {
                         {item.assigned_quantity > 0 && (
                           <Button
                             size="sm"
-                            variant="outline"
-                            className="text-success border-success/30 hover:bg-success-bg"
+                            variant="soft-emerald"
                             onClick={() => {
                               setSelectedItem(item);
                               setReturnData({ quantity: String(item.assigned_quantity), notes: "" });
@@ -393,9 +398,8 @@ export function InventoryPage() {
 
                         {/* Mark Damaged */}
                         <Button
-                          size="sm"
-                          variant="ghost"
-                          className="text-danger hover:bg-danger-bg p-1"
+                          size="icon-sm"
+                          variant="soft-rose"
                           onClick={() => {
                             setSelectedItem(item);
                             setDamageData({
@@ -407,7 +411,7 @@ export function InventoryPage() {
                           }}
                           title="تسجيل تالف / مكهن"
                         >
-                          <AlertTriangle className="w-4 h-4" />
+                          <AlertTriangle className="w-3.5 h-3.5" />
                         </Button>
                       </div>
                     </td>
@@ -423,7 +427,15 @@ export function InventoryPage() {
       <Dialog open={addModalOpen} onOpenChange={setAddModalOpen}>
         <DialogContent className="max-w-lg" dir="rtl">
           <DialogHeader>
-            <DialogTitle className="text-title text-navy">تسجيل صنف / عتاد جديد بالمخزن</DialogTitle>
+            <div className="flex items-center gap-2.5">
+              <div className="p-2 rounded-xl bg-blue-50 text-blue-700 dark:bg-blue-950/50 dark:text-blue-300">
+                <Boxes className="w-5 h-5" />
+              </div>
+              <div>
+                <DialogTitle>تسجيل صنف / عتاد جديد بالمخزن</DialogTitle>
+                <DialogDescription>أدخل بيانات الصنف والكميات لحفظه في سجلات المخزن والمستودع.</DialogDescription>
+              </div>
+            </div>
           </DialogHeader>
           <form
             onSubmit={(e) => {
@@ -434,10 +446,10 @@ export function InventoryPage() {
                 available_quantity: parseInt(formData.total_quantity, 10) || 1,
               });
             }}
-            className="space-y-4 pt-2"
+            className="space-y-4 pt-1"
           >
             <div className="space-y-1.5">
-              <Label className="text-label text-navy">اسم الصنف أو السلاح *</Label>
+              <Label className="text-label text-slate-800 dark:text-slate-200">اسم الصنف أو السلاح *</Label>
               <Input
                 required
                 placeholder="مثال: بندقية كلاشينكوف / بدلة عسكرية صحراوي"
@@ -448,7 +460,7 @@ export function InventoryPage() {
 
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <Label className="text-label text-navy">التصنيف المخزني *</Label>
+                <Label className="text-label text-slate-800 dark:text-slate-200">التصنيف المخزني *</Label>
                 <Select
                   value={formData.category}
                   onValueChange={(val) => setFormData({ ...formData, category: val })}
@@ -457,7 +469,7 @@ export function InventoryPage() {
               </div>
 
               <div className="space-y-1.5">
-                <Label className="text-label text-navy">رقم / كود الصنف</Label>
+                <Label className="text-label text-slate-800 dark:text-slate-200">رقم / كود الصنف</Label>
                 <Input
                   placeholder="مثال: WPN-001 / UNIF-XL"
                   value={formData.item_code}
@@ -468,7 +480,7 @@ export function InventoryPage() {
 
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <Label className="text-label text-navy">المقاس أو المواصفة</Label>
+                <Label className="text-label text-slate-800 dark:text-slate-200">المقاس أو المواصفة</Label>
                 <Input
                   placeholder="مثال: مقاس XL / 42 / 7.62 مم"
                   value={formData.size_spec}
@@ -477,7 +489,7 @@ export function InventoryPage() {
               </div>
 
               <div className="space-y-1.5">
-                <Label className="text-label text-navy">الرقم التسلسلي (إن وجد)</Label>
+                <Label className="text-label text-slate-800 dark:text-slate-200">الرقم التسلسلي (إن وجد)</Label>
                 <Input
                   dir="ltr"
                   placeholder="SN-998822"
@@ -489,7 +501,7 @@ export function InventoryPage() {
 
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <Label className="text-label text-navy">الكمية الإجمالية *</Label>
+                <Label className="text-label text-slate-800 dark:text-slate-200">الكمية الإجمالية *</Label>
                 <Input
                   type="number"
                   min="1"
@@ -500,7 +512,7 @@ export function InventoryPage() {
               </div>
 
               <div className="space-y-1.5">
-                <Label className="text-label text-navy">الحالة الفنية</Label>
+                <Label className="text-label text-slate-800 dark:text-slate-200">الحالة الفنية</Label>
                 <Select
                   value={formData.status}
                   onValueChange={(val) => setFormData({ ...formData, status: val })}
@@ -514,7 +526,7 @@ export function InventoryPage() {
             </div>
 
             <div className="space-y-1.5">
-              <Label className="text-label text-navy">ملاحظات الصنف</Label>
+              <Label className="text-label text-slate-800 dark:text-slate-200">ملاحظات الصنف</Label>
               <Textarea
                 placeholder="أي تفاصيل فنية أو موقع التخزين في المستودع..."
                 value={formData.notes}
@@ -522,7 +534,7 @@ export function InventoryPage() {
               />
             </div>
 
-            <DialogFooter className="gap-2 sm:gap-0 pt-2 border-t border-line">
+            <DialogFooter>
               <Button type="button" variant="outline" onClick={() => setAddModalOpen(false)}>
                 إلغاء
               </Button>
@@ -538,7 +550,15 @@ export function InventoryPage() {
       <Dialog open={custodyModalOpen} onOpenChange={setCustodyModalOpen}>
         <DialogContent className="max-w-md" dir="rtl">
           <DialogHeader>
-            <DialogTitle className="text-title text-navy">تسليم عهدة لفرد من المخزن</DialogTitle>
+            <div className="flex items-center gap-2.5">
+              <div className="p-2 rounded-xl bg-blue-50 text-blue-700 dark:bg-blue-950/50 dark:text-blue-300">
+                <UserCheck className="w-5 h-5" />
+              </div>
+              <div>
+                <DialogTitle>تسليم عهدة لفرد من المخزن</DialogTitle>
+                <DialogDescription>سيتم خصم الكمية المسلمة فوراً من الرصيد المتاح بالمستودع.</DialogDescription>
+              </div>
+            </div>
           </DialogHeader>
           <form
             onSubmit={(e) => {
@@ -554,20 +574,20 @@ export function InventoryPage() {
                 });
               }
             }}
-            className="space-y-4 pt-2"
+            className="space-y-4 pt-1"
           >
-            <div className="p-3 rounded-lg border border-gold-border bg-gold-bg/30 space-y-1">
-              <p className="font-bold text-navy text-body">{selectedItem?.name}</p>
-              <div className="text-caption text-navy-muted flex items-center justify-between">
+            <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700 space-y-1">
+              <p className="font-bold text-slate-900 dark:text-slate-100 text-body-sm">{selectedItem?.name}</p>
+              <div className="text-caption text-slate-500 flex items-center justify-between">
                 <span>المقاس: {selectedItem?.size_spec || "—"}</span>
-                <span className="font-mono font-bold text-success">
+                <span className="font-mono font-bold text-emerald-700 dark:text-emerald-400">
                   الرصيد المتاح: {selectedItem?.available_quantity} قطعة
                 </span>
               </div>
             </div>
 
             <div className="space-y-1.5">
-              <Label className="text-label text-navy">اختر الفرد المستلم للعهدة *</Label>
+              <Label className="text-label text-slate-800 dark:text-slate-200">اختر الفرد المستلم للعهدة *</Label>
               <Select
                 value={custodyData.member_id}
                 onValueChange={(val) => setCustodyData({ ...custodyData, member_id: val })}
@@ -579,7 +599,7 @@ export function InventoryPage() {
             </div>
 
             <div className="space-y-1.5">
-              <Label className="text-label text-navy">الكمية المسلمة *</Label>
+              <Label className="text-label text-slate-800 dark:text-slate-200">الكمية المسلمة *</Label>
               <Input
                 type="number"
                 min="1"
@@ -591,7 +611,7 @@ export function InventoryPage() {
             </div>
 
             <div className="space-y-1.5">
-              <Label className="text-label text-navy">ملاحظات التسليم</Label>
+              <Label className="text-label text-slate-800 dark:text-slate-200">ملاحظات التسليم</Label>
               <Textarea
                 placeholder="أمر الصرف أو سبب تسليم العهدة..."
                 value={custodyData.notes}
@@ -599,12 +619,16 @@ export function InventoryPage() {
               />
             </div>
 
-            <DialogFooter className="gap-2 sm:gap-0 pt-2 border-t border-line">
+            <DialogFooter>
               <Button type="button" variant="outline" onClick={() => setCustodyModalOpen(false)}>
                 إلغاء
               </Button>
-              <Button type="submit" variant="primary" disabled={assignCustodyMutation.isPending}>
-                تأكيد تسليم العهدة
+              <Button
+                type="submit"
+                variant="primary"
+                disabled={assignCustodyMutation.isPending || !custodyData.member_id}
+              >
+                تأكيد وتسليم العهدة
               </Button>
             </DialogFooter>
           </form>
@@ -615,7 +639,15 @@ export function InventoryPage() {
       <Dialog open={returnModalOpen} onOpenChange={setReturnModalOpen}>
         <DialogContent className="max-w-md" dir="rtl">
           <DialogHeader>
-            <DialogTitle className="text-title text-navy">إرجاع عهدة إلى المستودع</DialogTitle>
+            <div className="flex items-center gap-2.5">
+              <div className="p-2 rounded-xl bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300">
+                <PackageCheck className="w-5 h-5" />
+              </div>
+              <div>
+                <DialogTitle>إرجاع عهدة للمستودع</DialogTitle>
+                <DialogDescription>سترتد الكمية المرجعة مباشرة إلى الرصيد المتاح بالمخزن.</DialogDescription>
+              </div>
+            </div>
           </DialogHeader>
           <form
             onSubmit={(e) => {
@@ -630,17 +662,20 @@ export function InventoryPage() {
                 });
               }
             }}
-            className="space-y-4 pt-2"
+            className="space-y-4 pt-1"
           >
-            <div className="p-3 rounded-lg border border-line bg-canvas space-y-1">
-              <p className="font-bold text-navy text-body">{selectedItem?.name}</p>
-              <p className="text-caption text-navy-muted">
-                الكمية المسلمة حالياً: <span className="font-bold text-navy">{selectedItem?.assigned_quantity}</span>
-              </p>
+            <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700 space-y-1">
+              <p className="font-bold text-slate-900 dark:text-slate-100 text-body-sm">{selectedItem?.name}</p>
+              <div className="text-caption text-slate-500 flex items-center justify-between">
+                <span>المسلّم حالياً: {selectedItem?.assigned_quantity} قطعة</span>
+                <span className="font-mono font-bold text-emerald-700 dark:text-emerald-400">
+                  سيصبح المتاح: {(selectedItem?.available_quantity || 0) + (parseInt(returnData.quantity, 10) || 0)}
+                </span>
+              </div>
             </div>
 
             <div className="space-y-1.5">
-              <Label className="text-label text-navy">الكمية المرتدة للمخزن *</Label>
+              <Label className="text-label text-slate-800 dark:text-slate-200">الكمية المرجعة للمخزن *</Label>
               <Input
                 type="number"
                 min="1"
@@ -652,20 +687,20 @@ export function InventoryPage() {
             </div>
 
             <div className="space-y-1.5">
-              <Label className="text-label text-navy">ملاحظات الإرجاع</Label>
+              <Label className="text-label text-slate-800 dark:text-slate-200">ملاحظات الاسترجاع والفحص</Label>
               <Textarea
-                placeholder="حالة الصنف عند الارتداد..."
+                placeholder="حالة الصنف عند الاستلام وملاحظات الفحص الفني..."
                 value={returnData.notes}
                 onChange={(e) => setReturnData({ ...returnData, notes: e.target.value })}
               />
             </div>
 
-            <DialogFooter className="gap-2 sm:gap-0 pt-2 border-t border-line">
+            <DialogFooter>
               <Button type="button" variant="outline" onClick={() => setReturnModalOpen(false)}>
                 إلغاء
               </Button>
               <Button type="submit" variant="primary" disabled={releaseCustodyMutation.isPending}>
-                تأكيد الإرجاع للمستودع
+                تأكيد إرجاع العهدة
               </Button>
             </DialogFooter>
           </form>
@@ -676,10 +711,15 @@ export function InventoryPage() {
       <Dialog open={damageModalOpen} onOpenChange={setDamageModalOpen}>
         <DialogContent className="max-w-md" dir="rtl">
           <DialogHeader>
-            <DialogTitle className="text-title text-danger flex items-center gap-2">
-              <AlertTriangle className="w-5 h-5" />
-              <span>تسجيل صنف تالف / مكهن</span>
-            </DialogTitle>
+            <div className="flex items-center gap-2.5">
+              <div className="p-2 rounded-xl bg-rose-50 text-rose-700 dark:bg-rose-950/50 dark:text-rose-300">
+                <AlertTriangle className="w-5 h-5" />
+              </div>
+              <div>
+                <DialogTitle>تسجيل صنف تالف / مكهن</DialogTitle>
+                <DialogDescription>سيتم قيد الصنف في سجل التوالف والمستهلكات ولن يعاد للرصيد المتاح.</DialogDescription>
+              </div>
+            </div>
           </DialogHeader>
           <form
             onSubmit={(e) => {
@@ -695,30 +735,18 @@ export function InventoryPage() {
                 });
               }
             }}
-            className="space-y-4 pt-2"
+            className="space-y-4 pt-1"
           >
-            <div className="p-3 rounded-lg border border-danger-border bg-danger-bg/20 space-y-1">
-              <p className="font-bold text-navy text-body">{selectedItem?.name}</p>
-              <p className="text-caption text-danger">
-                سيتم خصم الكمية التالفة نهائياً من رصيد العهدة أو المخزن وإضافتها لسجل التوالف.
+            <div className="p-3.5 rounded-xl bg-rose-50/50 dark:bg-rose-950/30 border border-rose-200/60 dark:border-rose-800/40 space-y-1">
+              <p className="font-bold text-rose-900 dark:text-rose-200 text-body-sm">{selectedItem?.name}</p>
+              <p className="text-caption text-rose-700 dark:text-rose-300">
+                تسجيل الصنف كتالف يُسقطه من العهدة أو المخزون النشط ويُقيده في سجل التوالف.
               </p>
             </div>
 
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <Label className="text-label text-navy">مصدر التلف *</Label>
-                <Select
-                  value={damageData.source}
-                  onValueChange={(val) => setDamageData({ ...damageData, source: val })}
-                  options={[
-                    { value: "custody", label: "من عهدة الفرد" },
-                    { value: "warehouse", label: "من المخزن مباشرة" },
-                  ]}
-                />
-              </div>
-
-              <div className="space-y-1.5">
-                <Label className="text-label text-navy">الكمية التالفة *</Label>
+                <Label className="text-label text-slate-800 dark:text-slate-200">الكمية التالفة *</Label>
                 <Input
                   type="number"
                   min="1"
@@ -730,7 +758,7 @@ export function InventoryPage() {
             </div>
 
             <div className="space-y-1.5">
-              <Label className="text-label text-navy">سبب التلف ومحضر الإثبات *</Label>
+              <Label className="text-label text-slate-800 dark:text-slate-200">سبب التلف ومحضر الإثبات *</Label>
               <Textarea
                 required
                 placeholder="شرح أسباب التلف أو الكسر أو الفقدان..."
@@ -739,11 +767,11 @@ export function InventoryPage() {
               />
             </div>
 
-            <DialogFooter className="gap-2 sm:gap-0 pt-2 border-t border-line">
+            <DialogFooter>
               <Button type="button" variant="outline" onClick={() => setDamageModalOpen(false)}>
                 إلغاء
               </Button>
-              <Button type="submit" variant="danger" disabled={markDamagedMutation.isPending}>
+              <Button type="submit" variant="destructive" disabled={markDamagedMutation.isPending}>
                 تسجيل التالف
               </Button>
             </DialogFooter>

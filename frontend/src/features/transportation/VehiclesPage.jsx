@@ -101,14 +101,15 @@ export default function VehiclesPage() {
       accessor: "name",
       cell: (v) => (
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-lg bg-navy/5 border border-line flex items-center justify-center text-navy shrink-0">
-            <Car className="w-5 h-5 text-gold-dark" />
+          <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-950/50 border border-blue-100 dark:border-blue-900/40 flex items-center justify-center text-blue-700 dark:text-blue-300 shrink-0">
+            <Car className="w-5 h-5" />
           </div>
           <div>
-            <div className="font-semibold text-navy text-body">{v.name}</div>
-            <div className="text-caption text-navy-muted flex items-center gap-2">
+            <div className="font-semibold text-slate-900 dark:text-slate-100 text-body-sm">{v.name}</div>
+            <div className="text-caption text-slate-500 flex items-center gap-2">
               <span>{v.vehicle_type_display || VEHICLE_TYPE_LABELS[v.vehicle_type] || v.vehicle_type}</span>
               {v.model_year && <span>• موديل {v.model_year}</span>}
+              {v.color && <span>• {v.color}</span>}
             </div>
           </div>
         </div>
@@ -119,15 +120,15 @@ export default function VehiclesPage() {
       accessor: "vin_number",
       cell: (v) => (
         <div className="space-y-0.5">
-          <div className="font-mono text-body-sm font-semibold text-navy dir-ltr text-right">
+          <div className="font-mono text-body-sm font-semibold text-slate-900 dark:text-slate-100 dir-ltr text-right">
             {v.vin_number}
           </div>
           {v.plate_number ? (
-            <span className="inline-block px-1.5 py-0.5 rounded bg-surface border border-line text-caption font-mono font-medium text-navy">
+            <span className="inline-block px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 text-caption font-mono font-semibold text-slate-700 dark:text-slate-300">
               {v.plate_number}
             </span>
           ) : (
-            <span className="text-caption text-navy-muted">—</span>
+            <span className="text-caption text-slate-400">—</span>
           )}
         </div>
       ),
@@ -136,11 +137,11 @@ export default function VehiclesPage() {
       header: "تبعية المركبة والسائق",
       accessor: "faction_name",
       cell: (v) => (
-        <div className="space-y-1">
-          <div className="text-body-sm text-navy font-medium">
+        <div className="space-y-0.5">
+          <div className="text-body-sm text-slate-900 dark:text-slate-100 font-semibold">
             {v.faction_name || "—"}
           </div>
-          <div className="text-caption text-navy-muted">
+          <div className="text-caption text-slate-500">
             {v.driver_name ? `السائق: ${v.driver_name}` : "بدون سائق محدد"}
           </div>
         </div>
@@ -151,7 +152,7 @@ export default function VehiclesPage() {
       accessor: "has_weapon",
       cell: (v) => {
         if (!v.has_weapon) {
-          return <span className="text-caption text-navy-muted">لا يوجد سلاح مثبت</span>;
+          return <span className="text-caption text-slate-400">لا يوجد سلاح مثبت</span>;
         }
         return (
           <div className="space-y-1">
@@ -161,7 +162,7 @@ export default function VehiclesPage() {
                 <span>{v.mounted_weapon_name || "سلاح مثبت"}</span>
               </Badge>
             </div>
-            <div className="text-caption text-navy-muted">
+            <div className="text-caption text-slate-500 font-mono">
               {v.weapon_operator_name ? `الرامي: ${v.weapon_operator_name}` : v.weapon_faction_name || "مخصص للعمليات"}
             </div>
           </div>
@@ -180,20 +181,20 @@ export default function VehiclesPage() {
       header: "الإجراءات",
       id: "actions",
       cell: (v) => (
-        <div className="flex items-center gap-1 justify-end">
+        <div className="flex items-center gap-1.5 justify-end">
           <Button
             variant="ghost"
             size="sm"
             onClick={() => handleEdit(v)}
             title="تعديل"
           >
-            <Pencil className="w-4 h-4 text-navy" />
+            <Pencil className="w-4 h-4 text-slate-600 dark:text-slate-300" />
           </Button>
           <Button
             variant="ghost"
             size="sm"
             onClick={() => setDeletingVehicle(v)}
-            className="text-danger hover:bg-danger-bg"
+            className="text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/50"
             title="حذف"
           >
             <Trash2 className="w-4 h-4" />
@@ -329,19 +330,23 @@ export default function VehiclesPage() {
       >
         <AlertDialogContent dir="rtl">
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-navy flex items-center gap-2">
-              <AlertTriangle className="w-5 h-5 text-danger" />
-              <span>تأكيد حذف المركبة</span>
-            </AlertDialogTitle>
-            <AlertDialogDescription>
-              هل أنت متأكد من رغبتك في حذف المركبة ({deletingVehicle?.name}) ورقم الهيكل ({deletingVehicle?.vin_number})؟
-            </AlertDialogDescription>
+            <div className="flex items-center gap-2.5">
+              <div className="p-2 rounded-xl bg-rose-50 text-rose-700 dark:bg-rose-950/50 dark:text-rose-300">
+                <AlertTriangle className="w-5 h-5" />
+              </div>
+              <div>
+                <AlertDialogTitle>تأكيد حذف المركبة</AlertDialogTitle>
+                <AlertDialogDescription>
+                  هل أنت متأكد من رغبتك في حذف المركبة ({deletingVehicle?.name}) ورقم الهيكل ({deletingVehicle?.vin_number})؟
+                </AlertDialogDescription>
+              </div>
+            </div>
           </AlertDialogHeader>
-          <AlertDialogFooter className="gap-2 sm:gap-0">
-            <Button variant="outline" onClick={() => setDeletingVehicle(null)}>
+          <AlertDialogFooter>
+            <Button type="button" variant="outline" onClick={() => setDeletingVehicle(null)}>
               إلغاء
             </Button>
-            <Button variant="danger" onClick={confirmDelete}>
+            <Button type="button" variant="destructive" onClick={confirmDelete}>
               تأكيد الحذف
             </Button>
           </AlertDialogFooter>

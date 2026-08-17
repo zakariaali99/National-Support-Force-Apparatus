@@ -85,24 +85,24 @@ export function DashboardPage() {
   return (
     <div className="space-y-6">
       {/* Top Welcome Header */}
-      <div className="rounded-2xl border border-border/80 bg-card p-6 md:p-8 shadow-xs relative overflow-hidden">
+      <div className="rounded-2xl border border-slate-200/80 dark:border-slate-800 bg-surface p-6 md:p-8 shadow-xs relative overflow-hidden">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 relative z-10">
           <div className="space-y-1.5">
-            <div className="flex items-center gap-2 text-caption font-semibold text-muted-foreground">
-              <Calendar className="h-4 w-4 text-primary" />
+            <div className="flex items-center gap-2 text-caption font-semibold text-slate-500">
+              <Calendar className="h-4 w-4 text-blue-600" />
               <span>{currentDateArabic}</span>
             </div>
-            <h1 className="text-title font-extrabold text-foreground tracking-tight">
+            <h1 className="text-title font-bold text-slate-900 dark:text-slate-100 tracking-tight">
               أهلاً بك، {displayName} 👋
             </h1>
-            <p className="text-label text-muted-foreground max-w-2xl font-medium">
-              لوحة التحكم الرئيسية لإدارة السجلات، شؤون الأفراد، والهيكل التنظيمي بالجهاز الوطني للقوى المساندة.
+            <p className="text-body-sm text-slate-600 dark:text-slate-400 max-w-2xl font-normal">
+              لوحة التحكم الرئيسية لإدارة السجلات، شؤون الأفراد، والمستودع بالجهاز الوطني للقوى المساندة.
             </p>
           </div>
 
-          <div className="flex items-center gap-2 shrink-0">
+          <div className="flex items-center gap-2.5 shrink-0">
             <Link to="/members/new">
-              <Button size="sm" className="shadow-xs font-bold">
+              <Button size="sm" className="font-bold shadow-xs">
                 <UserPlus className="me-1.5 h-4 w-4" />
                 تسجيل فرد جديد
               </Button>
@@ -127,7 +127,7 @@ export function DashboardPage() {
       {/* Main Dashboard Layout split */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         {/* Recent Members widget */}
-        <Card className="lg:col-span-2 border-border/80 shadow-xs">
+        <Card className="lg:col-span-2 shadow-xs">
           <CardHeader className="flex flex-row items-center justify-between pb-3">
             <div>
               <CardTitle className="text-section font-bold">أحدث الأفراد المسجلين</CardTitle>
@@ -135,7 +135,7 @@ export function DashboardPage() {
             </div>
             <Link
               to="/members"
-              className="text-caption font-bold text-primary hover:underline flex items-center gap-1 bg-secondary/60 hover:bg-secondary px-3 py-1.5 rounded-xl transition-colors"
+              className="text-caption font-bold text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1 bg-blue-50 dark:bg-blue-950/40 hover:bg-blue-100 dark:hover:bg-blue-900/40 px-3 py-1.5 rounded-xl transition-colors"
             >
               <span>عرض السجل الكامل</span>
               <ArrowLeft className="h-3.5 w-3.5 rtl:rotate-0 rotate-180" />
@@ -149,30 +149,30 @@ export function DashboardPage() {
                 ))}
               </div>
             ) : recentMembers.length === 0 ? (
-              <p className="text-center py-6 text-caption text-muted-foreground font-medium">لا يوجد أعضاء مسجلين بعد.</p>
+              <p className="text-center py-6 text-caption text-slate-500 font-medium">لا يوجد أعضاء مسجلين بعد.</p>
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full text-caption">
                   <thead>
-                    <tr className="text-muted-foreground border-b border-border/80">
-                      <th className="py-2.5 text-start font-bold">الاسم الكامل</th>
-                      <th className="py-2.5 text-start font-bold">الرقم الحربي</th>
-                      <th className="py-2.5 text-start font-bold">الإدارة</th>
-                      <th className="py-2.5 text-start font-bold">تاريخ القيد</th>
+                    <tr className="text-slate-500 border-b border-slate-200/80 dark:border-slate-800">
+                      <th className="py-2.5 text-start font-semibold">الاسم الكامل</th>
+                      <th className="py-2.5 text-start font-semibold">الرقم الحربي</th>
+                      <th className="py-2.5 text-start font-semibold">الإدارة</th>
+                      <th className="py-2.5 text-start font-semibold">تاريخ القيد</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-border/60">
+                  <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                     {recentMembers.map((member) => (
-                      <tr key={member.id} className="hover:bg-secondary/40 transition-colors group">
-                        <td className="py-3 font-bold text-foreground">
-                          <Link to={`/members/${member.id}`} className="hover:text-primary flex items-center gap-1.5">
+                      <tr key={member.id} className="hover:bg-slate-50/70 dark:hover:bg-slate-800/30 transition-colors group">
+                        <td className="py-3 font-semibold text-slate-900 dark:text-slate-100">
+                          <Link to={`/members/${member.id}`} className="hover:text-blue-600 flex items-center gap-1.5">
                             <span>{member.full_name}</span>
-                            <ArrowUpRight className="h-3.5 w-3.5 opacity-0 group-hover:opacity-100 transition-opacity text-primary" />
+                            <ArrowUpRight className="h-3.5 w-3.5 opacity-0 group-hover:opacity-100 transition-opacity text-blue-600" />
                           </Link>
                         </td>
-                        <td className="py-3 text-muted-foreground font-mono font-bold" data-num>{member.force_number}</td>
-                        <td className="py-3 text-muted-foreground font-medium">{member.faction_name || "—"}</td>
-                        <td className="py-3 text-caption text-muted-foreground font-medium">{formatDate(member.created_at)}</td>
+                        <td className="py-3 text-slate-600 dark:text-slate-300 font-mono font-bold" data-num>{member.force_number}</td>
+                        <td className="py-3 text-slate-500 font-medium">{member.faction_name || "—"}</td>
+                        <td className="py-3 text-caption text-slate-500 font-medium">{formatDate(member.created_at)}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -183,7 +183,7 @@ export function DashboardPage() {
         </Card>
 
         {/* Administrative Quick Shortcuts Widget */}
-        <Card className="border-border/80 shadow-xs">
+        <Card className="shadow-xs">
           <CardHeader className="pb-3">
             <CardTitle className="text-section font-bold">روابط وإجراءات سريعة</CardTitle>
             <CardDescription className="text-caption">وصول سريع لمهام وأقسام الإدارة اليومية</CardDescription>
@@ -191,40 +191,40 @@ export function DashboardPage() {
           <CardContent className="space-y-2.5">
             <Link
               to="/members/new"
-              className="flex items-center gap-3 p-3 rounded-xl border border-border/70 bg-card hover:bg-secondary/50 hover:border-primary/30 transition-all text-foreground"
+              className="flex items-center gap-3 p-3 rounded-xl border border-slate-200/80 dark:border-slate-800 bg-surface hover:bg-slate-50 dark:hover:bg-slate-800/60 hover:border-blue-300 dark:hover:border-blue-700 transition-all text-slate-900 dark:text-slate-100"
             >
-              <div className="p-2.5 bg-success/15 text-success rounded-xl shrink-0">
+              <div className="p-2.5 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 rounded-xl shrink-0">
                 <UserPlus className="h-5 w-5" />
               </div>
               <div className="text-start">
                 <p className="font-bold text-label">إضافة فرد جديد</p>
-                <p className="text-caption text-muted-foreground">إدخال سجل إداري جديد للقوة المساندة</p>
+                <p className="text-caption text-slate-500">إدخال سجل إداري جديد للقوة المساندة</p>
               </div>
             </Link>
 
             <Link
               to="/organization/factions"
-              className="flex items-center gap-3 p-3 rounded-xl border border-border/70 bg-card hover:bg-secondary/50 hover:border-primary/30 transition-all text-foreground"
+              className="flex items-center gap-3 p-3 rounded-xl border border-slate-200/80 dark:border-slate-800 bg-surface hover:bg-slate-50 dark:hover:bg-slate-800/60 hover:border-blue-300 dark:hover:border-blue-700 transition-all text-slate-900 dark:text-slate-100"
             >
-              <div className="p-2.5 bg-primary/15 text-primary rounded-xl shrink-0">
+              <div className="p-2.5 bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 rounded-xl shrink-0">
                 <Building2 className="h-5 w-5" />
               </div>
               <div className="text-start">
                 <p className="font-bold text-label">إدارة القطاعات والإدارات</p>
-                <p className="text-caption text-muted-foreground">عرض وتوزيع الوحدات والإدارات التنظيمية</p>
+                <p className="text-caption text-slate-500">عرض وتوزيع الوحدات والإدارات التنظيمية</p>
               </div>
             </Link>
 
             <Link
               to="/audit"
-              className="flex items-center gap-3 p-3 rounded-xl border border-border/70 bg-card hover:bg-secondary/50 hover:border-primary/30 transition-all text-foreground"
+              className="flex items-center gap-3 p-3 rounded-xl border border-slate-200/80 dark:border-slate-800 bg-surface hover:bg-slate-50 dark:hover:bg-slate-800/60 hover:border-blue-300 dark:hover:border-blue-700 transition-all text-slate-900 dark:text-slate-100"
             >
-              <div className="p-2.5 bg-warning/15 text-warning rounded-xl shrink-0">
-                <FileText className="h-5 w-5" />
+              <div className="p-2.5 bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 rounded-xl shrink-0">
+                <ShieldAlert className="h-5 w-5" />
               </div>
               <div className="text-start">
-                <p className="font-bold text-label">سجل التدقيق والأمان</p>
-                <p className="text-caption text-muted-foreground">مراجعة العمليات والتعديلات المنفذة للنظام</p>
+                <p className="font-bold text-label">سجل المراجعة والتدقيق</p>
+                <p className="text-caption text-slate-500">تتبع كافة التعديلات والأنشطة الإدارية</p>
               </div>
             </Link>
           </CardContent>

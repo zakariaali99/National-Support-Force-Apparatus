@@ -35,14 +35,13 @@ import { cn } from "../../lib/utils";
    status block, and at ~1.5:1 on a white ground it is not a visible control
    outline. An invalid field must stay above 3:1, so it takes the solid hue. */
 const controlClasses = [
-  "flex h-11 w-full items-center gap-2 rounded-control",
-  "border border-border-strong bg-surface text-body text-fg",
-  "transition-[background-color,border-color] duration-[var(--duration-fast)] ease-out",
-  "hover:bg-surface-raised",
-  "aria-invalid:border-danger",
+  "flex h-10 w-full items-center gap-2 rounded-lg",
+  "border border-slate-300 dark:border-slate-700 bg-surface text-body-sm text-fg shadow-2xs px-3.5",
+  "transition-[border-color,box-shadow,background-color,color] duration-[var(--duration-fast)] ease-out",
+  "hover:border-slate-400 dark:hover:border-slate-600",
+  "focus:outline-none focus:border-blue-600 focus:ring-3 focus:ring-blue-500/15",
+  "aria-invalid:border-danger aria-invalid:focus:ring-danger/15",
   "disabled:pointer-events-none disabled:opacity-50",
-  // h-11 is already 44px, so no `coarse:` bump is needed here.
-  // Focus is left to the base layer's :focus-visible outline (convention 4).
 ].join(" ");
 
 /* -----------------------------------------------------------------------------

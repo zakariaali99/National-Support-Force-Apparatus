@@ -79,28 +79,28 @@ export function MemberDetail() {
   return (
     <>
       <div className="space-y-6">
-        {/* Sticky identity header */}
-        <div className="sticky top-16 z-20 -mx-4 border-b border-border bg-surface px-4 py-4 shadow-sm md:rounded-card md:border md:-mx-0 md:shadow-raised">
+        {/* Identity header card */}
+        <div className="rounded-2xl border border-slate-200/80 dark:border-slate-800 bg-surface p-5 shadow-xs">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-4">
               <AuthedImage
                 src={member.photo_url}
                 alt={member.full_name}
-                className="h-16 w-16 shrink-0 rounded-full border-2 border-border object-cover shadow-md"
+                className="h-16 w-16 shrink-0 rounded-full border-2 border-slate-200 dark:border-slate-700 object-cover shadow-xs"
               />
               <div className="min-w-0">
-                <h1 className="line-clamp-1 text-title font-bold tracking-tight text-foreground">
+                <h1 className="line-clamp-1 text-title font-bold tracking-tight text-slate-900 dark:text-slate-100">
                   {member.full_name}
                 </h1>
                 <div className="mt-1.5 flex flex-wrap items-center gap-2">
-                  <Badge variant={getServiceStatusVariant(member.service_status)} pulse={member.service_status === "active"}>
+                  <Badge variant={getServiceStatusVariant(member.service_status)}>
                     {serviceStatusLabel(member.service_status)}
                   </Badge>
                   <Badge variant={getApprovalStatusVariant(member.approval_status)}>
                     {approvalStatusLabel(member.approval_status)}
                   </Badge>
                   {member.rank_name && (
-                    <span className="rounded-control border border-primary/15 bg-primary/5 px-2 py-0.5 text-caption font-bold text-primary">
+                    <span className="rounded-lg border border-blue-200/60 dark:border-blue-800/40 bg-blue-50 dark:bg-blue-950/40 px-2.5 py-0.5 text-caption font-bold text-blue-700 dark:text-blue-300">
                       {member.rank_name}
                     </span>
                   )}
@@ -113,9 +113,9 @@ export function MemberDetail() {
               {hasPermission("member.print") && <PrintDialog member={member} />}
               {hasPermission("audit.view") && <HistoryDialog model="member" id={member.id} />}
               {hasPermission("member.edit") && (
-                <Button asChild variant="outline" size="sm">
+                <Button asChild variant="outline" size="sm" className="font-bold">
                   <Link to={`/members/${member.id}/edit`} className="flex items-center gap-1.5">
-                    <Pencil className="h-4 w-4 shrink-0" />
+                    <Pencil className="h-4 w-4 shrink-0 text-blue-600" />
                     <span>تعديل</span>
                   </Link>
                 </Button>
@@ -124,7 +124,7 @@ export function MemberDetail() {
                 <Button
                   variant="outline"
                   size="sm"
-                  className="text-destructive border-destructive/20 hover:bg-destructive/10 hover:text-destructive"
+                  className="text-rose-600 border-rose-200/60 dark:border-rose-800/40 hover:bg-rose-50 dark:hover:bg-rose-950/40 hover:text-rose-700 font-bold"
                   onClick={() => setDeleteOpen(true)}
                 >
                   <Trash2 className="h-4 w-4 shrink-0" />
@@ -136,7 +136,7 @@ export function MemberDetail() {
         </div>
 
         <Tabs defaultValue="overview" className="w-full">
-          <TabsList className="w-full justify-start">
+          <TabsList className="w-full justify-start border-b border-slate-200/80 dark:border-slate-800">
             <TabsTrigger value="overview">
               <UserRound className="h-4 w-4 me-1.5" aria-hidden="true" />
               نظرة عامة
@@ -156,11 +156,11 @@ export function MemberDetail() {
           </TabsList>
 
           <TabsContent value="overview">
-            <div className="rounded-card border border-border bg-surface text-fg shadow-raised">
-              <div className="border-b border-border/60 p-4">
-                <p className="text-section font-bold text-foreground">البيانات العسكرية والشخصية</p>
+            <div className="rounded-2xl border border-slate-200/80 dark:border-slate-800 bg-surface shadow-xs overflow-hidden">
+              <div className="border-b border-slate-200/80 dark:border-slate-800 p-4 bg-slate-50/60 dark:bg-slate-800/30">
+                <p className="text-section font-bold text-slate-900 dark:text-slate-100">البيانات العسكرية والشخصية</p>
               </div>
-              <div className="p-4">
+              <div className="p-5">
                 <DetailGrid className="sm:grid-cols-2 lg:grid-cols-2">
                   <DetailItem icon={Shield} label="الرقم الحربي" value={member.force_number} dir="ltr" />
                   <DetailItem icon={Shield} label="الرقم الوطني" value={member.national_number} dir="ltr" />
@@ -178,7 +178,7 @@ export function MemberDetail() {
                 </DetailGrid>
               </div>
               {member.location_url && (
-                <div className="p-4 border-t border-border/60">
+                <div className="p-5 border-t border-slate-200/80 dark:border-slate-800">
                   <LocationMapPicker locationUrl={member.location_url} readOnly />
                 </div>
               )}

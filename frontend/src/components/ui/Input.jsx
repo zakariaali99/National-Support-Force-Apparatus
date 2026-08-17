@@ -32,22 +32,18 @@ import { cn } from "../../lib/utils";
 
 const inputVariants = cva(
   [
-    "block w-full h-11 px-3",
-    "rounded-control border bg-surface text-body text-fg",
-    "placeholder:text-fg-subtle",
-    "transition-[border-color,background-color,color] duration-[var(--duration-fast)] ease-out",
-    /* Disabled is NOT `opacity-50`. Half-opacity text on a form field is a
-       readability problem where the value still matters — UsersPage disables
-       the username while editing precisely so the user can read which account
-       they are editing. A filled ground plus the flattened decorative border
-       reads as inert without making the content harder to see. */
+    "block w-full h-10 px-3.5",
+    "rounded-lg border bg-surface text-body-sm text-fg shadow-2xs",
+    "placeholder:text-slate-400 dark:placeholder:text-slate-500",
+    "focus:outline-none focus:border-blue-600 focus:ring-3 focus:ring-blue-500/15",
+    "transition-[border-color,box-shadow,background-color,color] duration-[var(--duration-fast)] ease-out",
     "disabled:cursor-not-allowed disabled:border-border disabled:bg-surface-raised disabled:text-fg-subtle",
   ].join(" "),
   {
     variants: {
       invalid: {
-        true: "border-danger",
-        false: "border-border-strong",
+        true: "border-danger focus:border-danger focus:ring-danger/15",
+        false: "border-slate-300 dark:border-slate-700 hover:border-slate-400 dark:hover:border-slate-600",
       },
     },
     defaultVariants: { invalid: false },

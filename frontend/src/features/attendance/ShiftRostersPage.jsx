@@ -163,28 +163,28 @@ export default function ShiftRostersPage() {
       </PageHeader>
 
       {/* Live Rotation Simulator Widget */}
-      <Card className="bg-gradient-to-r from-navy/5 via-gold-bg/20 to-canvas border-line">
+      <Card className="bg-blue-50/40 dark:bg-blue-950/20 border border-blue-100 dark:border-blue-900/40 rounded-2xl">
         <CardContent className="p-4 flex flex-wrap items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-navy text-gold flex items-center justify-center">
+            <div className="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center shadow-xs">
               <Sparkles className="w-5 h-5" />
             </div>
             <div>
-              <div className="font-semibold text-navy text-body">محاكي الخوارزمية الفوري</div>
-              <div className="text-caption text-navy-muted">
-                اختبر النوبات المستحقة للخدمة في أي تاريخ تلقائياً وفقاً للمعادلة الرياضية للدورات
+              <div className="font-bold text-slate-900 dark:text-slate-100 text-body">محاكي الخوارزمية الفوري</div>
+              <div className="text-caption text-slate-500">
+                اختبر النوبات المستحقة للخدمة في أي تاريخ تلقائياً وفقاً للمصفوفة الرياضية للدورات
               </div>
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <span className="text-label text-navy">تاريخ المعاينة:</span>
-            <div className="flex items-center gap-2 px-3 py-1.5 bg-surface rounded-md border border-line">
-              <Calendar className="w-4 h-4 text-gold-dark" />
+            <span className="text-label text-slate-700 dark:text-slate-300 font-semibold">تاريخ المعاينة:</span>
+            <div className="flex items-center gap-2 px-3 py-1.5 bg-surface rounded-lg border border-slate-200 dark:border-slate-700 shadow-2xs">
+              <Calendar className="w-4 h-4 text-blue-600" />
               <Input
                 type="date"
                 value={testDate}
                 onChange={(e) => setTestDate(e.target.value)}
-                className="border-0 p-0 h-auto font-mono text-body font-semibold text-navy bg-transparent"
+                className="border-0 p-0 h-auto font-mono text-body-sm font-semibold text-slate-900 dark:text-slate-100 bg-transparent focus:ring-0 shadow-none"
               />
             </div>
           </div>
@@ -194,39 +194,39 @@ export default function ShiftRostersPage() {
       {/* Roster Cards Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {isLoading ? (
-          <div className="col-span-full p-8 text-center text-navy-muted">جاري تحميل مجموعات النوبات...</div>
+          <div className="col-span-full p-8 text-center text-slate-500">جاري تحميل مجموعات النوبات...</div>
         ) : rosters.length === 0 ? (
-          <div className="col-span-full p-8 text-center text-navy-muted">
+          <div className="col-span-full p-8 text-center text-slate-500">
             لا توجد نوبات مسجلة بعد. اضغط على زر "إضافة نوبة" لإنشاء أول مجموعة نوبات.
           </div>
         ) : (
           rosters.map((group) => {
             const onDutyToday = isGroupOnDutyOnDate(group, testDate);
             return (
-              <Card key={group.id} className="border-line overflow-hidden hover:shadow-sm transition-shadow">
-                <CardHeader className="p-4 bg-canvas border-b border-line/60 flex flex-row items-start justify-between pb-3">
+              <Card key={group.id} className="overflow-hidden hover:shadow-sm hover:border-slate-300 dark:hover:border-slate-700 transition-all">
+                <CardHeader className="p-4 pb-3 flex flex-row items-start justify-between border-b border-slate-100 dark:border-slate-800">
                   <div className="space-y-1">
                     <div className="flex items-center gap-2">
-                      <CardTitle className="text-title font-bold text-navy">{group.name_ar}</CardTitle>
+                      <CardTitle className="text-section font-bold text-slate-900 dark:text-slate-100">{group.name_ar}</CardTitle>
                       {onDutyToday ? (
-                        <Badge variant="gold">واجب / خدمة</Badge>
+                        <Badge variant="success">واجب / خدمة</Badge>
                       ) : (
-                        <Badge variant="neutral">راحة / عطلة</Badge>
+                        <Badge variant="secondary">راحة / عطلة</Badge>
                       )}
                     </div>
-                    <CardDescription className="text-caption text-navy-muted">
+                    <CardDescription className="text-caption text-slate-500">
                       {group.faction_name || "بدون فصيل"} • {group.pattern_display}
                     </CardDescription>
                   </div>
                   <div className="flex items-center gap-1">
                     <Button variant="ghost" size="sm" onClick={() => handleOpenEdit(group)} title="تعديل">
-                      <Pencil className="w-4 h-4 text-navy" />
+                      <Pencil className="w-4 h-4 text-slate-600 dark:text-slate-300" />
                     </Button>
                     <Button
                       variant="ghost"
                       size="sm"
                       onClick={() => deleteRoster.mutate(group.id)}
-                      className="text-danger hover:bg-danger-bg"
+                      className="text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/50"
                       title="حذف"
                     >
                       <Trash2 className="w-4 h-4" />
@@ -235,24 +235,24 @@ export default function ShiftRostersPage() {
                 </CardHeader>
                 <CardContent className="p-4 space-y-3">
                   <div className="grid grid-cols-2 gap-2 text-body-sm">
-                    <div className="p-2 rounded bg-surface border border-line">
-                      <div className="text-caption text-navy-muted">دورة النوبة</div>
-                      <div className="font-semibold text-navy font-mono">{group.cycle_days} أيام</div>
+                    <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800">
+                      <div className="text-caption text-slate-500">دورة النوبة</div>
+                      <div className="font-bold text-slate-900 dark:text-slate-100 font-mono">{group.cycle_days} أيام</div>
                     </div>
-                    <div className="p-2 rounded bg-surface border border-line">
-                      <div className="text-caption text-navy-muted">ساعات النوبة</div>
-                      <div className="font-semibold text-navy font-mono">{group.shift_hours} ساعة</div>
+                    <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800">
+                      <div className="text-caption text-slate-500">ساعات النوبة</div>
+                      <div className="font-bold text-slate-900 dark:text-slate-100 font-mono">{group.shift_hours} ساعة</div>
                     </div>
                   </div>
 
-                  <div className="flex items-center justify-between text-body-sm pt-2 border-t border-line/60">
-                    <div className="flex items-center gap-1.5 text-navy-muted">
-                      <Users className="w-4 h-4 text-gold-dark" />
-                      <span>قوة النوبة:</span>
+                  <div className="flex items-center justify-between text-body-sm pt-2 border-t border-slate-100 dark:border-slate-800">
+                    <div className="flex items-center gap-1.5 text-slate-500">
+                      <Users className="w-4 h-4 text-blue-600" />
+                      <span>قوة النوبة الحالية:</span>
                     </div>
-                    <span className="font-bold text-navy font-mono">
+                    <Badge variant="info">
                       {group.members_count || group.member_ids?.length || 0} فرد
-                    </span>
+                    </Badge>
                   </div>
                 </CardContent>
               </Card>
@@ -263,16 +263,22 @@ export default function ShiftRostersPage() {
 
       {/* Form Dialog */}
       <Dialog open={formOpen} onOpenChange={setFormOpen}>
-        <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto" dir="rtl">
+        <DialogContent className="sm:max-w-[620px] max-h-[90vh] overflow-y-auto" dir="rtl">
           <DialogHeader>
-            <DialogTitle className="text-title text-navy">
-              {editingGroup ? "تعديل مجموعة النوبات" : "إضافة مجموعة نوبات جديدة"}
-            </DialogTitle>
+            <div className="flex items-center gap-2.5">
+              <div className="p-2 rounded-xl bg-blue-50 text-blue-700 dark:bg-blue-950/50 dark:text-blue-300">
+                <Users className="w-5 h-5" />
+              </div>
+              <div>
+                <DialogTitle>{editingGroup ? "تعديل مجموعة النوبات" : "إضافة مجموعة نوبات جديدة"}</DialogTitle>
+                <DialogDescription>إعداد دورة العمل والراحة وربط الأفراد بالمجموعة الرياضية.</DialogDescription>
+              </div>
+            </div>
           </DialogHeader>
 
-          <form onSubmit={handleSubmit} className="space-y-4 pt-2">
+          <form onSubmit={handleSubmit} className="space-y-4 pt-1">
             <div className="space-y-1.5">
-              <Label className="text-label text-navy">اسم النوبة / المجموعة *</Label>
+              <Label className="text-label text-slate-800 dark:text-slate-200">اسم النوبة / المجموعة *</Label>
               <Input
                 placeholder="مثال: نوبة الإنذار (أ) / وردية الحراسات 1"
                 value={formData.name_ar}
@@ -283,7 +289,7 @@ export default function ShiftRostersPage() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-1.5">
-                <Label className="text-label text-navy">الفصيل التابعة له *</Label>
+                <Label className="text-label text-slate-800 dark:text-slate-200">الفصيل التابعة له *</Label>
                 <Select
                   value={formData.faction}
                   onValueChange={(val) => setFormData({ ...formData, faction: val })}
@@ -292,73 +298,128 @@ export default function ShiftRostersPage() {
               </div>
 
               <div className="space-y-1.5">
-                <Label className="text-label text-navy">نمط ونوع الدورة *</Label>
+                <Label className="text-label text-slate-800 dark:text-slate-200">نمط ونوع الدورة *</Label>
                 <Select
                   value={formData.pattern}
                   onValueChange={handlePatternChange}
                   options={PATTERN_OPTIONS}
                 />
               </div>
+            </div>
 
-              <div className="space-y-1.5">
-                <Label className="text-label text-navy">إجمالي أيام الدورة</Label>
+            <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700 grid grid-cols-2 sm:grid-cols-4 gap-3">
+              <div className="space-y-1">
+                <Label className="text-caption text-slate-500">إجمالي الدورة (أيام)</Label>
                 <Input
                   type="number"
                   min="1"
-                  max="30"
                   value={formData.cycle_days}
                   onChange={(e) => setFormData({ ...formData, cycle_days: e.target.value })}
+                  disabled={formData.pattern !== "custom"}
                 />
               </div>
 
-              <div className="space-y-1.5">
-                <Label className="text-label text-navy">إزاحة اليوم (Offset في الدورة)</Label>
+              <div className="space-y-1">
+                <Label className="text-caption text-slate-500">أيام العمل</Label>
+                <Input
+                  type="number"
+                  min="1"
+                  value={formData.work_days}
+                  onChange={(e) => setFormData({ ...formData, work_days: e.target.value })}
+                  disabled={formData.pattern !== "custom"}
+                />
+              </div>
+
+              <div className="space-y-1">
+                <Label className="text-caption text-slate-500">أيام الراحة</Label>
                 <Input
                   type="number"
                   min="0"
-                  max="10"
-                  value={formData.group_offset}
-                  onChange={(e) => setFormData({ ...formData, group_offset: e.target.value })}
-                  helpText="0 للنوبة الأولى، 1 للثانية، 2 للثالثة..."
+                  value={formData.rest_days}
+                  onChange={(e) => setFormData({ ...formData, rest_days: e.target.value })}
+                  disabled={formData.pattern !== "custom"}
+                />
+              </div>
+
+              <div className="space-y-1">
+                <Label className="text-caption text-slate-500">ساعات النوبة</Label>
+                <Input
+                  type="number"
+                  step="0.5"
+                  value={formData.shift_hours}
+                  onChange={(e) => setFormData({ ...formData, shift_hours: e.target.value })}
                 />
               </div>
             </div>
 
-            {/* Member Multi-Select Assignment */}
-            <div className="space-y-2 pt-2 border-t border-line">
-              <Label className="text-label text-navy">تعيين أفراد القوة في هذه النوبة:</Label>
-              <div className="max-h-[160px] overflow-y-auto border border-line rounded-lg p-2 space-y-1 bg-surface">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-1.5">
+                <Label className="text-label text-slate-800 dark:text-slate-200">تاريخ بدء الدورة (Anchor Date) *</Label>
+                <Input
+                  type="date"
+                  value={formData.anchor_date}
+                  onChange={(e) => setFormData({ ...formData, anchor_date: e.target.value })}
+                  required
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <Label className="text-label text-slate-800 dark:text-slate-200">إزاحة النوبة (Group Offset) *</Label>
+                <Input
+                  type="number"
+                  min="0"
+                  value={formData.group_offset}
+                  onChange={(e) => setFormData({ ...formData, group_offset: e.target.value })}
+                  placeholder="0 = النوبة الأولى، 1 = الثانية..."
+                  required
+                />
+              </div>
+            </div>
+
+            {/* Member Multi-Select List */}
+            <div className="space-y-1.5">
+              <Label className="text-label text-slate-800 dark:text-slate-200">
+                تحديد أفراد النوبة ({formData.member_ids.length} فرد محدد)
+              </Label>
+              <div className="max-h-48 overflow-y-auto rounded-xl border border-slate-200/80 dark:border-slate-700 bg-surface p-2 divide-y divide-slate-100 dark:divide-slate-800">
                 {members.map((m) => {
-                  const isChecked = formData.member_ids.includes(m.id);
+                  const isSelected = formData.member_ids.includes(m.id);
                   return (
                     <label
                       key={m.id}
-                      className="flex items-center gap-2 p-1.5 hover:bg-canvas rounded cursor-pointer text-body-sm text-navy"
+                      className="flex items-center gap-2.5 p-2 hover:bg-slate-50 dark:hover:bg-slate-800/60 rounded-lg cursor-pointer transition-colors"
                     >
                       <input
                         type="checkbox"
-                        checked={isChecked}
+                        checked={isSelected}
                         onChange={(e) => {
                           if (e.target.checked) {
-                            setFormData({ ...formData, member_ids: [...formData.member_ids, m.id] });
+                            setFormData((prev) => ({
+                              ...prev,
+                              member_ids: [...prev.member_ids, m.id],
+                            }));
                           } else {
-                            setFormData({
-                              ...formData,
-                              member_ids: formData.member_ids.filter((id) => id !== m.id),
-                            });
+                            setFormData((prev) => ({
+                              ...prev,
+                              member_ids: prev.member_ids.filter((id) => id !== m.id),
+                            }));
                           }
                         }}
-                        className="rounded border-line text-navy focus:ring-gold"
+                        className="rounded border-slate-300 text-blue-600 focus:ring-blue-500"
                       />
-                      <span>{m.full_name}</span>
-                      <span className="text-caption text-navy-muted font-mono">({m.force_number || "—"})</span>
+                      <div className="flex-1 text-body-sm text-slate-900 dark:text-slate-100 font-medium">
+                        {m.full_name}
+                      </div>
+                      <div className="text-caption text-slate-500 font-mono">
+                        {m.force_number || "—"}
+                      </div>
                     </label>
                   );
                 })}
               </div>
             </div>
 
-            <DialogFooter className="gap-2 sm:gap-0 pt-3 border-t border-line">
+            <DialogFooter>
               <Button type="button" variant="outline" onClick={() => setFormOpen(false)}>
                 إلغاء
               </Button>

@@ -183,21 +183,19 @@ export default function DailyAttendancePage() {
         </div>
       </PageHeader>
 
-      {/* Date & Faction Controller Bar */}
-      <Card className="bg-surface border-line">
+      <Card>
         <CardContent className="p-4 flex flex-wrap items-center justify-between gap-4">
-          {/* Date Selector */}
           <div className="flex items-center gap-2">
             <Button variant="outline" size="sm" onClick={() => navigateDate(1)} title="اليوم التالي">
               <ChevronRight className="w-4 h-4" />
             </Button>
-            <div className="flex items-center gap-2 px-3 py-1.5 bg-canvas rounded-md border border-line">
-              <Calendar className="w-4 h-4 text-gold-dark" />
+            <div className="flex items-center gap-2 px-3 py-1.5 bg-slate-50 dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 shadow-2xs">
+              <Calendar className="w-4 h-4 text-blue-600" />
               <Input
                 type="date"
                 value={selectedDate}
                 onChange={(e) => setSelectedDate(e.target.value)}
-                className="border-0 p-0 h-auto font-mono text-body font-semibold text-navy bg-transparent"
+                className="border-0 p-0 h-auto font-mono text-body-sm font-semibold text-slate-900 dark:text-slate-100 bg-transparent focus:ring-0 shadow-none"
               />
             </div>
             <Button variant="outline" size="sm" onClick={() => navigateDate(-1)} title="اليوم السابق">
@@ -212,9 +210,8 @@ export default function DailyAttendancePage() {
             </Button>
           </div>
 
-          {/* Faction Filter */}
           <div className="flex items-center gap-2 min-w-[240px]">
-            <span className="text-label text-navy shrink-0">الفصيل:</span>
+            <span className="text-label text-slate-700 dark:text-slate-300 font-semibold shrink-0">الفصيل:</span>
             <Select
               value={selectedFaction}
               onValueChange={setSelectedFaction}
@@ -227,15 +224,13 @@ export default function DailyAttendancePage() {
         </CardContent>
       </Card>
 
-      {/* Success Notification Alert */}
       {saveSuccessMsg && (
-        <div className="p-4 bg-success-bg border border-success-border rounded-lg text-success flex items-center gap-3 animate-in fade-in">
-          <CheckCircle2 className="w-5 h-5 shrink-0" />
-          <span className="font-semibold text-body">{saveSuccessMsg}</span>
+        <div className="p-4 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200/60 dark:border-emerald-800/40 rounded-xl text-emerald-800 dark:text-emerald-300 flex items-center gap-3 animate-in fade-in">
+          <CheckCircle2 className="w-5 h-5 shrink-0 text-emerald-600" />
+          <span className="font-semibold text-body-sm">{saveSuccessMsg}</span>
         </div>
       )}
 
-      {/* KPI Stats */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
         <StatCard title="إجمالي القوة" value={stats.total} icon={Users} variant="default" />
         <StatCard title="المستحقون للخدمة" value={stats.dutyExpected} icon={ShieldCheck} variant="gold" />
@@ -245,11 +240,10 @@ export default function DailyAttendancePage() {
         <StatCard title="غياب بدون إذن" value={stats.unexcused} icon={UserX} variant="danger" />
       </div>
 
-      {/* Daily Attendance Matrix Table */}
-      <Card>
+      <Card className="overflow-hidden">
         <CardContent className="p-0 overflow-x-auto">
           <table className="w-full text-right text-body-sm">
-            <thead className="bg-canvas border-b border-line text-navy-muted font-semibold">
+            <thead className="bg-slate-50/80 dark:bg-slate-800/40 border-b border-slate-200/80 dark:border-slate-800 text-slate-500 font-semibold">
               <tr>
                 <th className="p-3.5">الفرد والرتبة</th>
                 <th className="p-3.5">الفصيل والنوبة</th>
@@ -262,16 +256,16 @@ export default function DailyAttendancePage() {
                 <th className="p-3.5 min-w-[180px]">ملاحظات</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-line">
+            <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
               {isLoading ? (
                 <tr>
-                  <td colSpan={9} className="p-8 text-center text-navy-muted">
+                  <td colSpan={9} className="p-8 text-center text-slate-500">
                     جاري تحميل جدول التمام وقوة الفصيل...
                   </td>
                 </tr>
               ) : localRows.length === 0 ? (
                 <tr>
-                  <td colSpan={9} className="p-8 text-center text-navy-muted">
+                  <td colSpan={9} className="p-8 text-center text-slate-500">
                     لا يوجد أفراد مسجلون في الفصيل المختار.
                   </td>
                 </tr>
@@ -288,40 +282,33 @@ export default function DailyAttendancePage() {
                   return (
                     <tr
                       key={row.member_id}
-                      className={`hover:bg-canvas/50 transition-colors ${
+                      className={`hover:bg-slate-50/60 dark:hover:bg-slate-800/30 transition-colors ${
                         row.status === "unexcused_absence"
-                          ? "bg-danger-bg/20"
+                          ? "bg-rose-50/30 dark:bg-rose-950/15"
                           : row.status === "excused_absence"
-                          ? "bg-gold-bg/20"
+                          ? "bg-amber-50/20 dark:bg-amber-950/10"
                           : ""
                       }`}
                     >
-                      {/* Member Info */}
                       <td className="p-3">
-                        <div className="font-semibold text-navy text-body">{row.member_name}</div>
-                        <div className="text-caption text-navy-muted flex items-center gap-1.5">
+                        <div className="font-semibold text-slate-900 dark:text-slate-100 text-body-sm">{row.member_name}</div>
+                        <div className="text-caption text-slate-500 flex items-center gap-1.5">
                           <span>{row.rank_name || "—"}</span>
                           <span>•</span>
                           <span className="font-mono">{row.force_number || "—"}</span>
                         </div>
                       </td>
-
-                      {/* Faction & Shift Group */}
                       <td className="p-3">
-                        <div className="text-body-sm text-navy font-medium">{row.faction_name || "—"}</div>
-                        <div className="text-caption text-gold-dark font-medium">{row.shift_group_name}</div>
+                        <div className="text-body-sm text-slate-900 dark:text-slate-100 font-medium">{row.faction_name || "—"}</div>
+                        <div className="text-caption text-blue-600 dark:text-blue-400 font-medium">{row.shift_group_name}</div>
                       </td>
-
-                      {/* Expected Duty */}
                       <td className="p-3">
                         {row.expected_duty === "duty" ? (
                           <Badge variant="gold">واجب / خدمة</Badge>
                         ) : (
-                          <Badge variant="neutral">راحة نوبة</Badge>
+                          <Badge variant="secondary">راحة نوبة</Badge>
                         )}
                       </td>
-
-                      {/* Status Select */}
                       <td className="p-3">
                         <Select
                           value={row.status}
@@ -329,8 +316,6 @@ export default function DailyAttendancePage() {
                           options={ATTENDANCE_STATUS_OPTIONS}
                         />
                       </td>
-
-                      {/* Late Hours */}
                       <td className="p-3">
                         <Input
                           type="number"
@@ -340,10 +325,9 @@ export default function DailyAttendancePage() {
                           value={row.late_hours}
                           onChange={(e) => handleRowChange(row.member_id, "late_hours", e.target.value)}
                           className="w-20 font-mono text-center"
+                          placeholder="0"
                         />
                       </td>
-
-                      {/* Early Departure Hours */}
                       <td className="p-3">
                         <Input
                           type="number"
@@ -355,10 +339,9 @@ export default function DailyAttendancePage() {
                             handleRowChange(row.member_id, "early_departure_hours", e.target.value)
                           }
                           className="w-20 font-mono text-center"
+                          placeholder="0"
                         />
                       </td>
-
-                      {/* Excused Hours */}
                       <td className="p-3">
                         <Input
                           type="number"
@@ -368,31 +351,24 @@ export default function DailyAttendancePage() {
                           value={row.excused_hours}
                           onChange={(e) => handleRowChange(row.member_id, "excused_hours", e.target.value)}
                           className="w-24 font-mono text-center"
+                          placeholder="ساعات"
                         />
                       </td>
-
-                      {/* Vacation Deduction Preview */}
-                      <td className="p-3">
+                      <td className="p-3 font-mono">
                         {parseFloat(calculatedDeduction) > 0 ? (
-                          <div className="space-y-0.5">
-                            <Badge variant="danger">-{calculatedDeduction} يوم</Badge>
-                            <div className="text-caption text-navy-muted">
-                              رصيد: {row.vacation_balance_days} يوم
-                            </div>
-                          </div>
+                          <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-rose-50 text-rose-700 dark:bg-rose-950/50 dark:text-rose-300 border border-rose-200/60 font-bold text-caption">
+                            -{calculatedDeduction} يوم
+                          </span>
                         ) : (
-                          <span className="text-caption text-navy-muted">0.0 يوم</span>
+                          <span className="text-slate-400 text-caption">0</span>
                         )}
                       </td>
-
-                      {/* Notes */}
                       <td className="p-3">
                         <Input
-                          type="text"
-                          placeholder="ملاحظات أو سبب الإذن..."
                           value={row.notes}
                           onChange={(e) => handleRowChange(row.member_id, "notes", e.target.value)}
-                          className="w-full text-body-sm"
+                          placeholder="سبب التأخير أو رقم الإذن..."
+                          className="text-caption"
                         />
                       </td>
                     </tr>

@@ -130,25 +130,32 @@ export function VehicleFormDialog({ open, onOpenChange, vehicle = null }) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto" dir="rtl">
+      <DialogContent className="sm:max-w-[720px] max-h-[90vh] overflow-y-auto" dir="rtl">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2 text-title text-navy">
-            <Car className="w-5 h-5 text-gold-dark" />
-            {isEdit ? "تعديل بيانات المركبة" : "إضافة مركبة / آلية جديدة"}
-          </DialogTitle>
+          <div className="flex items-center gap-2.5">
+            <div className="p-2 rounded-xl bg-blue-50 text-blue-700 dark:bg-blue-950/50 dark:text-blue-300">
+              <Car className="w-5 h-5" />
+            </div>
+            <div>
+              <DialogTitle>{isEdit ? "تعديل بيانات المركبة" : "إضافة مركبة / آلية جديدة"}</DialogTitle>
+              <DialogDescription>تسجيل بيانات المركبة التابعة للأسطول وتعيين السائق والتسليح المستقل.</DialogDescription>
+            </div>
+          </div>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 pt-2">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 pt-1">
           {/* Section 1: Vehicle Base Details */}
-          <div className="space-y-4 rounded-lg border border-line bg-surface p-4">
-            <div className="flex items-center gap-2 border-b border-line/60 pb-2 text-section text-navy font-semibold">
-              <Car className="w-4 h-4 text-gold-dark" />
-              <span>بيانات الآلية والمركبة</span>
+          <div className="space-y-4">
+            <div className="flex items-center gap-2 pb-2 border-b border-slate-100 dark:border-slate-800">
+              <div className="p-1 rounded-md bg-blue-50 text-blue-700 dark:bg-blue-950/50 dark:text-blue-300">
+                <Car className="w-4 h-4" />
+              </div>
+              <span className="text-body-sm font-bold text-slate-900 dark:text-slate-100">بيانات الآلية والمركبة</span>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-1.5">
-                <Label htmlFor="name" className="text-label text-navy">اسم / طراز المركبة *</Label>
+                <Label htmlFor="name" className="text-label text-slate-800 dark:text-slate-200">اسم / طراز المركبة *</Label>
                 <Input
                   id="name"
                   placeholder="مثال: تويوتا لاندكروزر LC79"
@@ -158,7 +165,7 @@ export function VehicleFormDialog({ open, onOpenChange, vehicle = null }) {
               </div>
 
               <div className="space-y-1.5">
-                <Label htmlFor="vehicle_type" className="text-label text-navy">نوع الآلية *</Label>
+                <Label htmlFor="vehicle_type" className="text-label text-slate-800 dark:text-slate-200">نوع الآلية *</Label>
                 <Select
                   value={watch("vehicle_type")}
                   onValueChange={(val) => setValue("vehicle_type", val)}
@@ -167,7 +174,7 @@ export function VehicleFormDialog({ open, onOpenChange, vehicle = null }) {
               </div>
 
               <div className="space-y-1.5">
-                <Label htmlFor="vin_number" className="text-label text-navy">رقم الهيكل (VIN / Chassis) *</Label>
+                <Label htmlFor="vin_number" className="text-label text-slate-800 dark:text-slate-200">رقم الهيكل (VIN / Chassis) *</Label>
                 <Input
                   id="vin_number"
                   placeholder="رقم الهيكل المعدني"
@@ -179,7 +186,7 @@ export function VehicleFormDialog({ open, onOpenChange, vehicle = null }) {
               </div>
 
               <div className="space-y-1.5">
-                <Label htmlFor="plate_number" className="text-label text-navy">رقم اللوحة العسكرية / المدنية</Label>
+                <Label htmlFor="plate_number" className="text-label text-slate-800 dark:text-slate-200">رقم اللوحة العسكرية / المدنية</Label>
                 <Input
                   id="plate_number"
                   placeholder="مثال: 10-12345"
@@ -190,7 +197,7 @@ export function VehicleFormDialog({ open, onOpenChange, vehicle = null }) {
               </div>
 
               <div className="space-y-1.5">
-                <Label htmlFor="model_year" className="text-label text-navy">سنة الصنع</Label>
+                <Label htmlFor="model_year" className="text-label text-slate-800 dark:text-slate-200">سنة الصنع</Label>
                 <Input
                   id="model_year"
                   placeholder="مثال: 2024"
@@ -200,7 +207,7 @@ export function VehicleFormDialog({ open, onOpenChange, vehicle = null }) {
               </div>
 
               <div className="space-y-1.5">
-                <Label htmlFor="color" className="text-label text-navy">اللون</Label>
+                <Label htmlFor="color" className="text-label text-slate-800 dark:text-slate-200">اللون</Label>
                 <Input
                   id="color"
                   placeholder="مثال: بيج عسكري / أسود"
@@ -209,7 +216,7 @@ export function VehicleFormDialog({ open, onOpenChange, vehicle = null }) {
               </div>
 
               <div className="space-y-1.5 md:col-span-2">
-                <Label htmlFor="status" className="text-label text-navy">الحالة التشغيلية</Label>
+                <Label htmlFor="status" className="text-label text-slate-800 dark:text-slate-200">الحالة التشغيلية</Label>
                 <Select
                   value={watch("status")}
                   onValueChange={(val) => setValue("status", val)}
@@ -219,33 +226,35 @@ export function VehicleFormDialog({ open, onOpenChange, vehicle = null }) {
             </div>
           </div>
 
-          {/* Section 2: Vehicle Affiliation & Driver */}
-          <div className="space-y-4 rounded-lg border border-line bg-surface p-4">
-            <div className="flex items-center gap-2 border-b border-line/60 pb-2 text-section text-navy font-semibold">
-              <UserCheck className="w-4 h-4 text-gold-dark" />
-              <span>تبعية المركبة والسائق</span>
+          {/* Section 2: Vehicle Driver & Faction */}
+          <div className="space-y-4">
+            <div className="flex items-center gap-2 pb-2 border-b border-slate-100 dark:border-slate-800">
+              <div className="p-1 rounded-md bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300">
+                <UserCheck className="w-4 h-4" />
+              </div>
+              <span className="text-body-sm font-bold text-slate-900 dark:text-slate-100">تبعية المركبة والسائق</span>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-1.5">
-                <Label htmlFor="faction" className="text-label text-navy">الفصيل / القسم التابعة له المركبة</Label>
+                <Label htmlFor="faction" className="text-label text-slate-800 dark:text-slate-200">الفصيل / القسم التابعة له المركبة</Label>
                 <Select
-                  value={watch("faction") || "none"}
-                  onValueChange={(val) => setValue("faction", val === "none" ? "" : val)}
+                  value={watch("faction")}
+                  onValueChange={(val) => setValue("faction", val)}
                   options={[
-                    { value: "none", label: "— بدون تخصيص فصيل —" },
+                    { value: "", label: "غير محدد / عام" },
                     ...factions.map((f) => ({ value: String(f.id), label: f.name_ar })),
                   ]}
                 />
               </div>
 
               <div className="space-y-1.5">
-                <Label htmlFor="assigned_driver" className="text-label text-navy">السائق أو المسؤول عن المركبة</Label>
+                <Label htmlFor="assigned_driver" className="text-label text-slate-800 dark:text-slate-200">السائق أو المسؤول عن المركبة</Label>
                 <Select
-                  value={watch("assigned_driver") || "none"}
-                  onValueChange={(val) => setValue("assigned_driver", val === "none" ? "" : val)}
+                  value={watch("assigned_driver")}
+                  onValueChange={(val) => setValue("assigned_driver", val)}
                   options={[
-                    { value: "none", label: "— بدون سائق محدد —" },
+                    { value: "", label: "غير معين (سائق نوبة)" },
                     ...members.map((m) => ({
                       value: String(m.id),
                       label: `${m.full_name} (${m.force_number || "بدون رقم"})`,
@@ -256,76 +265,80 @@ export function VehicleFormDialog({ open, onOpenChange, vehicle = null }) {
             </div>
           </div>
 
-          {/* Section 3: Mounted Weapon Details (Independent Affiliation) */}
-          <div className="space-y-4 rounded-lg border border-line bg-surface p-4">
-            <div className="flex items-center justify-between border-b border-line/60 pb-3">
-              <div className="flex items-center gap-2 text-section text-navy font-semibold">
-                <Crosshair className="w-4 h-4 text-gold-dark" />
-                <span>السلاح المثبت على المركبة (قسم التسليح)</span>
+          {/* Section 3: Weapon Attachment */}
+          <div className="space-y-4">
+            <div className="flex items-center justify-between p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700">
+              <div className="flex items-center gap-2.5">
+                <div className="p-1.5 rounded-lg bg-amber-50 text-amber-700 dark:bg-amber-950/50 dark:text-amber-300">
+                  <Crosshair className="w-4 h-4" />
+                </div>
+                <div>
+                  <Label htmlFor="has_weapon_toggle" className="text-body-sm font-bold text-slate-900 dark:text-slate-100 cursor-pointer">
+                    هل تملك الآلية سلاحاً مثبتاً؟
+                  </Label>
+                  <p className="text-caption text-slate-500">
+                    تفعيل هذا الخيار يتيح تسجيل السلاح وراميه بتبعية مستقلة عن السيارة.
+                  </p>
+                </div>
               </div>
-              <div className="flex items-center gap-2">
-                <span className="text-body-sm text-navy-muted">هل تملك سلاحاً؟</span>
-                <Switch
-                  checked={hasWeapon}
-                  onCheckedChange={(checked) => setValue("has_weapon", checked)}
-                />
-              </div>
+              <Switch
+                id="has_weapon_toggle"
+                checked={hasWeapon}
+                onCheckedChange={(checked) => setValue("has_weapon", checked)}
+              />
             </div>
 
             {hasWeapon && (
-              <div className="space-y-4 pt-1 animate-in fade-in duration-200">
-                <div className="p-3 bg-gold-bg/40 border border-gold-border/60 rounded-md text-caption text-navy flex items-start gap-2">
-                  <AlertCircle className="w-4 h-4 text-gold-dark mt-0.5 shrink-0" />
-                  <span>
-                    ملاحظة إدارية: يتم تسجيل تبعية السلاح ومسؤول السلاح بشكل مستقل تماماً عن تبعية المركبة وسائقها.
-                  </span>
+              <div className="p-4 rounded-xl bg-blue-50/40 dark:bg-blue-950/20 border border-blue-100 dark:border-blue-900/40 space-y-4 animate-in fade-in slide-in-from-top-2 duration-200">
+                <div className="flex items-center gap-2 text-blue-900 dark:text-blue-200 text-caption font-semibold">
+                  <AlertCircle className="w-4 h-4 text-blue-600" />
+                  <span>بيانات التسليح وتبعية السلاح (منفصلة عن تبعية المركبة)</span>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-1.5">
-                    <Label htmlFor="mounted_weapon_name" className="text-label text-navy">اسم / عيار السلاح المثبت *</Label>
+                    <Label htmlFor="mounted_weapon_name" className="text-label text-slate-800 dark:text-slate-200">اسم / نوع السلاح المثبت *</Label>
                     <Input
                       id="mounted_weapon_name"
-                      placeholder="مثال: دوشكا 12.7 مم / بيكاسي 7.62"
+                      placeholder="مثال: رشاش دوشكا 12.7 مم / رشاش 14.5"
                       {...register("mounted_weapon_name", {
-                        required: hasWeapon ? "اسم السلاح مطلوب عند التثبيت" : false,
+                        required: hasWeapon ? "اسم السلاح مطلوب عند التفعيل" : false,
                       })}
                     />
-                    {errors.mounted_weapon_name && (
-                      <p className="text-caption text-danger">{errors.mounted_weapon_name.message}</p>
-                    )}
                   </div>
 
                   <div className="space-y-1.5">
-                    <Label htmlFor="mounted_weapon_serial" className="text-label text-navy">رقم السلاح (الرقم التسلسلي)</Label>
+                    <Label htmlFor="mounted_weapon_serial" className="text-label text-slate-800 dark:text-slate-200">رقم السلاح التسلسلي *</Label>
                     <Input
                       id="mounted_weapon_serial"
-                      placeholder="مثال: DSHK-88992"
+                      placeholder="مثال: WPN-DSHK-0921"
                       dir="ltr"
                       className="font-mono"
-                      {...register("mounted_weapon_serial")}
+                      {...register("mounted_weapon_serial", {
+                        required: hasWeapon ? "رقم السلاح مطلوب عند التفعيل" : false,
+                      })}
                     />
                   </div>
 
                   <div className="space-y-1.5">
-                    <Label htmlFor="weapon_faction" className="text-label text-navy">تبعية السلاح الفصائلية</Label>
+                    <Label htmlFor="weapon_faction" className="text-label text-slate-800 dark:text-slate-200">فصيل / قسم تبعية السلاح</Label>
                     <Select
-                      value={watch("weapon_faction") || "none"}
-                      onValueChange={(val) => setValue("weapon_faction", val === "none" ? "" : val)}
+                      value={watch("weapon_faction")}
+                      onValueChange={(val) => setValue("weapon_faction", val)}
                       options={[
-                        { value: "none", label: "— بدون تخصيص فصيل للسلاح —" },
+                        { value: "", label: "نفس فصيل المركبة" },
                         ...factions.map((f) => ({ value: String(f.id), label: f.name_ar })),
                       ]}
                     />
                   </div>
 
                   <div className="space-y-1.5">
-                    <Label htmlFor="weapon_assigned_member" className="text-label text-navy">الرامي / المسؤول عن السلاح</Label>
+                    <Label htmlFor="weapon_assigned_member" className="text-label text-slate-800 dark:text-slate-200">الرامي المكلف بالسلاح</Label>
                     <Select
-                      value={watch("weapon_assigned_member") || "none"}
-                      onValueChange={(val) => setValue("weapon_assigned_member", val === "none" ? "" : val)}
+                      value={watch("weapon_assigned_member")}
+                      onValueChange={(val) => setValue("weapon_assigned_member", val)}
                       options={[
-                        { value: "none", label: "— بدون رامٍ مخصص —" },
+                        { value: "", label: "غير معين (رامي نوبة)" },
                         ...members.map((m) => ({
                           value: String(m.id),
                           label: `${m.full_name} (${m.force_number || "بدون رقم"})`,
@@ -340,16 +353,15 @@ export function VehicleFormDialog({ open, onOpenChange, vehicle = null }) {
 
           {/* Section 4: Notes */}
           <div className="space-y-1.5">
-            <Label htmlFor="notes" className="text-label text-navy">ملاحظات إضافية</Label>
+            <Label htmlFor="notes" className="text-label text-slate-800 dark:text-slate-200">ملاحظات إضافية عن المركبة</Label>
             <Textarea
               id="notes"
-              rows={2}
-              placeholder="أي ملاحظات فنية أو تجهيزات خاصة..."
+              placeholder="أي تفاصيل فنية، حالة الإطارات، أو تجهيزات خاصة..."
               {...register("notes")}
             />
           </div>
 
-          <DialogFooter className="gap-2 sm:gap-0 pt-2 border-t border-line">
+          <DialogFooter>
             <Button
               type="button"
               variant="outline"

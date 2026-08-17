@@ -23,7 +23,7 @@ export function FilterBar({
   className,
 }) {
   return (
-    <div className={cn("rounded-card border border-border bg-surface shadow-raised", className)}>
+    <div className={cn("rounded-xl border border-slate-200/80 dark:border-slate-800 bg-surface shadow-xs", className)}>
       <div className="p-4 space-y-4">
         {!hideSearch && (
           <div className="relative">

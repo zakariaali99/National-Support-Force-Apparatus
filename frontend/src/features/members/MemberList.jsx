@@ -278,142 +278,144 @@ export function MemberList() {
           </p>
         </div>
       ) : viewMode === "list" ? (
-        <div className="overflow-x-auto rounded-2xl border border-border/80 bg-card shadow-sm scrollbar-thin">
-          <table className="w-full text-sm border-collapse">
-            <thead className="bg-secondary/60 text-foreground border-b border-border/80 sticky top-0 backdrop-blur-md">
-              <tr>
-                <th className="w-12 px-3 py-3.5 text-center text-xs font-bold text-muted-foreground">#</th>
-                <th className="px-4 py-3.5 text-start font-bold text-xs text-muted-foreground tracking-wider uppercase">
-                  الاسم الكامل
-                </th>
-                <th className="px-4 py-3.5 text-start font-bold text-xs text-muted-foreground tracking-wider uppercase">
-                  الرقم الحربي
-                </th>
-                <th className="px-4 py-3.5 text-start font-bold text-xs text-muted-foreground tracking-wider uppercase">
-                  الرقم الوطني
-                </th>
-                <th className="px-4 py-3.5 text-start font-bold text-xs text-muted-foreground tracking-wider uppercase">
-                  الرتبة العسكرية
-                </th>
-                <th className="px-4 py-3.5 text-start font-bold text-xs text-muted-foreground tracking-wider uppercase">
-                  الفصيل (الإدارة)
-                </th>
-                <th className="px-4 py-3.5 text-start font-bold text-xs text-muted-foreground tracking-wider uppercase">
-                  الحالة
-                </th>
-                <th className="px-4 py-3.5 text-end font-bold text-xs text-muted-foreground tracking-wider uppercase">
-                  الإجراءات السريعة
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-border/60 bg-card">
-              {members.map((member) => (
-                <tr key={member.id} className="hover:bg-secondary/40 transition-colors group">
-                  <td className="px-3 py-3 text-center align-middle">
-                    <AuthedImage
-                      src={member.photo_thumb_url}
-                      alt={member.full_name}
-                      className="h-10 w-10 rounded-full border border-border object-cover mx-auto shadow-xs"
-                    />
-                  </td>
-                  <td className="px-4 py-3 text-start align-middle">
-                    <Link
-                      to={`/members/${member.id}`}
-                      className="font-bold text-foreground hover:text-primary transition-colors flex items-center gap-1.5"
-                    >
-                      <span>{member.full_name}</span>
-                      <ArrowUpRight className="h-3.5 w-3.5 opacity-0 group-hover:opacity-100 transition-opacity text-primary" />
-                    </Link>
-                  </td>
-                  <td className="px-4 py-3 text-start align-middle font-mono font-bold text-foreground text-xs dir-ltr">
-                    {member.force_number}
-                  </td>
-                  <td className="px-4 py-3 text-start align-middle font-mono text-muted-foreground text-xs dir-ltr">
-                    {member.national_number || "—"}
-                  </td>
-                  <td className="px-4 py-3 text-start align-middle font-semibold text-foreground text-xs">
-                    {member.rank_name || "—"}
-                  </td>
-                  <td className="px-4 py-3 text-start align-middle font-medium text-muted-foreground text-xs">
-                    {member.faction_name || "—"}
-                  </td>
-                  <td className="px-4 py-3 text-start align-middle">
-                    {canEdit ? (
-                      <DropdownMenu>
-                        <DropdownMenuTrigger className="outline-none">
-                          <Badge variant={getStatusVariant(member.service_status)} pulse={member.service_status === "active"} className="cursor-pointer hover:opacity-80">
-                            {serviceStatusLabel(member.service_status)}
-                          </Badge>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="start">
-                          <DropdownMenuLabel className="text-micro font-bold">تعديل الحالة العسكرية</DropdownMenuLabel>
-                          <DropdownMenuSeparator />
-                          {SERVICE_STATUS_OPTIONS.map((opt) => (
-                            <DropdownMenuItem
-                              key={opt.value}
-                              onSelect={() => handleQuickStatusChange(member, opt.value)}
-                              className={cn(member.service_status === opt.value && "font-bold text-primary")}
-                            >
-                              {opt.label}
-                            </DropdownMenuItem>
-                          ))}
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    ) : (
-                      <Badge variant={getStatusVariant(member.service_status)} pulse={member.service_status === "active"}>
-                        {serviceStatusLabel(member.service_status)}
-                      </Badge>
-                    )}
-                  </td>
-                  <td className="px-4 py-3 text-end align-middle">
-                    <div className="flex items-center justify-end gap-1">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8 rounded-lg text-muted-foreground hover:text-foreground"
-                        title="إضافة ملاحظة"
-                        onClick={() => setActiveProcedure({ type: "note", member })}
-                      >
-                        <FileText className="h-4 w-4" />
-                      </Button>
-                      {canAssign && (
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8 rounded-lg text-muted-foreground hover:text-foreground"
-                          title="إسناد مهمة"
-                          onClick={() => setActiveProcedure({ type: "task", member })}
-                        >
-                          <CheckSquare className="h-4 w-4" />
-                        </Button>
-                      )}
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8 rounded-lg text-muted-foreground hover:text-foreground"
-                        title="إضافة تقييم"
-                        onClick={() => setActiveProcedure({ type: "eval", member })}
-                      >
-                        <Star className="h-4 w-4" />
-                      </Button>
-                      {canEdit && (
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8 rounded-lg text-muted-foreground hover:text-foreground"
-                          title="تعديل الحالة الإدارية"
-                          onClick={() => setActiveProcedure({ type: "status", member })}
-                        >
-                          <UserCheck className="h-4 w-4 text-primary" />
-                        </Button>
-                      )}
-                    </div>
-                  </td>
+        <Card className="overflow-hidden">
+          <div className="overflow-x-auto scrollbar-thin">
+            <table className="w-full text-right text-body-sm border-collapse">
+              <thead className="bg-slate-50/80 dark:bg-slate-800/40 text-slate-500 font-semibold border-b border-slate-200/80 dark:border-slate-800 text-caption">
+                <tr>
+                  <th className="w-12 px-3 py-3.5 text-center">#</th>
+                  <th className="px-4 py-3.5 text-start font-semibold">
+                    الاسم الكامل
+                  </th>
+                  <th className="px-4 py-3.5 text-start font-semibold">
+                    الرقم الحربي
+                  </th>
+                  <th className="px-4 py-3.5 text-start font-semibold">
+                    الرقم الوطني
+                  </th>
+                  <th className="px-4 py-3.5 text-start font-semibold">
+                    الرتبة العسكرية
+                  </th>
+                  <th className="px-4 py-3.5 text-start font-semibold">
+                    الفصيل (الإدارة)
+                  </th>
+                  <th className="px-4 py-3.5 text-start font-semibold">
+                    الحالة
+                  </th>
+                  <th className="px-4 py-3.5 text-end font-semibold">
+                    الإجراءات السريعة
+                  </th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody className="divide-y divide-slate-100 dark:divide-slate-800 bg-surface">
+                {members.map((member) => (
+                  <tr key={member.id} className="hover:bg-slate-50/70 dark:hover:bg-slate-800/30 transition-colors group">
+                    <td className="px-3 py-3 text-center align-middle">
+                      <AuthedImage
+                        src={member.photo_thumb_url}
+                        alt={member.full_name}
+                        className="h-9 w-9 rounded-full border border-slate-200 dark:border-slate-700 object-cover mx-auto shadow-2xs"
+                      />
+                    </td>
+                    <td className="px-4 py-3 text-start align-middle">
+                      <Link
+                        to={`/members/${member.id}`}
+                        className="font-semibold text-slate-900 dark:text-slate-100 hover:text-blue-700 dark:hover:text-blue-400 transition-colors flex items-center gap-1.5"
+                      >
+                        <span>{member.full_name}</span>
+                        <ArrowUpRight className="h-3.5 w-3.5 opacity-0 group-hover:opacity-100 transition-opacity text-blue-600" />
+                      </Link>
+                    </td>
+                    <td className="px-4 py-3 text-start align-middle font-mono font-semibold text-slate-800 dark:text-slate-200 text-caption dir-ltr">
+                      {member.force_number}
+                    </td>
+                    <td className="px-4 py-3 text-start align-middle font-mono text-slate-500 text-caption dir-ltr">
+                      {member.national_number || "—"}
+                    </td>
+                    <td className="px-4 py-3 text-start align-middle font-medium text-slate-700 dark:text-slate-300 text-caption">
+                      {member.rank_name || "—"}
+                    </td>
+                    <td className="px-4 py-3 text-start align-middle font-medium text-slate-500 text-caption">
+                      {member.faction_name || "—"}
+                    </td>
+                    <td className="px-4 py-3 text-start align-middle">
+                      {canEdit ? (
+                        <DropdownMenu>
+                          <DropdownMenuTrigger className="outline-none">
+                            <Badge variant={getStatusVariant(member.service_status)} className="cursor-pointer hover:opacity-85">
+                              {serviceStatusLabel(member.service_status)}
+                            </Badge>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="start">
+                            <DropdownMenuLabel className="text-caption font-bold">تعديل الحالة العسكرية</DropdownMenuLabel>
+                            <DropdownMenuSeparator />
+                            {SERVICE_STATUS_OPTIONS.map((opt) => (
+                              <DropdownMenuItem
+                                key={opt.value}
+                                onSelect={() => handleQuickStatusChange(member, opt.value)}
+                                className={cn(member.service_status === opt.value && "font-bold text-blue-600")}
+                              >
+                                {opt.label}
+                              </DropdownMenuItem>
+                            ))}
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      ) : (
+                        <Badge variant={getStatusVariant(member.service_status)}>
+                          {serviceStatusLabel(member.service_status)}
+                        </Badge>
+                      )}
+                    </td>
+                    <td className="px-4 py-3 text-end align-middle">
+                      <div className="flex items-center justify-end gap-1">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 rounded-lg text-slate-500 hover:text-slate-900 dark:hover:text-slate-100"
+                          title="إضافة ملاحظة"
+                          onClick={() => setActiveProcedure({ type: "note", member })}
+                        >
+                          <FileText className="h-4 w-4" />
+                        </Button>
+                        {canAssign && (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 rounded-lg text-slate-500 hover:text-slate-900 dark:hover:text-slate-100"
+                            title="إسناد مهمة"
+                            onClick={() => setActiveProcedure({ type: "task", member })}
+                          >
+                            <CheckSquare className="h-4 w-4" />
+                          </Button>
+                        )}
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 rounded-lg text-slate-500 hover:text-slate-900 dark:hover:text-slate-100"
+                          title="إضافة تقييم"
+                          onClick={() => setActiveProcedure({ type: "eval", member })}
+                        >
+                          <Star className="h-4 w-4" />
+                        </Button>
+                        {canEdit && (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 rounded-lg text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950/40"
+                            title="تعديل الحالة الإدارية"
+                            onClick={() => setActiveProcedure({ type: "status", member })}
+                          >
+                            <UserCheck className="h-4 w-4" />
+                          </Button>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </Card>
       ) : (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 animate-slide-up">
           {members.map((member) => (

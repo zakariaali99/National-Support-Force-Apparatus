@@ -76,7 +76,7 @@ export function DataTable({
   const head = (compact = false) => (
     <thead
       className={cn(
-        "bg-surface-raised text-fg border-b border-border",
+        "bg-slate-50/80 dark:bg-slate-800/40 text-slate-500 font-semibold border-b border-slate-200/80 dark:border-slate-800 text-caption",
         compact && "bg-surface"
       )}
     >
@@ -85,7 +85,7 @@ export function DataTable({
           <th
             key={col.key}
             className={cn(
-              "px-4 py-3.5 text-start font-bold text-caption text-fg-subtle tracking-wide whitespace-nowrap",
+              "px-4 py-3.5 text-start font-semibold text-caption text-slate-500 dark:text-slate-400 tracking-wide whitespace-nowrap",
               col.align === "center" && "text-center",
               col.align === "end" && "text-end",
               sortable && col.sortable !== false && "cursor-pointer select-none",
@@ -111,14 +111,14 @@ export function DataTable({
   );
 
   const body = (rowsToRender) => (
-    <tbody className="divide-y divide-border bg-surface">
+    <tbody className="divide-y divide-slate-100 dark:divide-slate-800 bg-surface">
       {rowsToRender.map((row, rIdx) => (
-        <tr key={row.id || rIdx} className="hover:bg-surface-raised transition-colors">
+        <tr key={row.id || rIdx} className="hover:bg-slate-50/70 dark:hover:bg-slate-800/30 transition-colors">
           {columns.map((col) => (
             <td
               key={col.key}
               className={cn(
-                "px-4 py-3.5 align-middle text-fg font-medium whitespace-nowrap",
+                "px-4 py-3.5 align-middle text-slate-800 dark:text-slate-200 font-medium whitespace-nowrap text-body-sm",
                 col.align === "center" && "text-center",
                 col.align === "end" && "text-end",
                 col.cellClassName

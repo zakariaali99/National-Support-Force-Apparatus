@@ -55,59 +55,55 @@
   --gold-300: #e8ce81;
   --gold-100: #f6ebcb;
 
-  --paper-50: #faf8f4;
-  --paper-100: #f3f0e9;
-  --paper-200: #e7e2d6;
-  --paper-300: #d6cfbe;
-  --paper-500: #8a8271;
+  --slate-50: #f8fafc;
+  --slate-100: #f1f5f9;
+  --slate-200: #e2e8f0;
+  --slate-300: #cbd5e1;
+  --slate-400: #94a3b8;
+  --slate-500: #64748b;
+  --slate-600: #475569;
+  --slate-700: #334155;
+  --slate-800: #1e293b;
+  --slate-900: #0f172a;
+
+  --paper-50: var(--slate-100);
+  --paper-100: var(--slate-50);
+  --paper-200: var(--slate-200);
+  --paper-300: var(--slate-300);
+  --paper-500: var(--slate-500);
 }
 
 /* --- Tier 2: semantic, light ----------------------------------------------- */
 :root {
-  --bg: var(--paper-100);
+  --bg: #f8fafc;
   --surface: #ffffff;
-  --surface-raised: var(--paper-50);
+  --surface-raised: #f1f5f9;
 
-  --fg: var(--ink-950);
-  --fg-subtle: #596072;
+  --fg: #0f172a;
+  --fg-subtle: #475569;
 
-  /* Two border tokens on purpose. `--border` separates surfaces and is
-     decorative — WCAG does not require it to pass. `--border-strong` outlines
-     controls (inputs, unfilled buttons) where the border IS the affordance,
-     so it must clear 3:1 against its background. Using one token for both is
-     how control outlines end up invisible. */
-  --border: var(--paper-300);
-  --border-strong: var(--paper-500);
+  --border: #e2e8f0;
+  --border-strong: #64748b;
 
-  --primary: var(--navy-800);
+  --primary: #1e3a8a;
   --primary-fg: #ffffff;
 
-  /* Gold splits three ways, because one gold cannot do all three jobs on a
-     light ground and stay accessible:
-       --accent           FILL only. Dark text sits on it (8:1). Seal chrome,
-                          gold-filled chips. Never a thin line on white — at
-                          2.42:1 it is invisible as a boundary.
-       --accent-indicator LINES and RAILS that mark state (active nav rail,
-                          active tab underline). Must clear 3:1 on both the
-                          page and a card, so it is a deeper antique gold.
-       --accent-text      The only gold legible as body text on light.
-     Plain `--accent` never carries text and never draws a 1-3px state line. */
   --accent: var(--gold-500);
   --accent-fg: var(--ink-950);
   --accent-indicator: var(--gold-750);
   --accent-text: var(--gold-800);
 
-  --success: #1a6b42;
-  --success-surface: #e6f3ec;
-  --success-border: #b9dec9;
-  --warning: #8f5806;
-  --warning-surface: #fbf0dc;
-  --warning-border: #ebd5a6;
-  --danger: #b3261e;
-  --danger-surface: #fbe9e7;
-  --danger-border: #efc4c0;
+  --success: #047857;
+  --success-surface: #ecfdf5;
+  --success-border: #a7f3d0;
+  --warning: #b45309;
+  --warning-surface: #fffbeb;
+  --warning-border: #fde68a;
+  --danger: #b91c1c;
+  --danger-surface: #fef2f2;
+  --danger-border: #fecaca;
 
-  --focus: var(--navy-600);
+  --focus: #2563eb;
 }
 
 /* --- Tier 2: semantic, dark -------------------------------------------------
@@ -160,6 +156,7 @@
   --color-fg-subtle: var(--fg-subtle);
   --color-border: var(--border);
   --color-border-strong: var(--border-strong);
+  --color-line: var(--border);
   --color-primary: var(--primary);
   --color-primary-fg: var(--primary-fg);
   --color-accent: var(--accent);
@@ -176,6 +173,23 @@
   --color-danger-surface: var(--danger-surface);
   --color-danger-border: var(--danger-border);
   --color-focus: var(--focus);
+
+  /* Standard aliases for shadcn & utility components */
+  --color-background: var(--bg);
+  --color-foreground: var(--fg);
+  --color-card: var(--surface);
+  --color-card-foreground: var(--fg);
+  --color-popover: var(--surface);
+  --color-popover-foreground: var(--fg);
+  --color-primary-foreground: var(--primary-fg);
+  --color-secondary: var(--surface-raised);
+  --color-secondary-foreground: var(--fg);
+  --color-muted: var(--surface-raised);
+  --color-muted-foreground: var(--fg-subtle);
+  --color-accent-foreground: var(--accent-fg);
+  --color-destructive: var(--danger);
+  --color-destructive-foreground: #ffffff;
+  --color-ring: var(--focus);
 
   --font-sans: "Cairo", ui-sans-serif, system-ui, sans-serif;
 
