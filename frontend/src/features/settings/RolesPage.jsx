@@ -245,94 +245,156 @@ export function RolesPage() {
       />
 
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
-        <DialogContent className="w-[min(92vw,36rem)] max-h-[85vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>
-              {editingRole ? `تعديل دور: ${editingRole.name_ar}` : "إضافة دور جديد"}
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto p-0 rounded-[28px] border border-slate-200/80 dark:border-white/10 bg-white dark:bg-[#1A2038]">
+          <DialogHeader className="p-6 pb-4 border-b border-slate-100 dark:border-white/10 bg-slate-50/50 dark:bg-white/5">
+            <DialogTitle className="text-title font-bold text-slate-900 dark:text-white">
+              {editingRole ? `تعديل الدور الوظيفي: ${editingRole.name_ar}` : "إضافة دور وظيفي جديد"}
             </DialogTitle>
           </DialogHeader>
 
-          <form onSubmit={handleSubmit} className="space-y-4 py-2">
-            <div className="space-y-1.5">
-              <Label htmlFor="nameAr">اسم الدور الوظيفي (بالعربية)</Label>
-              <Input
-                id="nameAr"
-                value={nameAr}
-                onChange={(e) => setNameAr(e.target.value)}
-                placeholder="مثال: مسؤول فصيل، مدخل بيانات، مشرف عام..."
-                required
-              />
-            </div>
-
+          <form onSubmit={handleSubmit} className="p-6 space-y-6">
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div className="space-y-1.5">
-                <Label htmlFor="scope">نطاق الوصول الافتراضي</Label>
-                <Select id="scope" value={scope} onChange={(e) => setScope(e.target.value)}>
-                  {Object.entries(SCOPE_LABELS).map(([k, v]) => (
-                    <option key={k} value={k}>
-                      {v}
-                    </option>
-                  ))}
-                </Select>
-              </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="description">وصف وتفاصيل الدور</Label>
+                <Label htmlFor="nameAr" className="text-label font-bold text-slate-800 dark:text-slate-200">
+                  اسم الدور الوظيفي (بالعربية) <span className="text-rose-500">*</span>
+                </Label>
                 <Input
-                  id="description"
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  placeholder="وصف مختصر للمسؤوليات..."
+                  id="nameAr"
+                  value={nameAr}
+                  onChange={(e) => setNameAr(e.target.value)}
+                  placeholder="مثال: مسؤول الفصيل، مدخل بيانات، مشرف العمليات..."
+                  required
+                  className="rounded-2xl"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <Label htmlFor="scope" className="text-label font-bold text-slate-800 dark:text-slate-200">
+                  نطاق الوصول والبيانات
+                </Label>
+                <Select
+                  value={scope}
+                  onValueChange={setScope}
+                  options={Object.entries(SCOPE_LABELS).map(([k, v]) => ({
+                    value: k,
+                    label: v,
+                  }))}
                 />
               </div>
             </div>
 
-            <div className="border-t border-border/80 pt-4">
-              <Label className="text-body font-bold text-foreground">جدول الصلاحيات التفصيلية</Label>
-              <p className="text-label text-muted-foreground mb-3 font-semibold">
-                حدد الصلاحيات الممنوحة لحامل هذا الدور في مختلف قطاعات النظام:
-              </p>
+            <div className="space-y-1.5">
+              <Label htmlFor="description" className="text-label font-bold text-slate-800 dark:text-slate-200">
+                وصف ومسؤوليات الدور
+              </Label>
+              <Input
+                id="description"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder="وصف مختصر لطبيعة المهام والمسؤوليات المنوطة بحامل هذا الدور..."
+                className="rounded-2xl"
+              />
+            </div>
 
-              <div className="space-y-4 max-h-[35vh] overflow-y-auto border border-border/80 rounded-xl p-3 bg-secondary/20 scrollbar-thin">
-                {groups.map((group) => (
-                  <div key={group.key} className="space-y-1.5">
-                    <h3 className="font-bold text-label border-b border-border/60 pb-1 text-primary">
-                      {group.label_ar}
-                    </h3>
-                    <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-                      {Object.entries(group.permissions).map(([codename, labelAr]) => (
-                        <label
-                          key={codename}
-                          className="flex items-start gap-2 text-label font-semibold cursor-pointer hover:bg-secondary/40 p-1.5 rounded-lg transition-colors"
+            <div className="space-y-3 pt-2 border-t border-slate-100 dark:border-white/10">
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label className="text-body font-bold text-slate-900 dark:text-white">
+                    جدول الصلاحيات والأذونات التفصيلية
+                  </Label>
+                  <p className="text-caption text-slate-500 font-medium mt-0.5">
+                    حدد الأقسام والوظائف التي يُسمح لحامل هذا الدور باستخدامها:
+                  </p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="text-caption font-bold text-[#2B95E8]"
+                    onClick={() => {
+                      const allCodes = groups.flatMap((g) => Object.keys(g.permissions));
+                      setPermissions(allCodes);
+                    }}
+                  >
+                    تحديد الكل
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="text-caption font-bold text-rose-500"
+                    onClick={() => setPermissions([])}
+                  >
+                    إلغاء التحديد
+                  </Button>
+                </div>
+              </div>
+
+              <div className="space-y-4 max-h-[40vh] overflow-y-auto rounded-2xl border border-slate-200/80 dark:border-white/10 p-4 bg-slate-50/50 dark:bg-white/5 scrollbar-thin">
+                {groups.map((group) => {
+                  const groupPermKeys = Object.keys(group.permissions);
+                  const isAllGroupSelected = groupPermKeys.every((k) => permissions.includes(k));
+
+                  return (
+                    <div key={group.key} className="space-y-2 p-3 bg-white dark:bg-[#1A2038] rounded-xl border border-slate-200/60 dark:border-white/5">
+                      <div className="flex items-center justify-between border-b border-slate-100 dark:border-white/5 pb-2">
+                        <h3 className="font-bold text-label text-[#2B95E8]">
+                          {group.label_ar}
+                        </h3>
+                        <button
+                          type="button"
+                          className="text-caption font-semibold text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 cursor-pointer"
+                          onClick={() => {
+                            if (isAllGroupSelected) {
+                              setPermissions(permissions.filter((p) => !groupPermKeys.includes(p)));
+                            } else {
+                              setPermissions(Array.from(new Set([...permissions, ...groupPermKeys])));
+                            }
+                          }}
                         >
-                          <Checkbox
-                            checked={permissions.includes(codename)}
-                            onCheckedChange={(checked) => togglePermission(codename, Boolean(checked))}
-                            className="mt-0.5"
-                          />
-                          <span>{labelAr}</span>
-                        </label>
-                      ))}
+                          {isAllGroupSelected ? "إلغاء قسم" : "تحديد القسم"}
+                        </button>
+                      </div>
+
+                      <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 pt-1">
+                        {Object.entries(group.permissions).map(([codename, labelAr]) => (
+                          <label
+                            key={codename}
+                            className="flex items-start gap-2.5 text-caption font-semibold cursor-pointer hover:bg-slate-50 dark:hover:bg-white/5 p-2 rounded-xl transition-colors"
+                          >
+                            <Checkbox
+                              checked={permissions.includes(codename)}
+                              onCheckedChange={(checked) => togglePermission(codename, Boolean(checked))}
+                              className="mt-0.5"
+                            />
+                            <span className="text-slate-800 dark:text-slate-200">{labelAr}</span>
+                          </label>
+                        ))}
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
 
             {validationError && (
-              <p className="text-label text-destructive font-bold bg-destructive/10 p-2.5 rounded-lg">{validationError}</p>
+              <p className="text-caption text-rose-600 font-bold bg-rose-50 dark:bg-rose-950/40 p-3 rounded-xl border border-rose-200 dark:border-rose-800">
+                {validationError}
+              </p>
             )}
 
-            <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => setIsOpen(false)}>
+            <DialogFooter className="pt-4 border-t border-slate-100 dark:border-white/10 flex items-center justify-end gap-3">
+              <Button type="button" variant="outline" onClick={() => setIsOpen(false)} className="rounded-xl">
                 إلغاء
               </Button>
               <Button
                 type="submit"
-                disabled={
-                  createRole.isPending || updateRole.isPending
-                }
+                variant="primary"
+                className="rounded-xl font-bold"
+                disabled={createRole.isPending || updateRole.isPending}
               >
-                {editingRole ? "تعديل الدور" : "حفظ الدور"}
+                {editingRole ? "حفظ التعديلات" : "إنشاء الدور"}
               </Button>
             </DialogFooter>
           </form>

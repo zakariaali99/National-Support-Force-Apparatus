@@ -5,7 +5,9 @@ import { Button } from "../../components/ui/Button";
 import { Card, CardContent } from "../../components/ui/Card";
 import { PageHeader } from "../../components/ui/PageHeader";
 import { Select } from "../../components/ui/Select";
-import { FileSpreadsheet, Printer } from "lucide-react";
+import { showToast } from "../../components/ui/Toast";
+import { openAuthedPdf, downloadAuthedFile } from "../reports/api";
+import { FileSpreadsheet, Printer, Download, Loader2 } from "lucide-react";
 
 const MONTH_NAMES = [
   { value: "1", label: "يناير (1)" },
@@ -48,13 +50,45 @@ export function MonthlyAttendancePage() {
     return params;
   }, [selectedYear, selectedMonth, selectedFaction]);
 
+  const [isProcessing, setIsProcessing] = useState(false);
   const { data: matrixData, isLoading } = useMonthlyMatrix(queryParams);
 
   const daysInMonth = matrixData?.days_in_month || 30;
   const rows = matrixData?.matrix || [];
 
-  const handlePrint = () => {
-    window.print();
+  const buildPdfParams = () => {
+    const params = new URLSearchParams({
+      year: selectedYear,
+      month: selectedMonth,
+    });
+    if (selectedFaction !== "all") params.set("faction", selectedFaction);
+    return params.toString();
+  };
+
+  const handlePrint = async () => {
+    setIsProcessing(true);
+    try {
+      await openAuthedPdf(`reports/attendance/monthly/pdf/?${buildPdfParams()}`);
+    } catch {
+      showToast("تعذر فتح كشف التمام الشهري في تبويب جديد", "error");
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const handleDownloadPdf = async () => {
+    setIsProcessing(true);
+    try {
+      await downloadAuthedFile(
+        `reports/attendance/monthly/pdf/?${buildPdfParams()}`,
+        `كشف_التمام_الشهري_${selectedYear}_${selectedMonth}.pdf`
+      );
+      showToast("تم بدء تنزيل كشف التمام الشهري (PDF)", "success");
+    } catch {
+      showToast("تعذر تنزيل ملف PDF", "error");
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   const handleExportCSV = () => {
@@ -113,12 +147,16 @@ export function MonthlyAttendancePage() {
           description="عرض مصفوفة التمام الشاملة لكافة أفراد القوة على مدار أيام الشهر مع الإحصائيات وساعات التأخير والخصومات."
         >
           <div className="flex items-center gap-2">
-            <Button variant="outline" onClick={handleExportCSV} className="gap-1.5" disabled={rows.length === 0}>
+            <Button variant="outline" onClick={handleExportCSV} className="gap-1.5 rounded-xl font-bold" disabled={rows.length === 0}>
               <FileSpreadsheet className="w-4 h-4 text-emerald-600" />
               <span>تصدير Excel</span>
             </Button>
-            <Button variant="primary" onClick={handlePrint} className="gap-1.5" disabled={rows.length === 0}>
-              <Printer className="w-4 h-4" />
+            <Button variant="outline" onClick={handleDownloadPdf} className="gap-1.5 rounded-xl font-bold text-[#2B95E8]" disabled={rows.length === 0 || isProcessing}>
+              <Download className="w-4 h-4" />
+              <span>تحميل مستند PDF</span>
+            </Button>
+            <Button variant="primary" onClick={handlePrint} className="gap-1.5 rounded-xl font-bold" disabled={rows.length === 0 || isProcessing}>
+              {isProcessing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Printer className="w-4 h-4" />}
               <span>طباعة كشف التمام</span>
             </Button>
           </div>
@@ -182,35 +220,35 @@ export function MonthlyAttendancePage() {
 
       {/* Print Header */}
       <div className="hidden print:block text-center border-b border-slate-200 pb-4 mb-4">
-        <h2 className="text-title font-bold text-slate-900">جهاز دعم الاستقرار — الإدارة العامة للشؤون الإدارية</h2>
+        <h2 className="text-title font-bold text-slate-900">الجهاز الوطني للقوى المساندة — الإدارة العامة للشؤون الإدارية</h2>
         <h3 className="text-section font-semibold text-slate-600">
           كشف التمام الشهري والانضباط — {MONTH_NAMES.find((m) => m.value === selectedMonth)?.label} {selectedYear}
         </h3>
       </div>
 
       {/* Matrix Table */}
-      <Card className="print:border-0 print:shadow-none overflow-hidden">
+      <Card className="print:border-0 print:shadow-none overflow-hidden rounded-[28px] border border-slate-200/80 dark:border-white/10 bg-white dark:bg-[#1A2038]">
         <CardContent className="p-0 overflow-x-auto">
           <table className="w-full text-center text-caption border-collapse">
-            <thead className="bg-slate-50/90 dark:bg-slate-800/60 border-b border-slate-200/80 dark:border-slate-800 text-slate-600 dark:text-slate-300 font-semibold">
+            <thead className="bg-slate-50/90 dark:bg-white/5 border-b border-slate-200/80 dark:border-white/10 text-slate-600 dark:text-gray-300 font-semibold">
               <tr>
-                <th className="p-2.5 text-right sticky right-0 bg-slate-50 dark:bg-slate-800 min-w-[160px] z-10 border-l border-slate-200/80 dark:border-slate-700 shadow-[2px_0_4px_rgba(0,0,0,0.02)]">
+                <th className="p-2.5 text-right sticky right-0 bg-slate-50 dark:bg-[#1A2038] min-w-[160px] z-10 border-l border-slate-200/80 dark:border-white/10 shadow-[2px_0_4px_rgba(0,0,0,0.02)]">
                   الفرد والرتبة
                 </th>
-                <th className="p-2.5 min-w-[90px] border-l border-slate-200/80 dark:border-slate-700">الفصيل</th>
+                <th className="p-2.5 min-w-[90px] border-l border-slate-200/80 dark:border-white/10">الفصيل</th>
                 {Array.from({ length: daysInMonth }, (_, i) => (
-                  <th key={i + 1} className="p-1 min-w-[28px] border-l border-slate-200/60 dark:border-slate-700/60 font-mono">
+                  <th key={i + 1} className="p-1 min-w-[28px] border-l border-slate-200/60 dark:border-white/10 font-mono">
                     {i + 1}
                   </th>
                 ))}
-                <th className="p-2 min-w-[65px] bg-emerald-50/60 dark:bg-emerald-950/30 text-emerald-800 dark:text-emerald-300 border-l border-slate-200/80 dark:border-slate-700">حضور</th>
-                <th className="p-2 min-w-[65px] bg-amber-50/60 dark:bg-amber-950/30 text-amber-800 dark:text-amber-300 border-l border-slate-200/80 dark:border-slate-700">تأخير (س)</th>
-                <th className="p-2 min-w-[65px] bg-sky-50/60 dark:bg-sky-950/30 text-sky-800 dark:text-sky-300 border-l border-slate-200/80 dark:border-slate-700">إذن (س)</th>
-                <th className="p-2 min-w-[70px] bg-rose-50/60 dark:bg-rose-950/30 text-rose-800 dark:text-rose-300 border-l border-slate-200/80 dark:border-slate-700">خصم إجازة</th>
+                <th className="p-2 min-w-[65px] bg-emerald-50/60 dark:bg-emerald-950/30 text-emerald-800 dark:text-emerald-300 border-l border-slate-200/80 dark:border-white/10">حضور</th>
+                <th className="p-2 min-w-[65px] bg-amber-50/60 dark:bg-amber-950/30 text-amber-800 dark:text-amber-300 border-l border-slate-200/80 dark:border-white/10">تأخير (س)</th>
+                <th className="p-2 min-w-[65px] bg-sky-50/60 dark:bg-sky-950/30 text-sky-800 dark:text-sky-300 border-l border-slate-200/80 dark:border-white/10">إذن (س)</th>
+                <th className="p-2 min-w-[70px] bg-rose-50/60 dark:bg-rose-950/30 text-rose-800 dark:text-rose-300 border-l border-slate-200/80 dark:border-white/10">خصم إجازة</th>
                 <th className="p-2 min-w-[60px] bg-rose-100/60 dark:bg-rose-950/50 text-rose-900 dark:text-rose-200">غياب</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+            <tbody className="divide-y divide-slate-100 dark:divide-white/10">
               {isLoading ? (
                 <tr>
                   <td colSpan={daysInMonth + 7} className="p-8 text-center text-slate-500">
@@ -225,9 +263,9 @@ export function MonthlyAttendancePage() {
                 </tr>
               ) : (
                 rows.map((row) => (
-                  <tr key={row.member_id} className="hover:bg-slate-50/60 dark:hover:bg-slate-800/30 transition-colors">
+                  <tr key={row.member_id} className="hover:bg-slate-50/60 dark:hover:bg-white/5 transition-colors">
                     {/* Member Column */}
-                    <td className="p-2.5 text-right sticky right-0 bg-surface dark:bg-slate-900 border-l border-slate-200/80 dark:border-slate-800 z-10 shadow-[2px_0_4px_rgba(0,0,0,0.02)]">
+                    <td className="p-2.5 text-right sticky right-0 bg-surface dark:bg-[#1A2038] border-l border-slate-200/80 dark:border-white/10 z-10 shadow-[2px_0_4px_rgba(0,0,0,0.02)]">
                       <div className="font-semibold text-slate-900 dark:text-slate-100 text-body-sm">{row.member_name}</div>
                       <div className="text-slate-500 text-caption flex items-center gap-1 font-mono">
                         <span>{row.rank_name}</span>

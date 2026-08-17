@@ -1,14 +1,48 @@
 import { useState, useRef } from "react";
-import { Printer, Calendar, Users, ShieldCheck, CheckCheck, FileCheck2 } from "lucide-react";
+import { Printer, Calendar, Users, ShieldCheck, CheckCheck, FileCheck2, Download, Loader2 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "../../components/ui/Dialog";
 import { Button } from "../../components/ui/Button";
+import { showToast } from "../../components/ui/Toast";
+import { openAuthedPdf, downloadAuthedFile } from "../reports/api";
 import nasfSeal from "../../assets/brand/nasf-seal.jpg";
 
-export function DailyAttendancePrintDialog({ rows = [], date, factionName, open, onOpenChange }) {
+export function DailyAttendancePrintDialog({ rows = [], date, factionId, factionName, open, onOpenChange }) {
+  const [isProcessing, setIsProcessing] = useState(false);
   const reportNumber = useRef(`ATT-${Math.floor(100000 + Math.random() * 900000)}`).current;
 
-  const handlePrint = () => {
-    window.print();
+  const buildParams = () => {
+    const params = new URLSearchParams();
+    if (date) params.set("date", date);
+    if (factionId && factionId !== "all") params.set("faction", factionId);
+    return params.toString();
+  };
+
+  const handlePrint = async () => {
+    setIsProcessing(true);
+    try {
+      const q = buildParams();
+      await openAuthedPdf(`reports/attendance/daily/pdf/${q ? `?${q}` : ""}`);
+    } catch {
+      showToast("تعذر فتح كشف التمام في تبويب جديد", "error");
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const handleDownloadPdf = async () => {
+    setIsProcessing(true);
+    try {
+      const q = buildParams();
+      await downloadAuthedFile(
+        `reports/attendance/daily/pdf/${q ? `?${q}` : ""}`,
+        `كشف_التمام_اليومي_${date || "عام"}.pdf`
+      );
+      showToast("تم بدء تنزيل كشف التمام الرسمي", "success");
+    } catch {
+      showToast("تعذر تنزيل كشف التمام", "error");
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   const total = rows.length;
@@ -179,14 +213,20 @@ export function DailyAttendancePrintDialog({ rows = [], date, factionName, open,
           </div>
         </div>
 
-        <DialogFooter className="p-4 border-t border-slate-100 dark:border-white/10 bg-slate-50 dark:bg-white/5">
+        <DialogFooter className="p-4 border-t border-slate-100 dark:border-white/10 bg-slate-50 dark:bg-white/5 flex items-center justify-between">
           <Button variant="outline" onClick={() => onOpenChange(false)} className="rounded-xl">
             إغلاق
           </Button>
-          <Button variant="primary" onClick={handlePrint} className="gap-2 rounded-xl font-bold">
-            <Printer className="w-4 h-4" />
-            <span>طباعة كشف التمام</span>
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button variant="outline" onClick={handleDownloadPdf} className="gap-2 rounded-xl font-bold text-[#2B95E8]">
+              <Download className="w-4 h-4" />
+              <span>تحميل كشف التمام (PDF)</span>
+            </Button>
+            <Button variant="primary" onClick={handlePrint} className="gap-2 rounded-xl font-bold">
+              <Printer className="w-4 h-4" />
+              <span>طباعة فورية</span>
+            </Button>
+          </div>
         </DialogFooter>
       </DialogContent>
     </Dialog>

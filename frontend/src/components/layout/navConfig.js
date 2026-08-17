@@ -22,7 +22,7 @@ export const NAV_GROUPS = [
     title: "العامة وشؤون الأفراد",
     items: [
       { to: "/", label: "لوحة التحكم", icon: LayoutDashboard, end: true, breadcrumb: "لوحة التحكم" },
-      { to: "/members", label: "سجل الأفراد", icon: Users, breadcrumb: "سجل الأفراد" },
+      { to: "/members", label: "سجل الأفراد", icon: Users, permission: "member.view", breadcrumb: "سجل الأفراد" },
       { to: "/members/new", label: "إضافة فرد جديد", icon: UserPlus, permission: "member.create", breadcrumb: "إضافة فرد جديد" },
     ],
   },
@@ -30,25 +30,25 @@ export const NAV_GROUPS = [
     id: "attendance",
     title: "التمام والانضباط والورديات",
     items: [
-      { to: "/attendance", label: "التمام اليومي", icon: CalendarCheck2, breadcrumb: "التمام اليومي" },
-      { to: "/attendance/monthly", label: "التمام الشهري", icon: CalendarDays, breadcrumb: "التمام الشهري" },
-      { to: "/attendance/rosters", label: "فصائل النوبات والورديات", icon: Clock, breadcrumb: "فصائل النوبات والورديات" },
+      { to: "/attendance", label: "التمام اليومي", icon: CalendarCheck2, permission: "attendance.view", breadcrumb: "التمام اليومي" },
+      { to: "/attendance/monthly", label: "التمام الشهري", icon: CalendarDays, permission: "attendance.view", breadcrumb: "التمام الشهري" },
+      { to: "/attendance/rosters", label: "فصائل النوبات والورديات", icon: Clock, permission: "attendance.view", breadcrumb: "فصائل النوبات والورديات" },
     ],
   },
   {
     id: "logistics",
     title: "النقلية والإمداد والتسليح",
     items: [
-      { to: "/transportation", label: "قسم النقلية والمركبات", icon: Car, breadcrumb: "قسم النقلية والمركبات" },
-      { to: "/inventory", label: "المستودع والمخزن والعهد", icon: PackageCheck, breadcrumb: "المستودع والمخزن والعهد" },
+      { to: "/transportation", label: "قسم النقلية والمركبات", icon: Car, permission: "transportation.view", breadcrumb: "قسم النقلية والمركبات" },
+      { to: "/inventory", label: "المستودع والمخزن والعهد", icon: PackageCheck, permission: "equipment.view", breadcrumb: "المستودع والمخزن والعهد" },
     ],
   },
   {
     id: "structure",
     title: "الهيكل والتوزيع",
     items: [
-      { to: "/organization/factions", label: "الإدارات والفصائل", icon: Building2, breadcrumb: "الإدارات والفصائل" },
-      { to: "/organization/ranks", label: "الرتب العسكرية", icon: Shield, breadcrumb: "الرتب العسكرية" },
+      { to: "/organization/factions", label: "الإدارات والفصائل", icon: Building2, permission: "organization.manage", breadcrumb: "الإدارات والفصائل" },
+      { to: "/organization/ranks", label: "الرتب العسكرية", icon: Shield, permission: "organization.manage", breadcrumb: "الرتب العسكرية" },
     ],
   },
   {
@@ -57,7 +57,7 @@ export const NAV_GROUPS = [
     items: [
       { to: "/audit", label: "سجل التدقيق", icon: ScrollText, permission: "audit.view", breadcrumb: "سجل التدقيق" },
       { to: "/backups", label: "النسخ الاحتياطية", icon: Archive, permission: "backup.run", breadcrumb: "النسخ الاحتياطية" },
-      { to: "/settings", label: "إعدادات النظام", icon: Settings, breadcrumb: "إعدادات النظام" },
+      { to: "/settings", label: "إعدادات النظام", icon: Settings, permission: "settings.manage", breadcrumb: "إعدادات النظام" },
     ],
   },
 ];

@@ -287,138 +287,149 @@ export function UsersPage() {
       />
 
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
-        <DialogContent className="w-[min(92vw,36rem)] max-h-[85vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>
-              {editingUser ? `تعديل بيانات المستخدم: ${editingUser.username}` : "إضافة مستخدم جديد"}
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto p-0 rounded-[28px] border border-slate-200/80 dark:border-white/10 bg-white dark:bg-[#1A2038]">
+          <DialogHeader className="p-6 pb-4 border-b border-slate-100 dark:border-white/10 bg-slate-50/50 dark:bg-white/5">
+            <DialogTitle className="text-title font-bold text-slate-900 dark:text-white">
+              {editingUser ? `تعديل حساب المستخدم: ${editingUser.username}` : "إنشاء حساب مستخدم جديد"}
             </DialogTitle>
           </DialogHeader>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="p-6 space-y-6">
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div className="space-y-1.5">
-                <Label htmlFor="username">اسم المستخدم (للدخول)</Label>
+                <Label htmlFor="username" className="text-label font-bold text-slate-800 dark:text-slate-200">
+                  اسم المستخدم (للدخول) <span className="text-rose-500">*</span>
+                </Label>
                 <Input
                   id="username"
                   value={username}
                   disabled={Boolean(editingUser)}
                   onChange={(e) => setUsername(e.target.value)}
-                  placeholder="e.g. ahmed_99"
+                  placeholder="مثال: ahmed_nasf"
                   dir="ltr"
+                  className="rounded-2xl"
                 />
               </div>
               <div className="space-y-1.5">
-                <Label htmlFor="password">
-                  كلمة المرور {editingUser && "(اتركه فارغاً لعدم التغيير)"}
+                <Label htmlFor="password" className="text-label font-bold text-slate-800 dark:text-slate-200">
+                  كلمة المرور {editingUser && <span className="text-slate-400 font-normal">(اتركه فارغاً لعدم التغيير)</span>}
                 </Label>
                 <Input
                   id="password"
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="********"
+                  placeholder="••••••••"
                   dir="ltr"
+                  className="rounded-2xl"
                 />
               </div>
             </div>
 
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div className="space-y-1.5">
-                <Label htmlFor="firstName">الاسم الأول</Label>
+                <Label htmlFor="firstName" className="text-label font-bold text-slate-800 dark:text-slate-200">الاسم الأول</Label>
                 <Input
                   id="firstName"
                   value={firstName}
                   onChange={(e) => setFirstName(e.target.value)}
-                  placeholder="الاسم الأول"
+                  placeholder="الاسم الأول للمستخدم"
+                  className="rounded-2xl"
                 />
               </div>
               <div className="space-y-1.5">
-                <Label htmlFor="lastName">اللقب / الكنية</Label>
+                <Label htmlFor="lastName" className="text-label font-bold text-slate-800 dark:text-slate-200">اللقب / الكنية</Label>
                 <Input
                   id="lastName"
                   value={lastName}
                   onChange={(e) => setLastName(e.target.value)}
-                  placeholder="اللقب"
+                  placeholder="اللقب أو اسم العائلة"
+                  className="rounded-2xl"
                 />
               </div>
             </div>
 
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div className="space-y-1.5">
-                <Label htmlFor="email">البريد الإلكتروني</Label>
+                <Label htmlFor="email" className="text-label font-bold text-slate-800 dark:text-slate-200">البريد الإلكتروني</Label>
                 <Input
                   id="email"
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="mail@example.com"
+                  placeholder="user@nasf.gov.ly"
                   dir="ltr"
+                  className="rounded-2xl"
                 />
               </div>
               <div className="space-y-1.5">
-                <Label htmlFor="phone">رقم الهاتف</Label>
+                <Label htmlFor="phone" className="text-label font-bold text-slate-800 dark:text-slate-200">رقم الهاتف</Label>
                 <Input
                   id="phone"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
                   placeholder="09XXXXXXXX"
                   dir="ltr"
+                  className="rounded-2xl"
                 />
               </div>
             </div>
 
-            <div className="grid grid-cols-3 gap-4 border-t border-border pt-4">
-              <div className="flex flex-col gap-1.5">
-                <Label htmlFor="isActive">الحساب نشط</Label>
-                <Switch id="isActive" checked={isActive} onCheckedChange={setIsActive} />
+            <div className="grid grid-cols-3 gap-4 border-t border-slate-100 dark:border-white/10 pt-4">
+              <div className="flex flex-col gap-1.5 p-3 rounded-2xl bg-slate-50 dark:bg-white/5 border border-slate-200/60 dark:border-white/5">
+                <Label htmlFor="isActive" className="text-caption font-bold text-slate-800 dark:text-slate-200">الحساب نشط ومفعل</Label>
+                <Switch id="isActive" checked={isActive} onCheckedChange={setIsActive} className="mt-1" />
               </div>
-              <div className="flex flex-col gap-1.5">
-                <Label htmlFor="isVerified">حساب مؤكد</Label>
-                <Switch id="isVerified" checked={isVerified} onCheckedChange={setIsVerified} />
+              <div className="flex flex-col gap-1.5 p-3 rounded-2xl bg-slate-50 dark:bg-white/5 border border-slate-200/60 dark:border-white/5">
+                <Label htmlFor="isVerified" className="text-caption font-bold text-slate-800 dark:text-slate-200">حساب مؤكد رسمياً</Label>
+                <Switch id="isVerified" checked={isVerified} onCheckedChange={setIsVerified} className="mt-1" />
               </div>
-              <div className="flex flex-col gap-1.5">
-                <Label htmlFor="isStaff">حق دخول الإدارة</Label>
-                <Switch id="isStaff" checked={isStaff} onCheckedChange={setIsStaff} />
+              <div className="flex flex-col gap-1.5 p-3 rounded-2xl bg-slate-50 dark:bg-white/5 border border-slate-200/60 dark:border-white/5">
+                <Label htmlFor="isStaff" className="text-caption font-bold text-slate-800 dark:text-slate-200">حق دخول الإدارة</Label>
+                <Switch id="isStaff" checked={isStaff} onCheckedChange={setIsStaff} className="mt-1" />
               </div>
             </div>
 
-            <div className="border-t border-border pt-4">
-              <Label className="text-body font-bold">تعيين الأدوار</Label>
-              <div className="grid grid-cols-2 gap-2 mt-2 max-h-[15vh] overflow-y-auto border border-border rounded-lg p-2.5 bg-secondary/15">
+            <div className="border-t border-slate-100 dark:border-white/10 pt-4">
+              <Label className="text-body font-bold text-slate-900 dark:text-white">تعيين الأدوار الوظيفية</Label>
+              <p className="text-caption text-slate-500 font-medium mb-2">
+                اختر الأدوار المصرح بها لهذا المستخدم للتحكم في الأقسام التي يراها:
+              </p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 max-h-[22vh] overflow-y-auto border border-slate-200/80 dark:border-white/10 rounded-2xl p-3 bg-slate-50/50 dark:bg-white/5">
                 {roles.map((role) => (
                   <label
                     key={role.id}
-                    className="flex items-center gap-2 text-label cursor-pointer hover:bg-secondary/40 p-1 rounded"
+                    className="flex items-center gap-2.5 text-caption font-semibold cursor-pointer hover:bg-white dark:hover:bg-[#1A2038] p-2 rounded-xl transition-all border border-transparent hover:border-slate-200 dark:hover:border-white/10"
                   >
                     <Checkbox
                       checked={selectedRoles.includes(role.id)}
                       onCheckedChange={(checked) => toggleRoleSelection(role.id)}
                       className="h-4 w-4"
                     />
-                    <span>{role.name_ar}</span>
+                    <span className="text-slate-800 dark:text-slate-200">{role.name_ar}</span>
                   </label>
                 ))}
               </div>
             </div>
 
             {showFactionSelector && (
-              <div className="border-t border-border pt-4">
-                <Label className="text-body font-bold">تعيين الإدارات المصرح بها</Label>
-                <p className="text-label text-muted-foreground mb-1.5">
-                  هذا المستخدم لديه أدوار محدودة بإدارته. حدد الإدارات التي يسمح له بالوصول إليها.
+              <div className="border-t border-slate-100 dark:border-white/10 pt-4">
+                <Label className="text-body font-bold text-slate-900 dark:text-white">تعيين الإدارات المصرح بها</Label>
+                <p className="text-caption text-slate-500 font-medium mb-2">
+                  هذا المستخدم لديه أدوار مقيدة بنطاق الفصيل. حدد الفصائل والإدارات التي يُسمح له بالوصول إليها:
                 </p>
-                <div className="grid grid-cols-2 gap-2 max-h-[15vh] overflow-y-auto border border-border rounded-lg p-2.5 bg-secondary/15">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 max-h-[22vh] overflow-y-auto border border-slate-200/80 dark:border-white/10 rounded-2xl p-3 bg-slate-50/50 dark:bg-white/5">
                   {factions.map((f) => (
                     <label
                       key={f.id}
-                      className="flex items-center gap-2 text-label cursor-pointer hover:bg-secondary/40 p-1 rounded"
+                      className="flex items-center gap-2.5 text-caption font-semibold cursor-pointer hover:bg-white dark:hover:bg-[#1A2038] p-2 rounded-xl transition-all border border-transparent hover:border-slate-200 dark:hover:border-white/10"
                     >
                       <Checkbox
                         checked={selectedFactions.includes(f.id)}
                         onCheckedChange={(checked) => toggleFactionSelection(f.id)}
                         className="h-4 w-4"
                       />
-                      <span>{f.name_ar}</span>
+                      <span className="text-slate-800 dark:text-slate-200">{f.name_ar}</span>
                     </label>
                   ))}
                 </div>
@@ -426,11 +437,13 @@ export function UsersPage() {
             )}
 
             {validationError && (
-              <p className="text-body text-destructive font-semibold">{validationError}</p>
+              <p className="text-caption text-rose-600 font-bold bg-rose-50 dark:bg-rose-950/40 p-3 rounded-xl border border-rose-200 dark:border-rose-800">
+                {validationError}
+              </p>
             )}
 
-            <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => setIsOpen(false)}>
+            <DialogFooter className="pt-4 border-t border-slate-100 dark:border-white/10 flex items-center justify-end gap-3">
+              <Button type="button" variant="outline" onClick={() => setIsOpen(false)} className="rounded-xl">
                 إلغاء
               </Button>
               <Button

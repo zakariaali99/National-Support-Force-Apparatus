@@ -3,7 +3,7 @@ import { Navigate, Route, Routes } from "react-router-dom";
 
 import { AppShell } from "./components/layout/AppShell";
 import { LoginPage } from "./features/auth/LoginPage";
-import { ProtectedRoute } from "./features/auth/ProtectedRoute";
+import { ProtectedRoute, PermissionRoute } from "./features/auth/ProtectedRoute";
 
 // Route-level code splitting — each feature area becomes its own chunk,
 // fetched on first navigation instead of all landing in the single
@@ -29,7 +29,7 @@ const MonthlyAttendancePage = lazy(() => import("./features/attendance/MonthlyAt
 const ShiftRostersPage = lazy(() => import("./features/attendance/ShiftRostersPage").then((m) => ({ default: m.ShiftRostersPage || m.default })));
 
 function RouteFallback() {
-  return <div className="p-8 text-center text-sm text-muted-foreground">جارِ التحميل...</div>;
+  return <div className="p-8 text-center text-caption text-muted-foreground">جارِ التحميل...</div>;
 }
 
 export default function App() {
@@ -50,145 +50,181 @@ export default function App() {
           <Route
             path="/members"
             element={
-              <Suspense fallback={<RouteFallback />}>
-                <MemberList />
-              </Suspense>
+              <PermissionRoute permission="member.view">
+                <Suspense fallback={<RouteFallback />}>
+                  <MemberList />
+                </Suspense>
+              </PermissionRoute>
             }
           />
           <Route
             path="/members/new"
             element={
-              <Suspense fallback={<RouteFallback />}>
-                <MemberForm />
-              </Suspense>
+              <PermissionRoute permission="member.create">
+                <Suspense fallback={<RouteFallback />}>
+                  <MemberForm />
+                </Suspense>
+              </PermissionRoute>
             }
           />
           <Route
             path="/members/:id"
             element={
-              <Suspense fallback={<RouteFallback />}>
-                <MemberDetail />
-              </Suspense>
+              <PermissionRoute permission="member.view">
+                <Suspense fallback={<RouteFallback />}>
+                  <MemberDetail />
+                </Suspense>
+              </PermissionRoute>
             }
           />
           <Route
             path="/members/:id/edit"
             element={
-              <Suspense fallback={<RouteFallback />}>
-                <MemberForm />
-              </Suspense>
+              <PermissionRoute permission="member.edit">
+                <Suspense fallback={<RouteFallback />}>
+                  <MemberForm />
+                </Suspense>
+              </PermissionRoute>
             }
           />
           <Route
             path="/attendance"
             element={
-              <Suspense fallback={<RouteFallback />}>
-                <DailyAttendancePage />
-              </Suspense>
+              <PermissionRoute permission="attendance.view">
+                <Suspense fallback={<RouteFallback />}>
+                  <DailyAttendancePage />
+                </Suspense>
+              </PermissionRoute>
             }
           />
           <Route
             path="/attendance/monthly"
             element={
-              <Suspense fallback={<RouteFallback />}>
-                <MonthlyAttendancePage />
-              </Suspense>
+              <PermissionRoute permission="attendance.view">
+                <Suspense fallback={<RouteFallback />}>
+                  <MonthlyAttendancePage />
+                </Suspense>
+              </PermissionRoute>
             }
           />
           <Route
             path="/attendance/rosters"
             element={
-              <Suspense fallback={<RouteFallback />}>
-                <ShiftRostersPage />
-              </Suspense>
+              <PermissionRoute permission="attendance.view">
+                <Suspense fallback={<RouteFallback />}>
+                  <ShiftRostersPage />
+                </Suspense>
+              </PermissionRoute>
             }
           />
           <Route
             path="/transportation"
             element={
-              <Suspense fallback={<RouteFallback />}>
-                <VehiclesPage />
-              </Suspense>
+              <PermissionRoute permission="transportation.view">
+                <Suspense fallback={<RouteFallback />}>
+                  <VehiclesPage />
+                </Suspense>
+              </PermissionRoute>
             }
           />
           <Route
             path="/organization/ranks"
             element={
-              <Suspense fallback={<RouteFallback />}>
-                <RanksPage />
-              </Suspense>
+              <PermissionRoute permission="organization.manage">
+                <Suspense fallback={<RouteFallback />}>
+                  <RanksPage />
+                </Suspense>
+              </PermissionRoute>
             }
           />
           <Route
             path="/organization/factions"
             element={
-              <Suspense fallback={<RouteFallback />}>
-                <FactionsPage />
-              </Suspense>
+              <PermissionRoute permission="organization.manage">
+                <Suspense fallback={<RouteFallback />}>
+                  <FactionsPage />
+                </Suspense>
+              </PermissionRoute>
             }
           />
           <Route
             path="/inventory"
             element={
-              <Suspense fallback={<RouteFallback />}>
-                <InventoryPage />
-              </Suspense>
+              <PermissionRoute permission="equipment.view">
+                <Suspense fallback={<RouteFallback />}>
+                  <InventoryPage />
+                </Suspense>
+              </PermissionRoute>
             }
           />
           <Route
             path="/settings"
             element={
-              <Suspense fallback={<RouteFallback />}>
-                <SettingsHubPage />
-              </Suspense>
+              <PermissionRoute permission="settings.manage">
+                <Suspense fallback={<RouteFallback />}>
+                  <SettingsHubPage />
+                </Suspense>
+              </PermissionRoute>
             }
           />
           <Route
             path="/settings/field-requirements"
             element={
-              <Suspense fallback={<RouteFallback />}>
-                <FieldRequirementsPage />
-              </Suspense>
+              <PermissionRoute permission="settings.manage">
+                <Suspense fallback={<RouteFallback />}>
+                  <FieldRequirementsPage />
+                </Suspense>
+              </PermissionRoute>
             }
           />
           <Route
             path="/settings/equipment-categories"
             element={
-              <Suspense fallback={<RouteFallback />}>
-                <EquipmentCategoriesPage />
-              </Suspense>
+              <PermissionRoute permission="settings.manage">
+                <Suspense fallback={<RouteFallback />}>
+                  <EquipmentCategoriesPage />
+                </Suspense>
+              </PermissionRoute>
             }
           />
           <Route
             path="/settings/roles"
             element={
-              <Suspense fallback={<RouteFallback />}>
-                <RolesPage />
-              </Suspense>
+              <PermissionRoute permission="roles.manage">
+                <Suspense fallback={<RouteFallback />}>
+                  <RolesPage />
+                </Suspense>
+              </PermissionRoute>
             }
           />
           <Route
             path="/settings/users"
             element={
-              <Suspense fallback={<RouteFallback />}>
-                <UsersPage />
-              </Suspense>
+              <PermissionRoute permission="users.manage">
+                <Suspense fallback={<RouteFallback />}>
+                  <UsersPage />
+                </Suspense>
+              </PermissionRoute>
             }
           />
           <Route
             path="/audit"
             element={
-              <Suspense fallback={<RouteFallback />}>
-                <AuditPage />
-              </Suspense>
+              <PermissionRoute permission="audit.view">
+                <Suspense fallback={<RouteFallback />}>
+                  <AuditPage />
+                </Suspense>
+              </PermissionRoute>
             }
           />
           <Route
             path="/backups"
             element={
-              <Suspense fallback={<RouteFallback />}>
-                <BackupsPage />
-              </Suspense>
+              <PermissionRoute permission="backup.run">
+                <Suspense fallback={<RouteFallback />}>
+                  <BackupsPage />
+                </Suspense>
+              </PermissionRoute>
             }
           />
         </Route>

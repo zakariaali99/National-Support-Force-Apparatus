@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+  <meta charset="utf-8">
+  <title>محضر تسليم عهدة عسكرية</title>
+  {% include "print/_style.html" %}
+  <style>
+    .voucher-card {
+      background: #f8fafc;
+      border: 1pt solid #cbd5e1;
+      border-radius: 6pt;
+      padding: 10pt 14pt;
+      margin-bottom: 14pt;
+    }
+    .grid-2 {
+      display: flex;
+      justify-content: space-between;
+      gap: 12pt;
+    }
+    .grid-2 > div { flex: 1; }
+    .label { color: #64748b; font-size: 9pt; display: block; margin-bottom: 2pt; }
+    .value { font-weight: 700; color: #0a2540; font-size: 10.5pt; }
+    .legal-box {
+      border: 1pt solid #cbd5e1;
+      background: #ffffff;
+      padding: 10pt;
+      border-radius: 6pt;
+      font-size: 9.5pt;
+      color: #334155;
+      line-height: 1.6;
+      margin-top: 14pt;
+      margin-bottom: 20pt;
+    }
+    .signatures {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 24pt;
+      text-align: center;
+    }
+    .sig-col {
+      flex: 1;
+      padding: 0 8pt;
+    }
+    .sig-line {
+      border-bottom: 1pt dashed #94a3b8;
+      height: 35pt;
+      margin-bottom: 4pt;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="title">
+      <h1>دولة ليبيا</h1>
+      <p style="font-weight:700; color:#0a2540; margin:0;">الجهاز الوطني للقوى المساندة</p>
+      <p style="font-size:9.5pt; color:#64748b; margin:0;">إدارة التسليح والإمداد والعهد</p>
+    </div>
+    <div style="text-align:center;">
+      <h2 style="border:none; margin:0; font-size:15pt; color:#0a2540;">محضر تسليم عهدة فردية</h2>
+      <span style="font-size:9pt; color:#64748b; font-family:monospace;">الرقم: {{ voucher_number|default:"VCH-0001" }}</span>
+    </div>
+    <div style="text-align:left; font-size:9.5pt; font-family:monospace;">
+      <p style="margin:0;">التاريخ: {{ date }}</p>
+      <p style="margin:0;">المرجع: NASF/LOG/2026</p>
+      <p style="margin:0; font-weight:700; color:#047857;">حالة السند: معتمد رسمياً</p>
+    </div>
+  </div>
+
+  <!-- Recipient Details -->
+  <div class="voucher-card">
+    <h3 style="color:#0a2540; font-size:11pt; border-bottom:1pt solid #e2e8f0; padding-bottom:4pt; margin-bottom:8pt;">
+      أولاً: بيانات المستلم (المكلف بالعهدة)
+    </h3>
+    <div class="grid-2">
+      <div>
+        <span class="label">اسم المستلم:</span>
+        <span class="value">{{ recipient_name }}</span>
+      </div>
+      <div>
+        <span class="label">الرتبة العسكرية:</span>
+        <span class="value">{{ recipient_rank|default:"فرد" }}</span>
+      </div>
+      <div>
+        <span class="label">الرقم العسكري:</span>
+        <span class="value" style="font-family:monospace;">{{ recipient_force_number|default:"—" }}</span>
+      </div>
+      <div>
+        <span class="label">الفصيل / التبعية:</span>
+        <span class="value">{{ recipient_faction|default:"الإدارة العامة" }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Items Table -->
+  <h3 style="color:#0a2540; font-size:11pt; margin-top:14pt; margin-bottom:6pt;">
+    ثانياً: تفاصيل الأصناف والمهمات المسلمة
+  </h3>
+  <table>
+    <thead>
+      <tr>
+        <th style="width:25pt; text-align:center;">ت</th>
+        <th>اسم الصنف والمواصفات</th>
+        <th>التصنيف</th>
+        <th>كود الصنف</th>
+        <th>الرقم التسلسلي (Serial)</th>
+        <th style="text-align:center;">الكمية</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td style="text-align:center; font-family:monospace;">1</td>
+        <td style="font-weight:700;">{{ item_name }}</td>
+        <td>{{ item_category|default:"مهمات عامة" }}</td>
+        <td style="font-family:monospace;">{{ item_code|default:"—" }}</td>
+        <td style="font-family:monospace; font-weight:700; color:#1e3a8a;">{{ item_serial|default:"—" }}</td>
+        <td style="text-align:center; font-weight:700; font-family:monospace;">{{ quantity|default:"1" }}</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- Legal Acknowledgement -->
+  <div class="legal-box">
+    <strong style="color:#0a2540; display:block; margin-bottom:3pt;">إقرار وتعهد بالمسؤولية:</strong>
+    أقر أنا الموقع أدناه باستلامي للأصناف والمهمات الموضحة بياناتها أعلاه بحالة جيدة وسليمة، وأتعهد بالمحافظة عليها واستخدامها في الأغراض الرسمية المخصصة لها فقط، وإعادتها فور انتهاء التكليف أو طلب الإدارة، مع تحملي المسؤولية القانونية والإدارية الكاملة في حال الفقد أو الإتلاف الناتج عن الإهمال.
+  </div>
+
+  <!-- Signatures -->
+  <div class="signatures">
+    <div class="sig-col">
+      <p style="font-weight:700; margin:0 0 4pt 0;">توقيع المستلم</p>
+      <div class="sig-line"></div>
+      <span style="font-size:8.5pt; color:#64748b;">الاسم والتوقيع</span>
+    </div>
+    <div class="sig-col">
+      <p style="font-weight:700; margin:0 0 4pt 0;">أمين المستودع / التسليح</p>
+      <div class="sig-line"></div>
+      <span style="font-size:8.5pt; color:#64748b;">التوقيع والختم</span>
+    </div>
+    <div class="sig-col">
+      <p style="font-weight:700; margin:0 0 4pt 0;">يعتمد / آمر الوحدة</p>
+      <div class="sig-line"></div>
+      <span style="font-size:8.5pt; color:#64748b;">الختم الرسمي</span>
+    </div>
+  </div>
+</body>
+</html>

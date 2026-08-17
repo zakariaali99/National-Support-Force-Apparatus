@@ -82,7 +82,60 @@ export function AssetQRCode({ title, subtitle, code, type = "inventory", open, o
   };
 
   const handlePrint = () => {
-    window.print();
+    const qrElement = document.getElementById("asset-qr-print");
+    if (!qrElement) return;
+
+    const printWindow = window.open("", "_blank", "width=650,height=750");
+    if (!printWindow) {
+      showToast("يرجى السماح بالنوافذ المنبثقة للطباعة", "error");
+      return;
+    }
+
+    printWindow.document.write(`
+      <!DOCTYPE html>
+      <html dir="rtl" lang="ar">
+        <head>
+          <meta charset="utf-8">
+          <title>ملصق QR - ${title || code}</title>
+          <style>
+            @page { size: auto; margin: 15mm; }
+            body {
+              font-family: Cairo, system-ui, -apple-system, sans-serif;
+              display: flex;
+              flex-direction: column;
+              justify-content: center;
+              align-items: center;
+              min-height: 90vh;
+              margin: 0;
+              background: #fff;
+              color: #0a2540;
+            }
+            .tag-container {
+              width: 320px;
+              padding: 24px;
+              border: 2px solid #0f172a;
+              border-radius: 20px;
+              text-align: center;
+              box-sizing: border-box;
+            }
+            table { margin: 16px auto; }
+          </style>
+        </head>
+        <body>
+          <div class="tag-container">
+            ${qrElement.innerHTML}
+          </div>
+          <script>
+            window.onload = function() {
+              setTimeout(function() {
+                window.print();
+              }, 250);
+            };
+          </script>
+        </body>
+      </html>
+    `);
+    printWindow.document.close();
   };
 
   if (!code && !title) return null;

@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+  <meta charset="utf-8">
+  <title>كشف التمام الشهري العام</title>
+  {% include "print/_style.html" %}
+  <style>
+    @page {
+      size: A4 landscape;
+      margin: 10mm 8mm;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 8pt;
+    }
+    th, td {
+      padding: 3pt 2pt;
+      border: 0.5pt solid #cbd5e1;
+      text-align: center;
+    }
+    th {
+      background: #f1f5f9;
+      font-weight: 700;
+      color: #0a2540;
+    }
+    .member-th, .member-td {
+      text-align: right;
+      padding-right: 4pt;
+      white-space: nowrap;
+    }
+    .status-p { background: #dcfce7; color: #15803d; font-weight: bold; }
+    .status-l { background: #fef3c7; color: #b45309; font-weight: bold; }
+    .status-e { background: #dbeafe; color: #1d4ed8; font-weight: bold; }
+    .status-u { background: #fee2e2; color: #b91c1c; font-weight: bold; }
+    .status-o { background: #f1f5f9; color: #64748b; }
+    .status-v { background: #f3e8ff; color: #7e22ce; }
+    .signatures {
+      display: flex;
+      justify-content: space-around;
+      margin-top: 16pt;
+      text-align: center;
+      font-size: 9pt;
+    }
+    .sig-col {
+      width: 160pt;
+    }
+    .sig-line {
+      border-bottom: 1pt dashed #94a3b8;
+      height: 25pt;
+      margin-bottom: 3pt;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="title">
+      <h1 style="font-size:14pt;">دولة ليبيا</h1>
+      <p style="font-weight:700; color:#0a2540; margin:0; font-size:10pt;">الجهاز الوطني للقوى المساندة</p>
+      <p style="font-size:8.5pt; color:#64748b; margin:0;">شعبة العمليات والتمام العسكري</p>
+    </div>
+    <div style="text-align:center;">
+      <h2 style="border:none; margin:0; font-size:13pt; color:#0a2540;">مصفوفة كشف التمام الشهري والانضباط</h2>
+      <span style="font-size:9pt; color:#64748b;">عن شهر: {{ month_name }} {{ year }}</span>
+    </div>
+    <div style="text-align:left; font-size:8.5pt; font-family:monospace;">
+      <p style="margin:0;">الفصيل: {{ faction_name|default:"كافة الفصائل" }}</p>
+      <p style="margin:0;">تاريخ الإصدار: {{ date }}</p>
+      <p style="margin:0; font-weight:700; color:#047857;">كشف رسمي معتمد</p>
+    </div>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th class="member-th" style="width:120pt;">الفرد والرتبة</th>
+        <th style="width:55pt;">الفصيل</th>
+        {% for d in days_range %}
+          <th style="width:15pt; font-family:monospace;">{{ d }}</th>
+        {% endfor %}
+        <th style="width:25pt; background:#dcfce7;">حضور</th>
+        <th style="width:25pt; background:#fef3c7;">تأخير</th>
+        <th style="width:25pt; background:#dbeafe;">إذن</th>
+        <th style="width:25pt; background:#fee2e2;">غياب</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for row in rows %}
+      <tr>
+        <td class="member-td">
+          <strong>{{ row.member_name }}</strong>
+          <span style="color:#64748b; font-size:7pt; display:block;">{{ row.rank_name }} • {{ row.force_number }}</span>
+        </td>
+        <td>{{ row.faction_name }}</td>
+        {% for day in row.days_status %}
+          <td class="{{ day.cls }}">{{ day.code }}</td>
+        {% endfor %}
+        <td style="font-weight:700; font-family:monospace; color:#15803d;">{{ row.total_present }}</td>
+        <td style="font-weight:700; font-family:monospace; color:#b45309;">{{ row.total_late }}</td>
+        <td style="font-weight:700; font-family:monospace; color:#1d4ed8;">{{ row.total_excused }}</td>
+        <td style="font-weight:700; font-family:monospace; color:#b91c1c;">{{ row.total_unexcused }}</td>
+      </tr>
+      {% empty %}
+      <tr>
+        <td colspan="{{ col_span }}" style="padding:12pt; color:#64748b;">لا توجد سجلات تمام لهذا الشهر.</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <div class="signatures">
+    <div class="sig-col">
+      <p style="font-weight:700; margin:0 0 2pt 0;">ضابط التمام والمتابعة</p>
+      <div class="sig-line"></div>
+      <span style="font-size:7.5pt; color:#64748b;">التوقيع</span>
+    </div>
+    <div class="sig-col">
+      <p style="font-weight:700; margin:0 0 2pt 0;">يعتمد / آمر شعبة العمليات</p>
+      <div class="sig-line"></div>
+      <span style="font-size:7.5pt; color:#64748b;">الختم الرسمي</span>
+    </div>
+  </div>
+</body>
+</html>

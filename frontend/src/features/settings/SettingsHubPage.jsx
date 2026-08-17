@@ -10,6 +10,11 @@ import {
   ShieldCheck,
   Sliders,
   UserCheck,
+  Users,
+  Car,
+  Package,
+  CalendarCheck,
+  FileCheck2,
 } from "lucide-react";
 
 import { PageHeader } from "../../components/ui/PageHeader";
@@ -24,8 +29,8 @@ export function SettingsHubPage() {
   const categories = [
     {
       id: "organization",
-      title: "الهيكل التنظيمي والعتاد",
-      subtitle: "إدارة الإدارات، تصنيفات العتاد، الرتب، والتسلسل الإداري",
+      title: "الهيكل التنظيمي والتشكيلات",
+      subtitle: "إدارة الإدارات، تصنيفات العتاد، الرتب، والتسلسل الإداري بالجهاز",
       items: [
         {
           id: "factions",
@@ -34,22 +39,25 @@ export function SettingsHubPage() {
           icon: Building2,
           to: "/organization/factions",
           badge: "هيكلي",
+          permission: "organization.manage",
         },
         {
           id: "ranks",
           title: "الرتب العسكرية",
-          description: "إدارة وتسلسل الرتب العسكرية والمستويات القيادية.",
+          description: "إدارة وتسلسل الرتب العسكرية والمستويات القيادية والأسبقية.",
           icon: Shield,
           to: "/organization/ranks",
           badge: "رتب",
+          permission: "organization.manage",
         },
         {
           id: "equipment-categories",
           title: "تصنيفات العتاد والأسلحة",
-          description: "إدارة وتعديل فئات وتصنيفات الأسلحة والذخائر والعتاد بالجرد.",
+          description: "إدارة وتعديل فئات وتصنيفات الأسلحة والذخائر والعتاد بالمستودع.",
           icon: Layers,
           to: "/settings/equipment-categories",
-          badge: "جرد",
+          badge: "مستودع",
+          permission: "settings.manage",
         },
       ],
     },
@@ -61,16 +69,16 @@ export function SettingsHubPage() {
         {
           id: "users",
           title: "حسابات المستخدمين",
-          description: "إدارة حسابات مستخدمي النظام وتعيين أدوارهم وإداراتهم المصرح بها.",
+          description: "إدارة حسابات مستخدمي النظام وتعيين أدوارهم وفصائلهم المصرح بها.",
           icon: UserCheck,
           to: "/settings/users",
           permission: "users.manage",
-          badge: "مستخدمين",
+          badge: "حسابات",
         },
         {
           id: "roles",
-          title: "الأدوار والصلاحيات",
-          description: "تعريف مصفوفة الأدوار والصلاحيات والنطاقات الإدارية.",
+          title: "الأدوار ومصفوفة الصلاحيات",
+          description: "تعريف مصفوفة الأدوار الوظيفية والصلاحيات التفصيلية ونطاقات الوصول.",
           icon: ShieldCheck,
           to: "/settings/roles",
           permission: "roles.manage",
@@ -79,8 +87,51 @@ export function SettingsHubPage() {
       ],
     },
     {
+      id: "modules",
+      title: "المنظومات والأقسام التشغيلية",
+      subtitle: "الوصول المباشر لإدارة السجلات، التمام، المستودعات، والأسطول",
+      items: [
+        {
+          id: "members",
+          title: "سجل شؤون الأفراد",
+          description: "إدارة السجلات العسكرية والمدنية، بطاقات الهوية، والملفات الإدارية.",
+          icon: Users,
+          to: "/members",
+          permission: "member.view",
+          badge: "أفراد",
+        },
+        {
+          id: "attendance",
+          title: "التمام والانضباط اليومي",
+          description: "كشوفات الحضور، التأخير، الانصراف المبكر، وحساب الإجازات التلقائي.",
+          icon: CalendarCheck,
+          to: "/attendance/daily",
+          permission: "attendance.view",
+          badge: "عمليات",
+        },
+        {
+          id: "transportation",
+          title: "قسم النقلية والآليات",
+          description: "حصر ومتابعة أسطول المركبات، السائقين، التسليح الميداني، وأوامر التحرك.",
+          icon: Car,
+          to: "/transportation",
+          permission: "transportation.view",
+          badge: "آليات",
+        },
+        {
+          id: "inventory",
+          title: "المستودع والتسليح والعهد",
+          description: "إدارة رصيد الذخائر، السلاح، المهمات، ومحاضر تسليم واستلام العهد.",
+          icon: Package,
+          to: "/inventory",
+          permission: "equipment.view",
+          badge: "إمداد",
+        },
+      ],
+    },
+    {
       id: "system",
-      title: "النظام والضبط الإداري",
+      title: "النظام والضبط الأمني والنسخ الاحتياطي",
       subtitle: "إعدادات متطلبات الإدخال، سجل التدقيق والنسخ الاحتياطية",
       items: [
         {
@@ -94,8 +145,8 @@ export function SettingsHubPage() {
         },
         {
           id: "audit",
-          title: "سجل التدقيق والرقابة",
-          description: "تتبع وحصر كافة الإجراءات والعمليات المنفذة على النظام.",
+          title: "سجل التدقيق والرقابة الأمني",
+          description: "تتبع وحصر كافة الإجراءات والعمليات المنفذة على المنظومة الإدارية.",
           icon: ScrollText,
           to: "/audit",
           permission: "audit.view",
@@ -103,22 +154,22 @@ export function SettingsHubPage() {
         },
         {
           id: "backups",
-          title: "النسخ الاحتياطية",
+          title: "النسخ الاحتياطية وقواعد البيانات",
           description: "إجراء وتنزيل واسترجاع النسخ الاحتياطية المشفرة لقواعد البيانات.",
           icon: Archive,
           to: "/backups",
           permission: "backup.run",
-          badge: "نسخ احتياطي",
+          badge: "أمان",
         },
       ],
     },
   ];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8" dir="rtl">
       <PageHeader
-        title="إعدادات النظام والضبط الإداري"
-        description="مركز التحكم الشامل لضبط الهيكل التنظيمي، الصلاحيات، تصنيفات العتاد وسجلات الأمان."
+        title="مركز الإعدادات والضبط الإداري الشامل"
+        description="لوحة التحكم المركزية لضبط الهيكل التنظيمي، الصلاحيات، الأقسام الإدارية، وسجلات الأمان."
       />
 
       <div className="space-y-8">
@@ -129,10 +180,10 @@ export function SettingsHubPage() {
           if (visibleItems.length === 0) return null;
 
           return (
-            <div key={group.id} className="space-y-3">
+            <div key={group.id} className="space-y-3.5">
               <div>
-                <h2 className="text-section font-bold text-foreground">{group.title}</h2>
-                <p className="text-caption text-muted-foreground">{group.subtitle}</p>
+                <h2 className="text-section font-bold text-slate-900 dark:text-white">{group.title}</h2>
+                <p className="text-caption text-slate-500 dark:text-gray-400 font-medium">{group.subtitle}</p>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -142,15 +193,15 @@ export function SettingsHubPage() {
                     <Card
                       key={item.id}
                       onClick={() => navigate(item.to)}
-                      className="group relative cursor-pointer border border-border/80 hover:border-primary/50 hover:shadow-md transition-all duration-200 overflow-hidden"
+                      className="group relative cursor-pointer rounded-[28px] border border-slate-200/80 dark:border-white/10 bg-white dark:bg-[#1A2038] hover:border-[#2B95E8]/60 hover:shadow-md transition-all duration-200 overflow-hidden"
                     >
-                      <div className="p-5 flex flex-col justify-between h-full space-y-4">
+                      <div className="p-6 flex flex-col justify-between h-full space-y-4">
                         <div className="flex items-start justify-between gap-3">
-                          <div className="p-3 rounded-2xl bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
+                          <div className="p-3 rounded-2xl bg-blue-50 dark:bg-white/5 text-[#2B95E8] group-hover:bg-[#2B95E8] group-hover:text-white transition-colors">
                             <Icon className="h-6 w-6" />
                           </div>
                           {item.badge && (
-                            <Badge variant="secondary" className="font-bold">
+                            <Badge variant="navy" className="text-caption font-semibold">
                               {item.badge}
                             </Badge>
                           )}

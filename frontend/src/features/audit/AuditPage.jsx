@@ -134,18 +134,18 @@ export function AuditPage() {
         <div className="max-w-xs">
           <Select
             value={action}
-            onChange={(e) => {
-              setAction(e.target.value);
+            onValueChange={(val) => {
+              setAction(val);
               setPage(1);
             }}
-          >
-            <option value="">كل الإجراءات والأعمال</option>
-            {Object.entries(ACTION_LABELS).map(([key, label]) => (
-              <option key={key} value={key}>
-                {label}
-              </option>
-            ))}
-          </Select>
+            options={[
+              { value: "", label: "كل الإجراءات والأعمال" },
+              ...Object.entries(ACTION_LABELS).map(([key, label]) => ({
+                value: key,
+                label,
+              })),
+            ]}
+          />
         </div>
       </FilterBar>
 

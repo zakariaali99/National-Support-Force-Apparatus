@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+  <meta charset="utf-8">
+  <title>كشف التمام اليومي العام</title>
+  {% include "print/_style.html" %}
+  <style>
+    .stats-grid {
+      display: flex;
+      justify-content: space-between;
+      gap: 6pt;
+      background: #f8fafc;
+      border: 1pt solid #cbd5e1;
+      border-radius: 6pt;
+      padding: 8pt;
+      margin-bottom: 14pt;
+      text-align: center;
+    }
+    .stat-item {
+      flex: 1;
+      border: 0.5pt solid #e2e8f0;
+      background: #ffffff;
+      padding: 4pt;
+      border-radius: 4pt;
+    }
+    .stat-title { font-size: 8pt; color: #64748b; display: block; margin-bottom: 2pt; }
+    .stat-val { font-size: 11pt; font-weight: 700; font-family: monospace; }
+    .signatures {
+      display: flex;
+      justify-content: space-around;
+      margin-top: 24pt;
+      text-align: center;
+    }
+    .sig-col {
+      width: 140pt;
+    }
+    .sig-line {
+      border-bottom: 1pt dashed #94a3b8;
+      height: 35pt;
+      margin-bottom: 4pt;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="title">
+      <h1>دولة ليبيا</h1>
+      <p style="font-weight:700; color:#0a2540; margin:0;">الجهاز الوطني للقوى المساندة</p>
+      <p style="font-size:9.5pt; color:#64748b; margin:0;">شعبة العمليات والتمام العسكري</p>
+    </div>
+    <div style="text-align:center;">
+      <h2 style="border:none; margin:0; font-size:15pt; color:#0a2540;">كشف التمام اليومي العام للقوة</h2>
+      <span style="font-size:9pt; color:#64748b; font-family:monospace;">كشف رقم: {{ report_number|default:"ATT-001" }}</span>
+    </div>
+    <div style="text-align:left; font-size:9.5pt; font-family:monospace;">
+      <p style="margin:0;">التاريخ: {{ date }}</p>
+      <p style="margin:0;">الفصيل: {{ faction_name|default:"كافة الفصائل" }}</p>
+      <p style="margin:0; font-weight:700; color:#047857;">الحالة: معتمد للعمليات</p>
+    </div>
+  </div>
+
+  <!-- Statistical Summary -->
+  <div class="stats-grid">
+    <div class="stat-item">
+      <span class="stat-title">إجمالي القوة</span>
+      <span class="stat-val" style="color:#0a2540;">{{ total|default:"0" }}</span>
+    </div>
+    <div class="stat-item" style="background:#ecfdf5;">
+      <span class="stat-title" style="color:#047857;">حاضر</span>
+      <span class="stat-val" style="color:#047857;">{{ present|default:"0" }}</span>
+    </div>
+    <div class="stat-item" style="background:#fffbeb;">
+      <span class="stat-title" style="color:#b45309;">متأخر</span>
+      <span class="stat-val" style="color:#b45309;">{{ late|default:"0" }}</span>
+    </div>
+    <div class="stat-item" style="background:#eff6ff;">
+      <span class="stat-title" style="color:#1d4ed8;">مأذون</span>
+      <span class="stat-val" style="color:#1d4ed8;">{{ excused|default:"0" }}</span>
+    </div>
+    <div class="stat-item" style="background:#fef2f2;">
+      <span class="stat-title" style="color:#b91c1c;">غياب</span>
+      <span class="stat-val" style="color:#b91c1c;">{{ unexcused|default:"0" }}</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-title">راحة نوبة</span>
+      <span class="stat-val" style="color:#475569;">{{ shift_off|default:"0" }}</span>
+    </div>
+    <div class="stat-item" style="background:#faf5ff;">
+      <span class="stat-title" style="color:#7e22ce;">إجازة</span>
+      <span class="stat-val" style="color:#7e22ce;">{{ vacation|default:"0" }}</span>
+    </div>
+  </div>
+
+  <!-- Attendance Table -->
+  <table>
+    <thead>
+      <tr>
+        <th style="width:20pt; text-align:center;">ت</th>
+        <th style="width:70pt;">الرقم العسكري</th>
+        <th>الرتبة والاسم الكامل</th>
+        <th>الفصيل / النوبة</th>
+        <th style="text-align:center;">الحالة</th>
+        <th style="text-align:center; width:45pt;">تأخير</th>
+        <th style="text-align:center; width:45pt;">إذن</th>
+        <th>ملاحظات</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for row in rows %}
+      <tr>
+        <td style="text-align:center; font-family:monospace;">{{ forloop.counter }}</td>
+        <td style="font-family:monospace; font-weight:700;">{{ row.force_number|default:"—" }}</td>
+        <td style="font-weight:700;">{{ row.rank_name }} / {{ row.member_name }}</td>
+        <td>{{ row.faction_name }} ({{ row.shift_group_name|default:"—" }})</td>
+        <td style="text-align:center; font-weight:700;">
+          {% if row.status == "present" %}<span style="color:#047857;">حاضر</span>
+          {% elif row.status == "late" %}<span style="color:#b45309;">متأخر</span>
+          {% elif row.status == "excused_absence" %}<span style="color:#1d4ed8;">غياب بإذن</span>
+          {% elif row.status == "unexcused_absence" %}<span style="color:#b91c1c;">غياب</span>
+          {% elif row.status == "shift_off" %}<span style="color:#64748b;">راحة نوبة</span>
+          {% elif row.status == "vacation" %}<span style="color:#7e22ce;">إجازة</span>
+          {% elif row.status == "mission" %}<span style="color:#4338ca;">مأمورية</span>
+          {% else %}{{ row.status }}{% endif %}
+        </td>
+        <td style="text-align:center; font-family:monospace;">{% if row.late_hours %}{{ row.late_hours }}س{% else %}—{% endif %}</td>
+        <td style="text-align:center; font-family:monospace;">{% if row.excused_hours %}{{ row.excused_hours }}س{% else %}—{% endif %}</td>
+        <td style="color:#475569; font-size:9pt;">{{ row.notes|default:"—" }}</td>
+      </tr>
+      {% empty %}
+      <tr>
+        <td colspan="8" style="text-align:center; color:#64748b; padding:14pt;">لا توجد سجلات تمام لهذا اليوم.</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <!-- Signatures -->
+  <div class="signatures">
+    <div class="sig-col">
+      <p style="font-weight:700; margin:0 0 4pt 0;">ضابط التمام والمتابعة</p>
+      <div class="sig-line"></div>
+      <span style="font-size:8.5pt; color:#64748b;">التوقيع</span>
+    </div>
+    <div class="sig-col">
+      <p style="font-weight:700; margin:0 0 4pt 0;">يعتمد / آمر شعبة العمليات</p>
+      <div class="sig-line"></div>
+      <span style="font-size:8.5pt; color:#64748b;">الختم الرسمي</span>
+    </div>
+  </div>
+</body>
+</html>

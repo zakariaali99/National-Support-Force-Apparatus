@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { api } from "../../lib/api";
+import { tokenStorage } from "../../lib/tokenStorage";
 
 export function useReportSections() {
   return useQuery({
@@ -8,27 +9,38 @@ export function useReportSections() {
   });
 }
 
+function appendAuthToken(url) {
+  const token = tokenStorage.getAccess();
+  if (!token) return url;
+  const separator = url.includes("?") ? "&" : "?";
+  if (url.includes("token=")) return url;
+  return `${url}${separator}token=${encodeURIComponent(token)}`;
+}
+
 /** Fetches the composed PDF as an authenticated blob and opens it in a new
- * tab — a plain <a href> can't send the JWT header (see PLAN.md's
- * "Print auth" note), so this is the only way to open a print/export
- * result while the deploy is still cross-origin dev / not yet
- * single-origin.
+ * tab — also passes JWT query parameter for robust cross-origin opening.
  */
 export async function openAuthedPdf(url) {
-  const { data } = await api.get(url, { responseType: "blob" });
-  const blobUrl = URL.createObjectURL(data);
-  window.open(blobUrl, "_blank", "noopener,noreferrer");
-  setTimeout(() => URL.revokeObjectURL(blobUrl), 60_000);
+  const authedUrl = appendAuthToken(url);
+  const { data } = await api.get(authedUrl, { responseType: "blob" });
+  const blobUrl = URL.createObjectURL(new Blob([data], { type: "application/pdf" }));
+  const newWindow = window.open(blobUrl, "_blank");
+  if (!newWindow || newWindow.closed || typeof newWindow.closed === "undefined") {
+    // Popup was blocked — fallback to direct authenticated window navigation
+    window.open(`/api/${authedUrl.replace(/^\/?api\//, "")}`, "_blank");
+  }
+  setTimeout(() => URL.revokeObjectURL(blobUrl), 120_000);
 }
 
 export async function downloadAuthedFile(url, filename) {
-  const { data } = await api.get(url, { responseType: "blob" });
-  const blobUrl = URL.createObjectURL(data);
+  const authedUrl = appendAuthToken(url);
+  const { data } = await api.get(authedUrl, { responseType: "blob" });
+  const blobUrl = URL.createObjectURL(new Blob([data], { type: "application/pdf" }));
   const link = document.createElement("a");
   link.href = blobUrl;
   link.download = filename;
   document.body.appendChild(link);
   link.click();
   link.remove();
-  setTimeout(() => URL.revokeObjectURL(blobUrl), 60_000);
+  setTimeout(() => URL.revokeObjectURL(blobUrl), 120_000);
 }

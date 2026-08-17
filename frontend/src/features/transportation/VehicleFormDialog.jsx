@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { Button } from "../../components/ui/Button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "../../components/ui/Dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "../../components/ui/Dialog";
 import { Input } from "../../components/ui/Input";
 import { Label } from "../../components/ui/Label";
 import { Select } from "../../components/ui/Select";
@@ -267,9 +267,9 @@ export function VehicleFormDialog({ open, onOpenChange, vehicle = null }) {
 
           {/* Section 3: Weapon Attachment */}
           <div className="space-y-4">
-            <div className="flex items-center justify-between p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700">
+            <div className="flex items-center justify-between p-3.5 rounded-2xl bg-slate-50 dark:bg-white/5 border border-slate-200/80 dark:border-white/10">
               <div className="flex items-center gap-2.5">
-                <div className="p-1.5 rounded-lg bg-amber-50 text-amber-700 dark:bg-amber-950/50 dark:text-amber-300">
+                <div className="p-1.5 rounded-xl bg-amber-50 text-amber-700 dark:bg-amber-950/50 dark:text-amber-300">
                   <Crosshair className="w-4 h-4" />
                 </div>
                 <div>
@@ -289,9 +289,9 @@ export function VehicleFormDialog({ open, onOpenChange, vehicle = null }) {
             </div>
 
             {hasWeapon && (
-              <div className="p-4 rounded-xl bg-blue-50/40 dark:bg-blue-950/20 border border-blue-100 dark:border-blue-900/40 space-y-4 animate-in fade-in slide-in-from-top-2 duration-200">
+              <div className="p-4 rounded-2xl bg-blue-50/40 dark:bg-blue-950/20 border border-blue-100 dark:border-blue-900/40 space-y-4 animate-in fade-in slide-in-from-top-2 duration-200">
                 <div className="flex items-center gap-2 text-blue-900 dark:text-blue-200 text-caption font-semibold">
-                  <AlertCircle className="w-4 h-4 text-blue-600" />
+                  <AlertCircle className="w-4 h-4 text-[#2B95E8]" />
                   <span>بيانات التسليح وتبعية السلاح (منفصلة عن تبعية المركبة)</span>
                 </div>
 

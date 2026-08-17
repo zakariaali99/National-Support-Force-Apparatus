@@ -252,10 +252,10 @@ export function DailyAttendancePage() {
         <StatCard title="غياب بدون إذن" value={stats.unexcused} icon={UserX} variant="default" tone="danger" />
       </div>
 
-      <Card className="overflow-hidden shadow-sm">
+      <Card className="overflow-hidden shadow-sm rounded-[28px] border border-slate-200/80 dark:border-white/10 bg-white dark:bg-[#1A2038]">
         <CardContent className="p-0 overflow-x-auto">
           <table className="w-full text-right text-body-sm border-collapse">
-            <thead className="bg-slate-50/90 dark:bg-white/5 text-slate-500 font-bold border-b border-slate-200/80 dark:border-white/10 text-caption uppercase">
+            <thead className="bg-slate-50/90 dark:bg-white/5 text-slate-500 dark:text-gray-400 font-bold border-b border-slate-200/80 dark:border-white/10 text-caption uppercase">
               <tr>
                 <th className="p-3.5">الفرد والرتبة</th>
                 <th className="p-3.5">الفصيل والنوبة</th>
@@ -268,7 +268,7 @@ export function DailyAttendancePage() {
                 <th className="p-3.5 min-w-[180px]">ملاحظات</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+            <tbody className="divide-y divide-slate-100 dark:divide-white/10">
               {isLoading ? (
                 <tr>
                   <td colSpan={9} className="p-8 text-center text-slate-500">
@@ -294,7 +294,7 @@ export function DailyAttendancePage() {
                   return (
                     <tr
                       key={row.member_id}
-                      className={`hover:bg-slate-50/60 dark:hover:bg-slate-800/30 transition-colors ${
+                      className={`hover:bg-slate-50/60 dark:hover:bg-white/5 transition-colors ${
                         row.status === "unexcused_absence"
                           ? "bg-rose-50/30 dark:bg-rose-950/15"
                           : row.status === "excused_absence"
@@ -396,6 +396,7 @@ export function DailyAttendancePage() {
       <DailyAttendancePrintDialog
         rows={localRows}
         date={selectedDate}
+        factionId={selectedFaction}
         factionName={factions.find((f) => String(f.id) === String(selectedFaction))?.name_ar}
         open={printModalOpen}
         onOpenChange={setPrintModalOpen}

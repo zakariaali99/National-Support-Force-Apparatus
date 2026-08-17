@@ -144,43 +144,57 @@ export function FactionsPage() {
         )}
       </PageHeader>
 
-      <Card className="rounded-2xl border border-border/80 shadow-sm overflow-hidden">
+      <Card className="rounded-[28px] border border-slate-200/80 dark:border-white/10 bg-white dark:bg-[#1A2038] shadow-sm overflow-hidden">
         <CardContent className="p-0 overflow-hidden">
           <DataTable columns={columns} rows={factions} isLoading={isLoading} emptyMessage="لا توجد إدارات مسجلة بعد" />
         </CardContent>
       </Card>
 
       <Dialog open={Boolean(dialogState)} onOpenChange={(open) => !open && setDialogState(null)}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>{dialogState === "create" ? "إضافة إدارة جديدة" : "تعديل بيانات الإدارة"}</DialogTitle>
+        <DialogContent className="max-w-xl p-6 rounded-[28px] border border-slate-200/80 dark:border-white/10 bg-white dark:bg-[#1A2038]">
+          <DialogHeader className="pb-3 border-b border-slate-100 dark:border-white/10">
+            <DialogTitle className="text-title font-bold text-slate-900 dark:text-white">
+              {dialogState === "create" ? "إضافة إدارة أو قطاع جديد" : "تعديل بيانات الإدارة"}
+            </DialogTitle>
           </DialogHeader>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-2">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 pt-4">
             <div className="space-y-1.5">
-              <Label htmlFor="faction-name">اسم الإدارة</Label>
-              <Input id="faction-name" placeholder="اسم الإدارة بالعربية..." {...form.register("name_ar")} />
+              <Label htmlFor="faction-name" className="text-label font-bold text-slate-800 dark:text-slate-200">
+                اسم الإدارة / القطاع <span className="text-rose-500">*</span>
+              </Label>
+              <Input
+                id="faction-name"
+                placeholder="مثال: إدارة التسليح، شعبة العمليات، السرية الأولى..."
+                className="rounded-2xl"
+                {...form.register("name_ar")}
+              />
               {form.formState.errors.name_ar && (
-                <p className="text-caption text-destructive">{form.formState.errors.name_ar.message}</p>
+                <p className="text-caption text-rose-600 font-bold">{form.formState.errors.name_ar.message}</p>
               )}
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="faction-description">الوصف والمهام الفرعية</Label>
-              <Textarea id="faction-description" placeholder="اختياري..." {...form.register("description")} />
+              <Label htmlFor="faction-description" className="text-label font-bold text-slate-800 dark:text-slate-200">الوصف والمهام الفرعية</Label>
+              <Textarea
+                id="faction-description"
+                placeholder="وصف طبيعة عمل الإدارة أو الفصيل والمهام المسندة إليه..."
+                className="rounded-2xl"
+                {...form.register("description")}
+              />
             </div>
-            <div className="flex items-center justify-between pt-2">
-              <Label htmlFor="faction-active">تفعيل الإدارة في النظام</Label>
+            <div className="flex items-center justify-between p-3 rounded-2xl bg-slate-50 dark:bg-white/5 border border-slate-200/60 dark:border-white/5">
+              <Label htmlFor="faction-active" className="text-caption font-bold text-slate-800 dark:text-slate-200">تفعيل الإدارة واستخدامها في النظام</Label>
               <Switch
                 id="faction-active"
                 checked={form.watch("is_active")}
                 onCheckedChange={(value) => form.setValue("is_active", value)}
               />
             </div>
-            <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => setDialogState(null)}>
+            <DialogFooter className="pt-4 border-t border-slate-100 dark:border-white/10 flex items-center justify-end gap-3">
+              <Button type="button" variant="outline" onClick={() => setDialogState(null)} className="rounded-xl">
                 إلغاء
               </Button>
-              <Button type="submit" disabled={form.formState.isSubmitting} className="font-bold">
-                حفظ
+              <Button type="submit" variant="primary" disabled={form.formState.isSubmitting} className="rounded-xl font-bold">
+                حفظ البيانات
               </Button>
             </DialogFooter>
           </form>

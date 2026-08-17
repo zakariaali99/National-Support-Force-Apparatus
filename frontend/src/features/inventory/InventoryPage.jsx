@@ -33,6 +33,7 @@ import { showToast } from "../../components/ui/Toast";
 import { StatCard } from "../../components/ui/StatCard";
 import { CustodyHandoverVoucherDialog } from "./CustodyHandoverVoucherDialog";
 import { AssetQRCode } from "../../components/qr/AssetQRCode";
+import { openAuthedPdf, downloadAuthedFile } from "../reports/api";
 
 export function InventoryPage() {
   const queryClient = useQueryClient();
@@ -40,6 +41,7 @@ export function InventoryPage() {
   const [statusFilter, setStatusFilter] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("");
   const [typeTab, setTypeTab] = useState("all");
+  const [isPrintingSummary, setIsPrintingSummary] = useState(false);
 
   const [addModalOpen, setAddModalOpen] = useState(false);
   const [custodyModalOpen, setCustodyModalOpen] = useState(false);
@@ -188,16 +190,38 @@ export function InventoryPage() {
     onError: () => showToast("تعذر تسجيل التالف", "error"),
   });
 
+  const handlePrintSummary = async () => {
+    setIsPrintingSummary(true);
+    try {
+      await openAuthedPdf("reports/inventory/summary/pdf/");
+    } catch {
+      showToast("تعذر فتح كشف الجرد في تبويب جديد", "error");
+    } finally {
+      setIsPrintingSummary(false);
+    }
+  };
+
   return (
     <div className="space-y-6" dir="rtl">
       <PageHeader
         title="المستودع وإدارة المخازن والعهدة"
         description="جرد الأسلحة، العتاد، والمهمات وتتبع حركة تسليم وارتداد وتلف العهدة بشكل فوري."
       >
-        <Button variant="primary" onClick={() => setAddModalOpen(true)} className="gap-1.5">
-          <Plus className="w-4 h-4" />
-          <span>تسجيل صنف / عتاد جديد</span>
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            onClick={handlePrintSummary}
+            disabled={isPrintingSummary}
+            className="gap-2 rounded-2xl font-bold border-slate-200/80 dark:border-white/10"
+          >
+            <Printer className="w-4 h-4 text-[#2B95E8]" />
+            <span>طباعة كشف الجرد الرسمي (PDF)</span>
+          </Button>
+          <Button variant="primary" onClick={() => setAddModalOpen(true)} className="gap-1.5 rounded-2xl font-bold shadow-xs">
+            <Plus className="w-4 h-4" />
+            <span>تسجيل صنف / عتاد جديد</span>
+          </Button>
+        </div>
       </PageHeader>
 
       {/* KPI Stats Cards (Niqabaty Signature Cards) */}
@@ -240,7 +264,7 @@ export function InventoryPage() {
         <div className="flex items-center gap-1.5 p-1.5 bg-slate-100 dark:bg-white/5 rounded-2xl border border-slate-200/60 dark:border-white/10">
           <button
             onClick={() => setTypeTab("all")}
-            className={`px-4 py-2 rounded-xl text-body-sm font-semibold transition-all cursor-pointer ${
+            className={`px-4 py-2 rounded-xl text-body-sm font-bold transition-all cursor-pointer ${
               typeTab === "all"
                 ? "bg-white dark:bg-[#2B95E8] text-slate-900 dark:text-white shadow-xs"
                 : "text-slate-500 hover:text-slate-900 dark:text-gray-400 dark:hover:text-white"
@@ -250,7 +274,7 @@ export function InventoryPage() {
           </button>
           <button
             onClick={() => setTypeTab("weapons")}
-            className={`px-4 py-2 rounded-xl text-body-sm font-semibold transition-all cursor-pointer ${
+            className={`px-4 py-2 rounded-xl text-body-sm font-bold transition-all cursor-pointer ${
               typeTab === "weapons"
                 ? "bg-white dark:bg-[#2B95E8] text-slate-900 dark:text-white shadow-xs"
                 : "text-slate-500 hover:text-slate-900 dark:text-gray-400 dark:hover:text-white"
@@ -260,7 +284,7 @@ export function InventoryPage() {
           </button>
           <button
             onClick={() => setTypeTab("warehouse")}
-            className={`px-4 py-2 rounded-xl text-body-sm font-semibold transition-all cursor-pointer ${
+            className={`px-4 py-2 rounded-xl text-body-sm font-bold transition-all cursor-pointer ${
               typeTab === "warehouse"
                 ? "bg-white dark:bg-[#2B95E8] text-slate-900 dark:text-white shadow-xs"
                 : "text-slate-500 hover:text-slate-900 dark:text-gray-400 dark:hover:text-white"
@@ -271,14 +295,14 @@ export function InventoryPage() {
         </div>
 
         {/* Filter Inputs */}
-        <div className="flex items-center gap-3 flex-1 sm:flex-initial min-w-[280px]">
+        <div className="flex items-center gap-3 flex-1 sm:flex-initial min-w-[300px]">
           <div className="relative flex-1">
-            <Search className="w-4 h-4 absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 dark:text-gray-500" />
+            <Search className="w-4 h-4 absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 dark:text-gray-400" />
             <Input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="بحث بالاسم، الكود، أو السيريال..."
-              className="pr-10"
+              className="pr-10 h-10 rounded-2xl bg-slate-50 dark:bg-white/5 border-slate-200/80 dark:border-white/10"
             />
           </div>
           <Select
@@ -295,7 +319,7 @@ export function InventoryPage() {
       </div>
 
       {/* Inventory Table */}
-      <Card className="overflow-hidden shadow-xs">
+      <Card className="overflow-hidden shadow-xs rounded-[28px] border border-slate-200/80 dark:border-white/10 bg-white dark:bg-[#1A2038]">
         <CardContent className="p-0 overflow-x-auto">
           {isLoading ? (
             <div className="p-8 text-center text-slate-500">جاري تحميل سجلات المخزن...</div>
@@ -303,7 +327,7 @@ export function InventoryPage() {
             <div className="p-8 text-center text-slate-500">لا توجد أصناف تطابق شروط البحث الحالية.</div>
           ) : (
             <table className="w-full text-right text-body-sm border-collapse">
-              <thead className="bg-slate-50/80 dark:bg-slate-800/40 border-b border-slate-200/80 dark:border-slate-800 text-slate-500 font-semibold text-caption">
+              <thead className="bg-slate-50/80 dark:bg-white/5 border-b border-slate-200/80 dark:border-white/10 text-slate-500 dark:text-gray-400 font-semibold text-caption">
                 <tr>
                   <th className="p-3.5 text-start">العتاد والتصنيف</th>
                   <th className="p-3.5 text-start">الكود / الرقم التسلسلي</th>
@@ -313,9 +337,9 @@ export function InventoryPage() {
                   <th className="p-3.5 text-end">إجراءات العهدة</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100 dark:divide-slate-800 bg-surface">
+              <tbody className="divide-y divide-slate-100 dark:divide-white/10 bg-surface dark:bg-[#1A2038]">
                 {filteredItems.map((item) => (
-                  <tr key={item.id} className="hover:bg-slate-50/70 dark:hover:bg-slate-800/30 transition-colors">
+                  <tr key={item.id} className="hover:bg-slate-50/70 dark:hover:bg-white/5 transition-colors">
                     {/* Item & Classification */}
                     <td className="p-3.5 align-middle">
                       <div className="font-semibold text-slate-900 dark:text-slate-100 text-body-sm">{item.name}</div>

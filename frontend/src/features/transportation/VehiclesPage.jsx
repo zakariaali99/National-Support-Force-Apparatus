@@ -6,6 +6,7 @@ import { Badge } from "../../components/ui/Badge";
 import { Card, CardContent } from "../../components/ui/Card";
 import { DataTable } from "../../components/ui/DataTable";
 import { FilterBar } from "../../components/ui/FilterBar";
+import { Select } from "../../components/ui/Select";
 import { PageHeader } from "../../components/ui/PageHeader";
 import { StatCard } from "../../components/ui/StatCard";
 import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter } from "../../components/ui/AlertDialog";
@@ -287,61 +288,56 @@ export default function VehiclesPage() {
 
       {/* Filter Bar */}
       <FilterBar
-        searchValue={search}
-        onSearchChange={setSearch}
+        search={search}
+        onSearch={setSearch}
         searchPlaceholder="بحث باسم المركبة، رقم الهيكل، رقم اللوحة، أو السلاح..."
-        filters={[
-          {
-            key: "status",
-            label: "الحالة",
-            value: statusFilter,
-            onChange: setStatusFilter,
-            options: [
-              { value: "all", label: "كافة الحالات" },
-              { value: "ready", label: "جاهزة للخدمة" },
-              { value: "maintenance", label: "تحت الصيانة" },
-              { value: "damaged", label: "معطلة" },
-              { value: "retired", label: "خارج الخدمة" },
-            ],
-          },
-          {
-            key: "vehicle_type",
-            label: "النوع",
-            value: typeFilter,
-            onChange: setTypeFilter,
-            options: [
-              { value: "all", label: "كافة الأنواع" },
-              { value: "patrol", label: "دورية / استطلاع" },
-              { value: "armored", label: "مصفحة" },
-              { value: "pickup", label: "بيك آب" },
-              { value: "transport", label: "نقل أفراد" },
-              { value: "ambulance", label: "إسعاف" },
-              { value: "sedan", label: "صالون / إدارية" },
-            ],
-          },
-          {
-            key: "faction",
-            label: "الفصيل",
-            value: factionFilter,
-            onChange: setFactionFilter,
-            options: [
-              { value: "all", label: "كافة الفصائل" },
-              ...factions.map((f) => ({ value: String(f.id), label: f.name_ar })),
-            ],
-          },
-          {
-            key: "has_weapon",
-            label: "التسليح",
-            value: weaponFilter,
-            onChange: setWeaponFilter,
-            options: [
-              { value: "all", label: "الكل" },
-              { value: "true", label: "تحمل سلاحاً مثبتاً" },
-              { value: "false", label: "بدون سلاح مثبت" },
-            ],
-          },
-        ]}
-      />
+      >
+        <Select
+          label="الحالة التشغيلية"
+          value={statusFilter}
+          onValueChange={setStatusFilter}
+          options={[
+            { value: "all", label: "كافة الحالات" },
+            { value: "ready", label: "جاهزة للخدمة" },
+            { value: "maintenance", label: "تحت الصيانة" },
+            { value: "damaged", label: "معطلة" },
+            { value: "retired", label: "خارج الخدمة" },
+          ]}
+        />
+        <Select
+          label="نوع المركبة"
+          value={typeFilter}
+          onValueChange={setTypeFilter}
+          options={[
+            { value: "all", label: "كافة الأنواع" },
+            { value: "patrol", label: "دورية / استطلاع" },
+            { value: "armored", label: "مصفحة" },
+            { value: "pickup", label: "بيك آب" },
+            { value: "transport", label: "نقل أفراد" },
+            { value: "ambulance", label: "إسعاف" },
+            { value: "sedan", label: "صالون / إدارية" },
+          ]}
+        />
+        <Select
+          label="الفصيل التابعة له"
+          value={factionFilter}
+          onValueChange={setFactionFilter}
+          options={[
+            { value: "all", label: "كافة الفصائل" },
+            ...factions.map((f) => ({ value: String(f.id), label: f.name_ar })),
+          ]}
+        />
+        <Select
+          label="حالة التسليح الميداني"
+          value={weaponFilter}
+          onValueChange={setWeaponFilter}
+          options={[
+            { value: "all", label: "الكل" },
+            { value: "true", label: "تحمل سلاحاً مثبتاً" },
+            { value: "false", label: "بدون سلاح مثبت" },
+          ]}
+        />
+      </FilterBar>
 
       {/* Data Table */}
       <Card>

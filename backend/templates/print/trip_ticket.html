@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+  <meta charset="utf-8">
+  <title>أمر تحرك وبطاقة تشغيل مركبة</title>
+  {% include "print/_style.html" %}
+  <style>
+    .voucher-card {
+      background: #f8fafc;
+      border: 1pt solid #cbd5e1;
+      border-radius: 6pt;
+      padding: 10pt 14pt;
+      margin-bottom: 12pt;
+    }
+    .grid-2 {
+      display: flex;
+      justify-content: space-between;
+      gap: 12pt;
+    }
+    .grid-2 > div { flex: 1; }
+    .label { color: #64748b; font-size: 9pt; display: block; margin-bottom: 2pt; }
+    .value { font-weight: 700; color: #0a2540; font-size: 10.5pt; }
+    .signatures {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 24pt;
+      text-align: center;
+    }
+    .sig-col {
+      flex: 1;
+      padding: 0 8pt;
+    }
+    .sig-line {
+      border-bottom: 1pt dashed #94a3b8;
+      height: 35pt;
+      margin-bottom: 4pt;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="title">
+      <h1>دولة ليبيا</h1>
+      <p style="font-weight:700; color:#0a2540; margin:0;">الجهاز الوطني للقوى المساندة</p>
+      <p style="font-size:9.5pt; color:#64748b; margin:0;">قسم النقلية والآليات</p>
+    </div>
+    <div style="text-align:center;">
+      <h2 style="border:none; margin:0; font-size:15pt; color:#0a2540;">أمر تحرك وبطاقة تشغيل مركبة</h2>
+      <span style="font-size:9pt; color:#64748b; font-family:monospace;">الرقم: {{ trip_number|default:"TRIP-0001" }}</span>
+    </div>
+    <div style="text-align:left; font-size:9.5pt; font-family:monospace;">
+      <p style="margin:0;">التاريخ: {{ date }}</p>
+      <p style="margin:0;">نوع المهمة: مأمورية رسمية</p>
+      <p style="margin:0; font-weight:700; color:#047857;">التصريح: ساري المفعول</p>
+    </div>
+  </div>
+
+  <!-- Vehicle Info -->
+  <div class="voucher-card">
+    <h3 style="color:#0a2540; font-size:11pt; border-bottom:1pt solid #e2e8f0; padding-bottom:4pt; margin-bottom:8pt;">
+      أولاً: بيانات المركبة والآلية
+    </h3>
+    <div class="grid-2">
+      <div>
+        <span class="label">اسم وموديل المركبة:</span>
+        <span class="value">{{ vehicle_name }}</span>
+      </div>
+      <div>
+        <span class="label">رقم اللوحة:</span>
+        <span class="value" style="font-family:monospace;">{{ plate_number|default:"—" }}</span>
+      </div>
+      <div>
+        <span class="label">رقم الهيكل (VIN):</span>
+        <span class="value" style="font-family:monospace;">{{ chassis_number|default:"—" }}</span>
+      </div>
+      <div>
+        <span class="label">الفصيل التابعة له:</span>
+        <span class="value">{{ faction_name|default:"الإدارة العامة" }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Crew & Weaponry Details -->
+  <div class="voucher-card">
+    <h3 style="color:#0a2540; font-size:11pt; border-bottom:1pt solid #e2e8f0; padding-bottom:4pt; margin-bottom:8pt;">
+      ثانياً: طاقم المركبة والتسليح الميداني المعتمد
+    </h3>
+    <div class="grid-2">
+      <div>
+        <span class="label">السائق المكلف:</span>
+        <span class="value">{{ driver_name|default:"غير محدد" }}</span>
+      </div>
+      <div>
+        <span class="label">السلاح المثبت:</span>
+        <span class="value">{{ weapon_name|default:"غير مسلحة" }}</span>
+      </div>
+      <div>
+        <span class="label">رقم السلاح:</span>
+        <span class="value" style="font-family:monospace;">{{ weapon_serial|default:"—" }}</span>
+      </div>
+      <div>
+        <span class="label">الرامي المكلف:</span>
+        <span class="value">{{ gunner_name|default:"—" }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Itinerary Table -->
+  <h3 style="color:#0a2540; font-size:11pt; margin-top:14pt; margin-bottom:6pt;">
+    ثالثاً: خط السير وقراءات العداد
+  </h3>
+  <table>
+    <thead>
+      <tr>
+        <th>نقطة الانطلاق</th>
+        <th>الوجهة / خط السير</th>
+        <th style="text-align:center;">عداد البداية (كم)</th>
+        <th style="text-align:center;">عداد العودة (كم)</th>
+        <th style="text-align:center;">ساعة الخروج</th>
+        <th style="text-align:center;">ساعة الرجوع</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td style="padding:10pt 8pt;">مقر الجهاز الرئيسي</td>
+        <td style="padding:10pt 8pt;">{{ destination|default:".................................." }}</td>
+        <td style="text-align:center; font-family:monospace; font-weight:700;">{{ start_odometer|default:"0" }} كم</td>
+        <td style="text-align:center; font-family:monospace;">..................... كم</td>
+        <td style="text-align:center; font-family:monospace;">........ : ........</td>
+        <td style="text-align:center; font-family:monospace;">........ : ........</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- Signatures -->
+  <div class="signatures">
+    <div class="sig-col">
+      <p style="font-weight:700; margin:0 0 4pt 0;">توقيع السائق المكلف</p>
+      <div class="sig-line"></div>
+      <span style="font-size:8.5pt; color:#64748b;">التوقيع</span>
+    </div>
+    <div class="sig-col">
+      <p style="font-weight:700; margin:0 0 4pt 0;">مسؤول قسم النقلية</p>
+      <div class="sig-line"></div>
+      <span style="font-size:8.5pt; color:#64748b;">التوقيع والختم</span>
+    </div>
+    <div class="sig-col">
+      <p style="font-weight:700; margin:0 0 4pt 0;">اعتماد آمر العمليات</p>
+      <div class="sig-line"></div>
+      <span style="font-size:8.5pt; color:#64748b;">الختم الرسمي</span>
+    </div>
+  </div>
+</body>
+</html>

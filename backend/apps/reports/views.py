@@ -259,3 +259,284 @@ class MemberExportView(APIView):
         if truncated:
             response["X-Export-Truncated"] = "1"
         return response
+
+
+class CustodyVoucherPdfView(APIView):
+    """Generates official vector PDF for custody handover / return / damage voucher."""
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        if not (request.user.has_permission("equipment.view") or request.user.has_permission("equipment.manage")):
+            raise PermissionDenied("لا تملك صلاحية طباعة محاضر العهدة.")
+
+        context = {
+            "voucher_number": request.query_params.get("voucher_number", f"VCH-{timezone.now().strftime('%y%m%d%H%M')}"),
+            "date": request.query_params.get("date", timezone.now().strftime("%Y-%m-%d")),
+            "recipient_name": request.query_params.get("recipient_name", "—"),
+            "recipient_rank": request.query_params.get("recipient_rank", "—"),
+            "recipient_force_number": request.query_params.get("recipient_force_number", "—"),
+            "recipient_faction": request.query_params.get("recipient_faction", "—"),
+            "item_name": request.query_params.get("item_name", "—"),
+            "item_category": request.query_params.get("item_category", "مهمات عامة"),
+            "item_code": request.query_params.get("item_code", "—"),
+            "item_serial": request.query_params.get("item_serial", "—"),
+            "quantity": request.query_params.get("quantity", "1"),
+        }
+
+        html = render_to_string("print/custody_voucher.html", context)
+        pdf_bytes = render_html_to_pdf(html)
+
+        response = HttpResponse(pdf_bytes, content_type="application/pdf")
+        response["Content-Disposition"] = f'inline; filename="{context["voucher_number"]}.pdf"'
+        return response
+
+
+class VehicleTripTicketPdfView(APIView):
+    """Generates official vehicle dispatch card & trip ticket vector PDF."""
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, pk=None):
+        if not (request.user.has_permission("transportation.view") or request.user.has_permission("transportation.manage")):
+            raise PermissionDenied("لا تملك صلاحية طباعة أوامر تحرك المركبات.")
+
+        from apps.transportation.models.vehicle import Vehicle
+        vehicle = None
+        if pk:
+            try:
+                vehicle = Vehicle.objects.select_related("faction", "assigned_driver", "weapon_assigned_member").get(pk=pk)
+            except Vehicle.DoesNotExist:
+                raise Http404("المركبة غير موجودة")
+
+        context = {
+            "trip_number": request.query_params.get("trip_number", f"TRIP-{timezone.now().strftime('%y%m%d%H%M')}"),
+            "date": request.query_params.get("date", timezone.now().strftime("%Y-%m-%d")),
+            "vehicle_name": vehicle.name if vehicle else request.query_params.get("vehicle_name", "—"),
+            "plate_number": vehicle.plate_number if vehicle else request.query_params.get("plate_number", "—"),
+            "chassis_number": vehicle.vin_number if vehicle else request.query_params.get("chassis_number", "—"),
+            "faction_name": (vehicle.faction.name_ar if vehicle and vehicle.faction else request.query_params.get("faction_name", "الإدارة العامة")),
+            "driver_name": (vehicle.assigned_driver.full_name if vehicle and vehicle.assigned_driver else request.query_params.get("driver_name", "غير محدد")),
+            "weapon_name": (vehicle.mounted_weapon_name if vehicle and vehicle.has_weapon else request.query_params.get("weapon_name", "غير مسلحة")),
+            "weapon_serial": (vehicle.mounted_weapon_serial if vehicle and vehicle.has_weapon else request.query_params.get("weapon_serial", "—")),
+            "gunner_name": (vehicle.weapon_assigned_member.full_name if vehicle and vehicle.weapon_assigned_member else request.query_params.get("gunner_name", "—")),
+            "start_odometer": getattr(vehicle, "odometer_reading", None) or request.query_params.get("start_odometer", "0"),
+            "destination": request.query_params.get("destination", ".................................."),
+        }
+
+        html = render_to_string("print/trip_ticket.html", context)
+        pdf_bytes = render_html_to_pdf(html)
+
+        response = HttpResponse(pdf_bytes, content_type="application/pdf")
+        response["Content-Disposition"] = f'inline; filename="{context["trip_number"]}.pdf"'
+        return response
+
+
+class DailyAttendancePdfView(APIView):
+    """Generates official daily attendance sheet vector PDF."""
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        if not (request.user.has_permission("attendance.view") or request.user.has_permission("attendance.record")):
+            raise PermissionDenied("لا تملك صلاحية طباعة كشوفات التمام.")
+
+        date_str = request.query_params.get("date", timezone.now().strftime("%Y-%m-%d"))
+        faction_id = request.query_params.get("faction")
+
+        from apps.attendance.models import DailyAttendance
+        from apps.organization.models.faction import Faction
+
+        qs = DailyAttendance.objects.filter(date=date_str).select_related("member", "member__rank", "member__faction")
+        if faction_id:
+            qs = qs.filter(member__faction_id=faction_id)
+
+        rows = []
+        counts = {"present": 0, "late": 0, "excused": 0, "unexcused": 0, "shift_off": 0, "vacation": 0}
+        for rec in qs.order_by("member__faction", "member__rank__order", "member__last_name"):
+            st = rec.status
+            if st in counts:
+                counts[st] += 1
+            rows.append({
+                "force_number": rec.member.force_number,
+                "rank_name": rec.member.rank.name_ar if rec.member.rank else "",
+                "member_name": rec.member.full_name,
+                "faction_name": rec.member.faction.name_ar if rec.member.faction else "عام",
+                "shift_group_name": getattr(rec.member, "shift_group_name", "—"),
+                "status": rec.status,
+                "late_hours": str(rec.late_hours) if rec.late_hours else "",
+                "excused_hours": str(rec.excused_hours) if rec.excused_hours else "",
+                "notes": rec.notes,
+            })
+
+        faction_name = ""
+        if faction_id:
+            try:
+                faction_name = Faction.objects.get(pk=faction_id).name_ar
+            except Faction.DoesNotExist:
+                pass
+
+        context = {
+            "report_number": f"ATT-{timezone.now().strftime('%y%m%d%H%M')}",
+            "date": date_str,
+            "faction_name": faction_name or "كافة الفصائل والوحدات",
+            "total": len(rows),
+            "present": counts["present"],
+            "late": counts["late"],
+            "excused": counts["excused"],
+            "unexcused": counts["unexcused"],
+            "shift_off": counts["shift_off"],
+            "vacation": counts["vacation"],
+            "rows": rows,
+        }
+
+        html = render_to_string("print/daily_attendance.html", context)
+        pdf_bytes = render_html_to_pdf(html)
+
+        response = HttpResponse(pdf_bytes, content_type="application/pdf")
+        response["Content-Disposition"] = f'inline; filename="attendance-{date_str}.pdf"'
+        return response
+
+
+class InventorySummaryPdfView(APIView):
+    """Generates official warehouse stock count vector PDF."""
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        if not (request.user.has_permission("equipment.view") or request.user.has_permission("equipment.manage")):
+            raise PermissionDenied("لا تملك صلاحية طباعة تقارير المستودع.")
+
+        from apps.equipment.models import InventoryItem
+
+        items_qs = InventoryItem.objects.select_related("category").order_by("category__name_ar", "name")
+        items = []
+        for it in items_qs:
+            items.append({
+                "name": it.name,
+                "category_name": it.category.name_ar if it.category else "عام",
+                "serial_number": it.serial_number,
+                "total_quantity": it.total_quantity,
+                "available_quantity": it.available_quantity,
+                "assigned_quantity": it.assigned_quantity,
+                "damaged_quantity": it.damaged_quantity,
+            })
+
+        context = {
+            "report_number": f"INV-{timezone.now().strftime('%y%m%d%H%M')}",
+            "date": timezone.now().strftime("%Y-%m-%d"),
+            "items": items,
+        }
+
+        html = render_to_string("print/inventory_summary.html", context)
+        pdf_bytes = render_html_to_pdf(html)
+
+        response = HttpResponse(pdf_bytes, content_type="application/pdf")
+        response["Content-Disposition"] = 'inline; filename="inventory-summary.pdf"'
+        return response
+
+
+class MonthlyAttendancePdfView(APIView):
+    """Generates official landscape monthly attendance matrix PDF."""
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        if not (request.user.has_permission("attendance.view") or request.user.has_permission("attendance.record")):
+            raise PermissionDenied("لا تملك صلاحية طباعة كشوفات التمام الشهري.")
+
+        import calendar
+        from apps.attendance.models import DailyAttendance
+        from apps.members.models import Member
+        from apps.organization.models.faction import Faction
+
+        now = timezone.now()
+        year = int(request.query_params.get("year", now.year))
+        month = int(request.query_params.get("month", now.month))
+        faction_id = request.query_params.get("faction")
+
+        _, days_in_month = calendar.monthrange(year, month)
+        start_date = f"{year:04d}-{month:02d}-01"
+        end_date = f"{year:04d}-{month:02d}-{days_in_month:02d}"
+
+        members_qs = Member.objects.select_related("rank", "faction").filter(service_status="active")
+        if faction_id and faction_id != "all":
+            members_qs = members_qs.filter(faction_id=faction_id)
+
+        attendance_qs = DailyAttendance.objects.filter(
+            date__range=[start_date, end_date]
+        ).select_related("member")
+
+        att_map = {}
+        for rec in attendance_qs:
+            day_num = rec.date.day
+            att_map[(rec.member_id, day_num)] = rec
+
+        month_names_ar = [
+            "", "يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو",
+            "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر"
+        ]
+
+        rows = []
+        for m in members_qs.order_by("faction__name_ar", "rank__order", "last_name", "first_name"):
+            days_status = []
+            present_c = 0
+            late_c = 0
+            excused_c = 0
+            unexcused_c = 0
+
+            for d in range(1, days_in_month + 1):
+                rec = att_map.get((m.id, d))
+                if not rec:
+                    days_status.append({"code": "—", "cls": "status-o"})
+                elif rec.status == "present":
+                    present_c += 1
+                    days_status.append({"code": "ح", "cls": "status-p"})
+                elif rec.status == "late":
+                    late_c += 1
+                    days_status.append({"code": "ت", "cls": "status-l"})
+                elif rec.status == "excused_absence":
+                    excused_c += 1
+                    days_status.append({"code": "إ", "cls": "status-e"})
+                elif rec.status == "unexcused_absence":
+                    unexcused_c += 1
+                    days_status.append({"code": "غ", "cls": "status-u"})
+                elif rec.status == "shift_off":
+                    days_status.append({"code": "ر", "cls": "status-o"})
+                elif rec.status == "vacation":
+                    days_status.append({"code": "ج", "cls": "status-v"})
+                elif rec.status == "mission":
+                    days_status.append({"code": "م", "cls": "status-e"})
+                else:
+                    days_status.append({"code": "•", "cls": "status-o"})
+
+            rows.append({
+                "member_name": m.full_name,
+                "rank_name": m.rank.name_ar if m.rank else "فرد",
+                "force_number": m.force_number,
+                "faction_name": m.faction.name_ar if m.faction else "عام",
+                "days_status": days_status,
+                "total_present": present_c,
+                "total_late": late_c,
+                "total_excused": excused_c,
+                "total_unexcused": unexcused_c,
+            })
+
+        faction_name = ""
+        if faction_id and faction_id != "all":
+            try:
+                faction_name = Faction.objects.get(pk=faction_id).name_ar
+            except Faction.DoesNotExist:
+                pass
+
+        context = {
+            "month_name": month_names_ar[month] if 1 <= month <= 12 else str(month),
+            "year": year,
+            "date": timezone.now().strftime("%Y-%m-%d"),
+            "faction_name": faction_name or "كافة الفصائل والوحدات",
+            "days_range": list(range(1, days_in_month + 1)),
+            "col_span": days_in_month + 6,
+            "rows": rows,
+        }
+
+        html = render_to_string("print/monthly_attendance.html", context)
+        pdf_bytes = render_html_to_pdf(html)
+
+        response = HttpResponse(pdf_bytes, content_type="application/pdf")
+        response["Content-Disposition"] = f'inline; filename="monthly-attendance-{year}-{month}.pdf"'
+        return response
