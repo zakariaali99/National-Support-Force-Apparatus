@@ -29,26 +29,43 @@ function compareValues(a, b) {
  *        horizontally-scrolling table.
  */
 export function DataTable({
-  columns,
-  rows = [],
+  columns = [],
+  rows,
+  data,
   isLoading,
+  loading,
   emptyMessage = "لا توجد بيانات مسجلة",
   sortable = false,
   initialSort,
   onSortChange,
   rowCard,
 }) {
-  const hasMobileCards = typeof rowCard === "function";
+  const actualRows = rows || data || [];
+  const actualLoading = isLoading ?? loading ?? false;
 
+  const normalizedColumns = useMemo(() => {
+    return columns.map((col) => ({
+      key: col.key || col.id || col.accessor || "",
+      label: col.label || col.header || "",
+      render: col.render || col.cell || ((r) => r?.[col.key || col.id || col.accessor]),
+      align: col.align,
+      sortable: col.sortable,
+      sortAccessor: col.sortAccessor,
+      className: col.className,
+      cellClassName: col.cellClassName,
+    }));
+  }, [columns]);
+
+  const hasMobileCards = typeof rowCard === "function";
   const [sortState, setSortState] = useState(() => initialSort ?? null);
 
   const sortedRows = useMemo(() => {
-    if (!sortable || onSortChange || !sortState) return rows;
-    const col = columns.find((c) => c.key === sortState.key);
+    if (!sortable || onSortChange || !sortState) return actualRows;
+    const col = normalizedColumns.find((c) => c.key === sortState.key);
     const accessor = col && typeof col.sortAccessor === "function" ? col.sortAccessor : (r) => r?.[sortState.key];
     const dir = sortState.dir === "desc" ? -1 : 1;
-    return [...rows].sort((a, b) => compareValues(accessor(a), accessor(b)) * dir);
-  }, [rows, sortable, onSortChange, sortState, columns]);
+    return [...actualRows].sort((a, b) => compareValues(accessor(a), accessor(b)) * dir);
+  }, [actualRows, sortable, onSortChange, sortState, normalizedColumns]);
 
   function handleSort(col) {
     if (!sortable || col.sortable === false) return;
@@ -81,7 +98,7 @@ export function DataTable({
       )}
     >
       <tr>
-        {columns.map((col) => (
+        {normalizedColumns.map((col) => (
           <th
             key={col.key}
             className={cn(
@@ -114,7 +131,7 @@ export function DataTable({
     <tbody className="divide-y divide-slate-100 dark:divide-slate-800 bg-surface">
       {rowsToRender.map((row, rIdx) => (
         <tr key={row.id || rIdx} className="hover:bg-slate-50/70 dark:hover:bg-slate-800/30 transition-colors">
-          {columns.map((col) => (
+          {normalizedColumns.map((col) => (
             <td
               key={col.key}
               className={cn(
@@ -132,8 +149,8 @@ export function DataTable({
     </tbody>
   );
 
-  const skeletonBody = (targetColumns = columns) => (
-    <tbody className="divide-y divide-border/60">
+  const skeletonBody = (targetColumns = normalizedColumns) => (
+    <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
       {Array.from({ length: 5 }).map((_, rIdx) => (
         <tr key={rIdx}>
           {targetColumns.map((col) => (
@@ -146,9 +163,9 @@ export function DataTable({
     </tbody>
   );
 
-  if (isLoading) {
+  if (actualLoading) {
     return (
-      <div className="overflow-hidden rounded-card border border-border bg-surface shadow-raised">
+      <div className="overflow-hidden rounded-xl border border-slate-200/80 dark:border-slate-800 bg-surface shadow-xs">
         <table className="w-full text-body-sm">
           {head(true)}
           {skeletonBody()}
@@ -157,10 +174,10 @@ export function DataTable({
     );
   }
 
-  if (!rows || rows.length === 0) {
+  if (!actualRows || actualRows.length === 0) {
     return (
-      <div className="rounded-card border border-border bg-surface p-12 text-center shadow-raised">
-        <p className="text-body font-medium text-fg-subtle">{emptyMessage}</p>
+      <div className="rounded-xl border border-slate-200/80 dark:border-slate-800 bg-surface p-12 text-center shadow-xs">
+        <p className="text-body-sm font-medium text-slate-500">{emptyMessage}</p>
       </div>
     );
   }
@@ -173,7 +190,7 @@ export function DataTable({
             <Fragment key={row.id || rIdx}>{rowCard(row)}</Fragment>
           ))}
         </div>
-        <div className="hidden md:block overflow-x-auto rounded-card border border-border bg-surface shadow-raised scrollbar-thin">
+        <div className="hidden md:block overflow-x-auto rounded-xl border border-slate-200/80 dark:border-slate-800 bg-surface shadow-xs scrollbar-thin">
           <table className="w-full text-body-sm border-collapse">
             {head()}
             {body(sortedRows)}
@@ -184,7 +201,7 @@ export function DataTable({
   }
 
   return (
-    <div className="overflow-x-auto rounded-card border border-border bg-surface shadow-raised scrollbar-thin">
+    <div className="overflow-x-auto rounded-xl border border-slate-200/80 dark:border-slate-800 bg-surface shadow-xs scrollbar-thin">
       <table className="w-full text-body-sm border-collapse">
         {head()}
         {body(sortedRows)}

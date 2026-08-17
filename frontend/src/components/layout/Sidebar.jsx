@@ -176,8 +176,8 @@ export function Sidebar({ className }) {
   return (
     <aside
       className={cn(
-        "sticky top-0 h-screen shrink-0 bg-card text-foreground transition-all duration-300 z-20",
-        collapsed ? "w-16" : "w-64",
+        "sticky top-0 h-screen shrink-0 bg-surface border-e border-slate-200/80 dark:border-slate-800 transition-all duration-300 z-20",
+        collapsed ? "w-16" : "w-72",
         className
       )}
     >

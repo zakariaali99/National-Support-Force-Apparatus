@@ -23,10 +23,10 @@ const UsersPage = lazy(() => import("./features/settings/UsersPage").then((m) =>
 const AuditPage = lazy(() => import("./features/audit/AuditPage").then((m) => ({ default: m.AuditPage })));
 const BackupsPage = lazy(() => import("./features/backups/BackupsPage").then((m) => ({ default: m.BackupsPage })));
 const InventoryPage = lazy(() => import("./features/inventory/InventoryPage").then((m) => ({ default: m.InventoryPage })));
-const VehiclesPage = lazy(() => import("./features/transportation/VehiclesPage"));
-const DailyAttendancePage = lazy(() => import("./features/attendance/DailyAttendancePage"));
-const MonthlyAttendancePage = lazy(() => import("./features/attendance/MonthlyAttendancePage"));
-const ShiftRostersPage = lazy(() => import("./features/attendance/ShiftRostersPage"));
+const VehiclesPage = lazy(() => import("./features/transportation/VehiclesPage").then((m) => ({ default: m.VehiclesPage || m.default })));
+const DailyAttendancePage = lazy(() => import("./features/attendance/DailyAttendancePage").then((m) => ({ default: m.DailyAttendancePage || m.default })));
+const MonthlyAttendancePage = lazy(() => import("./features/attendance/MonthlyAttendancePage").then((m) => ({ default: m.MonthlyAttendancePage || m.default })));
+const ShiftRostersPage = lazy(() => import("./features/attendance/ShiftRostersPage").then((m) => ({ default: m.ShiftRostersPage || m.default })));
 
 function RouteFallback() {
   return <div className="p-8 text-center text-sm text-muted-foreground">جارِ التحميل...</div>;

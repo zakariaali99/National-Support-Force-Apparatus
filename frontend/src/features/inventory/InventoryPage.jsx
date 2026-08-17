@@ -262,65 +262,70 @@ export function InventoryPage() {
       </div>
 
       {/* Inventory Table */}
-      <Card className="overflow-hidden">
+      <Card className="overflow-hidden shadow-xs">
         <CardContent className="p-0 overflow-x-auto">
           {isLoading ? (
             <div className="p-8 text-center text-slate-500">جاري تحميل سجلات المخزن...</div>
           ) : filteredItems.length === 0 ? (
             <div className="p-8 text-center text-slate-500">لا توجد أصناف تطابق شروط البحث الحالية.</div>
           ) : (
-            <table className="w-full text-right text-body-sm">
-              <thead className="bg-slate-50/80 dark:bg-slate-800/40 border-b border-slate-200/80 dark:border-slate-800 text-slate-500 font-semibold">
+            <table className="w-full text-right text-body-sm border-collapse">
+              <thead className="bg-slate-50/80 dark:bg-slate-800/40 border-b border-slate-200/80 dark:border-slate-800 text-slate-500 font-semibold text-caption">
                 <tr>
-                  <th className="p-3.5">اسم الصنف / السلاح</th>
-                  <th className="p-3.5">الكود / الرقم التسلسلي</th>
-                  <th className="p-3.5">المقاس / المواصفة</th>
-                  <th className="p-3.5">التصنيف</th>
-                  <th className="p-3.5 text-center">المتاح / الإجمالي</th>
-                  <th className="p-3.5">حالة الصنف</th>
-                  <th className="p-3.5">موقع العهدة الحالية</th>
-                  <th className="p-3.5 text-center min-w-[190px]">حركات العهدة</th>
+                  <th className="p-3.5 text-start">العتاد والتصنيف</th>
+                  <th className="p-3.5 text-start">الكود / الرقم التسلسلي</th>
+                  <th className="p-3.5 text-start">المواصفة / المقاس</th>
+                  <th className="p-3.5 text-center">الرصيد بالمخزن</th>
+                  <th className="p-3.5 text-start">الحالة والموقع</th>
+                  <th className="p-3.5 text-end">إجراءات العهدة</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+              <tbody className="divide-y divide-slate-100 dark:divide-slate-800 bg-surface">
                 {filteredItems.map((item) => (
                   <tr key={item.id} className="hover:bg-slate-50/70 dark:hover:bg-slate-800/30 transition-colors">
-                    {/* Item Name */}
-                    <td className="p-3.5">
-                      <div className="font-semibold text-slate-900 dark:text-slate-100">{item.name}</div>
-                      {item.caliber && <div className="text-caption text-amber-700 dark:text-amber-300 font-mono font-medium">{item.caliber}</div>}
+                    {/* Item & Classification */}
+                    <td className="p-3.5 align-middle">
+                      <div className="font-semibold text-slate-900 dark:text-slate-100 text-body-sm">{item.name}</div>
+                      <div className="text-caption text-slate-500 font-medium flex items-center gap-1.5 mt-0.5">
+                        <span>{item.category_name || "مهمات عامة"}</span>
+                        {item.caliber && (
+                          <>
+                            <span>•</span>
+                            <span className="font-mono text-amber-700 dark:text-amber-400 font-semibold">{item.caliber}</span>
+                          </>
+                        )}
+                      </div>
                     </td>
 
                     {/* Code & Serial */}
-                    <td className="p-3.5 font-mono text-caption">
+                    <td className="p-3.5 align-middle font-mono text-caption whitespace-nowrap">
                       {item.item_code && (
-                        <span className="block font-semibold text-slate-800 dark:text-slate-200">{item.item_code}</span>
+                        <span className="block font-semibold text-slate-800 dark:text-slate-200 dir-ltr">{item.item_code}</span>
                       )}
                       {item.serial_number ? (
-                        <span className="text-slate-500 dir-ltr inline-block">
+                        <span className="text-slate-500 dir-ltr block text-caption">
                           {item.serial_number}
                         </span>
                       ) : (
-                        <span className="text-slate-400">—</span>
+                        !item.item_code && <span className="text-slate-400">—</span>
                       )}
                     </td>
 
                     {/* Size / Spec */}
-                    <td className="p-3.5 text-body-sm text-slate-700 dark:text-slate-300 font-medium">
+                    <td className="p-3.5 align-middle text-caption text-slate-700 dark:text-slate-300 font-medium">
                       {item.size_spec || "—"}
                     </td>
 
-                    {/* Category */}
-                    <td className="p-3.5">
-                      <Badge variant="secondary">{item.category_name || "عام"}</Badge>
-                    </td>
-
                     {/* Stock Counters */}
-                    <td className="p-3.5 text-center font-mono">
-                      <div className="flex items-center justify-center gap-1.5">
-                        <span className="font-bold text-emerald-700 dark:text-emerald-400 text-body">{item.available_quantity ?? item.total_quantity}</span>
+                    <td className="p-3.5 align-middle text-center font-mono">
+                      <div className="inline-flex items-center gap-1">
+                        <span className="font-bold text-emerald-700 dark:text-emerald-400 text-body-sm">
+                          {item.available_quantity ?? item.total_quantity}
+                        </span>
                         <span className="text-slate-400">/</span>
-                        <span className="font-semibold text-slate-800 dark:text-slate-200">{item.total_quantity}</span>
+                        <span className="font-semibold text-slate-700 dark:text-slate-300 text-body-sm">
+                          {item.total_quantity}
+                        </span>
                       </div>
                       {item.assigned_quantity > 0 && (
                         <div className="text-caption text-amber-700 dark:text-amber-400 font-medium mt-0.5">
@@ -329,53 +334,46 @@ export function InventoryPage() {
                       )}
                     </td>
 
-                    {/* Status */}
-                    <td className="p-3.5">
-                      <Badge
-                        variant={
-                          item.status === "good"
-                            ? "success"
+                    {/* Status & Location */}
+                    <td className="p-3.5 align-middle">
+                      <div className="flex items-center gap-1.5">
+                        <span
+                          className={`h-2 w-2 rounded-full shrink-0 ${
+                            item.status === "good"
+                              ? "bg-emerald-500"
+                              : item.status === "maintenance"
+                              ? "bg-amber-500"
+                              : "bg-rose-500"
+                          }`}
+                        />
+                        <span className="font-semibold text-caption text-slate-800 dark:text-slate-200">
+                          {item.status === "good"
+                            ? "صالح للاستعمال"
                             : item.status === "maintenance"
-                            ? "warning"
-                            : "danger"
-                        }
-                      >
-                        {item.status === "good"
-                          ? "صالح للاستعمال"
-                          : item.status === "maintenance"
-                          ? "تحت الصيانة"
-                          : "تالف / مكهن"}
-                      </Badge>
-                    </td>
-
-                    {/* Current Custody Location */}
-                    <td className="p-3.5">
-                      {item.assigned_member_name ? (
-                        <div>
-                          <div className="font-semibold text-slate-900 dark:text-slate-100 text-body-sm">{item.assigned_member_name}</div>
-                          <div className="text-caption text-slate-500 font-mono">{item.assigned_member_force_number}</div>
-                        </div>
-                      ) : (
-                        <span className="px-2.5 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-caption font-semibold text-slate-600 dark:text-slate-300">
-                          بالمخزن الرئيسي
+                            ? "تحت الصيانة"
+                            : "تالف / مكهن"}
                         </span>
-                      )}
+                      </div>
+                      <div className="text-caption text-slate-500 font-medium mt-0.5">
+                        {item.assigned_member_name ? `بعهدة: ${item.assigned_member_name}` : "بالمخزن الرئيسي"}
+                      </div>
                     </td>
 
                     {/* Custody Actions */}
-                    <td className="p-3.5 text-center">
-                      <div className="flex items-center justify-center gap-1.5">
+                    <td className="p-3.5 align-middle text-end whitespace-nowrap">
+                      <div className="flex items-center justify-end gap-1.5">
                         {/* Issue Custody */}
                         <Button
                           size="sm"
-                          variant="soft-blue"
+                          variant="outline"
+                          className="h-8 px-2.5 text-blue-700 dark:text-blue-400 border-blue-200 dark:border-blue-800 hover:bg-blue-50 dark:hover:bg-blue-950/40 text-caption font-semibold shadow-2xs"
                           onClick={() => {
                             setSelectedItem(item);
                             setCustodyData({ member_id: "", quantity: "1", notes: "" });
                             setCustodyModalOpen(true);
                           }}
                           disabled={(item.available_quantity ?? item.total_quantity) <= 0}
-                          title="تسليم عهدة"
+                          title="تسليم عهدة لفرد"
                         >
                           تسليم
                         </Button>
@@ -384,13 +382,14 @@ export function InventoryPage() {
                         {item.assigned_quantity > 0 && (
                           <Button
                             size="sm"
-                            variant="soft-emerald"
+                            variant="outline"
+                            className="h-8 px-2.5 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 text-caption font-semibold shadow-2xs"
                             onClick={() => {
                               setSelectedItem(item);
                               setReturnData({ quantity: String(item.assigned_quantity), notes: "" });
                               setReturnModalOpen(true);
                             }}
-                            title="إرجاع للمخزن"
+                            title="إرجاع العهدة للمستودع"
                           >
                             إرجاع
                           </Button>
@@ -398,8 +397,9 @@ export function InventoryPage() {
 
                         {/* Mark Damaged */}
                         <Button
-                          size="icon-sm"
-                          variant="soft-rose"
+                          size="sm"
+                          variant="outline"
+                          className="h-8 px-2 text-rose-600 border-rose-200 dark:border-rose-800 hover:bg-rose-50 dark:hover:bg-rose-950/40 shadow-2xs"
                           onClick={() => {
                             setSelectedItem(item);
                             setDamageData({
@@ -409,7 +409,7 @@ export function InventoryPage() {
                             });
                             setDamageModalOpen(true);
                           }}
-                          title="تسجيل تالف / مكهن"
+                          title="تسجيل صنف تالف / مكهن"
                         >
                           <AlertTriangle className="w-3.5 h-3.5" />
                         </Button>
