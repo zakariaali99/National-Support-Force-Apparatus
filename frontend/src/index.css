@@ -35,17 +35,19 @@
    Nothing outside this block should ever restate one of these hex values. */
 :root {
   --ink-950: #0a0d14;
-  --ink-900: #121826;
-  --ink-800: #1a2234;
-  --ink-700: #232c40;
-  --ink-600: #2f3a52;
+  --ink-900: #101422;
+  --ink-800: #1a2038;
+  --ink-700: #232b4a;
+  --ink-600: #2d375e;
 
-  --navy-800: #1a2740;
-  --navy-600: #2f4674;
-  /* Lightened from #3e5a93 so a filled primary button clears 3:1 against the
-     dark page ground (WCAG 1.4.11) while white label text still clears 4.5:1.
-     Both bounds are asserted by scripts/check-contrast.mjs. */
+  --navy-800: #101422;
+  --navy-700: #151a2d;
+  --navy-600: #1a2038;
   --navy-500: #4a69a8;
+  --navy-400: #4d6391;
+
+  --brand-cyan: #2b95e8;
+  --brand-indigo: #5468d4;
 
   --gold-800: #7a5f0f;
   --gold-750: #9e7c15;
@@ -55,7 +57,7 @@
   --gold-300: #e8ce81;
   --gold-100: #f6ebcb;
 
-  --slate-50: #f8fafc;
+  --slate-50: #f7f9fc;
   --slate-100: #f1f5f9;
   --slate-200: #e2e8f0;
   --slate-300: #cbd5e1;
@@ -63,8 +65,8 @@
   --slate-500: #64748b;
   --slate-600: #475569;
   --slate-700: #334155;
-  --slate-800: #1e293b;
-  --slate-900: #0f172a;
+  --slate-800: #1a2038;
+  --slate-900: #101422;
 
   --paper-50: var(--slate-100);
   --paper-100: var(--slate-50);
@@ -73,14 +75,14 @@
   --paper-500: var(--slate-500);
 }
 
-/* --- Tier 2: semantic, light ----------------------------------------------- */
+/* --- Tier 2: semantic, light (Niqabaty-inspired) -------------------------- */
 :root {
-  --bg: #f8fafc;
+  --bg: #f3f5f9;
   --surface: #ffffff;
-  --surface-raised: #f1f5f9;
+  --surface-raised: #f7f9fc;
 
-  --fg: #0f172a;
-  --fg-subtle: #475569;
+  --fg: #1a2038;
+  --fg-subtle: #566480;
 
   --border: #e2e8f0;
   --border-strong: #64748b;
@@ -191,6 +193,19 @@
   --color-destructive-foreground: #ffffff;
   --color-ring: var(--focus);
 
+  /* Niqabaty brand utilities */
+  --color-navy: #1a2038;
+  --color-navy-50: #e8eaee;
+  --color-navy-100: #c2c8d6;
+  --color-navy-200: #99a5bf;
+  --color-navy-300: #7082a8;
+  --color-navy-400: #4d6391;
+  --color-navy-500: #1a2038;
+  --color-navy-600: #151a2d;
+  --color-navy-700: #101422;
+  --color-brand-cyan: #2b95e8;
+  --color-brand-indigo: #5468d4;
+
   --font-sans: "Cairo", ui-sans-serif, system-ui, sans-serif;
 
   /* --- Typography --------------------------------------------------------
@@ -226,9 +241,9 @@
      71 bold utilities across the old codebase is why nothing read as
      emphasis. */
 
-  --radius-control: 0.5rem; /* inputs, buttons */
-  --radius-card: 0.75rem; /* cards, panels */
-  --radius-panel: 1rem; /* dialogs, sheets */
+  --radius-control: 1rem; /* 16px inputs, buttons */
+  --radius-card: 1.75rem; /* 28px cards, panels */
+  --radius-panel: 2rem; /* 32px dialogs, sheets */
 
   /* Elevation: three levels, no more. Dark mode leans on `--surface-raised`
      stepping up in lightness rather than on these, which is why the dark

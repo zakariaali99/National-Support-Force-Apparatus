@@ -51,11 +51,11 @@ export function AppShell() {
       <MobileDrawer open={mobileOpen} onOpenChange={setMobileOpen} />
 
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b border-slate-200/80 dark:border-slate-800 bg-surface/95 backdrop-blur-md px-4 shadow-2xs md:px-6">
+        <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b border-white/10 bg-[#1A2038] text-white px-4 shadow-md backdrop-blur-md md:px-6">
           <Button
             variant="ghost"
             size="icon"
-            className="md:hidden shrink-0"
+            className="md:hidden shrink-0 text-white hover:bg-white/10 rounded-xl"
             onClick={() => setMobileOpen(true)}
             aria-label="فتح القائمة"
           >
@@ -65,19 +65,19 @@ export function AppShell() {
           {/* Breadcrumbs from nav metadata */}
           <nav
             aria-label="مسار التنقل"
-            className="flex items-center gap-1.5 text-caption font-medium text-slate-500 overflow-x-auto whitespace-nowrap py-1"
+            className="flex items-center gap-1.5 text-caption font-medium text-gray-300 overflow-x-auto whitespace-nowrap py-1"
           >
             {breadcrumbs.map((crumb, idx) => {
               const isLast = idx === breadcrumbs.length - 1;
               return (
                 <div key={crumb.to + idx} className="flex items-center gap-1.5">
-                  {idx > 0 && <ChevronLeft className="h-3.5 w-3.5 shrink-0 text-slate-400" />}
+                  {idx > 0 && <ChevronLeft className="h-3.5 w-3.5 shrink-0 text-gray-500" />}
                   {isLast ? (
-                    <span className="text-slate-900 dark:text-slate-100 font-bold">{crumb.label}</span>
+                    <span className="text-white font-bold">{crumb.label}</span>
                   ) : (
                     <Link
                       to={crumb.to}
-                      className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors flex items-center gap-1"
+                      className="text-gray-300 hover:text-[#2B95E8] transition-colors flex items-center gap-1"
                     >
                       {crumb.to === "/" && <Home className="h-3.5 w-3.5 shrink-0" />}
                       <span>{crumb.label}</span>
@@ -91,25 +91,25 @@ export function AppShell() {
           <div className="flex-1" />
 
           <div className="flex items-center gap-2.5">
-            <Button
-              variant="ghost"
-              className="hidden sm:inline-flex text-slate-500 hover:text-slate-900 dark:hover:text-slate-100 border border-slate-200/80 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30"
+            <button
+              type="button"
+              className="hidden sm:inline-flex items-center gap-2 text-gray-300 hover:text-white border border-white/10 bg-white/5 hover:bg-white/10 rounded-2xl h-10 px-4 text-body-sm transition-all cursor-pointer shadow-xs"
               onClick={() => setPaletteOpen(true)}
               aria-label="فتح لوحة الأوامر (Ctrl+K / ⌘K)"
             >
-              <Search className="h-4 w-4" />
-              <span className="text-body-sm">بحث...</span>
-              <kbd className="ms-2 hidden rounded-md border border-slate-200 dark:border-slate-700 bg-surface px-1.5 py-0.5 text-caption font-semibold text-slate-500 lg:inline shadow-2xs">
+              <Search className="h-4 w-4 text-gray-400" />
+              <span>بحث...</span>
+              <kbd className="ms-2 hidden rounded-lg border border-white/10 bg-white/5 px-1.5 py-0.5 text-caption font-semibold text-gray-300 lg:inline">
                 Ctrl+K
               </kbd>
-            </Button>
+            </button>
             <NotificationBell />
             <ThemeToggle />
             <UserMenu />
           </div>
         </header>
 
-        <main id="main-content" className="flex-1 p-4 md:p-6 max-w-7xl w-full mx-auto animate-slide-up">
+        <main id="main-content" className="flex-1 p-4 md:p-8 max-w-7xl w-full mx-auto animate-slide-up space-y-6">
           <Outlet />
         </main>
       </div>

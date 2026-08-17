@@ -4,7 +4,7 @@ export function Card({ className, ...props }) {
   return (
     <div
       className={cn(
-        "rounded-xl border border-slate-200/80 dark:border-slate-800 bg-surface text-fg shadow-xs transition-shadow duration-200",
+        "rounded-[28px] border border-slate-200/80 dark:border-white/10 bg-white dark:bg-[#1A2038] text-foreground shadow-sm transition-all duration-300",
         className
       )}
       {...props}
@@ -13,21 +13,21 @@ export function Card({ className, ...props }) {
 }
 
 export function CardHeader({ className, ...props }) {
-  return <div className={cn("flex flex-col gap-1 p-5", className)} {...props} />;
+  return <div className={cn("flex flex-col gap-1.5 p-6 lg:p-7", className)} {...props} />;
 }
 
 export function CardTitle({ className, ...props }) {
-  return <h2 className={cn("text-section font-semibold text-fg", className)} {...props} />;
+  return <h2 className={cn("text-title font-bold text-slate-900 dark:text-white tracking-tight", className)} {...props} />;
 }
 
 export function CardDescription({ className, ...props }) {
-  return <p className={cn("text-caption text-fg-subtle", className)} {...props} />;
+  return <p className={cn("text-caption text-slate-500 dark:text-gray-400", className)} {...props} />;
 }
 
 export function CardContent({ className, ...props }) {
-  return <div className={cn("p-5 pt-0", className)} {...props} />;
+  return <div className={cn("p-6 lg:p-7 pt-0", className)} {...props} />;
 }
 
 export function CardFooter({ className, ...props }) {
-  return <div className={cn("flex items-center p-5 pt-0 border-t border-slate-100 dark:border-slate-800 mt-4", className)} {...props} />;
+  return <div className={cn("flex items-center p-6 lg:p-7 pt-0 border-t border-slate-100 dark:border-white/10 mt-4", className)} {...props} />;
 }

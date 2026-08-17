@@ -193,44 +193,70 @@ export function InventoryPage() {
         </Button>
       </PageHeader>
 
-      {/* KPI Stats Cards */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        <StatCard title="إجمالي المخزون المملوك" value={stats.totalQty} icon={Boxes} variant="default" />
-        <StatCard title="المتاح في المستودع" value={stats.availableQty} icon={PackageCheck} variant="success" />
-        <StatCard title="المسلّم كعهدة للأفراد" value={stats.assignedQty} icon={UserCheck} variant="gold" />
-        <StatCard title="التالف والمكهن" value={stats.damagedQty} icon={AlertTriangle} variant="danger" />
+      {/* KPI Stats Cards (Niqabaty Signature Cards) */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        <StatCard
+          title="إجمالي المخزون المملوك"
+          value={stats.totalQty}
+          subtitle="كافة العتاد والأسلحة المسجلة"
+          icon={Boxes}
+          variant="navy"
+        />
+        <StatCard
+          title="المتاح في المستودع"
+          value={stats.availableQty}
+          subtitle="رصيد جاهز للتسليم الفوري"
+          icon={PackageCheck}
+          variant="default"
+          tone="success"
+        />
+        <StatCard
+          title="المسلّم كعهدة للأفراد"
+          value={stats.assignedQty}
+          subtitle="قطع ومهمات بعهدة القوة"
+          icon={UserCheck}
+          variant="gradient"
+        />
+        <StatCard
+          title="التالف والمكهن"
+          value={stats.damagedQty}
+          subtitle="قطع بحاجة لاستبدال أو صيانة"
+          icon={AlertTriangle}
+          variant="default"
+          tone="danger"
+        />
       </div>
 
-      {/* Tabs & Search Controls */}
-      <div className="flex flex-wrap items-center justify-between gap-4">
+      {/* Tabs & Search Controls (Niqabaty Floating Card) */}
+      <div className="rounded-[28px] border border-slate-200/80 dark:border-white/10 bg-white dark:bg-[#1A2038] p-5 md:p-6 shadow-sm flex flex-wrap items-center justify-between gap-4">
         {/* Category Tabs */}
-        <div className="flex items-center gap-1 p-1 bg-slate-100 dark:bg-slate-800/80 rounded-xl border border-slate-200/60 dark:border-slate-700/60">
+        <div className="flex items-center gap-1.5 p-1.5 bg-slate-100 dark:bg-white/5 rounded-2xl border border-slate-200/60 dark:border-white/10">
           <button
             onClick={() => setTypeTab("all")}
-            className={`px-3.5 py-1.5 rounded-lg text-body-sm font-semibold transition-all ${
+            className={`px-4 py-2 rounded-xl text-body-sm font-semibold transition-all cursor-pointer ${
               typeTab === "all"
-                ? "bg-surface text-slate-900 dark:text-slate-100 shadow-xs"
-                : "text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200"
+                ? "bg-white dark:bg-[#2B95E8] text-slate-900 dark:text-white shadow-xs"
+                : "text-slate-500 hover:text-slate-900 dark:text-gray-400 dark:hover:text-white"
             }`}
           >
             كافة الأصناف ({items.length})
           </button>
           <button
             onClick={() => setTypeTab("weapons")}
-            className={`px-3.5 py-1.5 rounded-lg text-body-sm font-semibold transition-all ${
+            className={`px-4 py-2 rounded-xl text-body-sm font-semibold transition-all cursor-pointer ${
               typeTab === "weapons"
-                ? "bg-surface text-slate-900 dark:text-slate-100 shadow-xs"
-                : "text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200"
+                ? "bg-white dark:bg-[#2B95E8] text-slate-900 dark:text-white shadow-xs"
+                : "text-slate-500 hover:text-slate-900 dark:text-gray-400 dark:hover:text-white"
             }`}
           >
             قسم التسليح والذخائر
           </button>
           <button
             onClick={() => setTypeTab("warehouse")}
-            className={`px-3.5 py-1.5 rounded-lg text-body-sm font-semibold transition-all ${
+            className={`px-4 py-2 rounded-xl text-body-sm font-semibold transition-all cursor-pointer ${
               typeTab === "warehouse"
-                ? "bg-surface text-slate-900 dark:text-slate-100 shadow-xs"
-                : "text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200"
+                ? "bg-white dark:bg-[#2B95E8] text-slate-900 dark:text-white shadow-xs"
+                : "text-slate-500 hover:text-slate-900 dark:text-gray-400 dark:hover:text-white"
             }`}
           >
             قسم المخزن والمهمات
@@ -238,14 +264,14 @@ export function InventoryPage() {
         </div>
 
         {/* Filter Inputs */}
-        <div className="flex items-center gap-2">
-          <div className="relative min-w-[260px]">
-            <Search className="w-4 h-4 absolute right-3 top-3 text-slate-400" />
+        <div className="flex items-center gap-3 flex-1 sm:flex-initial min-w-[280px]">
+          <div className="relative flex-1">
+            <Search className="w-4 h-4 absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 dark:text-gray-500" />
             <Input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="بحث بالاسم، الكود، أو السيريال..."
-              className="pr-9"
+              className="pr-10"
             />
           </div>
           <Select

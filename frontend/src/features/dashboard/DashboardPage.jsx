@@ -85,30 +85,30 @@ export function DashboardPage() {
   return (
     <div className="space-y-6">
       {/* Top Welcome Header */}
-      <div className="rounded-2xl border border-slate-200/80 dark:border-slate-800 bg-surface p-6 md:p-8 shadow-xs relative overflow-hidden">
+      <div className="rounded-[28px] border border-slate-200/80 dark:border-white/10 bg-white dark:bg-[#1A2038] p-6 md:p-8 shadow-sm relative overflow-hidden">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 relative z-10">
-          <div className="space-y-1.5">
-            <div className="flex items-center gap-2 text-caption font-semibold text-slate-500">
-              <Calendar className="h-4 w-4 text-blue-600" />
+          <div className="space-y-2">
+            <div className="flex items-center gap-2 text-caption font-semibold text-slate-500 dark:text-gray-400">
+              <Calendar className="h-4 w-4 text-[#2B95E8]" />
               <span>{currentDateArabic}</span>
             </div>
-            <h1 className="text-title font-bold text-slate-900 dark:text-slate-100 tracking-tight">
+            <h1 className="text-title font-bold text-slate-900 dark:text-white tracking-tight">
               أهلاً بك، {displayName} 👋
             </h1>
-            <p className="text-body-sm text-slate-600 dark:text-slate-400 max-w-2xl font-normal">
+            <p className="text-body-sm text-slate-600 dark:text-gray-300 max-w-2xl font-normal">
               لوحة التحكم الرئيسية لإدارة السجلات، شؤون الأفراد، والمستودع بالجهاز الوطني للقوى المساندة.
             </p>
           </div>
 
-          <div className="flex items-center gap-2.5 shrink-0">
+          <div className="flex items-center gap-3 shrink-0">
             <Link to="/members/new">
-              <Button size="sm" className="font-bold shadow-xs">
+              <Button size="default" className="font-medium shadow-md">
                 <UserPlus className="me-1.5 h-4 w-4" />
                 تسجيل فرد جديد
               </Button>
             </Link>
             <Link to="/members">
-              <Button variant="outline" size="sm" className="font-bold">
+              <Button variant="outline" size="default" className="font-medium">
                 <FileText className="me-1.5 h-4 w-4" />
                 السجل العام
               </Button>
@@ -117,25 +117,57 @@ export function DashboardPage() {
         </div>
       </div>
 
-      {/* KPI Stats Grid */}
-      <div ref={cardsRef} className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {stats.map((stat, idx) => (
-          <StatCard key={idx} {...stat} />
-        ))}
+      {/* KPI Stats Grid (Niqabaty Signature Cards) */}
+      <div ref={cardsRef} className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+        <StatCard
+          title="إجمالي القوة المسجلة"
+          value={totalCount}
+          subtitle="كافة الأفراد والضباط بالوحدة"
+          icon={Users}
+          variant="navy"
+          loading={isTotalLoading}
+        />
+        <StatCard
+          title="القوة العاملة بالخدمة"
+          value={activeCount}
+          subtitle="الأفراد على رأس العمل حالياً"
+          icon={UserCheck}
+          variant="default"
+          tone="success"
+          loading={isActiveLoading}
+        />
+        <StatCard
+          title="الأفراد في إجازة / راحة"
+          value={leaveCount}
+          subtitle="إجازات رسمية وراحات نوبة"
+          icon={Calendar}
+          variant="gradient"
+          loading={isLeaveLoading}
+        />
+        <StatCard
+          title="معاملات بانتظار الاعتماد"
+          value={pendingData?.count ?? 0}
+          subtitle="طلبات تحتاج لمراجعة المدير"
+          icon={ShieldAlert}
+          variant="default"
+          tone="danger"
+          loading={isPendingLoading}
+          pulse={(pendingData?.count ?? 0) > 0}
+        />
       </div>
 
       {/* Main Dashboard Layout split */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         {/* Recent Members widget */}
-        <Card className="lg:col-span-2 shadow-xs">
+        <Card className="lg:col-span-2 shadow-sm">
           <CardHeader className="flex flex-row items-center justify-between pb-3">
             <div>
-              <CardTitle className="text-section font-bold">أحدث الأفراد المسجلين</CardTitle>
+              <CardTitle className="text-title font-bold">أحدث الأفراد المسجلين</CardTitle>
               <CardDescription className="text-caption">سجل ببيانات آخر الأفراد المضافين للمنظومة الإدارية</CardDescription>
             </div>
             <Link
               to="/members"
-              className="text-caption font-bold text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1 bg-blue-50 dark:bg-blue-950/40 hover:bg-blue-100 dark:hover:bg-blue-900/40 px-3 py-1.5 rounded-xl transition-colors"
+              className="text-caption font-bold text-[#2B95E8] hover:underline flex items-center gap-1 bg-blue-50 dark:bg-white/5 hover:bg-blue-100 dark:hover:bg-white/10 px-3.5 py-1.5 rounded-xl transition-colors"
             >
               <span>عرض السجل الكامل</span>
               <ArrowLeft className="h-3.5 w-3.5 rtl:rotate-0 rotate-180" />

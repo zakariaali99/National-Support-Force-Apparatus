@@ -264,89 +264,91 @@ export function MemberList() {
 
       {/* Grid or Table Members Presentation */}
       {isLoading ? (
-        <div className="overflow-hidden rounded-2xl border border-border/80 bg-card p-6 space-y-4 shadow-sm">
+        <div className="overflow-hidden rounded-[28px] border border-slate-200/80 dark:border-white/10 bg-white dark:bg-[#1A2038] p-8 space-y-4 shadow-sm">
           {Array.from({ length: 5 }).map((_, idx) => (
-            <Skeleton key={idx} className="h-12 w-full rounded-xl" />
+            <Skeleton key={idx} className="h-12 w-full rounded-2xl" />
           ))}
         </div>
       ) : members.length === 0 ? (
-        <div className="flex flex-col items-center justify-center p-12 text-center border border-dashed border-border/80 rounded-2xl bg-card space-y-3 animate-fade-in shadow-xs">
-          <HelpCircle className="h-12 w-12 text-muted-foreground/45" />
-          <h3 className="font-bold text-base text-foreground">لا يوجد نتائج تطابق معايير البحث</h3>
-          <p className="text-xs text-muted-foreground max-w-xs">
+        <div className="flex flex-col items-center justify-center p-12 text-center border border-dashed border-slate-200 dark:border-white/10 rounded-[28px] bg-white dark:bg-[#1A2038] space-y-3 shadow-sm">
+          <div className="w-16 h-16 rounded-full bg-slate-100 dark:bg-white/5 flex items-center justify-center text-slate-400">
+            <HelpCircle className="h-8 w-8" />
+          </div>
+          <h3 className="font-bold text-base text-slate-900 dark:text-white">لا توجد نتائج تطابق معايير البحث</h3>
+          <p className="text-caption text-slate-500 max-w-xs">
             يرجى التأكد من كلمة البحث أو إلغاء تحديد بعض الفلاتر لإظهار الأفراد.
           </p>
         </div>
       ) : viewMode === "list" ? (
-        <Card className="overflow-hidden">
+        <Card className="overflow-hidden shadow-sm">
           <div className="overflow-x-auto scrollbar-thin">
             <table className="w-full text-right text-body-sm border-collapse">
-              <thead className="bg-slate-50/80 dark:bg-slate-800/40 text-slate-500 font-semibold border-b border-slate-200/80 dark:border-slate-800 text-caption">
+              <thead className="bg-slate-50/90 dark:bg-white/5 text-slate-500 font-bold border-b border-slate-200/80 dark:border-white/10 text-caption uppercase">
                 <tr>
-                  <th className="w-12 px-3 py-3.5 text-center">#</th>
-                  <th className="px-4 py-3.5 text-start font-semibold">
+                  <th className="w-16 px-4 py-4 text-center">#</th>
+                  <th className="px-5 py-4 text-start font-bold">
                     الاسم الكامل
                   </th>
-                  <th className="px-4 py-3.5 text-start font-semibold">
+                  <th className="px-5 py-4 text-start font-bold">
                     الرقم الحربي
                   </th>
-                  <th className="px-4 py-3.5 text-start font-semibold">
+                  <th className="px-5 py-4 text-start font-bold">
                     الرقم الوطني
                   </th>
-                  <th className="px-4 py-3.5 text-start font-semibold">
+                  <th className="px-5 py-4 text-start font-bold">
                     الرتبة العسكرية
                   </th>
-                  <th className="px-4 py-3.5 text-start font-semibold">
+                  <th className="px-5 py-4 text-start font-bold">
                     الفصيل (الإدارة)
                   </th>
-                  <th className="px-4 py-3.5 text-start font-semibold">
+                  <th className="px-5 py-4 text-start font-bold">
                     الحالة
                   </th>
-                  <th className="px-4 py-3.5 text-end font-semibold">
-                    الإجراءات السريعة
+                  <th className="px-5 py-4 text-end font-bold">
+                    الإجراءات
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100 dark:divide-slate-800 bg-surface">
+              <tbody className="divide-y divide-slate-100 dark:divide-white/5 bg-white dark:bg-[#1A2038]">
                 {members.map((member) => (
-                  <tr key={member.id} className="hover:bg-slate-50/70 dark:hover:bg-slate-800/30 transition-colors group">
-                    <td className="px-3 py-3 text-center align-middle">
+                  <tr key={member.id} className="hover:bg-slate-50/80 dark:hover:bg-white/5 transition-colors group">
+                    <td className="px-4 py-3.5 text-center align-middle">
                       <AuthedImage
                         src={member.photo_thumb_url}
                         alt={member.full_name}
-                        className="h-9 w-9 rounded-full border border-slate-200 dark:border-slate-700 object-cover mx-auto shadow-2xs"
+                        className="h-10 w-10 rounded-2xl border border-slate-200/80 dark:border-white/10 object-cover mx-auto shadow-2xs"
                       />
                     </td>
-                    <td className="px-4 py-3 text-start align-middle">
+                    <td className="px-5 py-3.5 text-start align-middle">
                       <Link
                         to={`/members/${member.id}`}
-                        className="font-semibold text-slate-900 dark:text-slate-100 hover:text-blue-700 dark:hover:text-blue-400 transition-colors flex items-center gap-1.5"
+                        className="font-bold text-slate-900 dark:text-white hover:text-[#2B95E8] transition-colors flex items-center gap-1.5"
                       >
                         <span>{member.full_name}</span>
-                        <ArrowUpRight className="h-3.5 w-3.5 opacity-0 group-hover:opacity-100 transition-opacity text-blue-600" />
+                        <ArrowUpRight className="h-3.5 w-3.5 opacity-0 group-hover:opacity-100 transition-opacity text-[#2B95E8]" />
                       </Link>
                     </td>
-                    <td className="px-4 py-3 text-start align-middle font-mono font-semibold text-slate-800 dark:text-slate-200 text-caption dir-ltr">
+                    <td className="px-5 py-3.5 text-start align-middle font-mono font-semibold text-slate-800 dark:text-slate-200 text-caption dir-ltr">
                       {member.force_number}
                     </td>
-                    <td className="px-4 py-3 text-start align-middle font-mono text-slate-500 text-caption dir-ltr">
+                    <td className="px-5 py-3.5 text-start align-middle font-mono text-slate-500 text-caption dir-ltr">
                       {member.national_number || "—"}
                     </td>
-                    <td className="px-4 py-3 text-start align-middle font-medium text-slate-700 dark:text-slate-300 text-caption">
+                    <td className="px-5 py-3.5 text-start align-middle font-medium text-slate-700 dark:text-slate-300 text-caption">
                       {member.rank_name || "—"}
                     </td>
-                    <td className="px-4 py-3 text-start align-middle font-medium text-slate-500 text-caption">
+                    <td className="px-5 py-3.5 text-start align-middle font-medium text-slate-500 text-caption">
                       {member.faction_name || "—"}
                     </td>
-                    <td className="px-4 py-3 text-start align-middle">
+                    <td className="px-5 py-3.5 text-start align-middle">
                       {canEdit ? (
                         <DropdownMenu>
                           <DropdownMenuTrigger className="outline-none">
-                            <Badge variant={getStatusVariant(member.service_status)} className="cursor-pointer hover:opacity-85">
+                            <Badge variant={getStatusVariant(member.service_status)} className="cursor-pointer hover:opacity-85 shadow-xs">
                               {serviceStatusLabel(member.service_status)}
                             </Badge>
                           </DropdownMenuTrigger>
-                          <DropdownMenuContent align="start">
+                          <DropdownMenuContent align="start" className="rounded-2xl shadow-xl p-2 border border-slate-200/80 dark:border-white/10">
                             <DropdownMenuLabel className="text-caption font-bold">تعديل الحالة العسكرية</DropdownMenuLabel>
                             <DropdownMenuSeparator />
                             {SERVICE_STATUS_OPTIONS.map((opt) => (

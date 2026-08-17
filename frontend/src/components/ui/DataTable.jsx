@@ -93,7 +93,7 @@ export function DataTable({
   const head = (compact = false) => (
     <thead
       className={cn(
-        "bg-slate-50/80 dark:bg-slate-800/40 text-slate-500 font-semibold border-b border-slate-200/80 dark:border-slate-800 text-caption",
+        "bg-slate-50/90 dark:bg-white/5 text-slate-500 font-bold border-b border-slate-200/80 dark:border-white/10 text-caption uppercase",
         compact && "bg-surface"
       )}
     >
@@ -102,7 +102,7 @@ export function DataTable({
           <th
             key={col.key}
             className={cn(
-              "px-4 py-3.5 text-start font-semibold text-caption text-slate-500 dark:text-slate-400 tracking-wide whitespace-nowrap",
+              "px-5 py-4 text-start font-bold text-caption text-slate-500 dark:text-gray-400 tracking-wide whitespace-nowrap",
               col.align === "center" && "text-center",
               col.align === "end" && "text-end",
               sortable && col.sortable !== false && "cursor-pointer select-none",
@@ -128,14 +128,14 @@ export function DataTable({
   );
 
   const body = (rowsToRender) => (
-    <tbody className="divide-y divide-slate-100 dark:divide-slate-800 bg-surface">
+    <tbody className="divide-y divide-slate-100 dark:divide-white/5 bg-white dark:bg-[#1A2038]">
       {rowsToRender.map((row, rIdx) => (
-        <tr key={row.id || rIdx} className="hover:bg-slate-50/70 dark:hover:bg-slate-800/30 transition-colors">
+        <tr key={row.id || rIdx} className="hover:bg-slate-50/80 dark:hover:bg-white/5 transition-colors">
           {normalizedColumns.map((col) => (
             <td
               key={col.key}
               className={cn(
-                "px-4 py-3.5 align-middle text-slate-800 dark:text-slate-200 font-medium whitespace-nowrap text-body-sm",
+                "px-5 py-4 align-middle text-slate-800 dark:text-slate-200 font-medium whitespace-nowrap text-body-sm",
                 col.align === "center" && "text-center",
                 col.align === "end" && "text-end",
                 col.cellClassName
@@ -150,11 +150,11 @@ export function DataTable({
   );
 
   const skeletonBody = (targetColumns = normalizedColumns) => (
-    <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+    <tbody className="divide-y divide-slate-100 dark:divide-white/5">
       {Array.from({ length: 5 }).map((_, rIdx) => (
         <tr key={rIdx}>
           {targetColumns.map((col) => (
-            <td key={col.key} className="px-4 py-3.5">
+            <td key={col.key} className="px-5 py-4">
               <Skeleton className="h-4 w-4/5 rounded-md" />
             </td>
           ))}
@@ -165,7 +165,7 @@ export function DataTable({
 
   if (actualLoading) {
     return (
-      <div className="overflow-hidden rounded-xl border border-slate-200/80 dark:border-slate-800 bg-surface shadow-xs">
+      <div className="overflow-hidden rounded-[28px] border border-slate-200/80 dark:border-white/10 bg-white dark:bg-[#1A2038] shadow-sm">
         <table className="w-full text-body-sm">
           {head(true)}
           {skeletonBody()}
@@ -176,8 +176,8 @@ export function DataTable({
 
   if (!actualRows || actualRows.length === 0) {
     return (
-      <div className="rounded-xl border border-slate-200/80 dark:border-slate-800 bg-surface p-12 text-center shadow-xs">
-        <p className="text-body-sm font-medium text-slate-500">{emptyMessage}</p>
+      <div className="rounded-[28px] border border-slate-200/80 dark:border-white/10 bg-white dark:bg-[#1A2038] p-12 text-center shadow-sm">
+        <p className="text-body-sm font-medium text-slate-500 dark:text-gray-400">{emptyMessage}</p>
       </div>
     );
   }
@@ -190,7 +190,7 @@ export function DataTable({
             <Fragment key={row.id || rIdx}>{rowCard(row)}</Fragment>
           ))}
         </div>
-        <div className="hidden md:block overflow-x-auto rounded-xl border border-slate-200/80 dark:border-slate-800 bg-surface shadow-xs scrollbar-thin">
+        <div className="hidden md:block overflow-x-auto rounded-[28px] border border-slate-200/80 dark:border-white/10 bg-white dark:bg-[#1A2038] shadow-sm scrollbar-thin">
           <table className="w-full text-body-sm border-collapse">
             {head()}
             {body(sortedRows)}
@@ -201,7 +201,7 @@ export function DataTable({
   }
 
   return (
-    <div className="overflow-x-auto rounded-xl border border-slate-200/80 dark:border-slate-800 bg-surface shadow-xs scrollbar-thin">
+    <div className="overflow-x-auto rounded-[28px] border border-slate-200/80 dark:border-white/10 bg-white dark:bg-[#1A2038] shadow-sm scrollbar-thin">
       <table className="w-full text-body-sm border-collapse">
         {head()}
         {body(sortedRows)}

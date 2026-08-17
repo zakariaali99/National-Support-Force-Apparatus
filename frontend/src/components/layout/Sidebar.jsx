@@ -22,24 +22,24 @@ export function SidebarContent({ onNavigate, collapsed = false, onToggleCollapse
   }
 
   return (
-    <div className="flex h-full flex-col bg-surface border-e border-slate-200/80 dark:border-slate-800 shadow-xs transition-all duration-300">
+    <div className="flex h-full flex-col bg-[#1A2038] text-white border-e border-white/10 shadow-2xl transition-all duration-300">
       {/* Header Logo & Collapse Toggle Button */}
       <div
         className={cn(
-          "flex items-center justify-between border-b border-slate-200/80 dark:border-slate-800 p-3 bg-slate-50/70 dark:bg-slate-800/40",
+          "flex items-center justify-between border-b border-white/10 p-3.5 bg-white/5",
           collapsed && "flex-col items-center gap-2 p-2"
         )}
       >
-        <div className="flex items-center gap-2.5 min-w-0 overflow-hidden">
+        <div className="flex items-center gap-3 min-w-0 overflow-hidden">
           <img
             src={sealUrl}
             alt="شعار الجهاز الوطني"
-            className="h-9 w-9 shrink-0 rounded-xl object-cover border border-slate-200 dark:border-slate-700"
+            className="h-10 w-10 shrink-0 rounded-2xl object-cover border border-white/20 shadow-md"
           />
           {!collapsed && (
             <div className="min-w-0 text-start">
-              <p className="truncate text-label font-bold text-slate-900 dark:text-slate-100">الجهاز الوطني للقوى المساندة</p>
-              <p className="truncate text-caption text-blue-700 dark:text-blue-400 font-bold">الوحدة القتالية الرابعة</p>
+              <p className="truncate text-label font-bold text-white tracking-tight">الجهاز الوطني للقوى المساندة</p>
+              <p className="truncate text-caption text-[#2B95E8] font-semibold">الوحدة القتالية الرابعة</p>
             </div>
           )}
         </div>
@@ -48,10 +48,10 @@ export function SidebarContent({ onNavigate, collapsed = false, onToggleCollapse
           <button
             type="button"
             onClick={onToggleCollapse}
-            className="p-1.5 rounded-xl text-slate-700 dark:text-slate-300 bg-surface hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-2xs transition-all flex items-center justify-center shrink-0 cursor-pointer"
+            className="p-2 rounded-2xl text-gray-300 hover:text-white bg-white/5 hover:bg-white/10 border border-white/10 transition-all flex items-center justify-center shrink-0 cursor-pointer"
             title={collapsed ? "فتح القائمة" : "طي القائمة"}
           >
-            {collapsed ? <PanelLeftClose className="h-4.5 w-4.5 text-blue-600" /> : <PanelLeftOpen className="h-4.5 w-4.5 text-slate-500" />}
+            {collapsed ? <PanelLeftClose className="h-4.5 w-4.5 text-[#2B95E8]" /> : <PanelLeftOpen className="h-4.5 w-4.5" />}
           </button>
         )}
       </div>
@@ -61,7 +61,7 @@ export function SidebarContent({ onNavigate, collapsed = false, onToggleCollapse
         {groups.map((group) => {
           if (group.items.length === 0) return null;
 
-          // When collapsed, render every section's row icons clearly centered
+          // When collapsed, render centered icon buttons
           if (collapsed) {
             return (
               <div key={group.id} className="space-y-1.5 w-full flex flex-col items-center">
@@ -75,10 +75,10 @@ export function SidebarContent({ onNavigate, collapsed = false, onToggleCollapse
                     onClick={onNavigate}
                     className={({ isActive }) =>
                       cn(
-                        "h-10 w-10 rounded-xl flex items-center justify-center transition-all font-bold shrink-0 mx-auto border shadow-2xs",
+                        "h-11 w-11 rounded-2xl flex items-center justify-center transition-all font-bold shrink-0 mx-auto",
                         isActive
-                          ? "bg-blue-700 text-white border-blue-700 shadow-xs"
-                          : "bg-surface text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-blue-700 border-slate-200 dark:border-slate-700"
+                          ? "bg-white/10 text-[#2B95E8] shadow-md border border-white/10"
+                          : "text-gray-400 hover:bg-white/5 hover:text-white"
                       )
                     }
                   >
@@ -89,21 +89,21 @@ export function SidebarContent({ onNavigate, collapsed = false, onToggleCollapse
             );
           }
 
-          // When expanded, render section header + slightly smaller row items
+          // When expanded, render section header + 2xl rounded items
           const isOpen = openSections[group.id] ?? true;
           return (
             <div key={group.id} className="space-y-1">
               <button
                 type="button"
                 onClick={() => toggleSection(group.id)}
-                className="w-full flex items-center justify-between px-2.5 py-1 text-caption font-bold text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200 transition-colors cursor-pointer"
+                className="w-full flex items-center justify-between px-3 py-1.5 text-caption font-bold text-gray-400 hover:text-white transition-colors cursor-pointer"
               >
                 <span>{group.title}</span>
-                {isOpen ? <ChevronUp className="h-3.5 w-3.5 text-blue-600" /> : <ChevronDown className="h-3.5 w-3.5 text-slate-400" />}
+                {isOpen ? <ChevronUp className="h-3.5 w-3.5 text-[#2B95E8]" /> : <ChevronDown className="h-3.5 w-3.5 text-gray-500" />}
               </button>
 
               {isOpen && (
-                <div className="space-y-0.5 pt-0.5">
+                <div className="space-y-1 pt-0.5">
                   {group.items.map(({ to, label, icon: Icon, end }) => (
                     <NavLink
                       key={to}
@@ -112,14 +112,14 @@ export function SidebarContent({ onNavigate, collapsed = false, onToggleCollapse
                       onClick={onNavigate}
                       className={({ isActive }) =>
                         cn(
-                          "flex items-center gap-2.5 rounded-lg h-9 px-2.5 text-body-sm font-semibold transition-all",
+                          "flex items-center gap-3 rounded-2xl h-11 px-3.5 text-body-sm font-medium transition-all duration-200",
                           isActive
-                            ? "bg-blue-700 text-white shadow-xs font-bold"
-                            : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-100"
+                            ? "bg-white/10 text-[#2B95E8] font-bold shadow-sm border border-white/10"
+                            : "text-gray-400 hover:bg-white/5 hover:text-white"
                         )
                       }
                     >
-                      <Icon className="h-4.5 w-4.5 shrink-0" />
+                      <Icon className="h-5 w-5 shrink-0" />
                       <span className="truncate text-start">{label}</span>
                     </NavLink>
                   ))}
@@ -133,20 +133,20 @@ export function SidebarContent({ onNavigate, collapsed = false, onToggleCollapse
       {/* Footer Profile Card & Logout Button */}
       <div
         className={cn(
-          "border-t border-slate-200/80 dark:border-slate-800 p-3 bg-slate-50/50 dark:bg-slate-800/20 flex items-center justify-between gap-2",
+          "border-t border-white/10 p-3 bg-white/5 flex items-center justify-between gap-2",
           collapsed && "flex-col justify-center p-2"
         )}
       >
         <div className="flex items-center gap-2.5 min-w-0">
-          <div className="h-8.5 w-8.5 rounded-xl bg-blue-700 text-white flex items-center justify-center font-bold text-caption shrink-0 shadow-xs">
+          <div className="h-9 w-9 rounded-2xl bg-[#2B95E8] text-white flex items-center justify-center font-bold text-caption shrink-0 shadow-md">
             {user?.first_name?.charAt(0) || user?.username?.charAt(0).toUpperCase()}
           </div>
           {!collapsed && (
             <div className="min-w-0 flex-1 text-start">
-              <p className="truncate text-caption font-bold text-slate-900 dark:text-slate-100">
+              <p className="truncate text-caption font-bold text-white">
                 {[user?.first_name, user?.last_name].filter(Boolean).join(" ") || user?.username}
               </p>
-              <p className="truncate text-caption text-slate-500 font-medium">
+              <p className="truncate text-caption text-gray-400 font-medium">
                 {user?.is_superuser ? "مدير النظام" : "مستخدم مصدق"}
               </p>
             </div>
@@ -158,7 +158,7 @@ export function SidebarContent({ onNavigate, collapsed = false, onToggleCollapse
           title="تسجيل الخروج"
           aria-label="تسجيل الخروج"
           className={cn(
-            "p-2 rounded-xl text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 border border-rose-200/60 dark:border-rose-800/40 transition-colors flex items-center gap-1.5 font-bold text-caption shrink-0 cursor-pointer",
+            "p-2 rounded-2xl text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 border border-rose-500/20 transition-colors flex items-center gap-1.5 font-bold text-caption shrink-0 cursor-pointer",
             collapsed && "w-9 h-9 justify-center p-0"
           )}
         >
@@ -176,8 +176,8 @@ export function Sidebar({ className }) {
   return (
     <aside
       className={cn(
-        "sticky top-0 h-screen shrink-0 bg-surface border-e border-slate-200/80 dark:border-slate-800 transition-all duration-300 z-20",
-        collapsed ? "w-16" : "w-72",
+        "sticky top-0 h-screen shrink-0 bg-[#1A2038] text-white border-e border-white/10 transition-all duration-300 z-20",
+        collapsed ? "w-18" : "w-72",
         className
       )}
     >

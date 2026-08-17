@@ -32,18 +32,19 @@ import { cn } from "../../lib/utils";
 
 const inputVariants = cva(
   [
-    "block w-full h-10 px-3.5",
-    "rounded-lg border bg-surface text-body-sm text-fg shadow-2xs",
-    "placeholder:text-slate-400 dark:placeholder:text-slate-500",
-    "focus:outline-none focus:border-blue-600 focus:ring-3 focus:ring-blue-500/15",
-    "transition-[border-color,box-shadow,background-color,color] duration-[var(--duration-fast)] ease-out",
-    "disabled:cursor-not-allowed disabled:border-border disabled:bg-surface-raised disabled:text-fg-subtle",
+    "block w-full h-11 px-4",
+    "rounded-2xl border border-slate-200/80 dark:border-white/10 bg-slate-100 dark:bg-white/5 text-body-sm text-foreground shadow-2xs",
+    "placeholder:text-slate-400 dark:placeholder:text-gray-500",
+    "hover:bg-slate-200/60 dark:hover:bg-white/10",
+    "focus:outline-none focus:!bg-white dark:focus:!bg-[#101422] focus:border-[#2B95E8] focus:ring-3 focus:ring-[#2B95E8]/20",
+    "transition-all duration-200 ease-out",
+    "disabled:cursor-not-allowed disabled:opacity-50 disabled:bg-slate-200 dark:disabled:bg-white/5",
   ].join(" "),
   {
     variants: {
       invalid: {
-        true: "border-danger focus:border-danger focus:ring-danger/15",
-        false: "border-slate-300 dark:border-slate-700 hover:border-slate-400 dark:hover:border-slate-600",
+        true: "border-danger focus:border-danger focus:ring-danger/20",
+        false: "",
       },
     },
     defaultVariants: { invalid: false },

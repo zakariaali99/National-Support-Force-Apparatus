@@ -218,31 +218,37 @@ export default function VehiclesPage() {
         </div>
       </PageHeader>
 
-      {/* KPI Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      {/* KPI Cards (Niqabaty Signature Style) */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
         <StatCard
           title="إجمالي أسطول المركبات"
           value={stats.total}
+          subtitle="كافة الآليات التكتيكية والإدارية"
           icon={Car}
-          variant="default"
+          variant="navy"
         />
         <StatCard
           title="مركبات جاهزة للخدمة"
           value={stats.ready}
+          subtitle="حالة تشغيلية ممتازة"
           icon={CheckCircle}
-          variant="success"
+          variant="default"
+          tone="success"
         />
         <StatCard
           title="تحت الصيانة والإصلاح"
           value={stats.maintenance}
+          subtitle="بانتظار قطع الغيار والفحص"
           icon={Wrench}
-          variant="warning"
+          variant="default"
+          tone="warning"
         />
         <StatCard
           title="مركبات مسلحة"
           value={stats.withWeapon}
+          subtitle="تحمل تجهيزات تسليح ميداني"
           icon={Crosshair}
-          variant="gold"
+          variant="gradient"
         />
       </div>
 

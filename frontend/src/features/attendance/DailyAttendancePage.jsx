@@ -183,67 +183,67 @@ export default function DailyAttendancePage() {
         </div>
       </PageHeader>
 
-      <Card>
-        <CardContent className="p-4 flex flex-wrap items-center justify-between gap-4">
-          <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm" onClick={() => navigateDate(1)} title="اليوم التالي">
-              <ChevronRight className="w-4 h-4" />
-            </Button>
-            <div className="flex items-center gap-2 px-3 py-1.5 bg-slate-50 dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 shadow-2xs">
-              <Calendar className="w-4 h-4 text-blue-600" />
-              <Input
-                type="date"
-                value={selectedDate}
-                onChange={(e) => setSelectedDate(e.target.value)}
-                className="border-0 p-0 h-auto font-mono text-body-sm font-semibold text-slate-900 dark:text-slate-100 bg-transparent focus:ring-0 shadow-none"
-              />
-            </div>
-            <Button variant="outline" size="sm" onClick={() => navigateDate(-1)} title="اليوم السابق">
-              <ChevronLeft className="w-4 h-4" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setSelectedDate(new Date().toISOString().split("T")[0])}
-            >
-              اليوم
-            </Button>
-          </div>
-
-          <div className="flex items-center gap-2 min-w-[240px]">
-            <span className="text-label text-slate-700 dark:text-slate-300 font-semibold shrink-0">الفصيل:</span>
-            <Select
-              value={selectedFaction}
-              onValueChange={setSelectedFaction}
-              options={[
-                { value: "all", label: "كافة الفصائل والوحدات" },
-                ...factions.map((f) => ({ value: String(f.id), label: f.name_ar })),
-              ]}
+      {/* Date & Faction Filter Card (Niqabaty Floating Style) */}
+      <div className="rounded-[28px] border border-slate-200/80 dark:border-white/10 bg-white dark:bg-[#1A2038] p-5 md:p-6 shadow-sm flex flex-wrap items-center justify-between gap-4">
+        <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" onClick={() => navigateDate(1)} title="اليوم التالي" className="rounded-xl">
+            <ChevronRight className="w-4 h-4" />
+          </Button>
+          <div className="flex items-center gap-2 px-3.5 py-2 bg-slate-100 dark:bg-white/5 rounded-2xl border border-slate-200/80 dark:border-white/10 shadow-2xs">
+            <Calendar className="w-4 h-4 text-[#2B95E8]" />
+            <Input
+              type="date"
+              value={selectedDate}
+              onChange={(e) => setSelectedDate(e.target.value)}
+              className="border-0 p-0 h-auto font-mono text-body-sm font-bold text-slate-900 dark:text-white bg-transparent focus:ring-0 shadow-none hover:bg-transparent"
             />
           </div>
-        </CardContent>
-      </Card>
+          <Button variant="outline" size="sm" onClick={() => navigateDate(-1)} title="اليوم السابق" className="rounded-xl">
+            <ChevronLeft className="w-4 h-4" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setSelectedDate(new Date().toISOString().split("T")[0])}
+            className="rounded-xl text-[#2B95E8] font-bold"
+          >
+            اليوم
+          </Button>
+        </div>
+
+        <div className="flex items-center gap-3 min-w-[260px]">
+          <span className="text-body-sm text-slate-700 dark:text-gray-300 font-semibold shrink-0">الفصيل:</span>
+          <Select
+            value={selectedFaction}
+            onValueChange={setSelectedFaction}
+            options={[
+              { value: "all", label: "كافة الفصائل والوحدات" },
+              ...factions.map((f) => ({ value: String(f.id), label: f.name_ar })),
+            ]}
+          />
+        </div>
+      </div>
 
       {saveSuccessMsg && (
-        <div className="p-4 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200/60 dark:border-emerald-800/40 rounded-xl text-emerald-800 dark:text-emerald-300 flex items-center gap-3 animate-in fade-in">
+        <div className="p-4 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200/60 dark:border-emerald-800/40 rounded-2xl text-emerald-800 dark:text-emerald-300 flex items-center gap-3 animate-in fade-in">
           <CheckCircle2 className="w-5 h-5 shrink-0 text-emerald-600" />
           <span className="font-semibold text-body-sm">{saveSuccessMsg}</span>
         </div>
       )}
 
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-        <StatCard title="إجمالي القوة" value={stats.total} icon={Users} variant="default" />
-        <StatCard title="المستحقون للخدمة" value={stats.dutyExpected} icon={ShieldCheck} variant="gold" />
-        <StatCard title="حاضر" value={stats.present} icon={CheckCircle2} variant="success" />
-        <StatCard title="تأخير بالساعة" value={stats.late} icon={Clock} variant="warning" />
-        <StatCard title="غياب مأذون (خصم)" value={stats.excused} icon={AlertCircle} variant="warning" />
-        <StatCard title="غياب بدون إذن" value={stats.unexcused} icon={UserX} variant="danger" />
+        <StatCard title="إجمالي القوة" value={stats.total} icon={Users} variant="navy" />
+        <StatCard title="المستحقون للخدمة" value={stats.dutyExpected} icon={ShieldCheck} variant="gradient" />
+        <StatCard title="حاضر" value={stats.present} icon={CheckCircle2} variant="default" tone="success" />
+        <StatCard title="تأخير بالساعة" value={stats.late} icon={Clock} variant="default" tone="warning" />
+        <StatCard title="غياب مأذون" value={stats.excused} icon={AlertCircle} variant="default" tone="warning" />
+        <StatCard title="غياب بدون إذن" value={stats.unexcused} icon={UserX} variant="default" tone="danger" />
       </div>
 
-      <Card className="overflow-hidden">
+      <Card className="overflow-hidden shadow-sm">
         <CardContent className="p-0 overflow-x-auto">
-          <table className="w-full text-right text-body-sm">
-            <thead className="bg-slate-50/80 dark:bg-slate-800/40 border-b border-slate-200/80 dark:border-slate-800 text-slate-500 font-semibold">
+          <table className="w-full text-right text-body-sm border-collapse">
+            <thead className="bg-slate-50/90 dark:bg-white/5 text-slate-500 font-bold border-b border-slate-200/80 dark:border-white/10 text-caption uppercase">
               <tr>
                 <th className="p-3.5">الفرد والرتبة</th>
                 <th className="p-3.5">الفصيل والنوبة</th>
