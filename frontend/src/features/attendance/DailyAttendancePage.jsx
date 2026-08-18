@@ -8,6 +8,7 @@ import { PageHeader } from "../../components/ui/PageHeader";
 import { StatCard } from "../../components/ui/StatCard";
 import { Input } from "../../components/ui/Input";
 import { Select } from "../../components/ui/Select";
+import { showToast } from "../../components/ui/Toast";
 import {
   Calendar,
   ChevronRight,
@@ -21,28 +22,30 @@ import {
   CheckCheck,
   AlertCircle,
   Printer,
+  Search,
+  Check,
+  X,
+  Edit3,
+  CalendarCheck,
+  Briefcase,
+  Coffee,
+  Sparkles,
+  RotateCcw,
 } from "lucide-react";
 import { DailyAttendancePrintDialog } from "./DailyAttendancePrintDialog";
-
-const ATTENDANCE_STATUS_OPTIONS = [
-  { value: "present", label: "حاضر" },
-  { value: "late", label: "متأخر" },
-  { value: "early_departure", label: "انصراف مبكر" },
-  { value: "excused_absence", label: "غياب بإذن (يخصم من الإجازات)" },
-  { value: "unexcused_absence", label: "غياب بدون إذن" },
-  { value: "shift_off", label: "راحة نوبة" },
-  { value: "vacation", label: "إجازة رسمية" },
-  { value: "mission", label: "مأمورية / تكليف" },
-];
+import { AttendanceDetailsDialog } from "./AttendanceDetailsDialog";
 
 export function DailyAttendancePage() {
   const [selectedDate, setSelectedDate] = useState(() => {
     return new Date().toISOString().split("T")[0];
   });
   const [selectedFaction, setSelectedFaction] = useState("all");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
   const [localRows, setLocalRows] = useState([]);
-  const [saveSuccessMsg, setSaveSuccessMsg] = useState("");
+  const [isDirty, setIsDirty] = useState(false);
   const [printModalOpen, setPrintModalOpen] = useState(false);
+  const [activeDetailsRow, setActiveDetailsRow] = useState(null);
 
   const { data: factions = [] } = useFactions();
 
@@ -63,6 +66,7 @@ export function DailyAttendancePage() {
           member_name: item.member_name,
           force_number: item.force_number,
           rank_name: item.rank_name,
+          faction_id: item.faction_id,
           faction_name: item.faction_name,
           shift_group_name: item.shift_group_name,
           shift_pattern: item.shift_pattern,
@@ -77,22 +81,72 @@ export function DailyAttendancePage() {
           notes: item.notes || "",
         }))
       );
+      setIsDirty(false);
     }
   }, [sheetData]);
 
-  const handleRowChange = (memberId, field, value) => {
+  // Date Navigation Helpers
+  const handleDateChange = (deltaDays) => {
+    const d = new Date(selectedDate);
+    d.setDate(d.getDate() + deltaDays);
+    setSelectedDate(d.toISOString().split("T")[0]);
+  };
+
+  const handleSetToday = () => {
+    setSelectedDate(new Date().toISOString().split("T")[0]);
+  };
+
+  // Instant Single-Click Row Status Toggle
+  const handleSetStatus = (memberId, newStatus) => {
     setLocalRows((prev) =>
       prev.map((row) => {
         if (row.member_id === memberId) {
-          const updated = { ...row, [field]: value };
-          // Auto-adjust status if hours are changed
-          if (field === "late_hours" && parseFloat(value) > 0 && updated.status === "present") {
+          const updated = { ...row, status: newStatus };
+          if (newStatus === "present") {
+            updated.late_hours = 0;
+            updated.early_departure_hours = 0;
+            updated.excused_hours = 0;
+            if (!updated.check_in_time) updated.check_in_time = "08:00";
+          }
+          return updated;
+        }
+        return row;
+      })
+    );
+    setIsDirty(true);
+  };
+
+  // One-Click "Mark All Present" Action
+  const handleMarkAllPresent = () => {
+    setLocalRows((prev) =>
+      prev.map((row) => {
+        // Only set on-duty or non-vacation personnel to present
+        if (row.status === "vacation" || row.status === "mission") return row;
+        return {
+          ...row,
+          status: "present",
+          late_hours: 0,
+          early_departure_hours: 0,
+          excused_hours: 0,
+          check_in_time: row.check_in_time || "08:00",
+        };
+      })
+    );
+    setIsDirty(true);
+    showToast("تم تحضير جميع أفراد القوة كـ (حاضر) بنجاح", "success");
+  };
+
+  // Save granular details from dialog
+  const handleSaveDetails = (memberId, detailsData) => {
+    setLocalRows((prev) =>
+      prev.map((row) => {
+        if (row.member_id === memberId) {
+          const updated = { ...row, ...detailsData };
+          // Auto-adjust status if hours are present
+          if (parseFloat(detailsData.late_hours) > 0 && updated.status === "present") {
             updated.status = "late";
           }
-          if (field === "early_departure_hours" && parseFloat(value) > 0 && updated.status === "present") {
-            updated.status = "early_departure";
-          }
-          if (field === "excused_hours" && parseFloat(value) > 0) {
+          if (parseFloat(detailsData.excused_hours) > 0) {
             updated.status = "excused_absence";
           }
           return updated;
@@ -100,131 +154,158 @@ export function DailyAttendancePage() {
         return row;
       })
     );
+    setIsDirty(true);
+    showToast("تم تحديث تفاصيل التمام للفرد", "success");
   };
 
-  const markAllOnDutyPresent = () => {
-    setLocalRows((prev) =>
-      prev.map((row) => {
-        if (row.expected_duty === "duty") {
-          return {
-            ...row,
-            status: "present",
-            late_hours: 0,
-            early_departure_hours: 0,
-            excused_hours: 0,
-          };
-        }
-        return row;
-      })
-    );
+  // Submit and Save Roll-Call
+  const handleSaveAttendance = async () => {
+    if (localRows.length === 0) return;
+
+    try {
+      await recordBulk.mutateAsync({
+        date: selectedDate,
+        records: localRows.map((r) => ({
+          member_id: r.member_id,
+          status: r.status,
+          check_in_time: r.check_in_time || null,
+          check_out_time: r.check_out_time || null,
+          late_hours: parseFloat(r.late_hours) || 0,
+          early_departure_hours: parseFloat(r.early_departure_hours) || 0,
+          excused_hours: parseFloat(r.excused_hours) || 0,
+          notes: r.notes || "",
+        })),
+      });
+      setIsDirty(false);
+      showToast(`تم حفظ واعتماد تمام (${localRows.length}) فرد بنجاح`, "success");
+      refetch();
+    } catch {
+      showToast("تعذر حفظ التمام، يرجى إعادة المحاولة", "error");
+    }
   };
 
-  const handleSaveAll = async () => {
-    const payload = {
-      date: selectedDate,
-      records: localRows.map((r) => ({
-        member_id: r.member_id,
-        status: r.status,
-        check_in_time: r.check_in_time || null,
-        check_out_time: r.check_out_time || null,
-        late_hours: parseFloat(r.late_hours) || 0,
-        early_departure_hours: parseFloat(r.early_departure_hours) || 0,
-        excused_hours: parseFloat(r.excused_hours) || 0,
-        notes: r.notes || "",
-      })),
-    };
-
-    const res = await recordBulk.mutateAsync(payload);
-    setSaveSuccessMsg(res?.message || "تم حفظ التمام اليومي بنجاح وتحديث أرصدة الإجازات.");
-    setTimeout(() => setSaveSuccessMsg(""), 5000);
-    refetch();
-  };
-
-  const navigateDate = (days) => {
-    const d = new Date(selectedDate);
-    d.setDate(d.getDate() + days);
-    setSelectedDate(d.toISOString().split("T")[0]);
-  };
-
-  // Summary statistics for current local state
+  // Live Statistics
   const stats = useMemo(() => {
     const total = localRows.length;
-    const dutyExpected = localRows.filter((r) => r.expected_duty === "duty").length;
     const present = localRows.filter((r) => r.status === "present").length;
     const late = localRows.filter((r) => r.status === "late" || parseFloat(r.late_hours) > 0).length;
-    const excused = localRows.filter((r) => r.status === "excused_absence" || parseFloat(r.excused_hours) > 0).length;
     const unexcused = localRows.filter((r) => r.status === "unexcused_absence").length;
+    const excused = localRows.filter(
+      (r) => r.status === "excused_absence" || parseFloat(r.excused_hours) > 0
+    ).length;
+    const vacationMission = localRows.filter((r) => r.status === "vacation" || r.status === "mission").length;
     const shiftOff = localRows.filter((r) => r.status === "shift_off").length;
-    return { total, dutyExpected, present, late, excused, unexcused, shiftOff };
+
+    return { total, present, late, unexcused, excused, vacationMission, shiftOff };
   }, [localRows]);
+
+  // Filtered Rows for search & status pill
+  const filteredRows = useMemo(() => {
+    return localRows.filter((row) => {
+      const matchesSearch =
+        !searchQuery.trim() ||
+        row.member_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (row.force_number && row.force_number.toLowerCase().includes(searchQuery.toLowerCase())) ||
+        (row.rank_name && row.rank_name.toLowerCase().includes(searchQuery.toLowerCase()));
+
+      let matchesStatus = true;
+      if (statusFilter === "present") matchesStatus = row.status === "present";
+      else if (statusFilter === "late") matchesStatus = row.status === "late" || parseFloat(row.late_hours) > 0;
+      else if (statusFilter === "absent") matchesStatus = row.status === "unexcused_absence";
+      else if (statusFilter === "excused") matchesStatus = row.status === "excused_absence" || parseFloat(row.excused_hours) > 0;
+      else if (statusFilter === "vacation") matchesStatus = row.status === "vacation" || row.status === "mission";
+      else if (statusFilter === "off") matchesStatus = row.status === "shift_off";
+
+      return matchesSearch && matchesStatus;
+    });
+  }, [localRows, searchQuery, statusFilter]);
 
   return (
     <div className="space-y-6" dir="rtl">
+      {/* Top Header & Actions */}
       <PageHeader
-        title="التمام اليومي وحضور القوة"
-        description="تسجيل تمام الحضور، التأخير، الانصراف المبكر، والغياب بالساعة مع الاحتساب الآلي لورديات النوبات."
+        title="كشف التمام والانضباط اليومي المباشر"
+        description="تحضير وتوثيق حضور وغياب أفراد القوة، النوبات، والتأخيرات بأسلوب إداري سريع ومعتمد."
       >
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2.5">
           <Button
             variant="outline"
             onClick={() => setPrintModalOpen(true)}
-            className="gap-1.5 rounded-xl font-bold"
-            disabled={localRows.length === 0}
+            className="gap-2 rounded-2xl font-bold border-slate-200/80 dark:border-white/10"
           >
             <Printer className="w-4 h-4 text-[#2B95E8]" />
-            <span>طباعة الكشف الرسمي</span>
+            <span>طباعة كشف التمام (PDF)</span>
           </Button>
+
           <Button
             variant="outline"
-            onClick={markAllOnDutyPresent}
-            className="gap-1.5 rounded-xl font-bold"
-            disabled={localRows.length === 0}
+            onClick={handleMarkAllPresent}
+            disabled={localRows.length === 0 || isLoading}
+            className="gap-2 rounded-2xl font-bold text-emerald-600 dark:text-emerald-400 border-emerald-200/80 dark:border-emerald-900/40 hover:bg-emerald-50 dark:hover:bg-emerald-950/30"
           >
-            <CheckCheck className="w-4 h-4 text-emerald-600" />
-            <span>تسجيل حضور كافة مستحقي الخدمة</span>
+            <Sparkles className="w-4 h-4" />
+            <span>تحضير الكل كـ (حاضر)</span>
           </Button>
+
           <Button
             variant="primary"
-            onClick={handleSaveAll}
-            disabled={recordBulk.isPending || localRows.length === 0}
-            className="gap-1.5 rounded-xl font-bold"
+            onClick={handleSaveAttendance}
+            disabled={recordBulk.isPending || isLoading || localRows.length === 0}
+            className="gap-2 rounded-2xl font-bold shadow-xs px-5"
           >
             <Save className="w-4 h-4" />
-            <span>{recordBulk.isPending ? "جاري الحفظ..." : "حفظ التمام اليومي"}</span>
+            <span>{recordBulk.isPending ? "جاري الحفظ..." : isDirty ? "حفظ التمام (تغييرات معلقة)" : "حفظ واعتماد التمام"}</span>
           </Button>
         </div>
       </PageHeader>
 
-      {/* Date & Faction Filter Card (Niqabaty Floating Style) */}
-      <div className="rounded-[28px] border border-slate-200/80 dark:border-white/10 bg-white dark:bg-[#1A2038] p-5 md:p-6 shadow-sm flex flex-wrap items-center justify-between gap-4">
+      {/* Control Strip (Date & Faction Selector) */}
+      <div className="rounded-[28px] border border-slate-200/80 dark:border-white/10 bg-white dark:bg-[#1A2038] p-4 md:p-5 shadow-sm flex flex-wrap items-center justify-between gap-4">
+        {/* Date Selector with Quick Step */}
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" onClick={() => navigateDate(1)} title="اليوم التالي" className="rounded-xl">
-            <ChevronRight className="w-4 h-4" />
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => handleDateChange(1)}
+            className="rounded-xl px-2.5"
+            title="اليوم التالي"
+          >
+            <ChevronRight className="w-4 h-4 rtl:rotate-0 rotate-180" />
           </Button>
-          <div className="flex items-center gap-2 px-3.5 py-2 bg-slate-100 dark:bg-white/5 rounded-2xl border border-slate-200/80 dark:border-white/10 shadow-2xs">
+
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded-2xl bg-slate-50 dark:bg-white/5 border border-slate-200/60 dark:border-white/10">
             <Calendar className="w-4 h-4 text-[#2B95E8]" />
             <Input
               type="date"
               value={selectedDate}
               onChange={(e) => setSelectedDate(e.target.value)}
-              className="border-0 p-0 h-auto font-mono text-body-sm font-bold text-slate-900 dark:text-white bg-transparent focus:ring-0 shadow-none hover:bg-transparent"
+              className="border-none bg-transparent h-8 p-0 text-body-sm font-bold font-mono focus:ring-0 cursor-pointer text-slate-900 dark:text-white"
             />
           </div>
-          <Button variant="outline" size="sm" onClick={() => navigateDate(-1)} title="اليوم السابق" className="rounded-xl">
-            <ChevronLeft className="w-4 h-4" />
-          </Button>
+
           <Button
-            variant="ghost"
+            variant="outline"
             size="sm"
-            onClick={() => setSelectedDate(new Date().toISOString().split("T")[0])}
-            className="rounded-xl text-[#2B95E8] font-bold"
+            onClick={() => handleDateChange(-1)}
+            className="rounded-xl px-2.5"
+            title="اليوم السابق"
+          >
+            <ChevronLeft className="w-4 h-4 rtl:rotate-0 rotate-180" />
+          </Button>
+
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleSetToday}
+            className="rounded-xl text-caption font-bold text-[#2B95E8]"
           >
             اليوم
           </Button>
         </div>
 
-        <div className="flex items-center gap-3 min-w-[260px]">
-          <span className="text-body-sm text-slate-700 dark:text-gray-300 font-semibold shrink-0">الفصيل:</span>
+        {/* Faction Filter */}
+        <div className="flex items-center gap-3 min-w-[240px]">
+          <span className="text-label text-slate-600 dark:text-gray-300 font-bold whitespace-nowrap">الفصيل / الإدارة:</span>
           <Select
             value={selectedFaction}
             onValueChange={setSelectedFaction}
@@ -236,152 +317,325 @@ export function DailyAttendancePage() {
         </div>
       </div>
 
-      {saveSuccessMsg && (
-        <div className="p-4 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200/60 dark:border-emerald-800/40 rounded-2xl text-emerald-800 dark:text-emerald-300 flex items-center gap-3 animate-in fade-in">
-          <CheckCircle2 className="w-5 h-5 shrink-0 text-emerald-600" />
-          <span className="font-semibold text-body-sm">{saveSuccessMsg}</span>
-        </div>
-      )}
-
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-        <StatCard title="إجمالي القوة" value={stats.total} icon={Users} variant="navy" />
-        <StatCard title="المستحقون للخدمة" value={stats.dutyExpected} icon={ShieldCheck} variant="gradient" />
-        <StatCard title="حاضر" value={stats.present} icon={CheckCircle2} variant="default" tone="success" />
-        <StatCard title="تأخير بالساعة" value={stats.late} icon={Clock} variant="default" tone="warning" />
-        <StatCard title="غياب مأذون" value={stats.excused} icon={AlertCircle} variant="default" tone="warning" />
-        <StatCard title="غياب بدون إذن" value={stats.unexcused} icon={UserX} variant="default" tone="danger" />
+      {/* KPI Stats Strip */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3.5">
+        <StatCard
+          title="قوة التمام"
+          value={stats.total}
+          subtitle="إجمالي القوة"
+          icon={Users}
+          variant="navy"
+        />
+        <StatCard
+          title="حاضر"
+          value={stats.present}
+          subtitle="بالخدمة الفعلية"
+          icon={CheckCircle2}
+          variant="default"
+          tone="success"
+        />
+        <StatCard
+          title="متأخر"
+          value={stats.late}
+          subtitle="تأخير بالساعة"
+          icon={Clock}
+          variant="default"
+          tone="warning"
+        />
+        <StatCard
+          title="غياب بدون إذن"
+          value={stats.unexcused}
+          subtitle="غياب غير مبرر"
+          icon={UserX}
+          variant="default"
+          tone="danger"
+        />
+        <StatCard
+          title="إذن / إجازات"
+          value={stats.excused + stats.vacationMission}
+          subtitle="إجازات ومأموريات"
+          icon={Briefcase}
+          variant="gradient"
+        />
+        <StatCard
+          title="راحة نوبة"
+          value={stats.shiftOff}
+          subtitle="عطلة مجدولة"
+          icon={Coffee}
+          variant="default"
+        />
       </div>
 
+      {/* Quick Search & Status Filter Pills */}
+      <div className="rounded-[28px] border border-slate-200/80 dark:border-white/10 bg-white dark:bg-[#1A2038] p-4 shadow-sm space-y-3">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          {/* Real-time search */}
+          <div className="relative flex-1 min-w-[260px] max-w-md">
+            <Search className="absolute right-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+            <Input
+              type="text"
+              placeholder="ابحث بالاسم، الرتبة، أو الرقم العسكري..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pr-10 rounded-2xl h-10 text-body-sm"
+            />
+          </div>
+
+          {/* Status Filter Pills */}
+          <div className="flex flex-wrap items-center gap-1.5 p-1 bg-slate-100 dark:bg-white/5 rounded-2xl border border-slate-200/60 dark:border-white/10">
+            {[
+              { id: "all", label: "الكل", count: stats.total },
+              { id: "present", label: "حاضر", count: stats.present, color: "text-emerald-600" },
+              { id: "late", label: "متأخر", count: stats.late, color: "text-amber-600" },
+              { id: "absent", label: "غياب", count: stats.unexcused, color: "text-rose-600" },
+              { id: "excused", label: "مأذون", count: stats.excused, color: "text-blue-600" },
+              { id: "vacation", label: "إجازة/مأمورية", count: stats.vacationMission, color: "text-purple-600" },
+              { id: "off", label: "راحة", count: stats.shiftOff, color: "text-slate-500" },
+            ].map((tab) => (
+              <button
+                key={tab.id}
+                type="button"
+                onClick={() => setStatusFilter(tab.id)}
+                className={`px-3 py-1.5 rounded-xl text-caption font-bold transition-all flex items-center gap-1.5 ${
+                  statusFilter === tab.id
+                    ? "bg-white dark:bg-[#1A2038] text-slate-900 dark:text-white shadow-xs border border-slate-200/80 dark:border-white/10"
+                    : "text-slate-500 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white"
+                }`}
+              >
+                <span>{tab.label}</span>
+                <span className={`font-mono text-caption px-1.5 py-0.2 rounded-md bg-slate-200/60 dark:bg-white/10 ${tab.color || ""}`}>
+                  {tab.count}
+                </span>
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Main Roll-Call Table */}
       <Card className="overflow-hidden shadow-sm rounded-[28px] border border-slate-200/80 dark:border-white/10 bg-white dark:bg-[#1A2038]">
         <CardContent className="p-0 overflow-x-auto">
           <table className="w-full text-right text-body-sm border-collapse">
             <thead className="bg-slate-50/90 dark:bg-white/5 text-slate-500 dark:text-gray-400 font-bold border-b border-slate-200/80 dark:border-white/10 text-caption uppercase">
               <tr>
-                <th className="p-3.5">الفرد والرتبة</th>
-                <th className="p-3.5">الفصيل والنوبة</th>
-                <th className="p-3.5">التمام المتوقع</th>
-                <th className="p-3.5 min-w-[170px]">حالة التمام الفعلية</th>
-                <th className="p-3.5 min-w-[90px]">التأخير (ساعة)</th>
-                <th className="p-3.5 min-w-[90px]">الانصراف المبكر</th>
-                <th className="p-3.5 min-w-[120px]">إذن / غياب بالساعة</th>
-                <th className="p-3.5">الخصم من الرصيد</th>
-                <th className="p-3.5 min-w-[180px]">ملاحظات</th>
+                <th className="p-4">الفرد والرتبة</th>
+                <th className="p-4">الفصيل والوردية</th>
+                <th className="p-4">التمام المتوقع</th>
+                <th className="p-4 min-w-[380px] text-center">حالة التمام السريعة (بنقرة واحدة)</th>
+                <th className="p-4 min-w-[180px]">التفاصيل والملاحظات</th>
+                <th className="p-4 text-center">إجراء</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-white/10">
               {isLoading ? (
                 <tr>
-                  <td colSpan={9} className="p-8 text-center text-slate-500">
-                    جاري تحميل جدول التمام وقوة الفصيل...
+                  <td colSpan={6} className="p-12 text-center text-slate-500 dark:text-gray-400">
+                    جاري تحميل كشف قوة الفصيل والتمام...
                   </td>
                 </tr>
-              ) : localRows.length === 0 ? (
+              ) : filteredRows.length === 0 ? (
                 <tr>
-                  <td colSpan={9} className="p-8 text-center text-slate-500">
-                    لا يوجد أفراد مسجلون في الفصيل المختار.
+                  <td colSpan={6} className="p-12 text-center text-slate-500 dark:text-gray-400">
+                    لا توجد سجلات تطابق معايير البحث والفلترة.
                   </td>
                 </tr>
               ) : (
-                localRows.map((row) => {
-                  const excusedNum = parseFloat(row.excused_hours) || 0;
-                  const calculatedDeduction =
-                    row.status === "excused_absence"
-                      ? excusedNum > 0
-                        ? (excusedNum / 8.0).toFixed(2)
-                        : "1.00"
-                      : "0.00";
+                filteredRows.map((row) => {
+                  const isPresent = row.status === "present";
+                  const isLate = row.status === "late" || parseFloat(row.late_hours) > 0;
+                  const isAbsent = row.status === "unexcused_absence";
+                  const isExcused = row.status === "excused_absence" || parseFloat(row.excused_hours) > 0;
+                  const isVacation = row.status === "vacation";
+                  const isMission = row.status === "mission";
+                  const isOff = row.status === "shift_off";
 
                   return (
                     <tr
                       key={row.member_id}
-                      className={`hover:bg-slate-50/60 dark:hover:bg-white/5 transition-colors ${
-                        row.status === "unexcused_absence"
-                          ? "bg-rose-50/30 dark:bg-rose-950/15"
-                          : row.status === "excused_absence"
-                          ? "bg-amber-50/20 dark:bg-amber-950/10"
+                      className={`hover:bg-slate-50/70 dark:hover:bg-white/5 transition-colors ${
+                        isAbsent
+                          ? "bg-rose-50/30 dark:bg-rose-950/20"
+                          : isLate
+                          ? "bg-amber-50/30 dark:bg-amber-950/15"
+                          : isExcused
+                          ? "bg-blue-50/20 dark:bg-blue-950/10"
                           : ""
                       }`}
                     >
-                      <td className="p-3">
-                        <div className="font-semibold text-slate-900 dark:text-slate-100 text-body-sm">{row.member_name}</div>
-                        <div className="text-caption text-slate-500 flex items-center gap-1.5">
-                          <span>{row.rank_name || "—"}</span>
+                      {/* Member Info */}
+                      <td className="p-4">
+                        <div className="font-bold text-slate-900 dark:text-white text-body-sm">
+                          {row.member_name}
+                        </div>
+                        <div className="text-caption text-slate-500 dark:text-gray-400 flex items-center gap-2 mt-0.5 font-medium">
+                          <span>{row.rank_name || "عضو"}</span>
                           <span>•</span>
                           <span className="font-mono">{row.force_number || "—"}</span>
                         </div>
                       </td>
-                      <td className="p-3">
-                        <div className="text-body-sm text-slate-900 dark:text-slate-100 font-medium">{row.faction_name || "—"}</div>
-                        <div className="text-caption text-blue-600 dark:text-blue-400 font-medium">{row.shift_group_name}</div>
+
+                      {/* Faction & Shift */}
+                      <td className="p-4">
+                        <div className="text-body-sm font-medium text-slate-900 dark:text-white">
+                          {row.faction_name || "عام"}
+                        </div>
+                        <div className="text-caption text-[#2B95E8] font-bold">
+                          {row.shift_group_name || "دوام إداري"}
+                        </div>
                       </td>
-                      <td className="p-3">
+
+                      {/* Expected Duty */}
+                      <td className="p-4">
                         {row.expected_duty === "duty" ? (
-                          <Badge variant="gold">واجب / خدمة</Badge>
+                          <Badge variant="gold" className="text-caption font-bold">
+                            واجب / خدمة
+                          </Badge>
                         ) : (
-                          <Badge variant="secondary">راحة نوبة</Badge>
+                          <Badge variant="navy" className="text-caption font-semibold">
+                            راحة نوبة
+                          </Badge>
                         )}
                       </td>
-                      <td className="p-3">
-                        <Select
-                          value={row.status}
-                          onValueChange={(val) => handleRowChange(row.member_id, "status", val)}
-                          options={ATTENDANCE_STATUS_OPTIONS}
-                        />
+
+                      {/* One-Click Quick Status Selector Pills */}
+                      <td className="p-4">
+                        <div className="flex items-center justify-center gap-1.5 p-1 bg-slate-100/90 dark:bg-white/5 rounded-2xl border border-slate-200/70 dark:border-white/10">
+                          {/* Present */}
+                          <button
+                            type="button"
+                            onClick={() => handleSetStatus(row.member_id, "present")}
+                            className={`px-3 py-1.5 rounded-xl text-caption font-bold transition-all flex items-center gap-1 ${
+                              isPresent
+                                ? "bg-emerald-600 text-white shadow-xs"
+                                : "text-slate-600 dark:text-gray-400 hover:text-emerald-600 dark:hover:text-emerald-400"
+                            }`}
+                          >
+                            <Check className="w-3.5 h-3.5" />
+                            <span>حاضر</span>
+                          </button>
+
+                          {/* Late */}
+                          <button
+                            type="button"
+                            onClick={() => handleSetStatus(row.member_id, "late")}
+                            className={`px-3 py-1.5 rounded-xl text-caption font-bold transition-all flex items-center gap-1 ${
+                              isLate
+                                ? "bg-amber-500 text-white shadow-xs"
+                                : "text-slate-600 dark:text-gray-400 hover:text-amber-500 dark:hover:text-amber-400"
+                            }`}
+                          >
+                            <Clock className="w-3.5 h-3.5" />
+                            <span>متأخر</span>
+                          </button>
+
+                          {/* Absent */}
+                          <button
+                            type="button"
+                            onClick={() => handleSetStatus(row.member_id, "unexcused_absence")}
+                            className={`px-3 py-1.5 rounded-xl text-caption font-bold transition-all flex items-center gap-1 ${
+                              isAbsent
+                                ? "bg-rose-600 text-white shadow-xs"
+                                : "text-slate-600 dark:text-gray-400 hover:text-rose-600 dark:hover:text-rose-400"
+                            }`}
+                          >
+                            <X className="w-3.5 h-3.5" />
+                            <span>غياب</span>
+                          </button>
+
+                          {/* Excused */}
+                          <button
+                            type="button"
+                            onClick={() => handleSetStatus(row.member_id, "excused_absence")}
+                            className={`px-3 py-1.5 rounded-xl text-caption font-bold transition-all flex items-center gap-1 ${
+                              isExcused
+                                ? "bg-sky-600 text-white shadow-xs"
+                                : "text-slate-600 dark:text-gray-400 hover:text-sky-600 dark:hover:text-sky-400"
+                            }`}
+                          >
+                            <span>إذن</span>
+                          </button>
+
+                          {/* Vacation */}
+                          <button
+                            type="button"
+                            onClick={() => handleSetStatus(row.member_id, "vacation")}
+                            className={`px-3 py-1.5 rounded-xl text-caption font-bold transition-all flex items-center gap-1 ${
+                              isVacation
+                                ? "bg-purple-600 text-white shadow-xs"
+                                : "text-slate-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400"
+                            }`}
+                          >
+                            <span>إجازة</span>
+                          </button>
+
+                          {/* Mission */}
+                          <button
+                            type="button"
+                            onClick={() => handleSetStatus(row.member_id, "mission")}
+                            className={`px-2.5 py-1.5 rounded-xl text-caption font-bold transition-all flex items-center gap-1 ${
+                              isMission
+                                ? "bg-indigo-600 text-white shadow-xs"
+                                : "text-slate-600 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400"
+                            }`}
+                          >
+                            <span>مأمورية</span>
+                          </button>
+
+                          {/* Shift Off */}
+                          <button
+                            type="button"
+                            onClick={() => handleSetStatus(row.member_id, "shift_off")}
+                            className={`px-2.5 py-1.5 rounded-xl text-caption font-bold transition-all flex items-center gap-1 ${
+                              isOff
+                                ? "bg-slate-700 text-white shadow-xs"
+                                : "text-slate-600 dark:text-gray-400 hover:text-slate-700 dark:hover:text-slate-300"
+                            }`}
+                          >
+                            <span>راحة</span>
+                          </button>
+                        </div>
                       </td>
-                      <td className="p-3">
-                        <Input
-                          type="number"
-                          step="0.5"
-                          min="0"
-                          max="24"
-                          value={row.late_hours}
-                          onChange={(e) => handleRowChange(row.member_id, "late_hours", e.target.value)}
-                          className="w-20 h-9 rounded-xl font-mono text-center text-caption"
-                          placeholder="0"
-                        />
+
+                      {/* Details & Notes Preview */}
+                      <td className="p-4">
+                        <div className="flex flex-wrap items-center gap-1.5">
+                          {parseFloat(row.late_hours) > 0 && (
+                            <Badge variant="warning" className="text-caption font-mono">
+                              تأخير: {row.late_hours}س
+                            </Badge>
+                          )}
+                          {parseFloat(row.excused_hours) > 0 && (
+                            <Badge variant="navy" className="text-caption font-mono">
+                              إذن: {row.excused_hours}س
+                            </Badge>
+                          )}
+                          {row.check_in_time && (
+                            <span className="text-caption font-mono text-slate-500 dark:text-gray-400">
+                              {row.check_in_time}
+                            </span>
+                          )}
+                          {row.notes && (
+                            <span className="text-caption text-slate-600 dark:text-gray-300 truncate max-w-[140px]" title={row.notes}>
+                              {row.notes}
+                            </span>
+                          )}
+                          {!row.notes && !parseFloat(row.late_hours) && !parseFloat(row.excused_hours) && (
+                            <span className="text-caption text-slate-400">—</span>
+                          )}
+                        </div>
                       </td>
-                      <td className="p-3">
-                        <Input
-                          type="number"
-                          step="0.5"
-                          min="0"
-                          max="24"
-                          value={row.early_departure_hours}
-                          onChange={(e) =>
-                            handleRowChange(row.member_id, "early_departure_hours", e.target.value)
-                          }
-                          className="w-20 h-9 rounded-xl font-mono text-center text-caption"
-                          placeholder="0"
-                        />
-                      </td>
-                      <td className="p-3">
-                        <Input
-                          type="number"
-                          step="0.5"
-                          min="0"
-                          max="24"
-                          value={row.excused_hours}
-                          onChange={(e) => handleRowChange(row.member_id, "excused_hours", e.target.value)}
-                          className="w-24 h-9 rounded-xl font-mono text-center text-caption"
-                          placeholder="ساعات"
-                        />
-                      </td>
-                      <td className="p-3 font-mono">
-                        {parseFloat(calculatedDeduction) > 0 ? (
-                          <span className="inline-flex items-center px-2.5 py-1 rounded-xl bg-rose-50 text-rose-700 dark:bg-rose-950/50 dark:text-rose-300 border border-rose-200/60 font-bold text-caption">
-                            -{calculatedDeduction} يوم
-                          </span>
-                        ) : (
-                          <span className="text-slate-400 text-caption font-medium">0</span>
-                        )}
-                      </td>
-                      <td className="p-3">
-                        <Input
-                          value={row.notes}
-                          onChange={(e) => handleRowChange(row.member_id, "notes", e.target.value)}
-                          placeholder="سبب التأخير أو رقم الإذن..."
-                          className="h-9 rounded-xl text-caption"
-                        />
+
+                      {/* Edit Details Action */}
+                      <td className="p-4 text-center">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setActiveDetailsRow(row)}
+                          className="rounded-xl font-bold text-[#2B95E8] gap-1 px-3 py-1 text-caption"
+                        >
+                          <Edit3 className="w-3.5 h-3.5" />
+                          <span>تفاصيل</span>
+                        </Button>
                       </td>
                     </tr>
                   );
@@ -391,6 +645,14 @@ export function DailyAttendancePage() {
           </table>
         </CardContent>
       </Card>
+
+      {/* Granular Attendance Details Dialog */}
+      <AttendanceDetailsDialog
+        row={activeDetailsRow}
+        open={Boolean(activeDetailsRow)}
+        onOpenChange={(isOpen) => !isOpen && setActiveDetailsRow(null)}
+        onSave={handleSaveDetails}
+      />
 
       {/* Official Daily Attendance Print Dialog */}
       <DailyAttendancePrintDialog
