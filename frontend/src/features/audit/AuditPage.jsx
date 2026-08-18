@@ -55,6 +55,16 @@ const ACTION_LABELS = {
   member_create: "إضافة فرد جديد",
   member_update: "تعديل بيانات فرد",
   member_delete: "حذف سجل فرد",
+  member_note_create: "إضافة ملاحظة إدارية",
+  member_note_delete: "حذف ملاحظة إدارية",
+  member_task_assign: "إسناد وتكليف مهمة",
+  member_task_update: "تحديث حالة مهمة",
+  member_task_delete: "حذف مهمة",
+  member_evaluation_create: "تسجيل تقييم كفاءة",
+  vacation_request_create: "تقديم طلب إجازة",
+  vacation_request_approve: "اعتماد وموافقة إجازة",
+  vacation_request_reject: "رفض طلب إجازة",
+  vacation_balance_adjust: "تعديل رصيد إجازات",
   vehicle_create: "إضافة مركبة للأسطول",
   vehicle_update: "تعديل بيانات مركبة",
   vehicle_trip: "إصدار أمر تحرك",
@@ -81,6 +91,16 @@ const ACTION_VARIANTS = {
   member_create: "success",
   member_update: "primary",
   member_delete: "danger",
+  member_note_create: "info",
+  member_note_delete: "danger",
+  member_task_assign: "gold",
+  member_task_update: "primary",
+  member_task_delete: "danger",
+  member_evaluation_create: "success",
+  vacation_request_create: "warning",
+  vacation_request_approve: "success",
+  vacation_request_reject: "danger",
+  vacation_balance_adjust: "info",
   vehicle_create: "success",
   vehicle_update: "primary",
   vehicle_trip: "gold",
@@ -255,16 +275,9 @@ export function AuditPage() {
       label: "المستخدم المنفذ",
       className: "w-48",
       render: (r) => (
-        <div className="space-y-0.5">
-          <p className="font-bold text-slate-900 dark:text-white text-body-sm">
-            {r.actor_name || r.actor_username || "النظام"}
-          </p>
-          {r.actor_username && (
-            <p className="text-caption font-mono text-[#2B95E8] font-medium" dir="ltr">
-              @{r.actor_username}
-            </p>
-          )}
-        </div>
+        <p className="font-bold text-slate-900 dark:text-white text-body-sm">
+          {r.actor_name || "النظام الإداري"}
+        </p>
       ),
     },
     {

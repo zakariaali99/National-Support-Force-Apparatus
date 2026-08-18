@@ -47,6 +47,43 @@ class DailyAttendanceViewSet(ModelViewSet):
             qs = qs.filter(status=status_param)
         return qs
 
+    def perform_create(self, serializer):
+        member = serializer.validated_data["member"]
+        target_date = serializer.validated_data["date"]
+        status_val = serializer.validated_data.get("status", "present")
+        rec = ShiftRotationService.record_attendance(
+            member=member,
+            target_date=target_date,
+            status=status_val,
+            check_in_time=serializer.validated_data.get("check_in_time"),
+            check_out_time=serializer.validated_data.get("check_out_time"),
+            late_hours=serializer.validated_data.get("late_hours", 0.0),
+            early_departure_hours=serializer.validated_data.get("early_departure_hours", 0.0),
+            excused_hours=serializer.validated_data.get("excused_hours", 0.0),
+            notes=serializer.validated_data.get("notes", ""),
+            recorded_by=self.request.user,
+        )
+        serializer.instance = rec
+
+    def perform_update(self, serializer):
+        instance = serializer.instance
+        member = serializer.validated_data.get("member", instance.member)
+        target_date = serializer.validated_data.get("date", instance.date)
+        status_val = serializer.validated_data.get("status", instance.status)
+        rec = ShiftRotationService.record_attendance(
+            member=member,
+            target_date=target_date,
+            status=status_val,
+            check_in_time=serializer.validated_data.get("check_in_time", instance.check_in_time),
+            check_out_time=serializer.validated_data.get("check_out_time", instance.check_out_time),
+            late_hours=serializer.validated_data.get("late_hours", instance.late_hours),
+            early_departure_hours=serializer.validated_data.get("early_departure_hours", instance.early_departure_hours),
+            excused_hours=serializer.validated_data.get("excused_hours", instance.excused_hours),
+            notes=serializer.validated_data.get("notes", instance.notes),
+            recorded_by=self.request.user,
+        )
+        serializer.instance = rec
+
     @action(detail=False, methods=["get"], url_path="daily-sheet")
     def daily_sheet(self, request):
         """Returns dynamic roster and attendance state for all members on a specific date."""

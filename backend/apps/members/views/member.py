@@ -4,6 +4,7 @@ from django_filters import rest_framework as django_filters
 from rest_framework.decorators import action
 from rest_framework.filters import OrderingFilter, SearchFilter
 
+from apps.core.activity import log_activity
 from apps.core.permissions.classes import HasPermission, ScopedQuerysetMixin
 from apps.core.viewsets import SoftDeleteModelViewSet
 from apps.members.models import Member
@@ -56,6 +57,83 @@ class MemberViewSet(ScopedQuerysetMixin, SoftDeleteModelViewSet):
             qs = qs.filter(national_number__icontains=national_number)
 
         return qs
+
+    def perform_create(self, serializer):
+        member = serializer.save(created_by=self.request.user)
+        try:
+            log_activity(
+                actor=self.request.user,
+                action="member_create",
+                target_model="Member",
+                target_id=member.id,
+                description=f"إضافة فرد جديد في المنظومة: {member.full_name} ({member.force_number or 'بدون رقم'})",
+                metadata={
+                    "force_number": member.force_number,
+                    "faction": member.faction.name_ar if member.faction else "",
+                    "rank": member.rank.name_ar if member.rank else "",
+                },
+                request=self.request,
+            )
+        except Exception:
+            pass
+
+    def perform_update(self, serializer):
+        old_member = self.get_object()
+        old_faction = old_member.faction.name_ar if old_member.faction else "بدون فصيل"
+        old_rank = old_member.rank.name_ar if old_member.rank else "بدون رتبة"
+        old_status = old_member.service_status
+
+        member = serializer.save(updated_by=self.request.user)
+
+        new_faction = member.faction.name_ar if member.faction else "بدون فصيل"
+        new_rank = member.rank.name_ar if member.rank else "بدون رتبة"
+        new_status = member.service_status
+
+        changes = {}
+        if old_faction != new_faction:
+            changes["faction"] = {"old": old_faction, "new": new_faction}
+        if old_rank != new_rank:
+            changes["rank"] = {"old": old_rank, "new": new_rank}
+        if old_status != new_status:
+            changes["service_status"] = {"old": old_status, "new": new_status}
+
+        desc = f"تعديل وتحديث بيانات الفرد: {member.full_name} ({member.force_number or '—'})"
+        if "faction" in changes:
+            desc += f" • نقل الفصيل: من ({old_faction}) إلى ({new_faction})"
+        if "rank" in changes:
+            desc += f" • تعديل الرتبة: من ({old_rank}) إلى ({new_rank})"
+
+        try:
+            log_activity(
+                actor=self.request.user,
+                action="member_update",
+                target_model="Member",
+                target_id=member.id,
+                description=desc,
+                metadata={
+                    "force_number": member.force_number,
+                    "target_name": member.full_name,
+                    "changes": changes,
+                },
+                request=self.request,
+            )
+        except Exception:
+            pass
+
+    def perform_destroy(self, instance):
+        instance.soft_delete()
+        try:
+            log_activity(
+                actor=self.request.user,
+                action="member_delete",
+                target_model="Member",
+                target_id=instance.id,
+                description=f"حذف وأرشفة ملف الفرد: {instance.full_name} ({instance.force_number or '—'})",
+                metadata={"force_number": instance.force_number, "target_name": instance.full_name},
+                request=self.request,
+            )
+        except Exception:
+            pass
 
     @action(detail=True, methods=["get"], url_path="photo")
     def photo(self, request, pk=None):

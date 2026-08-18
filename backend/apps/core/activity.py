@@ -1,3 +1,6 @@
+import decimal
+import datetime
+import uuid
 from apps.core.models import ActivityLog
 
 
@@ -6,6 +9,20 @@ def _client_ip(request):
     if forwarded:
         return forwarded.split(",")[0].strip()
     return request.META.get("REMOTE_ADDR")
+
+
+def _sanitize_for_json(obj):
+    if isinstance(obj, dict):
+        return {str(k): _sanitize_for_json(v) for k, v in obj.items()}
+    elif isinstance(obj, (list, tuple, set)):
+        return [_sanitize_for_json(v) for v in obj]
+    elif isinstance(obj, decimal.Decimal):
+        return float(obj)
+    elif isinstance(obj, (datetime.date, datetime.datetime)):
+        return obj.isoformat()
+    elif isinstance(obj, uuid.UUID):
+        return str(obj)
+    return obj
 
 
 def log_activity(*, actor=None, action, target_model="", target_id="", description="", metadata=None, request=None):
@@ -20,6 +37,8 @@ def log_activity(*, actor=None, action, target_model="", target_id="", descripti
         ip_address = _client_ip(request)
         user_agent = request.META.get("HTTP_USER_AGENT", "")[:255]
 
+    clean_metadata = _sanitize_for_json(metadata or {})
+
     return ActivityLog.objects.create(
         actor=actor,
         actor_username=getattr(actor, "username", "") or "",
@@ -27,7 +46,7 @@ def log_activity(*, actor=None, action, target_model="", target_id="", descripti
         target_model=target_model,
         target_id=str(target_id) if target_id else "",
         description=description,
-        metadata=metadata or {},
+        metadata=clean_metadata,
         ip_address=ip_address,
         user_agent=user_agent,
     )

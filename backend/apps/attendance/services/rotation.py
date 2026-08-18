@@ -182,6 +182,7 @@ class ShiftRotationService:
             "days_in_month": num_days,
             "faction_id": faction_id,
             "rows": matrix_rows,
+            "matrix": matrix_rows,
         }
 
     @classmethod

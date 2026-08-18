@@ -34,6 +34,7 @@ import {
 } from "lucide-react";
 import { DailyAttendancePrintDialog } from "./DailyAttendancePrintDialog";
 import { AttendanceDetailsDialog } from "./AttendanceDetailsDialog";
+import { AttendanceChangeConfirmDialog } from "./AttendanceChangeConfirmDialog";
 
 export function DailyAttendancePage() {
   const [selectedDate, setSelectedDate] = useState(() => {
@@ -45,6 +46,7 @@ export function DailyAttendancePage() {
   const [localRows, setLocalRows] = useState([]);
   const [isDirty, setIsDirty] = useState(false);
   const [printModalOpen, setPrintModalOpen] = useState(false);
+  const [confirmModalOpen, setConfirmModalOpen] = useState(false);
   const [activeDetailsRow, setActiveDetailsRow] = useState(null);
 
   const { data: factions = [] } = useFactions();
@@ -158,14 +160,53 @@ export function DailyAttendancePage() {
     showToast("تم تحديث تفاصيل التمام للفرد", "success");
   };
 
-  // Submit and Save Roll-Call
-  const handleSaveAttendance = async () => {
-    if (localRows.length === 0) return;
+  const originalMap = useMemo(() => {
+    if (!sheetData?.items) return new Map();
+    return new Map(sheetData.items.map((item) => [item.member_id, item]));
+  }, [sheetData]);
+
+  const isAlreadyRecorded = (sheetData?.recorded_count || 0) > 0;
+
+  const changedRows = useMemo(() => {
+    if (!sheetData?.items || localRows.length === 0) return [];
+    return localRows.filter((r) => {
+      const orig = originalMap.get(r.member_id);
+      if (!orig) return true;
+      const origStatus = orig.status || (orig.expected_duty === "duty" ? "present" : "shift_off");
+      const origLate = parseFloat(orig.late_hours) || 0;
+      const origEarly = parseFloat(orig.early_departure_hours) || 0;
+      const origExcused = parseFloat(orig.excused_hours) || 0;
+      const origCheckIn = orig.check_in_time || (orig.expected_duty === "duty" ? "08:00" : "");
+      const origCheckOut = orig.check_out_time || (orig.expected_duty === "duty" ? "14:00" : "");
+      const origNotes = orig.notes || "";
+
+      const curLate = parseFloat(r.late_hours) || 0;
+      const curEarly = parseFloat(r.early_departure_hours) || 0;
+      const curExcused = parseFloat(r.excused_hours) || 0;
+      const curCheckIn = r.check_in_time || "";
+      const curCheckOut = r.check_out_time || "";
+      const curNotes = r.notes || "";
+
+      return (
+        r.status !== origStatus ||
+        curLate !== origLate ||
+        curEarly !== origEarly ||
+        curExcused !== origExcused ||
+        (curCheckIn && curCheckIn !== origCheckIn) ||
+        (curCheckOut && curCheckOut !== origCheckOut) ||
+        curNotes !== origNotes
+      );
+    });
+  }, [localRows, sheetData, originalMap]);
+
+  // Execute Save (Full or Changed-only)
+  const executeSave = async (rowsToSave) => {
+    if (rowsToSave.length === 0) return;
 
     try {
       await recordBulk.mutateAsync({
         date: selectedDate,
-        records: localRows.map((r) => ({
+        records: rowsToSave.map((r) => ({
           member_id: r.member_id,
           status: r.status,
           check_in_time: r.check_in_time || null,
@@ -177,10 +218,31 @@ export function DailyAttendancePage() {
         })),
       });
       setIsDirty(false);
-      showToast(`تم حفظ واعتماد تمام (${localRows.length}) فرد بنجاح`, "success");
+      setConfirmModalOpen(false);
+      showToast(
+        rowsToSave.length === localRows.length
+          ? `تم حفظ واعتماد تمام (${rowsToSave.length}) فرد بنجاح`
+          : `تم حفظ وتحديث تعديل تمام (${rowsToSave.length}) فرد فقط بنجاح`,
+        "success"
+      );
       refetch();
     } catch {
       showToast("تعذر حفظ التمام، يرجى إعادة المحاولة", "error");
+    }
+  };
+
+  // Submit and Save Roll-Call handler
+  const handleSaveAttendance = () => {
+    if (localRows.length === 0) return;
+
+    if (isAlreadyRecorded) {
+      if (changedRows.length === 0) {
+        showToast("لم يطرأ أي تغيير على كشف التمام المعتمد لهذا اليوم", "info");
+        return;
+      }
+      setConfirmModalOpen(true);
+    } else {
+      executeSave(localRows);
     }
   };
 
@@ -662,6 +724,17 @@ export function DailyAttendancePage() {
         factionName={factions.find((f) => String(f.id) === String(selectedFaction))?.name_ar}
         open={printModalOpen}
         onOpenChange={setPrintModalOpen}
+      />
+
+      {/* Attendance Change Confirmation Dialog (Changed Rows Only) */}
+      <AttendanceChangeConfirmDialog
+        open={confirmModalOpen}
+        onOpenChange={setConfirmModalOpen}
+        date={selectedDate}
+        changedRows={changedRows}
+        originalMap={originalMap}
+        onConfirm={() => executeSave(changedRows)}
+        isProcessing={recordBulk.isPending}
       />
     </div>
   );

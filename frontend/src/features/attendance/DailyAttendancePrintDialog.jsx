@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import { Printer, Calendar, Users, ShieldCheck, CheckCheck, FileCheck2, Download, Loader2 } from "lucide-react";
+import { Printer, FileCheck2, Download, Loader2 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "../../components/ui/Dialog";
 import { Button } from "../../components/ui/Button";
 import { showToast } from "../../components/ui/Toast";
@@ -37,7 +37,7 @@ export function DailyAttendancePrintDialog({ rows = [], date, factionId, faction
         `reports/attendance/daily/pdf/${q ? `?${q}` : ""}`,
         `كشف_التمام_اليومي_${date || "عام"}.pdf`
       );
-      showToast("تم بدء تنزيل كشف التمام الرسمي", "success");
+      showToast("تم بدء تنزيل كشف التمام الرسمي (PDF عرضي)", "success");
     } catch {
       showToast("تعذر تنزيل كشف التمام", "error");
     } finally {
@@ -56,109 +56,127 @@ export function DailyAttendancePrintDialog({ rows = [], date, factionId, faction
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto p-0 rounded-[28px] border border-slate-200/80 dark:border-white/10">
+      <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto p-0 rounded-[28px] border border-slate-200/80 dark:border-white/10">
         <DialogHeader className="p-6 pb-4 border-b border-slate-100 dark:border-white/10 bg-slate-50/50 dark:bg-white/5">
           <div className="flex items-center justify-between">
             <div className="space-y-1 text-start">
               <DialogTitle className="text-title font-bold text-slate-900 dark:text-white flex items-center gap-2">
                 <FileCheck2 className="w-5 h-5 text-[#2B95E8]" />
-                <span>كشف التمام والانضباط العسكري اليومي</span>
+                <span>كشف التمام والانضباط العسكري اليومي (A4 Landscape)</span>
               </DialogTitle>
               <DialogDescription className="text-caption">
-                تقرير رسمي معتمد للطباعة لرفعه لقيادة الجهاز وآمر القوة
+                تقرير رسمي معتمد للطباعة العرضية لرفعه لقيادة الجهاز وشعبة العمليات
               </DialogDescription>
             </div>
             <div className="flex items-center gap-2">
-              <Button variant="primary" size="sm" onClick={handlePrint} className="gap-1.5 rounded-xl font-bold">
-                <Printer className="w-4 h-4" />
-                <span>طباعة الكشف</span>
+              <Button
+                variant="primary"
+                size="sm"
+                onClick={handlePrint}
+                className="gap-1.5 rounded-xl font-bold"
+                disabled={isProcessing}
+              >
+                {isProcessing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Printer className="w-4 h-4" />}
+                <span>طباعة الكشف العرضي</span>
               </Button>
             </div>
           </div>
         </DialogHeader>
 
-        {/* Printable Attendance Sheet Paper */}
+        {/* Printable Attendance Sheet Paper (Landscape) */}
         <div className="p-8 bg-white text-slate-900 font-sans print:p-0 print:m-0" id="daily-attendance-print">
-          {/* Header */}
-          <div className="flex items-center justify-between border-b-2 border-slate-900 pb-4 mb-6">
-            <div className="text-right space-y-1">
+          <style>{`
+            @media print {
+              @page {
+                size: A4 landscape;
+                margin: 10mm;
+              }
+              thead { display: table-header-group; }
+              tfoot { display: table-footer-group; }
+              tr { page-break-inside: avoid; }
+            }
+          `}</style>
+
+          {/* Standard Institutional Header */}
+          <div className="flex items-center justify-between border-b-2 border-slate-900 pb-4 mb-4">
+            <div className="text-right space-y-0.5">
               <p className="font-bold text-body-sm text-slate-900">دولة ليبيا</p>
               <p className="font-bold text-body-sm text-slate-900">الجهاز الوطني للقوى المساندة</p>
-              <p className="text-caption text-slate-600">شعبة العمليات والتمام العسكري</p>
+              <p className="text-caption text-slate-600">الإدارة العامة للشؤون الإدارية • شعبة العمليات والتمام</p>
             </div>
 
             <div className="flex flex-col items-center">
-              <img src={nasfSeal} alt="شعار الجهاز" className="w-16 h-16 object-contain rounded-full border border-slate-200 p-0.5" />
-              <span className="text-caption font-bold text-slate-700 mt-1">كشف رقم: {reportNumber}</span>
+              <img src={nasfSeal} alt="شعار الجهاز" className="w-14 h-14 object-contain rounded-full border border-slate-200 p-0.5" />
+              <span className="text-caption font-bold text-slate-700 mt-1 font-mono">كشف رقم: {reportNumber}</span>
             </div>
 
-            <div className="text-left space-y-1 font-mono text-caption">
+            <div className="text-left space-y-0.5 font-mono text-caption">
               <p>التاريخ: {date}</p>
-              <p>الفصيل: {factionName || "كافة الفصائل"}</p>
+              <p>الفصيل: {factionName || "كافة الفصائل والوحدات"}</p>
               <p className="font-bold text-emerald-700">الحالة: معتمد للعمليات</p>
             </div>
           </div>
 
-          <div className="text-center my-4">
-            <h2 className="text-title font-bold text-slate-900 underline decoration-2 underline-offset-8">
+          <div className="text-center my-3">
+            <h2 className="text-section font-bold text-slate-900 underline decoration-2 underline-offset-6">
               كشف التمام اليومي العام للقوة
             </h2>
           </div>
 
           {/* Statistical Summary Box */}
-          <div className="my-6 p-4 rounded-2xl border border-slate-300 bg-slate-50/70">
+          <div className="my-4 p-3 rounded-2xl border border-slate-300 bg-slate-50/70">
             <div className="grid grid-cols-4 sm:grid-cols-8 gap-2 text-center text-caption font-mono">
               <div className="p-2 border border-slate-200 bg-white rounded-xl">
-                <span className="text-slate-500 block text-caption font-sans">إجمالي القوة</span>
+                <span className="text-slate-500 block text-micro font-sans font-bold">إجمالي القوة</span>
                 <span className="font-bold text-body-sm text-slate-900">{total}</span>
               </div>
               <div className="p-2 border border-slate-200 bg-emerald-50 rounded-xl text-emerald-800">
-                <span className="block text-caption font-sans">حاضر</span>
+                <span className="block text-micro font-sans font-bold">حاضر</span>
                 <span className="font-bold text-body-sm">{present}</span>
               </div>
               <div className="p-2 border border-slate-200 bg-amber-50 rounded-xl text-amber-800">
-                <span className="block text-caption font-sans">تأخير</span>
+                <span className="block text-micro font-sans font-bold">متأخر</span>
                 <span className="font-bold text-body-sm">{late}</span>
               </div>
               <div className="p-2 border border-slate-200 bg-blue-50 rounded-xl text-blue-800">
-                <span className="block text-caption font-sans">مأذون</span>
+                <span className="block text-micro font-sans font-bold">مأذون</span>
                 <span className="font-bold text-body-sm">{excused}</span>
               </div>
               <div className="p-2 border border-slate-200 bg-rose-50 rounded-xl text-rose-800">
-                <span className="block text-caption font-sans">غياب</span>
+                <span className="block text-micro font-sans font-bold">غياب</span>
                 <span className="font-bold text-body-sm">{unexcused}</span>
               </div>
               <div className="p-2 border border-slate-200 bg-slate-100 rounded-xl text-slate-700">
-                <span className="block text-caption font-sans">راحة نوبة</span>
+                <span className="block text-micro font-sans font-bold">راحة نوبة</span>
                 <span className="font-bold text-body-sm">{shiftOff}</span>
               </div>
               <div className="p-2 border border-slate-200 bg-purple-50 rounded-xl text-purple-800">
-                <span className="block text-caption font-sans">إجازة</span>
+                <span className="block text-micro font-sans font-bold">إجازة</span>
                 <span className="font-bold text-body-sm">{vacation}</span>
               </div>
               <div className="p-2 border border-slate-200 bg-indigo-50 rounded-xl text-indigo-800">
-                <span className="block text-caption font-sans">مأمورية</span>
+                <span className="block text-micro font-sans font-bold">مأمورية</span>
                 <span className="font-bold text-body-sm">{mission}</span>
               </div>
             </div>
           </div>
 
           {/* Members Attendance Table */}
-          <div className="my-6 space-y-2">
+          <div className="my-4">
             <table className="w-full text-right text-caption border-collapse border border-slate-300">
               <thead className="bg-slate-100 font-bold border-b border-slate-300 text-slate-800 text-caption">
                 <tr>
-                  <th className="p-2 border border-slate-300 text-center">ت</th>
-                  <th className="p-2 border border-slate-300">الرقم العسكري</th>
-                  <th className="p-2 border border-slate-300">الرتبة والاسم الكامل</th>
-                  <th className="p-2 border border-slate-300">الفصيل / النوبة</th>
-                  <th className="p-2 border border-slate-300 text-center">حالة التمام</th>
-                  <th className="p-2 border border-slate-300 text-center">التأخير (ساعة)</th>
-                  <th className="p-2 border border-slate-300 text-center">الاستئذان (ساعة)</th>
-                  <th className="p-2 border border-slate-300">ملاحظات</th>
+                  <th className="p-1.5 border border-slate-300 text-center w-8">ت</th>
+                  <th className="p-1.5 border border-slate-300 text-center w-24">الرقم العسكري</th>
+                  <th className="p-1.5 border border-slate-300">الرتبة والاسم الكامل</th>
+                  <th className="p-1.5 border border-slate-300 w-36">الفصيل / النوبة</th>
+                  <th className="p-1.5 border border-slate-300 text-center w-24">حالة التمام</th>
+                  <th className="p-1.5 border border-slate-300 text-center w-20">التأخير</th>
+                  <th className="p-1.5 border border-slate-300 text-center w-20">الاستئذان</th>
+                  <th className="p-1.5 border border-slate-300">ملاحظات</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-200 text-body-sm">
+              <tbody className="divide-y divide-slate-200 text-caption">
                 {rows.length === 0 ? (
                   <tr>
                     <td colSpan={8} className="p-4 text-center text-slate-500">
@@ -168,28 +186,28 @@ export function DailyAttendancePrintDialog({ rows = [], date, factionId, faction
                 ) : (
                   rows.map((row, idx) => (
                     <tr key={row.member_id || idx} className="hover:bg-slate-50">
-                      <td className="p-2 border border-slate-300 text-center font-mono">{idx + 1}</td>
-                      <td className="p-2 border border-slate-300 font-mono font-bold">{row.force_number || "—"}</td>
-                      <td className="p-2 border border-slate-300 font-bold">
+                      <td className="p-1.5 border border-slate-300 text-center font-mono">{idx + 1}</td>
+                      <td className="p-1.5 border border-slate-300 font-mono font-bold text-center">{row.force_number || "—"}</td>
+                      <td className="p-1.5 border border-slate-300 font-bold">
                         {row.rank_name} / {row.member_name}
                       </td>
-                      <td className="p-2 border border-slate-300">{row.faction_name} ({row.shift_group_name || "—"})</td>
-                      <td className="p-2 border border-slate-300 text-center font-bold">
+                      <td className="p-1.5 border border-slate-300">{row.faction_name} ({row.shift_group_name || "—"})</td>
+                      <td className="p-1.5 border border-slate-300 text-center font-bold">
                         {row.status === "present" && <span className="text-emerald-700">حاضر</span>}
                         {row.status === "late" && <span className="text-amber-700">متأخر</span>}
                         {row.status === "excused_absence" && <span className="text-blue-700">غياب بإذن</span>}
-                        {row.status === "unexcused_absence" && <span className="text-rose-700">غياب بدون إذن</span>}
+                        {row.status === "unexcused_absence" && <span className="text-rose-700">غياب</span>}
                         {row.status === "shift_off" && <span className="text-slate-500">راحة نوبة</span>}
-                        {row.status === "vacation" && <span className="text-purple-700">إجازة رسمية</span>}
+                        {row.status === "vacation" && <span className="text-purple-700">إجازة</span>}
                         {row.status === "mission" && <span className="text-indigo-700">مأمورية</span>}
                       </td>
-                      <td className="p-2 border border-slate-300 text-center font-mono">
+                      <td className="p-1.5 border border-slate-300 text-center font-mono">
                         {parseFloat(row.late_hours) > 0 ? `${row.late_hours}س` : "—"}
                       </td>
-                      <td className="p-2 border border-slate-300 text-center font-mono">
+                      <td className="p-1.5 border border-slate-300 text-center font-mono">
                         {parseFloat(row.excused_hours) > 0 ? `${row.excused_hours}س` : "—"}
                       </td>
-                      <td className="p-2 border border-slate-300 text-slate-600">{row.notes || "—"}</td>
+                      <td className="p-1.5 border border-slate-300 text-slate-600">{row.notes || "—"}</td>
                     </tr>
                   ))
                 )}
@@ -197,17 +215,23 @@ export function DailyAttendancePrintDialog({ rows = [], date, factionId, faction
             </table>
           </div>
 
-          {/* Commander Signatures */}
-          <div className="grid grid-cols-2 gap-12 pt-8 mt-8 border-t border-slate-300 text-caption text-center">
-            <div className="space-y-12">
+          {/* Standard Triple Signatures Footer */}
+          <div className="grid grid-cols-3 gap-6 pt-6 mt-6 border-t border-slate-300 text-caption text-center">
+            <div className="space-y-8">
               <p className="font-bold text-slate-800">ضابط التمام والمتابعة</p>
-              <div className="border-b border-dashed border-slate-400 w-1/2 mx-auto" />
-              <p className="text-caption text-slate-500">التوقيع</p>
+              <div className="border-b border-dashed border-slate-400 w-2/3 mx-auto" />
+              <p className="text-caption text-slate-500">الاسم والتوقيع</p>
             </div>
 
-            <div className="space-y-12">
-              <p className="font-bold text-slate-800">يعتمد / آمر شعبة العمليات</p>
-              <div className="border-b border-dashed border-slate-400 w-1/2 mx-auto" />
+            <div className="space-y-8">
+              <p className="font-bold text-slate-800">رئيس شعبة الشؤون الإدارية</p>
+              <div className="border-b border-dashed border-slate-400 w-2/3 mx-auto" />
+              <p className="text-caption text-slate-500">الاعتماد والتاريخ</p>
+            </div>
+
+            <div className="space-y-8">
+              <p className="font-bold text-slate-800">يعتمد / آمر القوة</p>
+              <div className="border-b border-dashed border-slate-400 w-2/3 mx-auto" />
               <p className="text-caption text-slate-500">الختم الرسمي</p>
             </div>
           </div>
@@ -218,11 +242,21 @@ export function DailyAttendancePrintDialog({ rows = [], date, factionId, faction
             إغلاق
           </Button>
           <div className="flex items-center gap-2">
-            <Button variant="outline" onClick={handleDownloadPdf} className="gap-2 rounded-xl font-bold text-[#2B95E8]">
+            <Button
+              variant="outline"
+              onClick={handleDownloadPdf}
+              className="gap-2 rounded-xl font-bold text-[#2B95E8]"
+              disabled={isProcessing}
+            >
               <Download className="w-4 h-4" />
-              <span>تحميل كشف التمام (PDF)</span>
+              <span>تحميل كشف التمام (Landscape PDF)</span>
             </Button>
-            <Button variant="primary" onClick={handlePrint} className="gap-2 rounded-xl font-bold">
+            <Button
+              variant="primary"
+              onClick={handlePrint}
+              className="gap-2 rounded-xl font-bold"
+              disabled={isProcessing}
+            >
               <Printer className="w-4 h-4" />
               <span>طباعة فورية</span>
             </Button>

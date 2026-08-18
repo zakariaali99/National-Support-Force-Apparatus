@@ -4,6 +4,7 @@ import { Navigate, Route, Routes } from "react-router-dom";
 import { AppShell } from "./components/layout/AppShell";
 import { LoginPage } from "./features/auth/LoginPage";
 import { ProtectedRoute, PermissionRoute } from "./features/auth/ProtectedRoute";
+import { PermissionDeniedDialog } from "./components/ui/PermissionDeniedDialog";
 
 // Route-level code splitting — each feature area becomes its own chunk,
 // fetched on first navigation instead of all landing in the single
@@ -34,7 +35,8 @@ function RouteFallback() {
 
 export default function App() {
   return (
-    <Routes>
+    <>
+      <Routes>
       <Route path="/login" element={<LoginPage />} />
 
       <Route element={<ProtectedRoute />}>
@@ -232,5 +234,7 @@ export default function App() {
 
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
+    <PermissionDeniedDialog />
+    </>
   );
 }

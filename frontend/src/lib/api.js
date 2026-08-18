@@ -26,6 +26,16 @@ api.interceptors.response.use(
   async (error) => {
     const { config, response } = error;
 
+    if (response?.status === 403) {
+      const msg = response.data?.detail || response.data?.message || "عفواً، لا تملك الصلاحية الكافية لإتمام هذا الإجراء.";
+      window.dispatchEvent(
+        new CustomEvent("nsfa:forbidden", {
+          detail: { message: msg },
+        })
+      );
+      return Promise.reject(error);
+    }
+
     if (response?.status !== 401) {
       return Promise.reject(error);
     }

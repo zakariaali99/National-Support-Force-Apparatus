@@ -29,6 +29,22 @@ class VacationRequestViewSet(ScopedQuerysetMixin, SoftDeleteModelViewSet):
     faction_lookup = "member__faction"
     filterset_fields = ["member", "status"]
 
+    def perform_create(self, serializer):
+        vac_req = serializer.save(requested_by=self.request.user)
+        try:
+            from apps.core.activity import log_activity
+            log_activity(
+                actor=self.request.user,
+                action="vacation_request_create",
+                target_model="Member",
+                target_id=vac_req.member_id,
+                description=f"تقديم طلب إجازة ({vac_req.days} يوم) للفرد: {vac_req.member.full_name}",
+                metadata={"days": vac_req.days, "target_name": vac_req.member.full_name},
+                request=self.request,
+            )
+        except Exception:
+            pass
+
     @action(detail=True, methods=["post"])
     def approve(self, request, pk=None):
         vacation_request = self.get_object()
@@ -52,6 +68,20 @@ class VacationRequestViewSet(ScopedQuerysetMixin, SoftDeleteModelViewSet):
             member.service_status = "on_leave"
             member.save(update_fields=["service_status", "updated_at"])
 
+        try:
+            from apps.core.activity import log_activity
+            log_activity(
+                actor=request.user,
+                action="vacation_request_approve",
+                target_model="Member",
+                target_id=member.id,
+                description=f"الموافقة واعتماد إجازة ({vacation_request.days} يوم) للفرد: {member.full_name}",
+                metadata={"days": vacation_request.days, "target_name": member.full_name},
+                request=request,
+            )
+        except Exception:
+            pass
+
         return Response(self.get_serializer(vacation_request).data)
 
     @action(detail=True, methods=["post"])
@@ -63,6 +93,21 @@ class VacationRequestViewSet(ScopedQuerysetMixin, SoftDeleteModelViewSet):
         vacation_request.decided_by = request.user
         vacation_request.decided_at = timezone.now()
         vacation_request.save(update_fields=["status", "decided_by", "decided_at", "updated_at"])
+
+        try:
+            from apps.core.activity import log_activity
+            log_activity(
+                actor=request.user,
+                action="vacation_request_reject",
+                target_model="Member",
+                target_id=vacation_request.member_id,
+                description=f"رفض طلب إجازة للفرد: {vacation_request.member.full_name}",
+                metadata={"target_name": vacation_request.member.full_name},
+                request=request,
+            )
+        except Exception:
+            pass
+
         return Response(self.get_serializer(vacation_request).data)
 
 
@@ -90,3 +135,16 @@ class VacationTransactionViewSet(
             created_by=self.request.user if self.request.user.is_authenticated else None,
         )
         serializer.instance = instance
+        try:
+            from apps.core.activity import log_activity
+            log_activity(
+                actor=self.request.user,
+                action="vacation_balance_adjust",
+                target_model="Member",
+                target_id=member.id,
+                description=f"تعديل رصيد إجازات الفرد: {member.full_name} ({days:+d} يوم) — {reason}",
+                metadata={"days": days, "target_name": member.full_name},
+                request=self.request,
+            )
+        except Exception:
+            pass

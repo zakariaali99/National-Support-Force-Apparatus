@@ -3,11 +3,28 @@ import { useMonthlyMatrix } from "./api";
 import { useFactions } from "../organization/api";
 import { Button } from "../../components/ui/Button";
 import { Card, CardContent } from "../../components/ui/Card";
-import { PageHeader } from "../../components/ui/PageHeader";
+import { Input } from "../../components/ui/Input";
 import { Select } from "../../components/ui/Select";
+import { PageHeader } from "../../components/ui/PageHeader";
+import { StatCard } from "../../components/ui/StatCard";
+import { Pagination } from "../../components/ui/Pagination";
 import { showToast } from "../../components/ui/Toast";
 import { openAuthedPdf, downloadAuthedFile } from "../reports/api";
-import { FileSpreadsheet, Printer, Download, Loader2 } from "lucide-react";
+import { MemberMonthCalendarDialog } from "./MemberMonthCalendarDialog";
+import {
+  FileSpreadsheet,
+  Printer,
+  Download,
+  Loader2,
+  Search,
+  Calendar,
+  Clock,
+  UserCheck,
+  AlertTriangle,
+  RotateCcw,
+  CheckCircle2,
+  CalendarDays,
+} from "lucide-react";
 
 const MONTH_NAMES = [
   { value: "1", label: "يناير (1)" },
@@ -25,15 +42,15 @@ const MONTH_NAMES = [
 ];
 
 const STATUS_CHIPS = {
-  present: { code: "ح", bg: "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300 border-emerald-200/60 dark:border-emerald-800/40", title: "حاضر" },
-  late: { code: "ت", bg: "bg-amber-50 text-amber-700 dark:bg-amber-950/50 dark:text-amber-300 border-amber-200/60 dark:border-amber-800/40", title: "متأخر" },
-  early_departure: { code: "ص", bg: "bg-amber-50 text-amber-700 dark:bg-amber-950/50 dark:text-amber-300 border-amber-200/60 dark:border-amber-800/40", title: "انصراف مبكر" },
-  excused_absence: { code: "ذ", bg: "bg-sky-50 text-sky-700 dark:bg-sky-950/50 dark:text-sky-300 border-sky-200/60 dark:border-sky-800/40", title: "غياب بإذن / استئذان" },
-  unexcused_absence: { code: "غ", bg: "bg-rose-50 text-rose-700 dark:bg-rose-950/50 dark:text-rose-300 border-rose-200/60 dark:border-rose-800/40", title: "غياب بدون إذن" },
-  shift_off: { code: "ر", bg: "bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400 border-slate-200/40 dark:border-slate-700/40", title: "راحة نوبة" },
-  vacation: { code: "ج", bg: "bg-purple-50 text-purple-700 dark:bg-purple-950/50 dark:text-purple-300 border-purple-200/60 dark:border-purple-800/40", title: "إجازة رسمية" },
-  mission: { code: "م", bg: "bg-indigo-50 text-indigo-700 dark:bg-indigo-950/50 dark:text-indigo-300 border-indigo-200/60 dark:border-indigo-800/40", title: "مأمورية" },
-  unrecorded: { code: "—", bg: "bg-transparent text-slate-300 dark:text-slate-700 border-transparent", title: "غير مسجل" },
+  present: { code: "ح", bg: "bg-emerald-500", text: "text-white", title: "حاضر" },
+  late: { code: "ت", bg: "bg-amber-500", text: "text-white", title: "متأخر" },
+  early_departure: { code: "ص", bg: "bg-amber-500", text: "text-white", title: "انصراف مبكر" },
+  excused_absence: { code: "ذ", bg: "bg-sky-500", text: "text-white", title: "غياب بإذن / استئذان" },
+  unexcused_absence: { code: "غ", bg: "bg-rose-500", text: "text-white", title: "غياب بدون إذن" },
+  shift_off: { code: "ر", bg: "bg-slate-300 dark:bg-slate-700", text: "text-slate-700 dark:text-slate-300", title: "راحة نوبة" },
+  vacation: { code: "ج", bg: "bg-purple-500", text: "text-white", title: "إجازة رسمية" },
+  mission: { code: "م", bg: "bg-indigo-500", text: "text-white", title: "مأمورية" },
+  unrecorded: { code: "—", bg: "bg-slate-100 dark:bg-white/5", text: "text-slate-300 dark:text-slate-700", title: "غير مسجل" },
 };
 
 export function MonthlyAttendancePage() {
@@ -41,6 +58,12 @@ export function MonthlyAttendancePage() {
   const [selectedYear, setSelectedYear] = useState(String(currentDate.getFullYear()));
   const [selectedMonth, setSelectedMonth] = useState(String(currentDate.getMonth() + 1));
   const [selectedFaction, setSelectedFaction] = useState("all");
+  const [search, setSearch] = useState("");
+  const [selectedMemberForCalendar, setSelectedMemberForCalendar] = useState(null);
+
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(15);
+  const [isProcessing, setIsProcessing] = useState(false);
 
   const { data: factions = [] } = useFactions();
 
@@ -50,11 +73,48 @@ export function MonthlyAttendancePage() {
     return params;
   }, [selectedYear, selectedMonth, selectedFaction]);
 
-  const [isProcessing, setIsProcessing] = useState(false);
-  const { data: matrixData, isLoading } = useMonthlyMatrix(queryParams);
+  const { data: matrixData, isLoading, refetch, isRefetching } = useMonthlyMatrix(queryParams);
 
   const daysInMonth = matrixData?.days_in_month || 30;
-  const rows = matrixData?.matrix || [];
+  const rawRows = matrixData?.rows || matrixData?.matrix || [];
+
+  // Filter rows by search keyword locally
+  const filteredRows = useMemo(() => {
+    if (!search.trim()) return rawRows;
+    const q = search.trim().toLowerCase();
+    return rawRows.filter(
+      (r) =>
+        r.member_name?.toLowerCase().includes(q) ||
+        r.force_number?.toLowerCase().includes(q) ||
+        r.rank_name?.toLowerCase().includes(q)
+    );
+  }, [rawRows, search]);
+
+  const paginatedRows = useMemo(() => {
+    const start = (page - 1) * pageSize;
+    return filteredRows.slice(start, start + pageSize);
+  }, [filteredRows, page, pageSize]);
+
+  // Aggregate monthly totals for KPIs
+  const monthlyKpis = useMemo(() => {
+    let totalPresent = 0;
+    let totalLateHours = 0;
+    let totalExcusedHours = 0;
+    let totalUnexcused = 0;
+    let totalExpectedDays = rawRows.length * daysInMonth;
+
+    rawRows.forEach((r) => {
+      totalPresent += r.summary?.total_present || 0;
+      totalLateHours += r.summary?.total_late_hours || 0;
+      totalExcusedHours += r.summary?.total_excused_hours || 0;
+      totalUnexcused += r.summary?.total_unexcused || 0;
+    });
+
+    const attendanceRate = totalExpectedDays > 0 ? Math.round((totalPresent / totalExpectedDays) * 100) : 0;
+    return { totalPresent, totalLateHours, totalExcusedHours, totalUnexcused, attendanceRate };
+  }, [rawRows, daysInMonth]);
+
+  const currentMonthLabel = MONTH_NAMES.find((m) => m.value === selectedMonth)?.label || selectedMonth;
 
   const buildPdfParams = () => {
     const params = new URLSearchParams({
@@ -92,7 +152,7 @@ export function MonthlyAttendancePage() {
   };
 
   const handleExportCSV = () => {
-    if (!rows.length) return;
+    if (!rawRows.length) return;
 
     const headers = [
       "الرقم العسكري",
@@ -109,7 +169,7 @@ export function MonthlyAttendancePage() {
 
     const csvRows = [headers.join(",")];
 
-    rows.forEach((r) => {
+    rawRows.forEach((r) => {
       const daysArr = Array.from({ length: daysInMonth }, (_, i) => {
         const d = r.days[String(i + 1)];
         return d ? STATUS_CHIPS[d.status]?.title || d.status : "—";
@@ -140,183 +200,296 @@ export function MonthlyAttendancePage() {
   };
 
   return (
-    <div className="space-y-6 print:p-0 print:space-y-2" dir="rtl">
-      <div className="print:hidden">
-        <PageHeader
-          title="مصفوفة التمام والغياب الشهري"
-          description="عرض مصفوفة التمام الشاملة لكافة أفراد القوة على مدار أيام الشهر مع الإحصائيات وساعات التأخير والخصومات."
-        >
-          <div className="flex items-center gap-2">
-            <Button variant="outline" onClick={handleExportCSV} className="gap-1.5 rounded-xl font-bold" disabled={rows.length === 0}>
-              <FileSpreadsheet className="w-4 h-4 text-emerald-600" />
-              <span>تصدير Excel</span>
-            </Button>
-            <Button variant="outline" onClick={handleDownloadPdf} className="gap-1.5 rounded-xl font-bold text-[#2B95E8]" disabled={rows.length === 0 || isProcessing}>
-              <Download className="w-4 h-4" />
-              <span>تحميل مستند PDF</span>
-            </Button>
-            <Button variant="primary" onClick={handlePrint} className="gap-1.5 rounded-xl font-bold" disabled={rows.length === 0 || isProcessing}>
-              {isProcessing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Printer className="w-4 h-4" />}
-              <span>طباعة كشف التمام</span>
-            </Button>
-          </div>
-        </PageHeader>
+    <div className="space-y-6 print:hidden" dir="rtl">
+      {/* Page Header & Actions */}
+      <PageHeader
+        title="مصفوفة التمام والغياب الشهري"
+        description="سجل الانضباط الشهري والخريطة التفاعلية الشاملة لكافة أفراد القوة على مدار أيام الشهر مع كشوفات الطباعة العرضية المعتمدة."
+      >
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            onClick={() => refetch()}
+            className="gap-1.5 rounded-2xl font-bold border-slate-200/80 dark:border-white/10"
+            disabled={isLoading || isRefetching}
+            title="تحديث بيانات التمام الشهري ومزامنتها فورياً"
+          >
+            <RotateCcw className={`w-4 h-4 ${isRefetching ? "animate-spin text-[#2B95E8]" : ""}`} />
+            <span>تحديث التمام</span>
+          </Button>
+          <Button
+            variant="outline"
+            onClick={handleExportCSV}
+            className="gap-1.5 rounded-2xl font-bold border-slate-200/80 dark:border-white/10"
+            disabled={rawRows.length === 0}
+          >
+            <FileSpreadsheet className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+            <span>تصدير Excel</span>
+          </Button>
+          <Button
+            variant="outline"
+            onClick={handleDownloadPdf}
+            className="gap-1.5 rounded-2xl font-bold border-slate-200/80 dark:border-white/10 text-[#2B95E8]"
+            disabled={rawRows.length === 0 || isProcessing}
+          >
+            <Download className="w-4 h-4" />
+            <span>تحميل PDF (عرضي)</span>
+          </Button>
+          <Button
+            variant="primary"
+            onClick={handlePrint}
+            className="gap-1.5 rounded-2xl font-bold"
+            disabled={rawRows.length === 0 || isProcessing}
+          >
+            {isProcessing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Printer className="w-4 h-4" />}
+            <span>طباعة كشف التمام (Landscape)</span>
+          </Button>
+        </div>
+      </PageHeader>
+
+      {/* Monthly KPIs Strip */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <StatCard
+          title="نسبة الانضباط والحضور"
+          value={`${monthlyKpis.attendanceRate}%`}
+          subtitle={`إجمالي حضور: ${monthlyKpis.totalPresent} يوم`}
+          icon={UserCheck}
+          variant="navy"
+        />
+        <StatCard
+          title="ساعات التأخير للشهر"
+          value={`${monthlyKpis.totalLateHours} س`}
+          subtitle="مجموع ساعات التأخر عن النوبات"
+          icon={Clock}
+          variant="default"
+          tone={monthlyKpis.totalLateHours > 0 ? "warning" : "neutral"}
+        />
+        <StatCard
+          title="ساعات الاستئذان المعتمدة"
+          value={`${monthlyKpis.totalExcusedHours} س`}
+          subtitle="أذونات خروج رسمية موثقة"
+          icon={Calendar}
+          variant="default"
+          tone="blue"
+        />
+        <StatCard
+          title="الغياب غير المبرر"
+          value={`${monthlyKpis.totalUnexcused} يوم`}
+          subtitle="حالات غياب بدون إذن رسمي"
+          icon={AlertTriangle}
+          variant="default"
+          tone={monthlyKpis.totalUnexcused > 0 ? "danger" : "neutral"}
+        />
       </div>
 
-      {/* Selector Toolbar */}
-      <Card className="print:hidden">
-        <CardContent className="p-4 flex flex-wrap items-center justify-between gap-4">
-          <div className="flex flex-wrap items-center gap-3">
-            {/* Year */}
-            <div className="flex items-center gap-2">
-              <span className="text-label text-slate-700 dark:text-slate-300 font-semibold">السنة:</span>
-              <Select
-                value={selectedYear}
-                onValueChange={setSelectedYear}
-                options={[
-                  { value: "2025", label: "2025" },
-                  { value: "2026", label: "2026" },
-                  { value: "2027", label: "2027" },
-                ]}
-              />
-            </div>
-
-            {/* Month */}
-            <div className="flex items-center gap-2 min-w-[160px]">
-              <span className="text-label text-slate-700 dark:text-slate-300 font-semibold">الشهر:</span>
-              <Select
-                value={selectedMonth}
-                onValueChange={setSelectedMonth}
-                options={MONTH_NAMES}
-              />
-            </div>
-
-            {/* Faction */}
-            <div className="flex items-center gap-2 min-w-[220px]">
-              <span className="text-label text-slate-700 dark:text-slate-300 font-semibold">الفصيل:</span>
-              <Select
-                value={selectedFaction}
-                onValueChange={setSelectedFaction}
-                options={[
-                  { value: "all", label: "كافة الفصائل والوحدات" },
-                  ...factions.map((f) => ({ value: String(f.id), label: f.name_ar })),
-                ]}
-              />
-            </div>
+      {/* Filters Toolbar */}
+      <div className="rounded-[28px] border border-slate-200/80 dark:border-white/10 bg-white dark:bg-[#1A2038] p-4 shadow-sm space-y-3">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-3 items-center">
+          {/* Search Box */}
+          <div className="md:col-span-4 relative">
+            <Search className="absolute right-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+            <Input
+              type="text"
+              placeholder="ابحث بالاسم الكامل، الرقم العسكري، أو الرتبة..."
+              value={search}
+              onChange={(e) => {
+                setSearch(e.target.value);
+                setPage(1);
+              }}
+              className="pr-10 rounded-2xl h-11 text-body-sm"
+            />
           </div>
 
-          {/* Legend Guide */}
-          <div className="flex flex-wrap items-center gap-2 text-caption">
-            <span className="font-semibold text-slate-700 dark:text-slate-300">دليل الرموز:</span>
-            <span className="px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200/60 font-bold">ح: حاضر</span>
-            <span className="px-2 py-0.5 rounded-md bg-amber-50 text-amber-700 border border-amber-200/60 font-bold">ت: متأخر</span>
-            <span className="px-2 py-0.5 rounded-md bg-amber-50 text-amber-700 border border-amber-200/60 font-bold">ص: انصراف</span>
-            <span className="px-2 py-0.5 rounded-md bg-sky-50 text-sky-700 border border-sky-200/60 font-bold">ذ: إذن</span>
-            <span className="px-2 py-0.5 rounded-md bg-rose-50 text-rose-700 border border-rose-200/60 font-bold">غ: غياب</span>
-            <span className="px-2 py-0.5 rounded-md bg-slate-100 text-slate-500 border border-slate-200/60 font-bold">ر: راحة</span>
+          {/* Year */}
+          <div className="md:col-span-2">
+            <Select
+              value={selectedYear}
+              onValueChange={setSelectedYear}
+              options={[
+                { value: "2025", label: "سنة 2025" },
+                { value: "2026", label: "سنة 2026" },
+                { value: "2027", label: "سنة 2027" },
+              ]}
+            />
           </div>
-        </CardContent>
-      </Card>
 
-      {/* Print Header */}
-      <div className="hidden print:block text-center border-b border-slate-200 pb-4 mb-4">
-        <h2 className="text-title font-bold text-slate-900">الجهاز الوطني للقوى المساندة — الإدارة العامة للشؤون الإدارية</h2>
-        <h3 className="text-section font-semibold text-slate-600">
-          كشف التمام الشهري والانضباط — {MONTH_NAMES.find((m) => m.value === selectedMonth)?.label} {selectedYear}
-        </h3>
+          {/* Month */}
+          <div className="md:col-span-3">
+            <Select
+              value={selectedMonth}
+              onValueChange={setSelectedMonth}
+              options={MONTH_NAMES}
+            />
+          </div>
+
+          {/* Faction */}
+          <div className="md:col-span-3">
+            <Select
+              value={selectedFaction}
+              onValueChange={setSelectedFaction}
+              options={[
+                { value: "all", label: "كافة الفصائل والوحدات" },
+                ...factions.map((f) => ({ value: String(f.id), label: f.name_ar })),
+              ]}
+            />
+          </div>
+        </div>
+
+        {/* Legend Ribbon */}
+        <div className="pt-2 border-t border-slate-100 dark:border-white/10 flex flex-wrap items-center justify-between gap-2 text-caption">
+          <div className="flex items-center gap-1.5 text-slate-500 dark:text-gray-400 font-bold">
+            <span>دليل حالات التمام:</span>
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 font-bold text-micro">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 inline-block" />
+              حاضر
+            </span>
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800 font-bold text-micro">
+              <span className="w-2 h-2 rounded-full bg-amber-500 inline-block" />
+              متأخر
+            </span>
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-sky-50 dark:bg-sky-950/40 text-sky-700 dark:text-sky-300 border border-sky-200 dark:border-sky-800 font-bold text-micro">
+              <span className="w-2 h-2 rounded-full bg-sky-500 inline-block" />
+              مأذون
+            </span>
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800 font-bold text-micro">
+              <span className="w-2 h-2 rounded-full bg-rose-500 inline-block" />
+              غياب
+            </span>
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-slate-100 dark:bg-white/10 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-white/10 font-bold text-micro">
+              <span className="w-2 h-2 rounded-full bg-slate-400 inline-block" />
+              راحة نوبة
+            </span>
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-purple-50 dark:bg-purple-950/40 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800 font-bold text-micro">
+              <span className="w-2 h-2 rounded-full bg-purple-500 inline-block" />
+              إجازة
+            </span>
+          </div>
+        </div>
       </div>
 
-      {/* Matrix Table */}
-      <Card className="print:border-0 print:shadow-none overflow-hidden rounded-[28px] border border-slate-200/80 dark:border-white/10 bg-white dark:bg-[#1A2038]">
-        <CardContent className="p-0 overflow-x-auto">
-          <table className="w-full text-center text-caption border-collapse">
-            <thead className="bg-slate-50/90 dark:bg-white/5 border-b border-slate-200/80 dark:border-white/10 text-slate-600 dark:text-gray-300 font-semibold">
+      {/* Executive Attendance Table — ZERO Horizontal Scroll */}
+      <Card className="overflow-hidden rounded-[28px] border border-slate-200/80 dark:border-white/10 bg-white dark:bg-[#1A2038] shadow-sm">
+        <CardContent className="p-0">
+          <table className="w-full text-right text-body-sm border-collapse">
+            <thead className="bg-slate-50/90 dark:bg-white/5 border-b border-slate-200/80 dark:border-white/10 text-slate-600 dark:text-gray-300 font-bold text-caption">
               <tr>
-                <th className="p-2.5 text-right sticky right-0 bg-slate-50 dark:bg-[#1A2038] min-w-[160px] z-10 border-l border-slate-200/80 dark:border-white/10 shadow-[2px_0_4px_rgba(0,0,0,0.02)]">
-                  الفرد والرتبة
+                <th className="px-3.5 py-3 text-start w-52">الفرد والرتبة</th>
+                <th className="px-3 py-3 text-start w-36">الفصيل والمناوبة</th>
+                <th className="px-3 py-3 text-center">
+                  خريطة أيام الشهر ({daysInMonth} يوم)
                 </th>
-                <th className="p-2.5 min-w-[90px] border-l border-slate-200/80 dark:border-white/10">الفصيل</th>
-                {Array.from({ length: daysInMonth }, (_, i) => (
-                  <th key={i + 1} className="p-1 min-w-[28px] border-l border-slate-200/60 dark:border-white/10 font-mono">
-                    {i + 1}
-                  </th>
-                ))}
-                <th className="p-2 min-w-[65px] bg-emerald-50/60 dark:bg-emerald-950/30 text-emerald-800 dark:text-emerald-300 border-l border-slate-200/80 dark:border-white/10">حضور</th>
-                <th className="p-2 min-w-[65px] bg-amber-50/60 dark:bg-amber-950/30 text-amber-800 dark:text-amber-300 border-l border-slate-200/80 dark:border-white/10">تأخير (س)</th>
-                <th className="p-2 min-w-[65px] bg-sky-50/60 dark:bg-sky-950/30 text-sky-800 dark:text-sky-300 border-l border-slate-200/80 dark:border-white/10">إذن (س)</th>
-                <th className="p-2 min-w-[70px] bg-rose-50/60 dark:bg-rose-950/30 text-rose-800 dark:text-rose-300 border-l border-slate-200/80 dark:border-white/10">خصم إجازة</th>
-                <th className="p-2 min-w-[60px] bg-rose-100/60 dark:bg-rose-950/50 text-rose-900 dark:text-rose-200">غياب</th>
+                <th className="px-2.5 py-3 text-center w-20 text-emerald-700 dark:text-emerald-400 font-bold">
+                  حضور
+                </th>
+                <th className="px-2 py-3 text-center w-16 text-amber-700 dark:text-amber-400 font-bold">
+                  تأخير
+                </th>
+                <th className="px-2 py-3 text-center w-16 text-sky-700 dark:text-sky-400 font-bold">
+                  إذن
+                </th>
+                <th className="px-2 py-3 text-center w-16 text-rose-700 dark:text-rose-400 font-bold">
+                  غياب
+                </th>
+                <th className="px-3 py-3 text-center w-20">التقويم</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-white/10">
               {isLoading ? (
                 <tr>
-                  <td colSpan={daysInMonth + 7} className="p-8 text-center text-slate-500">
-                    جاري تحميل مصفوفة التمام الشهري...
+                  <td colSpan={8} className="p-12 text-center text-slate-500 dark:text-gray-400">
+                    <Loader2 className="w-6 h-6 animate-spin mx-auto mb-2 text-[#2B95E8]" />
+                    <span>جاري تحميل بيانات التمام والانضباط الشهري...</span>
                   </td>
                 </tr>
-              ) : rows.length === 0 ? (
+              ) : paginatedRows.length === 0 ? (
                 <tr>
-                  <td colSpan={daysInMonth + 7} className="p-8 text-center text-slate-500">
-                    لا توجد بيانات تمام مسجلة لهذا الشهر.
+                  <td colSpan={8} className="p-12 text-center text-slate-500 dark:text-gray-400">
+                    لا توجد بيانات تمام مسجلة تطابق خيارات البحث لشهر {currentMonthLabel} {selectedYear}.
                   </td>
                 </tr>
               ) : (
-                rows.map((row) => (
-                  <tr key={row.member_id} className="hover:bg-slate-50/60 dark:hover:bg-white/5 transition-colors">
-                    {/* Member Column */}
-                    <td className="p-2.5 text-right sticky right-0 bg-surface dark:bg-[#1A2038] border-l border-slate-200/80 dark:border-white/10 z-10 shadow-[2px_0_4px_rgba(0,0,0,0.02)]">
-                      <div className="font-semibold text-slate-900 dark:text-slate-100 text-body-sm">{row.member_name}</div>
-                      <div className="text-slate-500 text-caption flex items-center gap-1 font-mono">
-                        <span>{row.rank_name}</span>
+                paginatedRows.map((row) => (
+                  <tr
+                    key={row.member_id}
+                    className="hover:bg-slate-50/70 dark:hover:bg-white/5 transition-colors group cursor-pointer"
+                    onClick={() => setSelectedMemberForCalendar({ ...row, month: selectedMonth })}
+                  >
+                    {/* Member */}
+                    <td className="px-3.5 py-2.5 align-middle">
+                      <div className="font-bold text-slate-900 dark:text-white text-body-sm">
+                        {row.member_name}
+                      </div>
+                      <div className="text-slate-500 dark:text-gray-400 text-caption font-mono flex items-center gap-1.5">
+                        <span>{row.rank_name || "—"}</span>
                         <span>•</span>
                         <span>{row.force_number || "—"}</span>
                       </div>
                     </td>
 
                     {/* Faction */}
-                    <td className="p-2 border-l border-slate-200/80 dark:border-slate-800 text-right">
-                      <div className="text-caption font-medium text-slate-800 dark:text-slate-200">{row.faction_name || "—"}</div>
-                      <div className="text-caption text-blue-600 dark:text-blue-400 font-mono">{row.shift_group_name}</div>
+                    <td className="px-3 py-2.5 align-middle">
+                      <div className="font-medium text-slate-800 dark:text-slate-200 text-caption">
+                        {row.faction_name || "—"}
+                      </div>
+                      <div className="text-micro font-mono text-[#2B95E8]">
+                        {row.shift_group_name || "إداري"}
+                      </div>
                     </td>
 
-                    {/* Days 1..daysInMonth */}
-                    {Array.from({ length: daysInMonth }, (_, i) => {
-                      const dayStr = String(i + 1);
-                      const dayData = row.days[dayStr];
-                      const chip = STATUS_CHIPS[dayData?.status] || STATUS_CHIPS.unrecorded;
+                    {/* 31-Day Mini Heatmap Sparkline */}
+                    <td className="px-3 py-2.5 align-middle">
+                      <div className="flex items-center justify-between gap-0.5 max-w-md mx-auto p-1.5 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200/60 dark:border-white/10">
+                        {Array.from({ length: daysInMonth }, (_, i) => {
+                          const dayStr = String(i + 1);
+                          const dayData = row.days?.[dayStr];
+                          const chip = STATUS_CHIPS[dayData?.status] || STATUS_CHIPS.unrecorded;
 
-                      let tooltip = `${chip.title} (يوم ${dayStr})`;
-                      if (dayData?.late_hours > 0) tooltip += ` • تأخير ${dayData.late_hours} س`;
-                      if (dayData?.excused_hours > 0) tooltip += ` • إذن ${dayData.excused_hours} س (خصم ${dayData.deducted_days} يوم)`;
+                          let tooltip = `يوم ${dayStr}: ${chip.title}`;
+                          if (dayData?.late_hours > 0) tooltip += ` • تأخير ${dayData.late_hours}س`;
+                          if (dayData?.excused_hours > 0) tooltip += ` • إذن ${dayData.excused_hours}س`;
+                          if (dayData?.notes) tooltip += ` • (${dayData.notes})`;
 
-                      return (
-                        <td key={dayStr} className="p-0.5 border-l border-slate-100 dark:border-slate-800">
-                          <span
-                            title={tooltip}
-                            className={`inline-flex items-center justify-center w-6 h-6 rounded-md text-caption font-bold border ${chip.bg} transition-transform hover:scale-110`}
-                          >
-                            {chip.code}
-                          </span>
-                        </td>
-                      );
-                    })}
+                          return (
+                            <div
+                              key={dayStr}
+                              title={tooltip}
+                              className={`h-5 flex-1 min-w-[6px] max-w-[14px] rounded-[3px] transition-transform hover:scale-125 cursor-pointer ${chip.bg}`}
+                            />
+                          );
+                        })}
+                      </div>
+                    </td>
 
-                    {/* Summary Counters */}
-                    <td className="p-1 font-bold text-emerald-700 dark:text-emerald-400 border-l border-slate-200/80 dark:border-slate-800 bg-emerald-50/30 dark:bg-emerald-950/20 font-mono">
-                      {row.summary.total_present}
+                    {/* Counters */}
+                    <td className="px-2.5 py-2.5 align-middle text-center font-mono font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-50/20 dark:bg-emerald-950/10">
+                      {row.summary?.total_present || 0}
                     </td>
-                    <td className="p-1 font-bold text-amber-700 dark:text-amber-400 border-l border-slate-200/80 dark:border-slate-800 bg-amber-50/30 dark:bg-amber-950/20 font-mono">
-                      {row.summary.total_late_hours > 0 ? `${row.summary.total_late_hours}س` : "0"}
+                    <td className="px-2 py-2.5 align-middle text-center font-mono font-bold text-amber-700 dark:text-amber-400">
+                      {row.summary?.total_late_hours > 0 ? `${row.summary.total_late_hours}س` : "0"}
                     </td>
-                    <td className="p-1 font-bold text-sky-700 dark:text-sky-400 border-l border-slate-200/80 dark:border-slate-800 bg-sky-50/30 dark:bg-sky-950/20 font-mono">
-                      {row.summary.total_excused_hours > 0 ? `${row.summary.total_excused_hours}س` : "0"}
+                    <td className="px-2 py-2.5 align-middle text-center font-mono font-bold text-sky-700 dark:text-sky-400">
+                      {row.summary?.total_excused_hours > 0 ? `${row.summary.total_excused_hours}س` : "0"}
                     </td>
-                    <td className="p-1 font-bold text-rose-700 dark:text-rose-400 border-l border-slate-200/80 dark:border-slate-800 bg-rose-50/30 dark:bg-rose-950/20 font-mono">
-                      {row.summary.total_deducted_days > 0 ? `-${row.summary.total_deducted_days}ي` : "0"}
+                    <td className="px-2 py-2.5 align-middle text-center font-mono font-bold text-rose-700 dark:text-rose-400">
+                      {row.summary?.total_unexcused || 0}
                     </td>
-                    <td className="p-1 font-bold text-rose-700 dark:text-rose-400 bg-rose-100/40 dark:bg-rose-950/30 font-mono">
-                      {row.summary.total_unexcused}
+
+                    {/* Action Calendar Button */}
+                    <td className="px-3 py-2.5 align-middle text-center">
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSelectedMemberForCalendar({ ...row, month: selectedMonth });
+                        }}
+                        className="h-7.5 w-7.5 p-0 rounded-lg text-slate-500 hover:text-[#2B95E8]"
+                        title="عرض التقويم المفصل للفرد"
+                      >
+                        <CalendarDays className="w-4 h-4" />
+                      </Button>
                     </td>
                   </tr>
                 ))
@@ -325,6 +498,27 @@ export function MonthlyAttendancePage() {
           </table>
         </CardContent>
       </Card>
+
+      {/* Pagination */}
+      <Pagination
+        page={page}
+        pageSize={pageSize}
+        totalCount={filteredRows.length}
+        onPageChange={setPage}
+        onPageSizeChange={setPageSize}
+      />
+
+      {/* Member Monthly Calendar Modal */}
+      {selectedMemberForCalendar && (
+        <MemberMonthCalendarDialog
+          memberRecord={selectedMemberForCalendar}
+          monthName={currentMonthLabel}
+          year={selectedYear}
+          daysInMonth={daysInMonth}
+          open={Boolean(selectedMemberForCalendar)}
+          onOpenChange={(open) => !open && setSelectedMemberForCalendar(null)}
+        />
+      )}
     </div>
   );
 }

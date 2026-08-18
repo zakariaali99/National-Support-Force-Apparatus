@@ -3,6 +3,7 @@ import { api } from "../../lib/api";
 import { createResourceHooks } from "../../lib/createResourceHooks";
 
 export const shiftRostersApi = createResourceHooks("rosters", "attendance/rosters/");
+export const dailyAttendanceApi = createResourceHooks("attendance-records", "attendance/records/");
 
 export const useDailySheet = (params = {}) => {
   return useQuery({
@@ -11,6 +12,9 @@ export const useDailySheet = (params = {}) => {
       const { data } = await api.get("attendance/records/daily-sheet/", { params });
       return data;
     },
+    staleTime: 0,
+    refetchOnMount: "always",
+    refetchOnWindowFocus: true,
   });
 };
 
@@ -21,6 +25,9 @@ export const useMonthlyMatrix = (params = {}) => {
       const { data } = await api.get("attendance/records/monthly-matrix/", { params });
       return data;
     },
+    staleTime: 0,
+    refetchOnMount: "always",
+    refetchOnWindowFocus: true,
   });
 };
 
@@ -35,6 +42,7 @@ export const useRecordBulkAttendance = () => {
       qc.invalidateQueries({ queryKey: ["daily-sheet"] });
       qc.invalidateQueries({ queryKey: ["monthly-matrix"] });
       qc.invalidateQueries({ queryKey: ["members"] });
+      qc.invalidateQueries({ queryKey: ["attendance-records"] });
     },
   });
 };
