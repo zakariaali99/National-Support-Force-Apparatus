@@ -64,11 +64,17 @@ class HasPermission(BasePermission):
             if action not in permission_map:
                 return False
             codename = permission_map[action]
-            return codename is None or request.user.has_permission(codename)
+            if codename is None:
+                return True
+            if isinstance(codename, (list, tuple, set)):
+                return any(request.user.has_permission(c) for c in codename)
+            return request.user.has_permission(codename)
 
         codename = getattr(view, "required_permission", None)
         if codename is None:
             return False
+        if isinstance(codename, (list, tuple, set)):
+            return any(request.user.has_permission(c) for c in codename)
         return request.user.has_permission(codename)
 
 

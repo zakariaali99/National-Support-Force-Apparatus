@@ -67,11 +67,12 @@ const ACTION_LABELS = {
   vacation_balance_adjust: "تعديل رصيد إجازات",
   vehicle_create: "إضافة مركبة للأسطول",
   vehicle_update: "تعديل بيانات مركبة",
-  vehicle_trip: "إصدار أمر تحرك",
-  vehicle_delete: "حذف سجل مركبة",
-  user_create: "إنشاء حساب مستخدم",
-  user_update: "تعديل حساب مستخدم",
-  role_update: "تعديل الصلاحيات والأدوار",
+  attendance_update_member: "تعديل تمام فرد",
+  attendance_update_subset: "تعديل جزئي للتمام",
+  attendance_record_bulk: "اعتماد كشف التمام",
+  attendance_record: "تسجيل تمام",
+  attendance_bulk_save: "حفظ كشف التمام",
+  shift_roster_update: "تعديل جدول المناوبات",
 };
 
 const ACTION_VARIANTS = {
@@ -105,7 +106,9 @@ const ACTION_VARIANTS = {
   vehicle_update: "primary",
   vehicle_trip: "gold",
   vehicle_delete: "danger",
-  attendance_record_bulk: "primary",
+  attendance_update_member: "warning",
+  attendance_update_subset: "primary",
+  attendance_record_bulk: "success",
   attendance_record: "info",
   attendance_bulk_save: "success",
   shift_roster_update: "primary",
@@ -166,8 +169,9 @@ function isPrivateOrLocalIp(ip) {
 
 const ACTION_OPTIONS = [
   { value: "all", label: "كل أنواع الإجراءات" },
-  { value: "attendance_record_bulk", label: "تسجيل تمام مجمع" },
-  { value: "attendance_bulk_save", label: "اعتماد كشف التمام" },
+  { value: "attendance_update_member", label: "تعديل تمام فرد" },
+  { value: "attendance_update_subset", label: "تعديل جزئي للتمام" },
+  { value: "attendance_record_bulk", label: "اعتماد كشف التمام" },
   { value: "inventory_custody_assign", label: "تسليم عهدة فردية" },
   { value: "inventory_custody_release", label: "إرجاع عهدة للمخزن" },
   { value: "inventory_create", label: "تسجيل عتاد بالجرد" },

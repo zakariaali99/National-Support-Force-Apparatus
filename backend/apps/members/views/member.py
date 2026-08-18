@@ -22,9 +22,33 @@ class MemberViewSet(ScopedQuerysetMixin, SoftDeleteModelViewSet):
     queryset = Member.objects.select_related("rank", "faction").all()
     permission_classes = [HasPermission]
     permission_map = {
-        "list": "member.view",
-        "retrieve": "member.view",
-        "photo": "member.view",
+        "list": [
+            "member.view",
+            "transportation.view",
+            "transportation.manage",
+            "inventory.view",
+            "inventory.manage",
+            "attendance.view",
+            "attendance.manage",
+        ],
+        "retrieve": [
+            "member.view",
+            "transportation.view",
+            "transportation.manage",
+            "inventory.view",
+            "inventory.manage",
+            "attendance.view",
+            "attendance.manage",
+        ],
+        "photo": [
+            "member.view",
+            "transportation.view",
+            "transportation.manage",
+            "inventory.view",
+            "inventory.manage",
+            "attendance.view",
+            "attendance.manage",
+        ],
         "create": "member.create",
         "update": "member.edit",
         "partial_update": "member.edit",

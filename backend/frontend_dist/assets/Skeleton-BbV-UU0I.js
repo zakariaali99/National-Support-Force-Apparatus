@@ -1,0 +1,1 @@
+import{l as e,o as t,r as n,s as r}from"./api-DVjQ8yrN.js";var i=e(r(),1),a=t(),o=`bg-[color-mix(in_srgb,var(--fg)_7%,var(--surface-raised))]`,s=(0,i.forwardRef)(function({className:e,...t},r){return(0,a.jsx)(`div`,{ref:r,"aria-hidden":`true`,className:n(`rounded-control`,o,`animate-pulse motion-reduce:animate-none`,e),...t})});export{s as t};

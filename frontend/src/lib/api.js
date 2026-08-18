@@ -27,10 +27,14 @@ api.interceptors.response.use(
     const { config, response } = error;
 
     if (response?.status === 403) {
-      const msg = response.data?.detail || response.data?.message || "عفواً، لا تملك الصلاحية الكافية لإتمام هذا الإجراء.";
+      const rawDetail = String(response.data?.detail || response.data?.message || "");
+      let arabicMsg = "عفواً، لا يمتلك حسابك الحالي الصلاحية الأمنية الكافية لإتمام هذا الإجراء أو الوصول إلى هذا القسم.";
+      if (rawDetail && !rawDetail.includes("permission") && !rawDetail.includes("credentials") && !rawDetail.includes("Authentication")) {
+        arabicMsg = rawDetail;
+      }
       window.dispatchEvent(
         new CustomEvent("nsfa:forbidden", {
-          detail: { message: msg },
+          detail: { message: arabicMsg },
         })
       );
       return Promise.reject(error);

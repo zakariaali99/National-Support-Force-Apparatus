@@ -34,8 +34,8 @@ export function VehicleFormDialog({ open, onOpenChange, vehicle = null }) {
   const isEdit = Boolean(vehicle);
   const createVehicle = useCreateVehicle();
   const updateVehicle = useUpdateVehicle();
-  const { data: factions = [] } = useFactions();
-  const { data: membersData } = useMembers({ page_size: 200 });
+  const { data: factions = [] } = useFactions({ enabled: Boolean(open) });
+  const { data: membersData } = useMembers({ page_size: 200 }, { enabled: Boolean(open) });
   const members = membersData?.results || (Array.isArray(membersData) ? membersData : []);
 
   const {

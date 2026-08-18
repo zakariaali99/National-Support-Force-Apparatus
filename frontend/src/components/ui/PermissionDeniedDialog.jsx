@@ -44,19 +44,19 @@ export function PermissionDeniedDialog() {
         <div className="p-6 space-y-4 text-start">
           {/* Main Alert Message */}
           <div className="p-4 rounded-2xl bg-rose-50/60 dark:bg-rose-950/20 border border-rose-200/80 dark:border-rose-900/30 text-body-sm font-semibold text-rose-950 dark:text-rose-100 leading-relaxed">
-            {message}
+            {message || "عفواً، لا يمتلك حسابك الحالي الصلاحية الأمنية الكافية لإتمام هذا الإجراء أو الوصول إلى هذه البيانات."}
           </div>
 
           {/* Account Context Details */}
           {user && (
             <div className="p-3.5 rounded-2xl border border-slate-200/80 dark:border-white/10 bg-slate-50/60 dark:bg-white/5 space-y-1.5 text-caption">
-              <div className="flex items-center justify-between text-slate-500 dark:text-gray-400 font-bold">
-                <span>الحساب الحالي:</span>
-                <span className="font-mono text-slate-900 dark:text-white dir-ltr">@{user.username}</span>
+              <div className="flex items-center justify-between text-slate-600 dark:text-gray-300 font-bold">
+                <span>الاسم الكامل:</span>
+                <span className="text-slate-900 dark:text-white font-bold">{user.full_name || user.username}</span>
               </div>
               <div className="flex items-center justify-between text-slate-500 dark:text-gray-400 font-bold">
-                <span>اسم المستخدم:</span>
-                <span className="text-slate-900 dark:text-white">{user.full_name || user.username}</span>
+                <span>اسم الحساب:</span>
+                <span className="font-mono text-slate-800 dark:text-slate-200 dir-ltr">{user.username}</span>
               </div>
               {requiredPerm && (
                 <div className="flex items-center justify-between text-amber-700 dark:text-amber-400 font-bold pt-1 border-t border-slate-200/60 dark:border-white/10">

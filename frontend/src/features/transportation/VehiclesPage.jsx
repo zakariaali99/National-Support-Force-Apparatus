@@ -353,11 +353,13 @@ export default function VehiclesPage() {
       </Card>
 
       {/* Vehicle Form Modal */}
-      <VehicleFormDialog
-        open={formOpen}
-        onOpenChange={setFormOpen}
-        vehicle={editingVehicle}
-      />
+      {formOpen && (
+        <VehicleFormDialog
+          open={formOpen}
+          onOpenChange={setFormOpen}
+          vehicle={editingVehicle}
+        />
+      )}
 
       {/* Delete Confirmation Modal */}
       <AlertDialog
