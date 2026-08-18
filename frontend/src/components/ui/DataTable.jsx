@@ -102,7 +102,7 @@ export function DataTable({
           <th
             key={col.key}
             className={cn(
-              "px-5 py-4 text-start font-bold text-caption text-slate-500 dark:text-gray-400 tracking-wide whitespace-nowrap",
+              "px-3.5 py-2.5 text-start font-bold text-caption text-slate-500 dark:text-gray-400 tracking-wide whitespace-nowrap",
               col.align === "center" && "text-center",
               col.align === "end" && "text-end",
               sortable && col.sortable !== false && "cursor-pointer select-none",
@@ -135,7 +135,7 @@ export function DataTable({
             <td
               key={col.key}
               className={cn(
-                "px-5 py-4 align-middle text-slate-800 dark:text-slate-200 font-medium whitespace-nowrap text-body-sm",
+                "px-3.5 py-2.5 align-middle text-slate-800 dark:text-slate-200 font-medium text-body-sm",
                 col.align === "center" && "text-center",
                 col.align === "end" && "text-end",
                 col.cellClassName
@@ -154,7 +154,7 @@ export function DataTable({
       {Array.from({ length: 5 }).map((_, rIdx) => (
         <tr key={rIdx}>
           {targetColumns.map((col) => (
-            <td key={col.key} className="px-5 py-4">
+            <td key={col.key} className="px-3.5 py-2.5">
               <Skeleton className="h-4 w-4/5 rounded-md" />
             </td>
           ))}

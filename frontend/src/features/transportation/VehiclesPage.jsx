@@ -193,7 +193,7 @@ export default function VehiclesPage() {
           <Button
             variant="outline"
             size="sm"
-            className="h-8 px-2 text-blue-700 dark:text-blue-400 border-blue-200 dark:border-blue-800 hover:bg-blue-50 dark:hover:bg-blue-950/40 shadow-2xs"
+            className="h-7.5 px-2 text-blue-700 dark:text-blue-400 border-blue-200 dark:border-blue-800 hover:bg-blue-50 dark:hover:bg-blue-950/40 shadow-2xs text-caption font-semibold"
             onClick={() => {
               setSelectedVehicle(v);
               setTripVoucherOpen(true);
@@ -206,7 +206,7 @@ export default function VehiclesPage() {
           <Button
             variant="outline"
             size="sm"
-            className="h-8 px-2 text-indigo-700 dark:text-indigo-400 border-indigo-200 dark:border-indigo-800 hover:bg-indigo-50 dark:hover:bg-indigo-950/40 shadow-2xs"
+            className="h-7.5 px-2 text-indigo-700 dark:text-indigo-400 border-indigo-200 dark:border-indigo-800 hover:bg-indigo-50 dark:hover:bg-indigo-950/40 shadow-2xs text-caption font-semibold"
             onClick={() => {
               setSelectedVehicle(v);
               setQrModalOpen(true);
@@ -219,19 +219,20 @@ export default function VehiclesPage() {
           <Button
             variant="ghost"
             size="sm"
+            className="h-7.5 w-7.5 p-0 rounded-lg text-slate-600 dark:text-slate-300"
             onClick={() => handleEdit(v)}
             title="تعديل"
           >
-            <Pencil className="w-4 h-4 text-slate-600 dark:text-slate-300" />
+            <Pencil className="w-3.5 h-3.5" />
           </Button>
           <Button
             variant="ghost"
             size="sm"
             onClick={() => setDeletingVehicle(v)}
-            className="text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/50"
+            className="h-7.5 w-7.5 p-0 rounded-lg text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/50"
             title="حذف"
           >
-            <Trash2 className="w-4 h-4" />
+            <Trash2 className="w-3.5 h-3.5" />
           </Button>
         </div>
       ),

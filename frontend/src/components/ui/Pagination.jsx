@@ -55,15 +55,15 @@ export function Pagination({
 
   return (
     <div
-      className={`flex flex-col md:flex-row items-center justify-between gap-4 p-4 rounded-2xl border border-border/80 bg-card/90 backdrop-blur-md text-card-foreground shadow-sm ${className}`}
+      className={`flex flex-col md:flex-row items-center justify-between gap-4 p-4 rounded-[24px] border border-slate-200/80 dark:border-white/10 bg-white dark:bg-[#1A2038] text-foreground shadow-sm ${className}`}
     >
       {/* Total records & Page size selector */}
-      <div className="flex flex-wrap items-center gap-3 text-caption font-medium text-muted-foreground">
-        <div className="bg-secondary/40 border border-border/60 rounded-xl px-3 py-1.5">
+      <div className="flex flex-wrap items-center gap-3 text-caption font-medium text-slate-500 dark:text-gray-400">
+        <div className="bg-slate-100 dark:bg-white/5 border border-slate-200/60 dark:border-white/10 rounded-xl px-3 py-1.5">
           <span>
-            عرض <span className="font-bold text-foreground">{formatNumber(startItem)}</span> إلى{" "}
-            <span className="font-bold text-foreground">{formatNumber(endItem)}</span> من إجمالي{" "}
-            <span className="font-bold text-primary">{formatNumber(totalCount)}</span> سجل
+            عرض <span className="font-bold text-slate-900 dark:text-white">{formatNumber(startItem)}</span> إلى{" "}
+            <span className="font-bold text-slate-900 dark:text-white">{formatNumber(endItem)}</span> من إجمالي{" "}
+            <span className="font-bold text-[#2B95E8]">{formatNumber(totalCount)}</span> سجل
           </span>
         </div>
 

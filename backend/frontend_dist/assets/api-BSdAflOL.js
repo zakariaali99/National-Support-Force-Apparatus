@@ -1,1 +1,0 @@
-import{t as e}from"./api-Dbu530Wi.js";import{o as t}from"./dist-CsX87S8f.js";function n(n){return t({queryKey:[`activity-log`,n],queryFn:async()=>(await e.get(`audit/activity/`,{params:n})).data})}function r(n,r){return t({queryKey:[`audit-history`,n,r],queryFn:async()=>(await e.get(`audit/history/`,{params:{model:n,id:r}})).data,enabled:!!(n&&r)})}export{r as n,n as t};

@@ -11,7 +11,7 @@ import {
   CheckSquare,
   Star,
   Printer,
-  UserCheck,
+  Pencil,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 
@@ -285,26 +285,26 @@ export function MemberList() {
             <table className="w-full text-right text-body-sm border-collapse">
               <thead className="bg-slate-50/90 dark:bg-white/5 text-slate-500 font-bold border-b border-slate-200/80 dark:border-white/10 text-caption uppercase">
                 <tr>
-                  <th className="w-16 px-4 py-4 text-center">#</th>
-                  <th className="px-5 py-4 text-start font-bold">
+                  <th className="w-12 px-3 py-2.5 text-center">#</th>
+                  <th className="px-3 py-2.5 text-start font-bold">
                     الاسم الكامل
                   </th>
-                  <th className="px-5 py-4 text-start font-bold">
+                  <th className="px-3 py-2.5 text-start font-bold">
                     الرقم الحربي
                   </th>
-                  <th className="px-5 py-4 text-start font-bold">
+                  <th className="px-3 py-2.5 text-start font-bold">
                     الرقم الوطني
                   </th>
-                  <th className="px-5 py-4 text-start font-bold">
-                    الرتبة العسكرية
+                  <th className="px-3 py-2.5 text-start font-bold">
+                    الرتبة
                   </th>
-                  <th className="px-5 py-4 text-start font-bold">
-                    الفصيل (الإدارة)
+                  <th className="px-3 py-2.5 text-start font-bold">
+                    الفصيل
                   </th>
-                  <th className="px-5 py-4 text-start font-bold">
+                  <th className="px-3 py-2.5 text-start font-bold">
                     الحالة
                   </th>
-                  <th className="px-5 py-4 text-end font-bold">
+                  <th className="px-3 py-2.5 text-end font-bold">
                     الإجراءات
                   </th>
                 </tr>
@@ -312,35 +312,35 @@ export function MemberList() {
               <tbody className="divide-y divide-slate-100 dark:divide-white/5 bg-white dark:bg-[#1A2038]">
                 {members.map((member) => (
                   <tr key={member.id} className="hover:bg-slate-50/80 dark:hover:bg-white/5 transition-colors group">
-                    <td className="px-4 py-3.5 text-center align-middle">
+                    <td className="px-3 py-2 text-center align-middle">
                       <AuthedImage
                         src={member.photo_thumb_url}
                         alt={member.full_name}
-                        className="h-10 w-10 rounded-2xl border border-slate-200/80 dark:border-white/10 object-cover mx-auto shadow-2xs"
+                        className="h-8 w-8 rounded-xl border border-slate-200/80 dark:border-white/10 object-cover mx-auto shadow-2xs"
                       />
                     </td>
-                    <td className="px-5 py-3.5 text-start align-middle">
+                    <td className="px-3 py-2 text-start align-middle">
                       <Link
                         to={`/members/${member.id}`}
-                        className="font-bold text-slate-900 dark:text-white hover:text-[#2B95E8] transition-colors flex items-center gap-1.5"
+                        className="font-bold text-slate-900 dark:text-white hover:text-[#2B95E8] transition-colors flex items-center gap-1 text-body-sm"
                       >
                         <span>{member.full_name}</span>
                         <ArrowUpRight className="h-3.5 w-3.5 opacity-0 group-hover:opacity-100 transition-opacity text-[#2B95E8]" />
                       </Link>
                     </td>
-                    <td className="px-5 py-3.5 text-start align-middle font-mono font-semibold text-slate-800 dark:text-slate-200 text-caption dir-ltr">
+                    <td className="px-3 py-2 text-start align-middle font-mono font-semibold text-slate-800 dark:text-slate-200 text-caption dir-ltr">
                       {member.force_number}
                     </td>
-                    <td className="px-5 py-3.5 text-start align-middle font-mono text-slate-500 text-caption dir-ltr">
+                    <td className="px-3 py-2 text-start align-middle font-mono text-slate-500 text-caption dir-ltr">
                       {member.national_number || "—"}
                     </td>
-                    <td className="px-5 py-3.5 text-start align-middle font-medium text-slate-700 dark:text-slate-300 text-caption">
+                    <td className="px-3 py-2 text-start align-middle font-medium text-slate-700 dark:text-slate-300 text-caption">
                       {member.rank_name || "—"}
                     </td>
-                    <td className="px-5 py-3.5 text-start align-middle font-medium text-slate-500 text-caption">
+                    <td className="px-3 py-2 text-start align-middle font-medium text-slate-500 text-caption">
                       {member.faction_name || "—"}
                     </td>
-                    <td className="px-5 py-3.5 text-start align-middle">
+                    <td className="px-3 py-2 text-start align-middle">
                       {canEdit ? (
                         <DropdownMenu>
                           <DropdownMenuTrigger className="outline-none">
@@ -368,48 +368,55 @@ export function MemberList() {
                         </Badge>
                       )}
                     </td>
-                    <td className="px-4 py-3 text-end align-middle">
+                    <td className="px-3 py-2 text-end align-middle">
                       <div className="flex items-center justify-end gap-1">
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="h-8 w-8 rounded-lg text-slate-500 hover:text-slate-900 dark:hover:text-slate-100"
+                          className="h-7.5 w-7.5 rounded-lg text-slate-500 hover:text-slate-900 dark:hover:text-slate-100"
                           title="إضافة ملاحظة"
                           onClick={() => setActiveProcedure({ type: "note", member })}
                         >
-                          <FileText className="h-4 w-4" />
+                          <FileText className="h-3.5 w-3.5" />
                         </Button>
                         {canAssign && (
                           <Button
                             variant="ghost"
                             size="icon"
-                            className="h-8 w-8 rounded-lg text-slate-500 hover:text-slate-900 dark:hover:text-slate-100"
+                            className="h-7.5 w-7.5 rounded-lg text-slate-500 hover:text-slate-900 dark:hover:text-slate-100"
                             title="إسناد مهمة"
                             onClick={() => setActiveProcedure({ type: "task", member })}
                           >
-                            <CheckSquare className="h-4 w-4" />
+                            <CheckSquare className="h-3.5 w-3.5" />
                           </Button>
                         )}
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="h-8 w-8 rounded-lg text-slate-500 hover:text-slate-900 dark:hover:text-slate-100"
+                          className="h-7.5 w-7.5 rounded-lg text-slate-500 hover:text-slate-900 dark:hover:text-slate-100"
                           title="إضافة تقييم"
                           onClick={() => setActiveProcedure({ type: "eval", member })}
                         >
-                          <Star className="h-4 w-4" />
+                          <Star className="h-3.5 w-3.5" />
                         </Button>
                         {canEdit && (
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8 rounded-lg text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950/40"
-                            title="تعديل الحالة الإدارية"
-                            onClick={() => setActiveProcedure({ type: "status", member })}
+                          <Link
+                            to={`/members/${member.id}/edit`}
+                            className="inline-flex h-7.5 w-7.5 items-center justify-center rounded-lg text-slate-500 hover:text-[#2B95E8] dark:hover:text-slate-100 transition-colors"
+                            title="تعديل البيانات"
                           >
-                            <UserCheck className="h-4 w-4" />
-                          </Button>
+                            <Pencil className="h-3.5 w-3.5" />
+                          </Link>
                         )}
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-7.5 w-7.5 rounded-lg text-slate-500 hover:text-[#2B95E8] dark:hover:text-slate-100"
+                          title="طباعة البطاقة الرسمية"
+                          onClick={() => handlePrint(member)}
+                        >
+                          <Printer className="h-3.5 w-3.5" />
+                        </Button>
                       </div>
                     </td>
                   </tr>

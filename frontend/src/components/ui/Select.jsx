@@ -35,13 +35,13 @@ import { cn } from "../../lib/utils";
    status block, and at ~1.5:1 on a white ground it is not a visible control
    outline. An invalid field must stay above 3:1, so it takes the solid hue. */
 const controlClasses = [
-  "flex h-10 w-full items-center gap-2 rounded-lg",
-  "border border-slate-300 dark:border-slate-700 bg-surface text-body-sm text-fg shadow-2xs px-3.5",
-  "transition-[border-color,box-shadow,background-color,color] duration-[var(--duration-fast)] ease-out",
-  "hover:border-slate-400 dark:hover:border-slate-600",
-  "focus:outline-none focus:border-blue-600 focus:ring-3 focus:ring-blue-500/15",
-  "aria-invalid:border-danger aria-invalid:focus:ring-danger/15",
-  "disabled:pointer-events-none disabled:opacity-50",
+  "flex h-11 w-full items-center gap-2 rounded-2xl",
+  "border border-slate-200/80 dark:border-white/10 bg-slate-100 dark:bg-white/5 text-body-sm text-foreground shadow-2xs px-4",
+  "transition-all duration-200 ease-out",
+  "hover:bg-slate-200/60 dark:hover:bg-white/10",
+  "focus:outline-none focus:!bg-white dark:focus:!bg-[#101422] focus:border-[#2B95E8] focus:ring-3 focus:ring-[#2B95E8]/20",
+  "aria-invalid:border-danger aria-invalid:focus:ring-danger/20",
+  "disabled:pointer-events-none disabled:opacity-50 disabled:bg-slate-200 dark:disabled:bg-white/5",
 ].join(" ");
 
 /* -----------------------------------------------------------------------------

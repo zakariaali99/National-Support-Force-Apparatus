@@ -329,19 +329,19 @@ export function InventoryPage() {
             <table className="w-full text-right text-body-sm border-collapse">
               <thead className="bg-slate-50/80 dark:bg-white/5 border-b border-slate-200/80 dark:border-white/10 text-slate-500 dark:text-gray-400 font-semibold text-caption">
                 <tr>
-                  <th className="p-3.5 text-start">العتاد والتصنيف</th>
-                  <th className="p-3.5 text-start">الكود / الرقم التسلسلي</th>
-                  <th className="p-3.5 text-start">المواصفة / المقاس</th>
-                  <th className="p-3.5 text-center">الرصيد بالمخزن</th>
-                  <th className="p-3.5 text-start">الحالة والموقع</th>
-                  <th className="p-3.5 text-end">إجراءات العهدة</th>
+                  <th className="px-3 py-2.5 text-start">العتاد والتصنيف</th>
+                  <th className="px-3 py-2.5 text-start">الكود / الرقم التسلسلي</th>
+                  <th className="px-3 py-2.5 text-start">المواصفة / المقاس</th>
+                  <th className="px-3 py-2.5 text-center">الرصيد بالمخزن</th>
+                  <th className="px-3 py-2.5 text-start">الحالة والموقع</th>
+                  <th className="px-3 py-2.5 text-end">إجراءات العهدة</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-white/10 bg-surface dark:bg-[#1A2038]">
                 {filteredItems.map((item) => (
                   <tr key={item.id} className="hover:bg-slate-50/70 dark:hover:bg-white/5 transition-colors">
                     {/* Item & Classification */}
-                    <td className="p-3.5 align-middle">
+                    <td className="px-3 py-2 align-middle">
                       <div className="font-semibold text-slate-900 dark:text-slate-100 text-body-sm">{item.name}</div>
                       <div className="text-caption text-slate-500 font-medium flex items-center gap-1.5 mt-0.5">
                         <span>{item.category_name || "مهمات عامة"}</span>
@@ -355,7 +355,7 @@ export function InventoryPage() {
                     </td>
 
                     {/* Code & Serial */}
-                    <td className="p-3.5 align-middle font-mono text-caption whitespace-nowrap">
+                    <td className="px-3 py-2 align-middle font-mono text-caption whitespace-nowrap">
                       {item.item_code && (
                         <span className="block font-semibold text-slate-800 dark:text-slate-200 dir-ltr">{item.item_code}</span>
                       )}
@@ -369,12 +369,12 @@ export function InventoryPage() {
                     </td>
 
                     {/* Size / Spec */}
-                    <td className="p-3.5 align-middle text-caption text-slate-700 dark:text-slate-300 font-medium">
+                    <td className="px-3 py-2 align-middle text-caption text-slate-700 dark:text-slate-300 font-medium">
                       {item.size_spec || "—"}
                     </td>
 
                     {/* Stock Counters */}
-                    <td className="p-3.5 align-middle text-center font-mono">
+                    <td className="px-3 py-2 align-middle text-center font-mono">
                       <div className="inline-flex items-center gap-1">
                         <span className="font-bold text-emerald-700 dark:text-emerald-400 text-body-sm">
                           {item.available_quantity ?? item.total_quantity}
@@ -392,7 +392,7 @@ export function InventoryPage() {
                     </td>
 
                     {/* Status & Location */}
-                    <td className="p-3.5 align-middle">
+                    <td className="px-3 py-2 align-middle">
                       <div className="flex items-center gap-1.5">
                         <span
                           className={`h-2 w-2 rounded-full shrink-0 ${
@@ -417,13 +417,13 @@ export function InventoryPage() {
                     </td>
 
                     {/* Custody Actions */}
-                    <td className="p-3.5 align-middle text-end whitespace-nowrap">
-                      <div className="flex items-center justify-end gap-1.5">
+                    <td className="px-3 py-2 align-middle text-end whitespace-nowrap">
+                      <div className="flex items-center justify-end gap-1">
                         {/* Issue Custody */}
                         <Button
                           size="sm"
                           variant="outline"
-                          className="h-8 px-2.5 text-blue-700 dark:text-blue-400 border-blue-200 dark:border-blue-800 hover:bg-blue-50 dark:hover:bg-blue-950/40 text-caption font-semibold shadow-2xs"
+                          className="h-7.5 px-2 text-blue-700 dark:text-blue-400 border-blue-200 dark:border-blue-800 hover:bg-blue-50 dark:hover:bg-blue-950/40 text-caption font-semibold shadow-2xs"
                           onClick={() => {
                             setSelectedItem(item);
                             setCustodyData({ member_id: "", quantity: "1", notes: "" });
@@ -440,7 +440,7 @@ export function InventoryPage() {
                           <Button
                             size="sm"
                             variant="outline"
-                            className="h-8 px-2.5 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 text-caption font-semibold shadow-2xs"
+                            className="h-7.5 px-2 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 text-caption font-semibold shadow-2xs"
                             onClick={() => {
                               setSelectedItem(item);
                               setReturnData({ quantity: String(item.assigned_quantity), notes: "" });

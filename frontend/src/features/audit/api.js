@@ -8,6 +8,13 @@ export function useActivityLog(params) {
   });
 }
 
+export function useAuditStats() {
+  return useQuery({
+    queryKey: ["audit-stats"],
+    queryFn: async () => (await api.get("audit/activity/stats/")).data,
+  });
+}
+
 export function useHistory(model, id) {
   return useQuery({
     queryKey: ["audit-history", model, id],

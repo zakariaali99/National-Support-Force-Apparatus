@@ -35,6 +35,57 @@ class ActivityLogApiTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertGreaterEqual(response.data["count"], 1)
 
+    def test_search_activity(self):
+        self.client.force_authenticate(self.viewer)
+
+        response = self.client.get("/api/audit/activity/?search=entry")
+        self.assertEqual(response.status_code, 200)
+        self.assertGreaterEqual(response.data["count"], 1)
+
+        response = self.client.get("/api/audit/activity/?search=nonexistent_xyz")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data["count"], 0)
+
+    def test_stats_endpoint(self):
+        self.client.force_authenticate(self.viewer)
+
+        response = self.client.get("/api/audit/activity/stats/")
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("total", response.data)
+        self.assertIn("security_alerts", response.data)
+        self.assertIn("custody_inventory", response.data)
+        self.assertIn("documents_print", response.data)
+
+    def test_export_csv_non_superuser(self):
+        self.client.force_authenticate(self.viewer)
+
+        response = self.client.get("/api/audit/activity/export-csv/")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response["Content-Type"], "text/csv; charset=utf-8-sig")
+        content = response.content.decode("utf-8-sig")
+        self.assertIn("المعرف", content)
+        self.assertNotIn("عنوان IP", content)
+
+    def test_superuser_privacy_access(self):
+        superuser = User.objects.create_superuser(username="superadmin", password="x")
+        self.client.force_authenticate(superuser)
+
+        response = self.client.get("/api/audit/activity/")
+        self.assertEqual(response.status_code, 200)
+
+        csv_res = self.client.get("/api/audit/activity/export-csv/")
+        self.assertEqual(csv_res.status_code, 200)
+        self.assertIn("عنوان IP", csv_res.content.decode("utf-8-sig"))
+
+    def test_non_superuser_ip_is_redacted(self):
+        self.client.force_authenticate(self.viewer)
+
+        response = self.client.get("/api/audit/activity/")
+        self.assertEqual(response.status_code, 200)
+        first_item = response.data["results"][0]
+        self.assertIsNone(first_item["ip_address"])
+        self.assertIsNone(first_item["user_agent"])
+
     def test_activity_log_is_read_only(self):
         self.client.force_authenticate(self.viewer)
 

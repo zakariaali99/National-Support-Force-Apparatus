@@ -9,6 +9,7 @@ import sealUrl from "../../assets/brand/nasf-seal.jpg";
 import { Button } from "../../components/ui/Button";
 import { Input } from "../../components/ui/Input";
 import { Label } from "../../components/ui/Label";
+import { ThemeToggle } from "../../components/theme/ThemeToggle";
 import { useAuth } from "./AuthContext";
 
 const schema = z.object({
@@ -48,15 +49,22 @@ export function LoginPage() {
   }
 
   return (
-    <div className="relative flex min-h-screen w-full items-center justify-center overflow-hidden bg-slate-50 p-4 text-foreground dir-rtl" dir="rtl">
+    <div className="relative flex min-h-screen w-full items-center justify-center overflow-hidden bg-bg dark:bg-[#0a0d14] p-4 text-foreground transition-colors duration-300" dir="rtl">
+      {/* Floating Theme Toggle in top corner */}
+      <div className="absolute top-4 start-4 z-20">
+        <div className="p-1 rounded-2xl bg-white/80 dark:bg-white/10 backdrop-blur-md border border-slate-200/80 dark:border-white/10 shadow-sm">
+          <ThemeToggle />
+        </div>
+      </div>
+
       {/* Background Decorative Pattern & Gradient Accents */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-blue-900/5 via-slate-100/60 to-slate-200/40 pointer-events-none" />
-      <div className="absolute -top-40 -left-40 h-96 w-96 rounded-full bg-amber-500/10 blur-3xl pointer-events-none" />
-      <div className="absolute -bottom-40 -right-40 h-96 w-96 rounded-full bg-blue-900/10 blur-3xl pointer-events-none" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-blue-900/10 via-slate-100/40 to-transparent dark:from-blue-950/30 dark:via-transparent dark:to-transparent pointer-events-none" />
+      <div className="absolute -top-40 -left-40 h-96 w-96 rounded-full bg-amber-500/10 dark:bg-amber-500/5 blur-3xl pointer-events-none" />
+      <div className="absolute -bottom-40 -right-40 h-96 w-96 rounded-full bg-blue-900/10 dark:bg-blue-600/10 blur-3xl pointer-events-none" />
 
       {/* Main Container Card */}
       <div className="relative z-10 w-full max-w-md space-y-6">
-        <div className="rounded-3xl border border-border/80 bg-card/95 p-8 shadow-xl backdrop-blur-xl transition-all sm:p-10 space-y-6">
+        <div className="rounded-[28px] border border-slate-200/80 dark:border-white/10 bg-white/95 dark:bg-[#1A2038]/95 p-8 shadow-2xl backdrop-blur-xl transition-all sm:p-10 space-y-6">
           {/* Header Branding Section */}
           <div className="flex flex-col items-center text-center space-y-3">
             <div className="relative group">

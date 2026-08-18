@@ -1,11 +1,12 @@
-from django.http import HttpResponseBadRequest
-
+import csv
+from django.http import HttpResponse, HttpResponseBadRequest
 from django_filters.rest_framework import DjangoFilterBackend
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import OpenApiParameter, extend_schema
 from rest_framework import mixins, viewsets
+from rest_framework.decorators import action
 from rest_framework.exceptions import PermissionDenied
-from rest_framework.filters import OrderingFilter
+from rest_framework.filters import OrderingFilter, SearchFilter
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -25,10 +26,89 @@ class ActivityLogViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     serializer_class = ActivityLogSerializer
     permission_classes = [HasPermission]
     required_permission = "audit.view"
-    filter_backends = [DjangoFilterBackend, OrderingFilter]
+    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     filterset_fields = ["action", "actor", "target_model"]
+    search_fields = [
+        "description",
+        "actor_username",
+        "actor__username",
+        "actor__first_name",
+        "actor__last_name",
+        "ip_address",
+        "target_model",
+        "target_id",
+    ]
     ordering_fields = ["created_at"]
     ordering = ["-created_at"]
+
+    @action(detail=False, methods=["get"])
+    def stats(self, request):
+        qs = self.get_queryset()
+        total = qs.count()
+        security_alerts = qs.filter(action__in=["login_failed"]).count()
+        custody_inventory = qs.filter(
+            action__in=[
+                "inventory_create",
+                "inventory_custody_assign",
+                "inventory_custody_release",
+            ]
+        ).count()
+        documents_print = qs.filter(
+            action__in=["document_download", "print", "export"]
+        ).count()
+        backups = qs.filter(
+            action__in=["backup_run", "backup_download"]
+        ).count()
+        return Response(
+            {
+                "total": total,
+                "security_alerts": security_alerts,
+                "custody_inventory": custody_inventory,
+                "documents_print": documents_print,
+                "backups": backups,
+            }
+        )
+
+    @action(detail=False, methods=["get"], url_path="export-csv")
+    def export_csv(self, request):
+        qs = self.filter_queryset(self.get_queryset())
+        is_superuser = bool(request.user and getattr(request.user, "is_superuser", False))
+        response = HttpResponse(content_type="text/csv; charset=utf-8-sig")
+        response["Content-Disposition"] = 'attachment; filename="nasf_audit_log.csv"'
+
+        writer = csv.writer(response)
+        headers = [
+            "المعرف",
+            "التاريخ والوقت",
+            "المستخدم",
+            "نوع الإجراء",
+            "المكون المستهدف",
+            "رقم المستهدف",
+        ]
+        if is_superuser:
+            headers.append("عنوان IP")
+        headers.append("البيان والتفاصيل")
+
+        writer.writerow(headers)
+        for log in qs[:5000]:
+            actor_str = (
+                log.actor.full_name
+                if (log.actor and log.actor.full_name)
+                else (log.actor_username or "النظام")
+            )
+            row = [
+                log.id,
+                log.created_at.strftime("%Y-%m-%d %H:%M:%S"),
+                actor_str,
+                log.action,
+                log.target_model or "—",
+                log.target_id or "—",
+            ]
+            if is_superuser:
+                row.append(log.ip_address or "—")
+            row.append(log.description or "—")
+            writer.writerow(row)
+        return response
 
 
 def _history_models():
