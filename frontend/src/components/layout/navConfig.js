@@ -40,17 +40,23 @@ export const NAV_GROUPS = [
   },
   {
     id: "armory",
-    title: "قسم التسليح والأسلحة والذخائر",
+    title: "قسم التسليح والأسلحة",
     items: [
       { to: "/armory", label: "سجل الأسلحة والذخائر", icon: Crosshair, permission: "equipment.view", breadcrumb: "سجل الأسلحة والذخائر" },
     ],
   },
   {
-    id: "logistics",
-    title: "المخازن والنقلية والإمداد",
+    id: "inventory",
+    title: "المستودع والمخازن العامة",
     items: [
       { to: "/inventory", label: "المخازن والعتاد العام", icon: PackageCheck, permission: "equipment.view", breadcrumb: "المخازن والعتاد العام" },
-      { to: "/transportation", label: "قسم النقلية والآليات", icon: Car, permission: "transportation.view", breadcrumb: "قسم النقلية والآليات" },
+    ],
+  },
+  {
+    id: "transportation",
+    title: "قسم النقلية والآليات",
+    items: [
+      { to: "/transportation", label: "سجل المركبات والآليات", icon: Car, permission: "transportation.view", breadcrumb: "سجل المركبات والآليات" },
     ],
   },
   {

@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from "react";
-import { useVehicles, useDeleteVehicle, useExternalUnits } from "./api";
+import { useVehicles, useDeleteVehicle, useExternalUnits, useReturnVehicle, useAssignDriver } from "./api";
 import { VehicleFormDialog } from "./VehicleFormDialog";
 import { Button } from "../../components/ui/Button";
 import { Badge } from "../../components/ui/Badge";
@@ -7,10 +7,29 @@ import { Card, CardContent } from "../../components/ui/Card";
 import { DataTable } from "../../components/ui/DataTable";
 import { FilterBar } from "../../components/ui/FilterBar";
 import { Select } from "../../components/ui/Select";
+import { Input } from "../../components/ui/Input";
+import { Label } from "../../components/ui/Label";
+import { Textarea } from "../../components/ui/Textarea";
 import { PageHeader } from "../../components/ui/PageHeader";
 import { StatCard } from "../../components/ui/StatCard";
-import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter } from "../../components/ui/AlertDialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "../../components/ui/Dialog";
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogFooter,
+} from "../../components/ui/AlertDialog";
 import { useFactions } from "../organization/api";
+import { useMembers } from "../members/api";
 import {
   Car,
   Plus,
@@ -21,12 +40,15 @@ import {
   Pencil,
   Trash2,
   FileCheck2,
-  QrCode,
   Building2,
   Globe,
+  RotateCcw,
+  Eye,
+  FileText,
 } from "lucide-react";
 import { VehicleTripVoucherDialog } from "./VehicleTripVoucherDialog";
-import { AssetQRCode } from "../../components/qr/AssetQRCode";
+import { AssetDetailHistoryDialog } from "../../components/equipment/AssetDetailHistoryDialog";
+import { showToast } from "../../components/ui/Toast";
 
 const VEHICLE_STATUS_BADGES = {
   ready: { variant: "success", label: "جاهزة للخدمة" },
@@ -59,12 +81,28 @@ export default function VehiclesPage() {
   const [editingVehicle, setEditingVehicle] = useState(null);
   const [deletingVehicle, setDeletingVehicle] = useState(null);
   const [tripVoucherOpen, setTripVoucherOpen] = useState(false);
-  const [qrModalOpen, setQrModalOpen] = useState(false);
+  const [detailsOpen, setDetailsOpen] = useState(false);
+  const [returnOpen, setReturnOpen] = useState(false);
   const [selectedVehicle, setSelectedVehicle] = useState(null);
 
-  const { data: factions = [] } = useFactions();
-  const { data: externalUnits = [] } = useExternalUnits({ is_active: true });
+  // Return dialog form state
+  const [returnData, setReturnData] = useState({
+    driver_id: "",
+    odometer: "",
+    status: "ready",
+    notes: "",
+  });
+
+  const { data: factionsRaw = [] } = useFactions();
+  const { data: externalUnitsRaw = [] } = useExternalUnits({ is_active: true });
+  const { data: membersRaw } = useMembers({ page_size: 200 });
+
+  const factions = Array.isArray(factionsRaw) ? factionsRaw : factionsRaw?.results || [];
+  const externalUnits = Array.isArray(externalUnitsRaw) ? externalUnitsRaw : externalUnitsRaw?.results || [];
+  const members = Array.isArray(membersRaw) ? membersRaw : membersRaw?.results || [];
+
   const deleteVehicle = useDeleteVehicle();
+  const returnVehicleMutation = useReturnVehicle();
 
   const queryParams = useMemo(() => {
     const params = {};
@@ -103,6 +141,41 @@ export default function VehiclesPage() {
     setFormOpen(true);
   };
 
+  const handleOpenDetails = (vehicle) => {
+    setSelectedVehicle(vehicle);
+    setDetailsOpen(true);
+  };
+
+  const handleOpenReturn = (vehicle) => {
+    setSelectedVehicle(vehicle);
+    setReturnData({
+      driver_id: vehicle.assigned_driver ? String(vehicle.assigned_driver) : "",
+      odometer: "",
+      status: "ready",
+      notes: "",
+    });
+    setReturnOpen(true);
+  };
+
+  const handleConfirmReturn = async (e) => {
+    e.preventDefault();
+    if (!selectedVehicle) return;
+    try {
+      await returnVehicleMutation.mutateAsync({
+        id: selectedVehicle.id,
+        data: returnData,
+      });
+      showToast({ title: "تم إرجاع واستلام الآلية بنجاح", type: "success" });
+      setReturnOpen(false);
+    } catch (err) {
+      showToast({
+        title: "تعذر إتمام الإرجاع",
+        description: err.response?.data?.detail || "تأكد من صحة البيانات",
+        type: "error",
+      });
+    }
+  };
+
   const confirmDelete = async () => {
     if (deletingVehicle) {
       await deleteVehicle.mutateAsync(deletingVehicle.id);
@@ -115,15 +188,22 @@ export default function VehiclesPage() {
       header: "المركبة / الطراز",
       accessor: "name",
       cell: (v) => (
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-950/50 border border-blue-100 dark:border-blue-900/40 flex items-center justify-center text-blue-700 dark:text-blue-300 shrink-0">
-            <Car className="w-5 h-5" />
+        <div className="flex items-center gap-2.5">
+          <div className="w-9 h-9 rounded-xl bg-blue-50 dark:bg-blue-950/50 border border-blue-100 dark:border-blue-900/40 flex items-center justify-center text-blue-700 dark:text-blue-300 shrink-0">
+            <Car className="w-4.5 h-4.5" />
           </div>
-          <div>
-            <div className="font-semibold text-slate-900 dark:text-slate-100 text-body-sm">{v.name}</div>
-            <div className="text-caption text-slate-500 flex items-center gap-2">
+          <div className="min-w-0">
+            <button
+              type="button"
+              onClick={() => handleOpenDetails(v)}
+              className="font-bold text-slate-900 dark:text-slate-100 text-body-sm hover:text-blue-600 transition-colors text-start truncate block max-w-[180px] cursor-pointer"
+              title="عرض التفاصيل وسلسلة الحيازة"
+            >
+              {v.name}
+            </button>
+            <div className="text-micro text-slate-500 flex items-center gap-1.5 truncate">
               <span>{v.vehicle_type_display || VEHICLE_TYPE_LABELS[v.vehicle_type] || v.vehicle_type}</span>
-              {v.model_year && <span>• موديل {v.model_year}</span>}
+              {v.model_year && <span>• {v.model_year}</span>}
               {v.color && <span>• {v.color}</span>}
             </div>
           </div>
@@ -131,82 +211,78 @@ export default function VehiclesPage() {
       ),
     },
     {
-      header: "رقم الهيكل واللوحة",
+      header: "الهيكل واللوحة",
       accessor: "vin_number",
       cell: (v) => (
         <div className="space-y-0.5">
-          <div className="font-mono text-body-sm font-semibold text-slate-900 dark:text-slate-100 dir-ltr text-right">
+          <div className="font-mono text-caption font-bold text-slate-900 dark:text-slate-100 dir-ltr text-start">
             {v.vin_number}
           </div>
           {v.plate_number ? (
-            <span className="inline-block px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 text-caption font-mono font-semibold text-slate-700 dark:text-slate-300">
+            <span className="inline-block px-1.5 py-0.2 rounded bg-slate-100 dark:bg-slate-800 text-micro font-mono font-bold text-slate-700 dark:text-slate-300">
               {v.plate_number}
             </span>
           ) : (
-            <span className="text-caption text-slate-400">—</span>
+            <span className="text-micro text-slate-400">—</span>
           )}
         </div>
       ),
     },
     {
-      header: "تبعية المركبة والسائق",
+      header: "التبعية والسائق الحالي",
       accessor: "faction_name",
       cell: (v) => {
         const isExternal = v.affiliation_type === "external" || Boolean(v.external_unit_name);
         return (
-          <div className="space-y-1">
+          <div className="space-y-0.5">
             <div>
               {isExternal ? (
                 <Badge variant="primary" className="gap-1 font-bold text-micro bg-purple-50 text-purple-700 dark:bg-purple-950/40 dark:text-purple-300 border-purple-200 dark:border-purple-800/40">
                   <Globe className="w-3 h-3" />
-                  <span>جهة خارجية: {v.external_unit_name || "وحدة خارجية"}</span>
+                  <span>{v.external_unit_name || "جهة خارجية"}</span>
                 </Badge>
               ) : (
                 <Badge variant="success" className="gap-1 font-bold text-micro">
                   <Building2 className="w-3 h-3" />
-                  <span>الجهاز: {v.faction_name || "عام"}</span>
+                  <span>{v.faction_name || "عام"}</span>
                 </Badge>
               )}
             </div>
-            <div className="text-caption text-slate-500 font-medium">
-              {v.driver_name ? `السائق: ${v.driver_name}` : "بدون سائق محدد"}
+            <div className="text-caption font-medium text-slate-700 dark:text-gray-300 truncate max-w-[150px]">
+              {v.driver_name ? `السائق: ${v.driver_name}` : <span className="text-slate-400 font-normal">المستودع الرئيسي</span>}
             </div>
           </div>
         );
       },
     },
     {
-      header: "السلاح المثبت (قسم التسليح)",
+      header: "السلاح المثبت",
       accessor: "has_weapon",
       cell: (v) => {
         if (!v.has_weapon) {
-          return <span className="text-caption text-slate-400">لا يوجد سلاح مثبت</span>;
+          return <span className="text-micro text-slate-400">لا يوجد</span>;
         }
         return (
-          <div className="space-y-1">
-            <div className="flex items-center gap-1.5">
-              <Badge variant="gold" className="flex items-center gap-1">
-                <Crosshair className="w-3 h-3" />
-                <span>{v.mounted_weapon_name || "سلاح مثبت"}</span>
-              </Badge>
-            </div>
-            <div className="text-caption text-slate-500 font-mono">
-              {v.weapon_operator_name
-                ? `الرامي: ${v.weapon_operator_name}`
-                : v.weapon_external_unit_name
-                ? `تبعية: ${v.weapon_external_unit_name}`
-                : v.weapon_faction_name || "مخصص للعمليات"}
-            </div>
+          <div className="space-y-0.5">
+            <Badge variant="gold" className="flex items-center gap-1 font-bold text-micro w-fit">
+              <Crosshair className="w-3 h-3" />
+              <span>{v.mounted_weapon_name || "سلاح مثبت"}</span>
+            </Badge>
+            {v.weapon_operator_name && (
+              <div className="text-micro text-slate-500 font-medium">
+                الرامي: {v.weapon_operator_name}
+              </div>
+            )}
           </div>
         );
       },
     },
     {
-      header: "الحالة التشغيلية",
+      header: "الحالة",
       accessor: "status",
       cell: (v) => {
         const badgeInfo = VEHICLE_STATUS_BADGES[v.status] || { variant: "neutral", label: v.status };
-        return <Badge variant={badgeInfo.variant}>{badgeInfo.label}</Badge>;
+        return <Badge variant={badgeInfo.variant} className="text-micro font-bold">{badgeInfo.label}</Badge>;
       },
     },
     {
@@ -217,33 +293,44 @@ export default function VehiclesPage() {
           <Button
             variant="outline"
             size="sm"
-            className="h-7.5 px-2 text-blue-700 dark:text-blue-400 border-blue-200 dark:border-blue-800 hover:bg-blue-50 dark:hover:bg-blue-950/40 shadow-2xs text-caption font-semibold"
+            className="h-7 px-2 text-blue-700 dark:text-blue-400 border-blue-200 dark:border-blue-800 hover:bg-blue-50 dark:hover:bg-blue-950/40 text-micro font-bold gap-1"
+            onClick={() => handleOpenDetails(v)}
+            title="سجل الحيازة والبيانات التفصيلية"
+          >
+            <Eye className="w-3.5 h-3.5" />
+            <span>التفاصيل</span>
+          </Button>
+
+          {v.assigned_driver && (
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-7 px-2 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 text-micro font-bold gap-1"
+              onClick={() => handleOpenReturn(v)}
+              title="إرجاع واستلام الآلية إلى المرآب"
+            >
+              <RotateCcw className="w-3.5 h-3.5" />
+              <span>إرجاع</span>
+            </Button>
+          )}
+
+          <Button
+            variant="outline"
+            size="sm"
+            className="h-7 px-2 text-purple-700 dark:text-purple-400 border-purple-200 dark:border-purple-800 hover:bg-purple-50 dark:hover:bg-purple-950/40 text-micro font-semibold"
             onClick={() => {
               setSelectedVehicle(v);
               setTripVoucherOpen(true);
             }}
-            title="طباعة أمر تحرك وبطاقة تشغيل للمركبة"
+            title="طباعة أمر تحرك وبطاقة تشغيل"
           >
             <FileCheck2 className="w-3.5 h-3.5" />
           </Button>
 
           <Button
-            variant="outline"
-            size="sm"
-            className="h-7.5 px-2 text-indigo-700 dark:text-indigo-400 border-indigo-200 dark:border-indigo-800 hover:bg-indigo-50 dark:hover:bg-indigo-950/40 shadow-2xs text-caption font-semibold"
-            onClick={() => {
-              setSelectedVehicle(v);
-              setQrModalOpen(true);
-            }}
-            title="توليد ملصق QR للمركبة"
-          >
-            <QrCode className="w-3.5 h-3.5" />
-          </Button>
-
-          <Button
             variant="ghost"
             size="sm"
-            className="h-7.5 px-2 text-slate-600 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950/30"
+            className="h-7 px-1.5 text-slate-600 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950/30"
             onClick={() => handleEdit(v)}
             title="تعديل بيانات المركبة"
           >
@@ -253,7 +340,7 @@ export default function VehiclesPage() {
           <Button
             variant="ghost"
             size="sm"
-            className="h-7.5 px-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/30"
+            className="h-7 px-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/30"
             onClick={() => setDeletingVehicle(v)}
             title="حذف المركبة"
           >
@@ -393,7 +480,7 @@ export default function VehiclesPage() {
       </FilterBar>
 
       {/* Data Table */}
-      <Card>
+      <Card className="border border-slate-200/80 dark:border-white/10 shadow-xs">
         <CardContent className="p-0">
           <DataTable
             columns={columns}
@@ -411,6 +498,106 @@ export default function VehiclesPage() {
           onOpenChange={setFormOpen}
           vehicle={editingVehicle}
         />
+      )}
+
+      {/* Vehicle Details & Possession Chain Modal */}
+      {selectedVehicle && (
+        <AssetDetailHistoryDialog
+          open={detailsOpen}
+          onOpenChange={setDetailsOpen}
+          item={selectedVehicle}
+          type="vehicle"
+        />
+      )}
+
+      {/* Return Vehicle Dialog */}
+      {selectedVehicle && (
+        <Dialog open={returnOpen} onOpenChange={setReturnOpen}>
+          <DialogContent className="max-w-md rounded-[28px] p-6 text-start">
+            <DialogHeader>
+              <DialogTitle className="text-title font-bold text-slate-900 dark:text-white">
+                إرجاع واستلام الآلية إلى المرآب
+              </DialogTitle>
+              <DialogDescription className="text-caption text-slate-500">
+                تسجيل إعادة المركبة ({selectedVehicle.name}) وإخلاء طرف السائق
+              </DialogDescription>
+            </DialogHeader>
+
+            <form onSubmit={handleConfirmReturn} className="space-y-4 py-2">
+              <div className="p-3 rounded-2xl bg-blue-50 dark:bg-blue-950/20 border border-blue-200/80 dark:border-blue-900/30 text-caption font-bold text-blue-950 dark:text-blue-200 space-y-1">
+                <p>المركبة: {selectedVehicle.name} ({selectedVehicle.plate_number || selectedVehicle.vin_number})</p>
+                <p className="text-slate-600 dark:text-gray-300">
+                  السائق المسجل: <span className="font-bold text-slate-900 dark:text-white">{selectedVehicle.driver_name || "غير محدد"}</span>
+                </p>
+              </div>
+
+              <div className="space-y-1.5">
+                <Label className="text-caption font-bold">
+                  الشخص / السائق المُرجِع للآلية <span className="text-rose-500">*</span>
+                </Label>
+                <select
+                  value={returnData.driver_id}
+                  onChange={(e) => setReturnData({ ...returnData, driver_id: e.target.value })}
+                  className="w-full h-10 px-3 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#1A2038] text-body-sm font-medium focus:ring-2 focus:ring-[#2B95E8]"
+                  required
+                >
+                  <option value="">اختر الفرد المُرجِع</option>
+                  {members.map((m) => (
+                    <option key={m.id} value={m.id}>
+                      {m.full_name} ({m.force_number || "بدون رقم"}) — {m.faction_name || ""}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <Label className="text-caption font-bold">قراءة العداد (كم)</Label>
+                  <Input
+                    type="number"
+                    placeholder="مثال: 45200"
+                    value={returnData.odometer}
+                    onChange={(e) => setReturnData({ ...returnData, odometer: e.target.value })}
+                    className="h-10 rounded-xl font-mono dir-ltr"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <Label className="text-caption font-bold">الحالة الفنية للمركبة</Label>
+                  <select
+                    value={returnData.status}
+                    onChange={(e) => setReturnData({ ...returnData, status: e.target.value })}
+                    className="w-full h-10 px-3 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#1A2038] text-body-sm font-medium focus:ring-2 focus:ring-[#2B95E8]"
+                  >
+                    <option value="ready">جاهزة وسليمة للخدمة</option>
+                    <option value="maintenance">تحتاج صيانة دورية</option>
+                    <option value="damaged">بها أعطال / أضرار</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="space-y-1.5">
+                <Label className="text-caption font-bold">ملاحظات الاستلام وحالة الهيكل</Label>
+                <Textarea
+                  placeholder="مستوى الوقود، نظافة المركبة، أية ملاحظات ميكانيكية..."
+                  value={returnData.notes}
+                  onChange={(e) => setReturnData({ ...returnData, notes: e.target.value })}
+                  rows={2}
+                  className="rounded-xl resize-none text-body-sm"
+                />
+              </div>
+
+              <DialogFooter className="pt-3 border-t border-slate-100 dark:border-white/10 flex items-center justify-end gap-2">
+                <Button type="button" variant="outline" onClick={() => setReturnOpen(false)} className="rounded-xl px-5 font-bold">
+                  إلغاء
+                </Button>
+                <Button type="submit" disabled={returnVehicleMutation.isPending} className="rounded-xl px-6 font-bold bg-emerald-600 hover:bg-emerald-700">
+                  {returnVehicleMutation.isPending ? "جارٍ التوثيق..." : "تأكيد الاستلام بالمرآب"}
+                </Button>
+              </DialogFooter>
+            </form>
+          </DialogContent>
+        </Dialog>
       )}
 
       {/* Delete Confirmation Modal */}
@@ -457,32 +644,6 @@ export default function VehiclesPage() {
           onOpenChange={setTripVoucherOpen}
           vehicle={selectedVehicle}
         />
-      )}
-
-      {/* Asset QR Code Modal */}
-      {selectedVehicle && (
-        <Dialog open={qrModalOpen} onOpenChange={setQrModalOpen}>
-          <DialogContent className="max-w-sm rounded-[28px] p-6 text-center">
-            <DialogHeader>
-              <DialogTitle className="text-title font-bold text-slate-900 dark:text-white">
-                رمز QR لمركبة: {selectedVehicle.name}
-              </DialogTitle>
-              <DialogDescription className="text-caption text-slate-500">
-                امسح الرمز عبر ماسح الكاميرا للحصول على أمر التحرك والبيانات الميدانية
-              </DialogDescription>
-            </DialogHeader>
-
-            <div className="flex flex-col items-center justify-center p-4">
-              <AssetQRCode
-                type="vehicle"
-                id={selectedVehicle.id}
-                code={selectedVehicle.vin_number || selectedVehicle.plate_number || `VEH-${selectedVehicle.id}`}
-                title={selectedVehicle.name}
-                subtitle={`الهيكل: ${selectedVehicle.vin_number} | اللوحة: ${selectedVehicle.plate_number || '—'}`}
-              />
-            </div>
-          </DialogContent>
-        </Dialog>
       )}
     </div>
   );

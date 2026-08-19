@@ -1,12 +1,20 @@
 from django.db.models import Q
+from rest_framework import status
+from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
 from apps.core.activity import log_activity
 from apps.core.permissions.classes import HasPermission
+from apps.members.models import Member
 from apps.transportation.models.external_unit import ExternalUnit
-from apps.transportation.models.vehicle import Vehicle
-from apps.transportation.serializers import ExternalUnitSerializer, VehicleSerializer
+from apps.transportation.models.vehicle import Vehicle, VehicleCustodyRecord
+from apps.transportation.serializers import (
+    ExternalUnitSerializer,
+    VehicleCustodyRecordSerializer,
+    VehicleSerializer,
+)
 
 
 class ExternalUnitViewSet(ModelViewSet):
@@ -191,3 +199,139 @@ class VehicleViewSet(ModelViewSet):
             request=self.request,
         )
         instance.soft_delete()
+
+    @action(detail=True, methods=["post"], url_path="return-vehicle")
+    def return_vehicle(self, request, pk=None):
+        """Return / check-in vehicle to pool, recording return details and who returned it."""
+        vehicle = self.get_object()
+        driver_id = request.data.get("driver_id")
+        notes = request.data.get("notes", "")
+        odometer = request.data.get("odometer")
+        vehicle_status = request.data.get("status", "ready")
+
+        driver = None
+        if driver_id:
+            driver = Member.objects.filter(id=driver_id).first()
+        elif vehicle.assigned_driver:
+            driver = vehicle.assigned_driver
+
+        driver_name = getattr(driver, "full_name", "") or "غير محدد"
+
+        VehicleCustodyRecord.objects.create(
+            vehicle=vehicle,
+            driver=driver,
+            external_unit=vehicle.external_unit,
+            faction=vehicle.faction,
+            action="returned",
+            odometer=int(odometer) if odometer else None,
+            notes=notes or "إرجاع واستلام الآلية إلى مرآب النقلية",
+            issued_by=request.user,
+        )
+
+        # Clear assigned driver upon return to pool
+        vehicle.assigned_driver = None
+        vehicle.status = vehicle_status
+        vehicle.save(update_fields=["assigned_driver", "status"])
+
+        log_activity(
+            actor=request.user,
+            action="vehicle_custody_return",
+            target_model="Vehicle",
+            target_id=vehicle.id,
+            description=f"إرجاع واستلام الآلية ({vehicle.name}) من ({driver_name})",
+            metadata={
+                "vehicle_name": vehicle.name,
+                "vin_number": vehicle.vin_number,
+                "plate_number": vehicle.plate_number,
+                "returned_by": driver_name,
+                "odometer": odometer,
+                "status": vehicle.status,
+            },
+            request=request,
+        )
+
+        return Response(VehicleSerializer(vehicle).data)
+
+    @action(detail=True, methods=["post"], url_path="assign-driver")
+    def assign_driver(self, request, pk=None):
+        """Assign vehicle to a driver / custodian."""
+        vehicle = self.get_object()
+        driver_id = request.data.get("driver_id")
+        notes = request.data.get("notes", "")
+        odometer = request.data.get("odometer")
+
+        if not driver_id:
+            return Response(
+                {"detail": "يجب تحديد السائق / المسؤول عن الآلية."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        driver = Member.objects.filter(id=driver_id).first()
+        if not driver:
+            return Response(
+                {"detail": "السائق المحدد غير موجود."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        vehicle.assigned_driver = driver
+        vehicle.status = "ready"
+        vehicle.save(update_fields=["assigned_driver", "status"])
+
+        VehicleCustodyRecord.objects.create(
+            vehicle=vehicle,
+            driver=driver,
+            external_unit=vehicle.external_unit,
+            faction=vehicle.faction or getattr(driver, "faction", None),
+            action="assigned",
+            odometer=int(odometer) if odometer else None,
+            notes=notes or "تسليم عهدة الآلية للسائق",
+            issued_by=request.user,
+        )
+
+        log_activity(
+            actor=request.user,
+            action="vehicle_custody_assign",
+            target_model="Vehicle",
+            target_id=vehicle.id,
+            description=f"تسليم عهدة الآلية ({vehicle.name}) للسائق ({driver.full_name})",
+            metadata={
+                "vehicle_name": vehicle.name,
+                "vin_number": vehicle.vin_number,
+                "plate_number": vehicle.plate_number,
+                "driver": driver.full_name,
+                "driver_force_number": driver.force_number,
+            },
+            request=request,
+        )
+
+        return Response(VehicleSerializer(vehicle).data)
+
+
+class VehicleCustodyRecordViewSet(ModelViewSet):
+    """List and manage vehicle possession and custody history records."""
+
+    permission_classes = [IsAuthenticated, HasPermission]
+    permission_map = {
+        "list": ["transportation.view", "transportation.manage"],
+        "retrieve": ["transportation.view", "transportation.manage"],
+        "create": ["transportation.manage"],
+        "update": ["transportation.manage"],
+        "partial_update": ["transportation.manage"],
+        "destroy": ["transportation.manage"],
+    }
+    queryset = VehicleCustodyRecord.objects.select_related(
+        "vehicle", "driver", "external_unit", "faction", "issued_by"
+    ).all()
+    serializer_class = VehicleCustodyRecordSerializer
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        vehicle_param = self.request.query_params.get("vehicle")
+        if vehicle_param:
+            qs = qs.filter(vehicle_id=vehicle_param)
+
+        driver_param = self.request.query_params.get("driver")
+        if driver_param:
+            qs = qs.filter(driver_id=driver_param)
+
+        return qs

@@ -145,3 +145,62 @@ class Vehicle(BaseModel):
     def __str__(self):
         plate = f" [{self.plate_number}]" if self.plate_number else ""
         return f"{self.name} - {self.vin_number}{plate}"
+
+
+VEHICLE_CUSTODY_ACTION_CHOICES = [
+    ("assigned", "تسليم الآلية / تعيين سائق"),
+    ("returned", "إرجاع واستلام الآلية"),
+    ("maintenance", "إحالة للصيانة الفنية"),
+    ("transfer", "نقل تبعية الآلية"),
+]
+
+
+class VehicleCustodyRecord(BaseModel):
+    """Custody and driver assignment history log for vehicles."""
+
+    vehicle = models.ForeignKey(
+        Vehicle, on_delete=models.CASCADE, related_name="custody_records", help_text="المركبة المعنية"
+    )
+    driver = models.ForeignKey(
+        "members.Member",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="vehicle_custody_records",
+        help_text="السائق أو المسؤول عن الاستلام/الإرجاع",
+    )
+    external_unit = models.ForeignKey(
+        "transportation.ExternalUnit",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="vehicle_custody_records",
+        help_text="الوحدة الخارجية المعنية بالإجراء",
+    )
+    faction = models.ForeignKey(
+        "organization.Faction",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="vehicle_custody_records",
+        help_text="الفصيل المعني بالإجراء",
+    )
+    action = models.CharField(
+        max_length=20, choices=VEHICLE_CUSTODY_ACTION_CHOICES, default="assigned"
+    )
+    action_date = models.DateField(auto_now_add=True, help_text="تاريخ الإجراء")
+    odometer = models.PositiveIntegerField(null=True, blank=True, help_text="قراءة العداد (كم)")
+    notes = models.TextField(blank=True, help_text="ملاحظات وحالة الآلية")
+    issued_by = models.ForeignKey(
+        "core.User", null=True, blank=True, on_delete=models.SET_NULL, related_name="+"
+    )
+
+    history = HistoricalRecords(excluded_fields=["updated_at"])
+
+    class Meta:
+        ordering = ["-created_at"]
+        verbose_name = "سجل حركة وحيازة الآلية"
+        verbose_name_plural = "سجلات حركة وحيازة الآليات"
+
+    def __str__(self):
+        return f"{self.vehicle.name} — {self.get_action_display()}"

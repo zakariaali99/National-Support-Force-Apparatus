@@ -158,8 +158,8 @@ export function GeneralInventoryCategoriesPage() {
             </p>
           </div>
 
-          <div className="overflow-x-auto rounded-2xl border border-slate-200/80 dark:border-white/10">
-            <table className="w-full text-start text-body-sm">
+          <div className="rounded-2xl border border-slate-200/80 dark:border-white/10 overflow-hidden">
+            <table className="w-full text-start text-body-sm table-auto">
               <thead className="bg-slate-50 dark:bg-white/5 border-b border-slate-200/80 dark:border-white/10 text-slate-600 dark:text-gray-300 font-bold">
                 <tr>
                   <th className="py-3.5 px-4 text-start">اسم التصنيف المخزني</th>

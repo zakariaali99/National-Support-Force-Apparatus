@@ -1,26 +1,23 @@
 import { useState, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { Link } from "react-router-dom";
 import {
   PackageCheck,
   Plus,
   Search,
-  Filter,
   Package,
   RotateCcw,
   AlertTriangle,
   FileCheck2,
-  QrCode,
   Printer,
   Shield,
   Layers,
   Boxes,
   UserCheck,
   CheckCircle,
-  Shirt,
-  Armchair,
-  Radio,
-  Pencil,
-  Trash2,
+  Eye,
+  Wrench,
+  Settings,
 } from "lucide-react";
 
 import { api } from "../../lib/api";
@@ -43,7 +40,7 @@ import { Textarea } from "../../components/ui/Textarea";
 import { showToast } from "../../components/ui/Toast";
 import { StatCard } from "../../components/ui/StatCard";
 import { CustodyHandoverVoucherDialog } from "./CustodyHandoverVoucherDialog";
-import { AssetQRCode } from "../../components/qr/AssetQRCode";
+import { AssetDetailHistoryDialog } from "../../components/equipment/AssetDetailHistoryDialog";
 import { openAuthedPdf } from "../reports/api";
 
 const STATUS_MAP = {
@@ -58,7 +55,7 @@ export function InventoryPage() {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("");
-  const [typeTab, setTypeTab] = useState("all");
+  const [workflowTab, setWorkflowTab] = useState("all");
   const [isPrintingSummary, setIsPrintingSummary] = useState(false);
 
   const [addModalOpen, setAddModalOpen] = useState(false);
@@ -66,7 +63,7 @@ export function InventoryPage() {
   const [returnModalOpen, setReturnModalOpen] = useState(false);
   const [damageModalOpen, setDamageModalOpen] = useState(false);
   const [voucherModalOpen, setVoucherModalOpen] = useState(false);
-  const [qrModalOpen, setQrModalOpen] = useState(false);
+  const [detailsModalOpen, setDetailsModalOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
 
   const [formData, setFormData] = useState({
@@ -88,6 +85,7 @@ export function InventoryPage() {
   });
 
   const [returnData, setReturnData] = useState({
+    member_id: "",
     quantity: "1",
     notes: "",
   });
@@ -98,7 +96,7 @@ export function InventoryPage() {
     notes: "",
   });
 
-  // Query General Inventory Categories
+  // Query General Inventory Categories dynamically from settings/API
   const { data: rawCategories = [] } = useQuery({
     queryKey: ["inventory-general-categories"],
     queryFn: async () => (await api.get("equipment/categories/?domain=inventory")).data,
@@ -119,16 +117,37 @@ export function InventoryPage() {
   });
   const items = Array.isArray(rawItems) ? rawItems : rawItems?.results ?? [];
 
-  // Query active members for custody assignment
+  // Query active members for custody assignment and returns
   const { data: rawMembers = [] } = useQuery({
     queryKey: ["members-list-simple"],
     queryFn: async () => (await api.get("members/?page_size=200")).data,
   });
   const members = Array.isArray(rawMembers) ? rawMembers : rawMembers?.results ?? [];
 
+  // Helper to format backend validation error response
+  const formatErrorMsg = (err, fallback) => {
+    const data = err.response?.data;
+    if (!data) return fallback;
+    if (typeof data === "string") return data;
+    if (data.detail) return data.detail;
+    if (typeof data === "object") {
+      return Object.entries(data)
+        .map(([k, v]) => `${k}: ${Array.isArray(v) ? v.join(", ") : v}`)
+        .join(" | ");
+    }
+    return fallback;
+  };
+
   // Mutations
   const createMutation = useMutation({
-    mutationFn: (data) => api.post("equipment/items/", { ...data, domain: "inventory" }),
+    mutationFn: (data) =>
+      api.post("equipment/items/", {
+        ...data,
+        category: Number(data.category),
+        total_quantity: Number(data.total_quantity) || 1,
+        available_quantity: Number(data.available_quantity) || Number(data.total_quantity) || 1,
+        domain: "inventory",
+      }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["inventory-general-items"] });
       showToast({ title: "تم تسجيل الصنف بالمخزن بنجاح", type: "success" });
@@ -136,7 +155,11 @@ export function InventoryPage() {
       resetForm();
     },
     onError: (err) => {
-      showToast({ title: "خطأ أثناء الحفظ", description: err.response?.data?.detail || "تأكد من صحة البيانات", type: "error" });
+      showToast({
+        title: "خطأ أثناء الحفظ",
+        description: formatErrorMsg(err, "تأكد من اختيار التصنيف وصحة البيانات المدخلة"),
+        type: "error",
+      });
     },
   });
 
@@ -148,7 +171,7 @@ export function InventoryPage() {
       setCustodyModalOpen(false);
     },
     onError: (err) => {
-      showToast({ title: "خطأ في صرف العهدة", description: err.response?.data?.detail || "تعذر إتمام الإجراء", type: "error" });
+      showToast({ title: "خطأ في صرف العهدة", description: formatErrorMsg(err, "تعذر إتمام الإجراء"), type: "error" });
     },
   });
 
@@ -156,11 +179,11 @@ export function InventoryPage() {
     mutationFn: ({ id, data }) => api.post(`equipment/items/${id}/release-custody/`, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["inventory-general-items"] });
-      showToast({ title: "تم إرجاع العهدة إلى المخزن بنجاح", type: "success" });
+      showToast({ title: "تم إرجاع واستلام العهدة إلى المخزن بنجاح", type: "success" });
       setReturnModalOpen(false);
     },
     onError: (err) => {
-      showToast({ title: "خطأ في استرجاع العهدة", description: err.response?.data?.detail || "تعذر إتمام الإجراء", type: "error" });
+      showToast({ title: "خطأ في استرجاع العهدة", description: formatErrorMsg(err, "تعذر إتمام الإجراء"), type: "error" });
     },
   });
 
@@ -172,14 +195,14 @@ export function InventoryPage() {
       setDamageModalOpen(false);
     },
     onError: (err) => {
-      showToast({ title: "خطأ في التوثيق", description: err.response?.data?.detail || "تعذر إتمام الإجراء", type: "error" });
+      showToast({ title: "خطأ في التوثيق", description: formatErrorMsg(err, "تعذر إتمام الإجراء"), type: "error" });
     },
   });
 
   function resetForm() {
     setFormData({
       name: "",
-      category: "",
+      category: categories.length > 0 ? String(categories[0].id) : "",
       item_code: "",
       size_spec: "",
       model_name: "",
@@ -190,20 +213,39 @@ export function InventoryPage() {
     });
   }
 
-  // Filtered items by tab
+  function handleOpenAdd() {
+    resetForm();
+    setAddModalOpen(true);
+  }
+
+  function handleOpenDetails(item) {
+    setSelectedItem(item);
+    setDetailsModalOpen(true);
+  }
+
+  function handleOpenReturn(item) {
+    setSelectedItem(item);
+    setReturnData({
+      member_id: item.assigned_member ? String(item.assigned_member) : "",
+      quantity: "1",
+      notes: "",
+    });
+    setReturnModalOpen(true);
+  }
+
+  // Filtered items by workflow tab
   const filteredItems = useMemo(() => {
     return items.filter((item) => {
-      if (typeTab === "all") return true;
-      if (typeTab === "uniforms") return item.category_type === "uniform";
-      if (typeTab === "furniture") return item.category_type === "general";
-      if (typeTab === "comm") return item.category_type === "comm";
-      if (typeTab === "assigned") return (item.assigned_quantity || 0) > 0;
-      if (typeTab === "available") return (item.available_quantity || 0) > 0;
+      if (workflowTab === "all") return true;
+      if (workflowTab === "available") return (item.available_quantity || 0) > 0;
+      if (workflowTab === "assigned") return (item.assigned_quantity || 0) > 0;
+      if (workflowTab === "maintenance") return item.status === "maintenance";
+      if (workflowTab === "damaged") return item.status === "damaged" || (item.damaged_quantity || 0) > 0;
       return true;
     });
-  }, [items, typeTab]);
+  }, [items, workflowTab]);
 
-  // Inventory KPI Stats
+  // Inventory stats
   const stats = useMemo(() => {
     let totalPieces = 0;
     let availablePieces = 0;
@@ -239,9 +281,10 @@ export function InventoryPage() {
 
   return (
     <div className="space-y-6">
+      {/* Header */}
       <PageHeader
-        title="المخازن والعتاد العام"
-        subtitle="إدارة وتوثيق المهمات، الملابس العسكرية، الأثاث، المكاتب، أجهزة الاتصال، والعهد العامة"
+        title="المستودع والمخازن العامة"
+        subtitle="إدارة وتوثيق المهمات، التجهيزات الإدارية، العهد العامة، وحركة الاستلام والصرف"
         action={
           <div className="flex items-center gap-2">
             <Button
@@ -253,15 +296,15 @@ export function InventoryPage() {
               <Printer className="h-4.5 w-4.5 text-blue-600" />
               {isPrintingSummary ? "جارٍ التجهيز..." : "طباعة كشف المخزن"}
             </Button>
-            <Button onClick={() => setAddModalOpen(true)} className="gap-2 font-bold shadow-sm">
+            <Button onClick={handleOpenAdd} className="gap-2 font-bold shadow-sm">
               <Plus className="h-4.5 w-4.5" />
-              تسجيل صنف / عتاد عام
+              تسجيل صنف جديد
             </Button>
           </div>
         }
       />
 
-      {/* Inventory KPI Cards */}
+      {/* KPI Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         <StatCard
           title="إجمالي الكميات والقطع"
@@ -272,7 +315,7 @@ export function InventoryPage() {
         <StatCard
           title="المتوفر في المستودع"
           value={stats.available}
-          icon={CheckCircle}
+          icon={PackageCheck}
           description="جاهز للصرف والتوزيع"
           className="border-emerald-200/60 dark:border-emerald-900/30"
         />
@@ -292,26 +335,26 @@ export function InventoryPage() {
         />
       </div>
 
-      {/* Main Table Card */}
-      <Card className="border border-slate-200/80 dark:border-white/10 bg-white dark:bg-[#1A2038] shadow-xs">
+      {/* Main Table Container */}
+      <Card className="border border-slate-200/80 dark:border-white/10 bg-white dark:bg-[#0F172A] shadow-xs">
         <CardContent className="p-5 space-y-4">
-          {/* Quick Filter Tabs & Search Bar */}
+          {/* Controls Bar: Workflow Tabs & Search/Filters */}
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 pb-2 border-b border-slate-100 dark:border-white/5">
-            <div className="flex items-center gap-1.5 overflow-x-auto pb-1 lg:pb-0 scrollbar-none">
+            {/* Operational Workflow Tabs */}
+            <div className="flex items-center gap-1.5 flex-wrap">
               {[
-                { id: "all", label: "كافة الأصناف والمهمات" },
-                { id: "uniforms", label: "الملابس والمهمات" },
-                { id: "furniture", label: "الأثاث والمكاتب" },
-                { id: "comm", label: "الاتصالات والإلكترونيات" },
+                { id: "all", label: "كافة الأصناف" },
                 { id: "available", label: "المتوفر بالمستودع" },
                 { id: "assigned", label: "المسلّم كعهدة" },
+                { id: "maintenance", label: "تحت الصيانة" },
+                { id: "damaged", label: "تالف ومكهن" },
               ].map((tab) => (
                 <button
                   key={tab.id}
                   type="button"
-                  onClick={() => setTypeTab(tab.id)}
+                  onClick={() => setWorkflowTab(tab.id)}
                   className={`px-3 py-1.5 rounded-xl text-caption font-bold transition-all shrink-0 cursor-pointer ${
-                    typeTab === tab.id
+                    workflowTab === tab.id
                       ? "bg-slate-900 text-white dark:bg-white dark:text-slate-900 shadow-xs"
                       : "text-slate-600 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/5"
                   }`}
@@ -321,121 +364,135 @@ export function InventoryPage() {
               ))}
             </div>
 
-            <div className="flex items-center gap-2.5">
-              <div className="relative w-full sm:w-64">
+            {/* Dynamic Filter Controls */}
+            <div className="flex items-center gap-2.5 flex-wrap sm:flex-nowrap">
+              <div className="relative w-full sm:w-56">
                 <Search className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                 <Input
-                  placeholder="بحث باسم الصنف أو الكود..."
+                  placeholder="بحث بالصنف أو الكود..."
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   className="ps-9 h-9 text-caption rounded-xl"
                 />
               </div>
 
-              <Select
+              {/* Dynamic Categories Dropdown from DB */}
+              <select
                 value={categoryFilter}
                 onChange={(e) => setCategoryFilter(e.target.value)}
-                className="w-40 h-9 text-caption rounded-xl"
+                className="w-44 h-9 px-2.5 text-caption font-medium rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#1A2038] text-slate-800 dark:text-slate-200"
               >
-                <option value="">كافة التصنيفات</option>
+                <option value="">كافة التصنيفات المخزنية</option>
                 {categories.map((c) => (
                   <option key={c.id} value={c.id}>
                     {c.name_ar}
                   </option>
                 ))}
-              </Select>
+              </select>
 
-              <Select
+              <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
-                className="w-36 h-9 text-caption rounded-xl"
+                className="w-36 h-9 px-2.5 text-caption font-medium rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#1A2038] text-slate-800 dark:text-slate-200"
               >
                 <option value="">كافة الحالات</option>
                 <option value="good">صالح للاستعمال</option>
                 <option value="maintenance">تحت الصيانة</option>
                 <option value="damaged">تالف / مكهن</option>
                 <option value="retired">مستبعد</option>
-              </Select>
+              </select>
             </div>
           </div>
 
-          {/* High-density General Inventory Table */}
-          <div className="overflow-x-auto rounded-2xl border border-slate-200/80 dark:border-white/10">
-            <table className="w-full text-start text-body-sm">
-              <thead className="bg-slate-50 dark:bg-white/5 border-b border-slate-200/80 dark:border-white/10 text-slate-600 dark:text-gray-300 font-bold">
+          {/* Compact Full-Width Table (No horizontal slide scroll) */}
+          <div className="rounded-2xl border border-slate-200/80 dark:border-white/10 overflow-hidden">
+            <table className="w-full text-start text-body-sm table-auto">
+              <thead className="bg-slate-50 dark:bg-white/5 border-b border-slate-200/80 dark:border-white/10 text-slate-700 dark:text-gray-300 font-bold">
                 <tr>
-                  <th className="py-3 px-3.5 text-start">اسم الصنف / المهمة</th>
-                  <th className="py-3 px-3 text-start">التصنيف المخزني</th>
-                  <th className="py-3 px-3 text-start">المقاس / المواصفة</th>
-                  <th className="py-3 px-3 text-start">كود الصنف</th>
-                  <th className="py-3 px-3 text-center">إجمالي الكمية</th>
-                  <th className="py-3 px-3 text-center">المتوفر بالمخزن</th>
-                  <th className="py-3 px-3 text-center">المسلّم عهدة</th>
-                  <th className="py-3 px-3 text-start">العهدة الحالية</th>
-                  <th className="py-3 px-3 text-center">الحالة</th>
-                  <th className="py-3 px-3.5 text-end">الإجراءات والصرف</th>
+                  <th className="py-2.5 px-3 text-start">الصنف والمواصفة</th>
+                  <th className="py-2.5 px-3 text-start">التصنيف والكود</th>
+                  <th className="py-2.5 px-3 text-center">الأرصدة والكميات</th>
+                  <th className="py-2.5 px-3 text-start">العهدة الحالية</th>
+                  <th className="py-2.5 px-3 text-center">الحالة</th>
+                  <th className="py-2.5 px-3 text-end">الإجراءات والعهد</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-white/5">
                 {isLoading ? (
                   <tr>
-                    <td colSpan={10} className="text-center py-10 text-slate-400 font-medium">
+                    <td colSpan={6} className="text-center py-10 text-slate-400 font-medium">
                       جارٍ تحميل سجلات المخزن العام...
                     </td>
                   </tr>
                 ) : filteredItems.length === 0 ? (
                   <tr>
-                    <td colSpan={10} className="text-center py-10 text-slate-400 font-medium">
-                      لا توجد أصناف مسجلة في المخزن العام تطابق خيارات البحث.
+                    <td colSpan={6} className="text-center py-10 text-slate-400 font-medium">
+                      لا توجد أصناف مسجلة في المخزن تطابق خيارات البحث.
                     </td>
                   </tr>
                 ) : (
                   filteredItems.map((item) => {
-                    const st = STATUS_MAP[item.status] || { label: item.status, variant: "secondary" };
+                    const statusInfo = STATUS_MAP[item.status] || { label: item.status, variant: "secondary" };
                     return (
                       <tr key={item.id} className="hover:bg-slate-50/70 dark:hover:bg-white/5 transition-colors">
-                        <td className="py-3 px-3.5 font-bold text-slate-900 dark:text-white">
+                        {/* 1. Item Name & Specs */}
+                        <td className="py-2.5 px-3 font-bold text-slate-900 dark:text-white">
                           <div className="flex items-center gap-2">
-                            <div className="w-7 h-7 rounded-lg bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
-                              <Package className="w-3.5 h-3.5" />
+                            <div className="w-8 h-8 rounded-lg bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
+                              <Package className="w-4 h-4" />
                             </div>
-                            <span className="truncate max-w-xs">{item.name}</span>
+                            <div className="min-w-0">
+                              <button
+                                type="button"
+                                onClick={() => handleOpenDetails(item)}
+                                className="font-bold text-slate-900 dark:text-white hover:text-blue-600 transition-colors text-start truncate block max-w-xs cursor-pointer"
+                                title="عرض تفاصيل الصنف وسلسلة الحيازة"
+                              >
+                                {item.name}
+                              </button>
+                              <div className="text-micro text-slate-500 font-normal truncate max-w-xs">
+                                {item.size_spec || item.model_name || "—"}
+                              </div>
+                            </div>
                           </div>
                         </td>
-                        <td className="py-3 px-3">
-                          <Badge variant="secondary" className="font-bold text-micro">
-                            {item.category_name}
-                          </Badge>
+
+                        {/* 2. Category & Code */}
+                        <td className="py-2.5 px-3">
+                          <div className="space-y-0.5">
+                            <Badge variant="secondary" className="font-bold text-micro">
+                              {item.category_name || "عام"}
+                            </Badge>
+                            {item.item_code && (
+                              <div className="font-mono text-micro text-slate-500 dir-ltr text-start">
+                                {item.item_code}
+                              </div>
+                            )}
+                          </div>
                         </td>
-                        <td className="py-3 px-3 text-slate-600 dark:text-gray-300 font-medium">
-                          {item.size_spec || item.model_name || <span className="text-slate-400">—</span>}
-                        </td>
-                        <td className="py-3 px-3 font-mono text-micro text-slate-900 dark:text-white dir-ltr text-start">
-                          {item.item_code || item.serial_number ? (
-                            <span className="bg-slate-100 dark:bg-white/10 px-1.5 py-0.5 rounded font-bold">
-                              {item.item_code || item.serial_number}
+
+                        {/* 3. Grouped Quantities */}
+                        <td className="py-2.5 px-3 text-center">
+                          <div className="inline-flex items-center gap-1.5 bg-slate-50 dark:bg-white/5 px-2 py-1 rounded-xl border border-slate-200/60 dark:border-white/5 text-micro font-bold">
+                            <span className="text-emerald-600 dark:text-emerald-400" title="المتوفر بالمستودع">
+                              م: {item.available_quantity}
                             </span>
-                          ) : (
-                            <span className="text-slate-400">—</span>
-                          )}
+                            <span className="text-slate-300 dark:text-white/20">|</span>
+                            <span className="text-blue-600 dark:text-blue-400" title="المسلّم كعهدة">
+                              ع: {item.assigned_quantity}
+                            </span>
+                            <span className="text-slate-300 dark:text-white/20">|</span>
+                            <span className="text-slate-800 dark:text-slate-200" title="إجمالي الكمية">
+                              ك: {item.total_quantity}
+                            </span>
+                          </div>
                         </td>
-                        <td className="py-3 px-3 text-center font-bold text-slate-900 dark:text-white">
-                          {item.total_quantity}
-                        </td>
-                        <td className="py-3 px-3 text-center">
-                          <span className="inline-flex items-center justify-center px-2 py-0.5 rounded-full text-micro font-bold bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300">
-                            {item.available_quantity}
-                          </span>
-                        </td>
-                        <td className="py-3 px-3 text-center">
-                          <span className="inline-flex items-center justify-center px-2 py-0.5 rounded-full text-micro font-bold bg-blue-50 text-blue-700 dark:bg-blue-950/40 dark:text-blue-300">
-                            {item.assigned_quantity}
-                          </span>
-                        </td>
-                        <td className="py-3 px-3 text-slate-700 dark:text-gray-300 text-caption font-medium">
+
+                        {/* 4. Current Custody */}
+                        <td className="py-2.5 px-3 text-slate-700 dark:text-gray-300 text-caption font-medium">
                           {item.assigned_member_name ? (
                             <div className="flex items-center gap-1">
-                              <span className="font-bold text-slate-900 dark:text-white truncate max-w-[130px]">
+                              <span className="font-bold text-slate-900 dark:text-white truncate max-w-[140px]">
                                 {item.assigned_member_name}
                               </span>
                               {item.assigned_member_force_number && (
@@ -445,57 +502,73 @@ export function InventoryPage() {
                               )}
                             </div>
                           ) : (
-                            <span className="text-slate-400">المستودع الرئيسي</span>
+                            <span className="text-slate-400 font-normal">المستودع الرئيسي</span>
                           )}
                         </td>
-                        <td className="py-3 px-3 text-center">
-                          <Badge variant={st.variant} className="text-micro font-bold">
-                            {st.label}
+
+                        {/* 5. Status */}
+                        <td className="py-2.5 px-3 text-center">
+                          <Badge variant={statusInfo.variant} className="text-micro font-bold">
+                            {statusInfo.label}
                           </Badge>
                         </td>
-                        <td className="py-3 px-3.5 text-end">
+
+                        {/* 6. Action Toolbar */}
+                        <td className="py-2.5 px-3 text-end">
                           <div className="flex items-center justify-end gap-1">
-                            {/* Handover Action */}
+                            {/* Detail & History */}
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => handleOpenDetails(item)}
+                              className="h-7 px-2 text-micro text-slate-700 dark:text-slate-200 hover:text-blue-600 border-slate-200 dark:border-white/10 rounded-lg gap-1 font-bold"
+                              title="سجل الحيازة والبيانات التفصيلية"
+                            >
+                              <Eye className="w-3 h-3" />
+                              <span>التفاصيل</span>
+                            </Button>
+
+                            {/* Assign Custody */}
                             {item.available_quantity > 0 && (
                               <Button
                                 size="sm"
-                                variant="ghost"
+                                variant="outline"
                                 onClick={() => {
                                   setSelectedItem(item);
                                   setCustodyData({ member_id: "", quantity: "1", notes: "" });
                                   setCustodyModalOpen(true);
                                 }}
-                                className="h-7 px-2 text-micro text-blue-600 hover:text-blue-700 hover:bg-blue-50 dark:hover:bg-blue-950/40 rounded-lg gap-1 font-bold"
+                                className="h-7 px-2 text-micro text-blue-700 dark:text-blue-400 border-blue-200 dark:border-blue-800 hover:bg-blue-50 dark:hover:bg-blue-950/40 rounded-lg gap-1 font-bold"
                               >
                                 <UserCheck className="w-3 h-3" />
-                                صرف عهدة
+                                <span>صرف</span>
                               </Button>
                             )}
 
-                            {/* Release Action */}
+                            {/* Return Custody */}
                             {item.assigned_quantity > 0 && (
                               <Button
                                 size="sm"
-                                variant="ghost"
-                                onClick={() => {
-                                  setSelectedItem(item);
-                                  setReturnData({ quantity: "1", notes: "" });
-                                  setReturnModalOpen(true);
-                                }}
-                                className="h-7 px-2 text-micro text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 rounded-lg gap-1 font-bold"
+                                variant="outline"
+                                onClick={() => handleOpenReturn(item)}
+                                className="h-7 px-2 text-micro text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 rounded-lg gap-1 font-bold"
                               >
                                 <RotateCcw className="w-3 h-3" />
-                                إرجاع
+                                <span>إرجاع</span>
                               </Button>
                             )}
 
-                            {/* Damage Action */}
+                            {/* Mark Damaged */}
                             <Button
                               size="sm"
                               variant="ghost"
                               onClick={() => {
                                 setSelectedItem(item);
-                                setDamageData({ quantity: "1", source: item.assigned_quantity > 0 ? "custody" : "warehouse", notes: "" });
+                                setDamageData({
+                                  quantity: "1",
+                                  source: item.assigned_quantity > 0 ? "custody" : "warehouse",
+                                  notes: "",
+                                });
                                 setDamageModalOpen(true);
                               }}
                               className="h-7 px-1.5 text-slate-500 hover:text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-950/40 rounded-lg"
@@ -504,7 +577,7 @@ export function InventoryPage() {
                               <AlertTriangle className="w-3.5 h-3.5" />
                             </Button>
 
-                            {/* Voucher & Handover Card Print */}
+                            {/* Custody Voucher Print */}
                             {item.assigned_member_name && (
                               <Button
                                 size="sm"
@@ -519,20 +592,6 @@ export function InventoryPage() {
                                 <FileCheck2 className="w-3.5 h-3.5" />
                               </Button>
                             )}
-
-                            {/* QR Code */}
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              onClick={() => {
-                                setSelectedItem(item);
-                                setQrModalOpen(true);
-                              }}
-                              className="h-7 px-1.5 text-slate-500 hover:text-slate-900 dark:hover:text-white rounded-lg"
-                              title="رمز الاستجابة السريعة QR"
-                            >
-                              <QrCode className="w-3.5 h-3.5" />
-                            </Button>
                           </div>
                         </td>
                       </tr>
@@ -545,7 +604,7 @@ export function InventoryPage() {
         </CardContent>
       </Card>
 
-      {/* Add General Inventory Item Dialog */}
+      {/* Add Item Modal */}
       <Dialog open={addModalOpen} onOpenChange={setAddModalOpen}>
         <DialogContent className="max-w-lg rounded-[28px] p-6 text-start">
           <DialogHeader>
@@ -553,7 +612,7 @@ export function InventoryPage() {
               تسجيل صنف أو مهمات بالمخزن العام
             </DialogTitle>
             <DialogDescription className="text-caption text-slate-500">
-              أدخل بيانات الصنف أو المهمات (ملابس، أثاث، دروع، أجهزة) لتسجيلها بالجرد العام
+              أدخل بيانات الصنف لتسجيله برصيد المستودع العام
             </DialogDescription>
           </DialogHeader>
 
@@ -569,7 +628,7 @@ export function InventoryPage() {
                 اسم الصنف / المهمات <span className="text-rose-500">*</span>
               </Label>
               <Input
-                placeholder="مثال: بدلة ميدانية مموهة، مكتب إداري خشبي، جهاز موتورولا..."
+                placeholder="مثال: بدلة ميدانية، مكتب خشبي، جهاز اتصال لاسلكي، أغطية..."
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                 required
@@ -579,28 +638,37 @@ export function InventoryPage() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <Label className="text-caption font-bold">
-                  التصنيف المخزني <span className="text-rose-500">*</span>
-                </Label>
-                <Select
+                <div className="flex items-center justify-between">
+                  <Label className="text-caption font-bold">
+                    التصنيف المخزني <span className="text-rose-500">*</span>
+                  </Label>
+                  <Link
+                    to="/settings/inventory-categories"
+                    className="text-micro text-blue-600 hover:underline flex items-center gap-0.5 font-bold"
+                  >
+                    <Settings className="w-3 h-3" />
+                    إدارة التصنيفات
+                  </Link>
+                </div>
+                <select
                   value={formData.category}
                   onChange={(e) => setFormData({ ...formData, category: e.target.value })}
                   required
-                  className="h-10 rounded-xl"
+                  className="w-full h-10 px-3 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#1A2038] text-body-sm font-medium focus:ring-2 focus:ring-[#2B95E8]"
                 >
-                  <option value="">اختر التصنيف</option>
+                  <option value="">اختر التصنيف المخزني</option>
                   {categories.map((c) => (
                     <option key={c.id} value={c.id}>
                       {c.name_ar}
                     </option>
                   ))}
-                </Select>
+                </select>
               </div>
 
               <div className="space-y-1.5">
                 <Label className="text-caption font-bold">المقاس / المواصفة</Label>
                 <Input
-                  placeholder="مثال: L / XL، 120×80 سم..."
+                  placeholder="مثال: L / XL، 120×80 سم، 500W..."
                   value={formData.size_spec}
                   onChange={(e) => setFormData({ ...formData, size_spec: e.target.value })}
                   className="h-10 rounded-xl"
@@ -632,7 +700,9 @@ export function InventoryPage() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <Label className="text-caption font-bold">الكمية الإجمالية</Label>
+                <Label className="text-caption font-bold">
+                  الكمية الإجمالية <span className="text-rose-500">*</span>
+                </Label>
                 <Input
                   type="number"
                   min="1"
@@ -651,15 +721,15 @@ export function InventoryPage() {
 
               <div className="space-y-1.5">
                 <Label className="text-caption font-bold">الحالة الفنية</Label>
-                <Select
+                <select
                   value={formData.status}
                   onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-                  className="h-10 rounded-xl"
+                  className="w-full h-10 px-3 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#1A2038] text-body-sm font-medium focus:ring-2 focus:ring-[#2B95E8]"
                 >
                   <option value="good">صالح للاستعمال</option>
                   <option value="maintenance">تحت الصيانة</option>
                   <option value="damaged">تالف / مكهن</option>
-                </Select>
+                </select>
               </div>
             </div>
 
@@ -720,19 +790,19 @@ export function InventoryPage() {
               <Label className="text-caption font-bold">
                 المستلم للعهدة <span className="text-rose-500">*</span>
               </Label>
-              <Select
+              <select
                 value={custodyData.member_id}
                 onChange={(e) => setCustodyData({ ...custodyData, member_id: e.target.value })}
                 required
-                className="h-10 rounded-xl"
+                className="w-full h-10 px-3 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#1A2038] text-body-sm font-medium focus:ring-2 focus:ring-[#2B95E8]"
               >
                 <option value="">اختر الفرد أو المسؤول</option>
                 {members.map((m) => (
                   <option key={m.id} value={m.id}>
-                    {m.full_name} ({m.force_number || "بدون رقم"}) - {m.faction_name || ""}
+                    {m.full_name} ({m.force_number || "بدون رقم"}) — {m.faction_name || ""}
                   </option>
                 ))}
-              </Select>
+              </select>
             </div>
 
             <div className="space-y-1.5">
@@ -771,7 +841,7 @@ export function InventoryPage() {
         </DialogContent>
       </Dialog>
 
-      {/* Return Custody Dialog */}
+      {/* Return Custody Dialog (with Returning Member Selection) */}
       <Dialog open={returnModalOpen} onOpenChange={setReturnModalOpen}>
         <DialogContent className="max-w-md rounded-[28px] p-6 text-start">
           <DialogHeader>
@@ -799,6 +869,26 @@ export function InventoryPage() {
               <p className="text-slate-600 dark:text-gray-300">
                 المسلّم حالياً: <span className="font-bold text-blue-600">{selectedItem?.assigned_quantity} وحدة</span>
               </p>
+            </div>
+
+            {/* Selecting returning member explicitly */}
+            <div className="space-y-1.5">
+              <Label className="text-caption font-bold">
+                الفرد المُرجِع للعهدة <span className="text-rose-500">*</span>
+              </Label>
+              <select
+                value={returnData.member_id}
+                onChange={(e) => setReturnData({ ...returnData, member_id: e.target.value })}
+                required
+                className="w-full h-10 px-3 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#1A2038] text-body-sm font-medium focus:ring-2 focus:ring-[#2B95E8]"
+              >
+                <option value="">اختر الفرد المُرجِع</option>
+                {members.map((m) => (
+                  <option key={m.id} value={m.id}>
+                    {m.full_name} ({m.force_number || "بدون رقم"}) — {m.faction_name || ""}
+                  </option>
+                ))}
+              </select>
             </div>
 
             <div className="space-y-1.5">
@@ -837,7 +927,7 @@ export function InventoryPage() {
         </DialogContent>
       </Dialog>
 
-      {/* Damage Dialog */}
+      {/* Damage / Maintenance Dialog */}
       <Dialog open={damageModalOpen} onOpenChange={setDamageModalOpen}>
         <DialogContent className="max-w-md rounded-[28px] p-6 text-start">
           <DialogHeader>
@@ -862,14 +952,14 @@ export function InventoryPage() {
           >
             <div className="space-y-1.5">
               <Label className="text-caption font-bold">مصدر المواد التالفة</Label>
-              <Select
+              <select
                 value={damageData.source}
                 onChange={(e) => setDamageData({ ...damageData, source: e.target.value })}
-                className="h-10 rounded-xl"
+                className="w-full h-10 px-3 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#1A2038] text-body-sm font-medium focus:ring-2 focus:ring-[#2B95E8]"
               >
                 <option value="custody">من عهدة حالية</option>
                 <option value="warehouse">من رصيد المستودع</option>
-              </Select>
+              </select>
             </div>
 
             <div className="space-y-1.5">
@@ -885,7 +975,9 @@ export function InventoryPage() {
             </div>
 
             <div className="space-y-1.5">
-              <Label className="text-caption font-bold">تقرير وسبب التلف <span className="text-rose-500">*</span></Label>
+              <Label className="text-caption font-bold">
+                تقرير وسبب التلف <span className="text-rose-500">*</span>
+              </Label>
               <Textarea
                 placeholder="شرح سبب التلف أو الاستهلاك..."
                 value={damageData.notes}
@@ -908,7 +1000,7 @@ export function InventoryPage() {
         </DialogContent>
       </Dialog>
 
-      {/* Handover Card Print Modal */}
+      {/* Custody Handover Voucher Dialog */}
       {selectedItem && (
         <CustodyHandoverVoucherDialog
           open={voucherModalOpen}
@@ -923,30 +1015,14 @@ export function InventoryPage() {
         />
       )}
 
-      {/* QR Code Dialog */}
+      {/* Inventory Item Details & Custody Chain Dialog */}
       {selectedItem && (
-        <Dialog open={qrModalOpen} onOpenChange={setQrModalOpen}>
-          <DialogContent className="max-w-sm rounded-[28px] p-6 text-center">
-            <DialogHeader>
-              <DialogTitle className="text-title font-bold text-slate-900 dark:text-white">
-                رمز QR للصنف: {selectedItem.name}
-              </DialogTitle>
-              <DialogDescription className="text-caption text-slate-500">
-                امسح الرمز عبر كاميرا الماسح للتحقق والتعرف الفوري على الصنف
-              </DialogDescription>
-            </DialogHeader>
-
-            <div className="flex flex-col items-center justify-center p-4">
-              <AssetQRCode
-                type="inventory"
-                id={selectedItem.id}
-                code={selectedItem.item_code || selectedItem.serial_number || `INV-${selectedItem.id}`}
-                title={selectedItem.name}
-                subtitle={`المواصفة: ${selectedItem.size_spec || '—'} | الكود: ${selectedItem.item_code || '—'}`}
-              />
-            </div>
-          </DialogContent>
-        </Dialog>
+        <AssetDetailHistoryDialog
+          open={detailsModalOpen}
+          onOpenChange={setDetailsModalOpen}
+          item={selectedItem}
+          type="inventory"
+        />
       )}
     </div>
   );

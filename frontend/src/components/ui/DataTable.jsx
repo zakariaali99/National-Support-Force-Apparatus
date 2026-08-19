@@ -100,9 +100,8 @@ export function DataTable({
       <tr>
         {normalizedColumns.map((col) => (
           <th
-            key={col.key}
-            className={cn(
-              "px-3.5 py-2.5 text-start font-bold text-caption text-slate-500 dark:text-gray-400 tracking-wide whitespace-nowrap",
+                     className={cn(
+              "px-3.5 py-2.5 text-start font-bold text-caption text-slate-500 dark:text-gray-400 tracking-wide",
               col.align === "center" && "text-center",
               col.align === "end" && "text-end",
               sortable && col.sortable !== false && "cursor-pointer select-none",
@@ -190,8 +189,8 @@ export function DataTable({
             <Fragment key={row.id || rIdx}>{rowCard(row)}</Fragment>
           ))}
         </div>
-        <div className="hidden md:block overflow-x-auto rounded-[28px] border border-slate-200/80 dark:border-white/10 bg-white dark:bg-[#1A2038] shadow-sm scrollbar-thin">
-          <table className="w-full text-body-sm border-collapse">
+        <div className="hidden md:block rounded-[28px] border border-slate-200/80 dark:border-white/10 bg-white dark:bg-[#1A2038] shadow-sm overflow-hidden">
+          <table className="w-full text-body-sm border-collapse table-auto">
             {head()}
             {body(sortedRows)}
           </table>
@@ -201,8 +200,8 @@ export function DataTable({
   }
 
   return (
-    <div className="overflow-x-auto rounded-[28px] border border-slate-200/80 dark:border-white/10 bg-white dark:bg-[#1A2038] shadow-sm scrollbar-thin">
-      <table className="w-full text-body-sm border-collapse">
+    <div className="rounded-[28px] border border-slate-200/80 dark:border-white/10 bg-white dark:bg-[#1A2038] shadow-sm overflow-hidden">
+      <table className="w-full text-body-sm border-collapse table-auto">
         {head()}
         {body(sortedRows)}
       </table>

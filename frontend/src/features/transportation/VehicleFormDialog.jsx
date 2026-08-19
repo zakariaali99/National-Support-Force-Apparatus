@@ -34,10 +34,13 @@ export function VehicleFormDialog({ open, onOpenChange, vehicle = null }) {
   const isEdit = Boolean(vehicle);
   const createVehicle = useCreateVehicle();
   const updateVehicle = useUpdateVehicle();
-  const { data: factions = [] } = useFactions({ enabled: Boolean(open) });
-  const { data: externalUnits = [] } = useExternalUnits({ is_active: true }, { enabled: Boolean(open) });
+  const { data: factionsRaw = [] } = useFactions({ enabled: Boolean(open) });
+  const { data: externalUnitsRaw = [] } = useExternalUnits({ is_active: true }, { enabled: Boolean(open) });
   const { data: membersData } = useMembers({ page_size: 200 }, { enabled: Boolean(open) });
-  const members = membersData?.results || (Array.isArray(membersData) ? membersData : []);
+
+  const factions = Array.isArray(factionsRaw) ? factionsRaw : (factionsRaw?.results || []);
+  const externalUnits = Array.isArray(externalUnitsRaw) ? externalUnitsRaw : (externalUnitsRaw?.results || []);
+  const members = Array.isArray(membersData) ? membersData : (membersData?.results || []);
 
   const {
     register,

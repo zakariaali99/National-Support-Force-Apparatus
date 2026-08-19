@@ -22,7 +22,6 @@
   .row { display: flex; justify-content: space-between; align-items: flex-end; margin-top: 2mm; }
   .ids .label { font-size: 5.5pt; color: #777; }
   .ids .value { font-size: 7.5pt; font-weight: 700; }
-  .qr { height: 13mm; width: 13mm; }
 </style>
 </head>
 <body>
@@ -40,9 +39,6 @@
       <div class="label">الرقم الحربي</div>
       <div class="value"><bdi dir="ltr">{{ card.member.force_number }}</bdi></div>
     </div>
-    {% if card.qr %}
-    <img class="qr" src="{{ card.qr }}" alt="QR" />
-    {% endif %}
   </div>
 </div>
 {% endfor %}

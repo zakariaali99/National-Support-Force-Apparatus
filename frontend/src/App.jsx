@@ -5,6 +5,7 @@ import { AppShell } from "./components/layout/AppShell";
 import { LoginPage } from "./features/auth/LoginPage";
 import { ProtectedRoute, PermissionRoute } from "./features/auth/ProtectedRoute";
 import { PermissionDeniedDialog } from "./components/ui/PermissionDeniedDialog";
+import { ErrorBoundary } from "./components/ui/ErrorBoundary";
 
 // Route-level code splitting
 const DashboardPage = lazy(() => import("./features/dashboard/DashboardPage").then((m) => ({ default: m.DashboardPage || m.default })));
@@ -36,7 +37,7 @@ function RouteFallback() {
 
 export default function App() {
   return (
-    <>
+    <ErrorBoundary>
       <Routes>
       <Route path="/login" element={<LoginPage />} />
 
@@ -286,6 +287,6 @@ export default function App() {
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
     <PermissionDeniedDialog />
-    </>
+    </ErrorBoundary>
   );
 }

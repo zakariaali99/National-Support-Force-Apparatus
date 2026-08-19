@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Menu, Home, ChevronLeft, Search, QrCode } from "lucide-react";
+import { Menu, Home, ChevronLeft, Search } from "lucide-react";
 import { Link, Outlet, useLocation } from "react-router-dom";
 
 import { ThemeToggle } from "../theme/ThemeToggle";
@@ -10,7 +10,6 @@ import { MobileDrawer } from "./MobileDrawer";
 import { NotificationBell } from "./NotificationBell";
 import { Sidebar } from "./Sidebar";
 import { UserMenu } from "./UserMenu";
-import { QRQuickLookupModal } from "../qr/QRQuickLookupModal";
 import { NAV_INDEX } from "./navConfig";
 
 function getBreadcrumbs(path) {
@@ -36,7 +35,6 @@ function getBreadcrumbs(path) {
 export function AppShell() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [paletteOpen, setPaletteOpen] = useState(false);
-  const [qrModalOpen, setQrModalOpen] = useState(false);
   const location = useLocation();
   const breadcrumbs = getBreadcrumbs(location.pathname);
 
@@ -53,7 +51,7 @@ export function AppShell() {
       <MobileDrawer open={mobileOpen} onOpenChange={setMobileOpen} />
 
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b border-white/10 bg-[#1A2038] text-white px-4 shadow-md backdrop-blur-md md:px-6">
+        <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b border-white/10 bg-[#0d1527] text-white px-4 shadow-md backdrop-blur-md md:px-6">
           <Button
             variant="ghost"
             size="icon"
@@ -105,16 +103,6 @@ export function AppShell() {
                 Ctrl+K
               </kbd>
             </button>
-            <button
-              type="button"
-              className="inline-flex items-center gap-1.5 text-gray-300 hover:text-white border border-white/10 bg-white/5 hover:bg-white/10 rounded-2xl h-10 px-3.5 text-caption font-bold transition-all cursor-pointer shadow-xs"
-              onClick={() => setQrModalOpen(true)}
-              aria-label="مسح والتحقق من رمز QR"
-              title="التحقق السريع وقراءة QR"
-            >
-              <QrCode className="h-4 w-4 text-[#2B95E8]" />
-              <span className="hidden sm:inline">مسح QR</span>
-            </button>
             <NotificationBell />
             <ThemeToggle />
             <UserMenu />
@@ -125,9 +113,6 @@ export function AppShell() {
           <Outlet />
         </main>
       </div>
-
-      {/* Quick QR Lookup Modal */}
-      <QRQuickLookupModal open={qrModalOpen} onOpenChange={setQrModalOpen} />
 
       {/* Global Command Palette (⌘K / Ctrl+K) */}
       <CommandPalette open={paletteOpen} onOpenChange={setPaletteOpen} />

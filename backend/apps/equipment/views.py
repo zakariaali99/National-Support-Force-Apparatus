@@ -264,8 +264,13 @@ class InventoryItemViewSet(ModelViewSet):
         item = self.get_object()
         qty = int(request.data.get("quantity", 1) or 1)
         notes = request.data.get("notes", "")
+        member_id = request.data.get("member_id")
 
-        member = item.assigned_member
+        if member_id:
+            from apps.members.models import Member
+            member = Member.objects.filter(id=member_id).first()
+        else:
+            member = item.assigned_member
         member_name = getattr(member, "full_name", "") if member else ""
 
         qty_to_return = min(qty, item.assigned_quantity) if item.assigned_quantity > 0 else qty

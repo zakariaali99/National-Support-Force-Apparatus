@@ -1,23 +1,21 @@
 import { useState, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { Link } from "react-router-dom";
 import {
   Crosshair,
   Plus,
   Search,
-  Filter,
-  PackageCheck,
   RotateCcw,
   AlertTriangle,
   FileCheck2,
-  QrCode,
   Printer,
   Shield,
   Zap,
   Boxes,
   UserCheck,
   CheckCircle,
-  Pencil,
-  Trash2,
+  Eye,
+  Settings,
 } from "lucide-react";
 
 import { api } from "../../lib/api";
@@ -25,7 +23,6 @@ import { PageHeader } from "../../components/ui/PageHeader";
 import { Card, CardContent } from "../../components/ui/Card";
 import { Button } from "../../components/ui/Button";
 import { Input } from "../../components/ui/Input";
-import { Select } from "../../components/ui/Select";
 import { Badge } from "../../components/ui/Badge";
 import {
   Dialog,
@@ -40,8 +37,8 @@ import { Textarea } from "../../components/ui/Textarea";
 import { showToast } from "../../components/ui/Toast";
 import { StatCard } from "../../components/ui/StatCard";
 import { CustodyHandoverVoucherDialog } from "../inventory/CustodyHandoverVoucherDialog";
-import { AssetQRCode } from "../../components/qr/AssetQRCode";
-import { openAuthedPdf, downloadAuthedFile } from "../reports/api";
+import { AssetDetailHistoryDialog } from "../../components/equipment/AssetDetailHistoryDialog";
+import { openAuthedPdf } from "../reports/api";
 
 const STATUS_MAP = {
   good: { label: "صالح للخدمة", variant: "success" },
@@ -63,7 +60,7 @@ export function ArmoryPage() {
   const [returnModalOpen, setReturnModalOpen] = useState(false);
   const [damageModalOpen, setDamageModalOpen] = useState(false);
   const [voucherModalOpen, setVoucherModalOpen] = useState(false);
-  const [qrModalOpen, setQrModalOpen] = useState(false);
+  const [detailsModalOpen, setDetailsModalOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
 
   const [formData, setFormData] = useState({
@@ -85,6 +82,7 @@ export function ArmoryPage() {
   });
 
   const [returnData, setReturnData] = useState({
+    member_id: "",
     quantity: "1",
     notes: "",
   });
@@ -123,9 +121,29 @@ export function ArmoryPage() {
   });
   const members = Array.isArray(rawMembers) ? rawMembers : rawMembers?.results ?? [];
 
+  const formatErrorMsg = (err, fallback) => {
+    const data = err.response?.data;
+    if (!data) return fallback;
+    if (typeof data === "string") return data;
+    if (data.detail) return data.detail;
+    if (typeof data === "object") {
+      return Object.entries(data)
+        .map(([k, v]) => `${k}: ${Array.isArray(v) ? v.join(", ") : v}`)
+        .join(" | ");
+    }
+    return fallback;
+  };
+
   // Mutations
   const createMutation = useMutation({
-    mutationFn: (data) => api.post("equipment/items/", { ...data, domain: "armory" }),
+    mutationFn: (data) =>
+      api.post("equipment/items/", {
+        ...data,
+        category: Number(data.category),
+        total_quantity: Number(data.total_quantity) || 1,
+        available_quantity: Number(data.available_quantity) || Number(data.total_quantity) || 1,
+        domain: "armory",
+      }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["armory-items"] });
       showToast({ title: "تم تسجيل السلاح بنجاح", type: "success" });
@@ -133,7 +151,11 @@ export function ArmoryPage() {
       resetForm();
     },
     onError: (err) => {
-      showToast({ title: "خطأ أثناء الحفظ", description: err.response?.data?.detail || "تأكد من صحة البيانات", type: "error" });
+      showToast({
+        title: "خطأ أثناء الحفظ",
+        description: formatErrorMsg(err, "تأكد من اختيار التصنيف وصحة البيانات"),
+        type: "error",
+      });
     },
   });
 
@@ -145,7 +167,7 @@ export function ArmoryPage() {
       setCustodyModalOpen(false);
     },
     onError: (err) => {
-      showToast({ title: "خطأ في تسليم العهدة", description: err.response?.data?.detail || "تعذر إتمام الإجراء", type: "error" });
+      showToast({ title: "خطأ في صرف العهدة", description: formatErrorMsg(err, "تعذر إتمام الإجراء"), type: "error" });
     },
   });
 
@@ -153,11 +175,11 @@ export function ArmoryPage() {
     mutationFn: ({ id, data }) => api.post(`equipment/items/${id}/release-custody/`, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["armory-items"] });
-      showToast({ title: "تم إرجاع السلاح إلى الخزينة بنجاح", type: "success" });
+      showToast({ title: "تم إرجاع واستلام السلاح إلى الخزينة بنجاح", type: "success" });
       setReturnModalOpen(false);
     },
     onError: (err) => {
-      showToast({ title: "خطأ في استرجاع العهدة", description: err.response?.data?.detail || "تعذر إتمام الإجراء", type: "error" });
+      showToast({ title: "خطأ في استرجاع العهدة", description: formatErrorMsg(err, "تعذر إتمام الإجراء"), type: "error" });
     },
   });
 
@@ -169,14 +191,14 @@ export function ArmoryPage() {
       setDamageModalOpen(false);
     },
     onError: (err) => {
-      showToast({ title: "خطأ في التوثيق", description: err.response?.data?.detail || "تعذر إتمام الإجراء", type: "error" });
+      showToast({ title: "خطأ في التوثيق", description: formatErrorMsg(err, "تعذر إتمام الإجراء"), type: "error" });
     },
   });
 
   function resetForm() {
     setFormData({
       name: "",
-      category: "",
+      category: categories.length > 0 ? String(categories[0].id) : "",
       serial_number: "",
       caliber: "",
       model_name: "",
@@ -187,14 +209,34 @@ export function ArmoryPage() {
     });
   }
 
+  function handleOpenAdd() {
+    resetForm();
+    setAddModalOpen(true);
+  }
+
+  function handleOpenDetails(item) {
+    setSelectedItem(item);
+    setDetailsModalOpen(true);
+  }
+
+  function handleOpenReturn(item) {
+    setSelectedItem(item);
+    setReturnData({
+      member_id: item.assigned_member ? String(item.assigned_member) : "",
+      quantity: "1",
+      notes: "",
+    });
+    setReturnModalOpen(true);
+  }
+
   // Filtered items by tab
   const filteredItems = useMemo(() => {
     return items.filter((item) => {
       if (typeTab === "all") return true;
-      if (typeTab === "weapons") return ["rifle", "pistol", "machine_gun"].includes(item.category_type);
-      if (typeTab === "ammo") return item.category_type === "ammo";
-      if (typeTab === "assigned") return (item.assigned_quantity || 0) > 0;
       if (typeTab === "available") return (item.available_quantity || 0) > 0;
+      if (typeTab === "assigned") return (item.assigned_quantity || 0) > 0;
+      if (typeTab === "maintenance") return item.status === "maintenance";
+      if (typeTab === "damaged") return item.status === "damaged" || (item.damaged_quantity || 0) > 0;
       return true;
     });
   }, [items, typeTab]);
@@ -235,6 +277,7 @@ export function ArmoryPage() {
 
   return (
     <div className="space-y-6">
+      {/* Page Header */}
       <PageHeader
         title="قسم التسليح والأسلحة والذخائر"
         subtitle="حصر ومتابعة الأسلحة الفردية، الرشاشات، الذخائر، السجلات الباليستية، وعهد الأفراد والمصفحات"
@@ -249,7 +292,7 @@ export function ArmoryPage() {
               <Printer className="h-4.5 w-4.5 text-blue-600" />
               {isPrintingSummary ? "جارٍ التجهيز..." : "طباعة كشف التسليح"}
             </Button>
-            <Button onClick={() => setAddModalOpen(true)} className="gap-2 font-bold shadow-sm">
+            <Button onClick={handleOpenAdd} className="gap-2 font-bold shadow-sm">
               <Plus className="h-4.5 w-4.5" />
               تسجيل سلاح / ذخيرة
             </Button>
@@ -257,49 +300,50 @@ export function ArmoryPage() {
         }
       />
 
-      {/* Armory KPI Cards */}
+      {/* KPI Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         <StatCard
-          title="إجمالي قطع السلاح والذخائر"
+          title="إجمالي الأسلحة والقطع"
           value={stats.total}
           icon={Crosshair}
-          description={`${stats.totalTypes} نوع وفئة مسجلة`}
+          description={`${stats.totalTypes} نوع وفئة تسليح`}
         />
         <StatCard
-          title="المتوفر بخزينة السلاح"
+          title="المتوفر في الخزينة"
           value={stats.available}
-          icon={CheckCircle}
-          description="جاهز للصرف والتسليم"
+          icon={PackageCheck}
+          description="جاهز للتسليم والعمليات"
           className="border-emerald-200/60 dark:border-emerald-900/30"
         />
         <StatCard
-          title="مسلّم كعهدة عملياتية"
+          title="المسلّم كعهدة تسليح"
           value={stats.assigned}
-          icon={UserCheck}
-          description="بعهدة الأفراد والمصفحات"
+          icon={Shield}
+          description="بعهدة الأفراد والمناوبات"
           className="border-blue-200/60 dark:border-blue-900/30"
         />
         <StatCard
-          title="تحت الصيانة / تالف"
+          title="أعطال / تحت الصيانة"
           value={stats.damaged}
           icon={AlertTriangle}
-          description="يحتاج صيانة أو استبعاد"
+          description="أسلحة تحتاج صيانة باليستية"
           className="border-amber-200/60 dark:border-amber-900/30"
         />
       </div>
 
-      {/* Main Table Card */}
-      <Card className="border border-slate-200/80 dark:border-white/10 bg-white dark:bg-[#1A2038] shadow-xs">
+      {/* Table Container */}
+      <Card className="border border-slate-200/80 dark:border-white/10 bg-white dark:bg-[#0F172A] shadow-xs">
         <CardContent className="p-5 space-y-4">
-          {/* Quick Filter Tabs & Search Bar */}
+          {/* Controls Bar */}
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 pb-2 border-b border-slate-100 dark:border-white/5">
-            <div className="flex items-center gap-1.5 overflow-x-auto pb-1 lg:pb-0 scrollbar-none">
+            {/* Operational Tabs */}
+            <div className="flex items-center gap-1.5 flex-wrap">
               {[
                 { id: "all", label: "كافة الأسلحة والذخائر" },
-                { id: "weapons", label: "الأسلحة الخفيفة والمتوسطة" },
-                { id: "ammo", label: "الذخائر والمقذوفات" },
                 { id: "available", label: "المتوفر بالخزينة" },
                 { id: "assigned", label: "المسلّم كعهدة" },
+                { id: "maintenance", label: "تحت الصيانة" },
+                { id: "damaged", label: "أعطال / تالف" },
               ].map((tab) => (
                 <button
                   key={tab.id}
@@ -316,121 +360,134 @@ export function ArmoryPage() {
               ))}
             </div>
 
-            <div className="flex items-center gap-2.5">
-              <div className="relative w-full sm:w-64">
+            {/* Filters */}
+            <div className="flex items-center gap-2.5 flex-wrap sm:flex-nowrap">
+              <div className="relative w-full sm:w-56">
                 <Search className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                 <Input
-                  placeholder="بحث بالسلاح، الرقم، أو العيار..."
+                  placeholder="بحث بالسلاح، الرقم، العيار..."
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   className="ps-9 h-9 text-caption rounded-xl"
                 />
               </div>
 
-              <Select
+              <select
                 value={categoryFilter}
                 onChange={(e) => setCategoryFilter(e.target.value)}
-                className="w-40 h-9 text-caption rounded-xl"
+                className="w-44 h-9 px-2.5 text-caption font-medium rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#1A2038] text-slate-800 dark:text-slate-200"
               >
-                <option value="">كافة التصنيفات</option>
+                <option value="">كافة تصنيفات التسليح</option>
                 {categories.map((c) => (
                   <option key={c.id} value={c.id}>
                     {c.name_ar}
                   </option>
                 ))}
-              </Select>
+              </select>
 
-              <Select
+              <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
-                className="w-36 h-9 text-caption rounded-xl"
+                className="w-36 h-9 px-2.5 text-caption font-medium rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#1A2038] text-slate-800 dark:text-slate-200"
               >
                 <option value="">كافة الحالات</option>
                 <option value="good">صالح للخدمة</option>
                 <option value="maintenance">تحت الصيانة</option>
                 <option value="damaged">تالف / معطل</option>
-                <option value="retired">مستبعد</option>
-              </Select>
+                <option value="retired">مستبعد / مكهن</option>
+              </select>
             </div>
           </div>
 
-          {/* High-density Armory Table */}
-          <div className="overflow-x-auto rounded-2xl border border-slate-200/80 dark:border-white/10">
-            <table className="w-full text-start text-body-sm">
-              <thead className="bg-slate-50 dark:bg-white/5 border-b border-slate-200/80 dark:border-white/10 text-slate-600 dark:text-gray-300 font-bold">
+          {/* Full-Width Table (No horizontal slide-scroll) */}
+          <div className="rounded-2xl border border-slate-200/80 dark:border-white/10 overflow-hidden">
+            <table className="w-full text-start text-body-sm table-auto">
+              <thead className="bg-slate-50 dark:bg-white/5 border-b border-slate-200/80 dark:border-white/10 text-slate-700 dark:text-gray-300 font-bold">
                 <tr>
-                  <th className="py-3 px-3.5 text-start">السلاح / العتاد</th>
-                  <th className="py-3 px-3 text-start">النوع والتصنيف</th>
-                  <th className="py-3 px-3 text-start">العيار والمواصفة</th>
-                  <th className="py-3 px-3 text-start">الرقم التسلسلي</th>
-                  <th className="py-3 px-3 text-center">الكمية الكلية</th>
-                  <th className="py-3 px-3 text-center">المتوفر</th>
-                  <th className="py-3 px-3 text-center">المسلّم كعهدة</th>
-                  <th className="py-3 px-3 text-start">العهدة الحالية</th>
-                  <th className="py-3 px-3 text-center">الحالة</th>
-                  <th className="py-3 px-3.5 text-end">الإجراءات والعمليات</th>
+                  <th className="py-2.5 px-3 text-start">السلاح والعيار</th>
+                  <th className="py-2.5 px-3 text-start">التصنيف والرقم التسلسلي</th>
+                  <th className="py-2.5 px-3 text-center">الأرصدة والكميات</th>
+                  <th className="py-2.5 px-3 text-start">العهدة الحالية</th>
+                  <th className="py-2.5 px-3 text-center">الحالة</th>
+                  <th className="py-2.5 px-3 text-end">الإجراءات والعهد</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-white/5">
                 {isLoading ? (
                   <tr>
-                    <td colSpan={10} className="text-center py-10 text-slate-400 font-medium">
+                    <td colSpan={6} className="text-center py-10 text-slate-400 font-medium">
                       جارٍ تحميل سجلات التسليح...
                     </td>
                   </tr>
                 ) : filteredItems.length === 0 ? (
                   <tr>
-                    <td colSpan={10} className="text-center py-10 text-slate-400 font-medium">
+                    <td colSpan={6} className="text-center py-10 text-slate-400 font-medium">
                       لا توجد أسلحة أو ذخائر مسجلة تطابق خيارات البحث.
                     </td>
                   </tr>
                 ) : (
                   filteredItems.map((item) => {
-                    const st = STATUS_MAP[item.status] || { label: item.status, variant: "secondary" };
+                    const statusInfo = STATUS_MAP[item.status] || { label: item.status, variant: "secondary" };
                     return (
                       <tr key={item.id} className="hover:bg-slate-50/70 dark:hover:bg-white/5 transition-colors">
-                        <td className="py-3 px-3.5 font-bold text-slate-900 dark:text-white">
+                        {/* 1. Weapon Name & Caliber */}
+                        <td className="py-2.5 px-3 font-bold text-slate-900 dark:text-white">
                           <div className="flex items-center gap-2">
-                            <div className="w-7 h-7 rounded-lg bg-amber-50 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
-                              <Crosshair className="w-3.5 h-3.5" />
+                            <div className="w-8 h-8 rounded-lg bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0">
+                              <Crosshair className="w-4 h-4" />
                             </div>
-                            <span className="truncate max-w-xs">{item.name}</span>
+                            <div className="min-w-0">
+                              <button
+                                type="button"
+                                onClick={() => handleOpenDetails(item)}
+                                className="font-bold text-slate-900 dark:text-white hover:text-blue-600 transition-colors text-start truncate block max-w-xs cursor-pointer"
+                                title="عرض التفاصيل وسلسلة الحيازة"
+                              >
+                                {item.name}
+                              </button>
+                              <div className="text-micro text-slate-500 font-normal truncate max-w-xs">
+                                {item.caliber || item.model_name || "—"}
+                              </div>
+                            </div>
                           </div>
                         </td>
-                        <td className="py-3 px-3">
-                          <Badge variant="secondary" className="font-bold text-micro">
-                            {item.category_name}
-                          </Badge>
+
+                        {/* 2. Category & Serial */}
+                        <td className="py-2.5 px-3">
+                          <div className="space-y-0.5">
+                            <Badge variant="secondary" className="font-bold text-micro">
+                              {item.category_name || "تسليح"}
+                            </Badge>
+                            {item.serial_number && (
+                              <div className="font-mono text-micro text-slate-500 dir-ltr text-start">
+                                {item.serial_number}
+                              </div>
+                            )}
+                          </div>
                         </td>
-                        <td className="py-3 px-3 text-slate-600 dark:text-gray-300 font-medium">
-                          {item.caliber || item.size_spec || <span className="text-slate-400">—</span>}
-                        </td>
-                        <td className="py-3 px-3 font-mono text-micro text-slate-900 dark:text-white dir-ltr text-start">
-                          {item.serial_number ? (
-                            <span className="bg-slate-100 dark:bg-white/10 px-1.5 py-0.5 rounded font-bold">
-                              {item.serial_number}
+
+                        {/* 3. Grouped Quantities */}
+                        <td className="py-2.5 px-3 text-center">
+                          <div className="inline-flex items-center gap-1.5 bg-slate-50 dark:bg-white/5 px-2 py-1 rounded-xl border border-slate-200/60 dark:border-white/5 text-micro font-bold">
+                            <span className="text-emerald-600 dark:text-emerald-400" title="المتوفر بالخزينة">
+                              م: {item.available_quantity}
                             </span>
-                          ) : (
-                            <span className="text-slate-400">—</span>
-                          )}
+                            <span className="text-slate-300 dark:text-white/20">|</span>
+                            <span className="text-blue-600 dark:text-blue-400" title="المسلّم كعهدة">
+                              ع: {item.assigned_quantity}
+                            </span>
+                            <span className="text-slate-300 dark:text-white/20">|</span>
+                            <span className="text-slate-800 dark:text-slate-200" title="إجمالي الكمية">
+                              ك: {item.total_quantity}
+                            </span>
+                          </div>
                         </td>
-                        <td className="py-3 px-3 text-center font-bold text-slate-900 dark:text-white">
-                          {item.total_quantity}
-                        </td>
-                        <td className="py-3 px-3 text-center">
-                          <span className="inline-flex items-center justify-center px-2 py-0.5 rounded-full text-micro font-bold bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300">
-                            {item.available_quantity}
-                          </span>
-                        </td>
-                        <td className="py-3 px-3 text-center">
-                          <span className="inline-flex items-center justify-center px-2 py-0.5 rounded-full text-micro font-bold bg-blue-50 text-blue-700 dark:bg-blue-950/40 dark:text-blue-300">
-                            {item.assigned_quantity}
-                          </span>
-                        </td>
-                        <td className="py-3 px-3 text-slate-700 dark:text-gray-300 text-caption font-medium">
+
+                        {/* 4. Current Custody */}
+                        <td className="py-2.5 px-3 text-slate-700 dark:text-gray-300 text-caption font-medium">
                           {item.assigned_member_name ? (
                             <div className="flex items-center gap-1">
-                              <span className="font-bold text-slate-900 dark:text-white truncate max-w-[130px]">
+                              <span className="font-bold text-slate-900 dark:text-white truncate max-w-[140px]">
                                 {item.assigned_member_name}
                               </span>
                               {item.assigned_member_force_number && (
@@ -440,66 +497,82 @@ export function ArmoryPage() {
                               )}
                             </div>
                           ) : (
-                            <span className="text-slate-400">خزينة السلاح</span>
+                            <span className="text-slate-400 font-normal">خزينة السلاح</span>
                           )}
                         </td>
-                        <td className="py-3 px-3 text-center">
-                          <Badge variant={st.variant} className="text-micro font-bold">
-                            {st.label}
+
+                        {/* 5. Status */}
+                        <td className="py-2.5 px-3 text-center">
+                          <Badge variant={statusInfo.variant} className="text-micro font-bold">
+                            {statusInfo.label}
                           </Badge>
                         </td>
-                        <td className="py-3 px-3.5 text-end">
+
+                        {/* 6. Action Toolbar */}
+                        <td className="py-2.5 px-3 text-end">
                           <div className="flex items-center justify-end gap-1">
-                            {/* Handover Action */}
+                            {/* Detail & History */}
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => handleOpenDetails(item)}
+                              className="h-7 px-2 text-micro text-slate-700 dark:text-slate-200 hover:text-blue-600 border-slate-200 dark:border-white/10 rounded-lg gap-1 font-bold"
+                              title="سجل الحيازة والبيانات التفصيلية"
+                            >
+                              <Eye className="w-3 h-3" />
+                              <span>التفاصيل</span>
+                            </Button>
+
+                            {/* Assign Custody */}
                             {item.available_quantity > 0 && (
                               <Button
                                 size="sm"
-                                variant="ghost"
+                                variant="outline"
                                 onClick={() => {
                                   setSelectedItem(item);
                                   setCustodyData({ member_id: "", quantity: "1", notes: "" });
                                   setCustodyModalOpen(true);
                                 }}
-                                className="h-7 px-2 text-micro text-blue-600 hover:text-blue-700 hover:bg-blue-50 dark:hover:bg-blue-950/40 rounded-lg gap-1 font-bold"
+                                className="h-7 px-2 text-micro text-blue-700 dark:text-blue-400 border-blue-200 dark:border-blue-800 hover:bg-blue-50 dark:hover:bg-blue-950/40 rounded-lg gap-1 font-bold"
                               >
                                 <UserCheck className="w-3 h-3" />
-                                تسليم عهدة
+                                <span>صرف</span>
                               </Button>
                             )}
 
-                            {/* Release Action */}
+                            {/* Return Custody */}
                             {item.assigned_quantity > 0 && (
                               <Button
                                 size="sm"
-                                variant="ghost"
-                                onClick={() => {
-                                  setSelectedItem(item);
-                                  setReturnData({ quantity: "1", notes: "" });
-                                  setReturnModalOpen(true);
-                                }}
-                                className="h-7 px-2 text-micro text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 rounded-lg gap-1 font-bold"
+                                variant="outline"
+                                onClick={() => handleOpenReturn(item)}
+                                className="h-7 px-2 text-micro text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 rounded-lg gap-1 font-bold"
                               >
                                 <RotateCcw className="w-3 h-3" />
-                                إرجاع
+                                <span>إرجاع</span>
                               </Button>
                             )}
 
-                            {/* Damage/Repair Action */}
+                            {/* Mark Damaged */}
                             <Button
                               size="sm"
                               variant="ghost"
                               onClick={() => {
                                 setSelectedItem(item);
-                                setDamageData({ quantity: "1", source: item.assigned_quantity > 0 ? "custody" : "warehouse", notes: "" });
+                                setDamageData({
+                                  quantity: "1",
+                                  source: item.assigned_quantity > 0 ? "custody" : "warehouse",
+                                  notes: "",
+                                });
                                 setDamageModalOpen(true);
                               }}
                               className="h-7 px-1.5 text-slate-500 hover:text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-950/40 rounded-lg"
-                              title="تسجيل صيانة/عطل"
+                              title="تسجيل عطل/صيانة"
                             >
                               <AlertTriangle className="w-3.5 h-3.5" />
                             </Button>
 
-                            {/* Voucher & Handover Card Print */}
+                            {/* Custody Voucher Print */}
                             {item.assigned_member_name && (
                               <Button
                                 size="sm"
@@ -509,25 +582,11 @@ export function ArmoryPage() {
                                   setVoucherModalOpen(true);
                                 }}
                                 className="h-7 px-1.5 text-slate-500 hover:text-purple-600 hover:bg-purple-50 dark:hover:bg-purple-950/40 rounded-lg"
-                                title="طباعة بطاقة عهدة السلاح"
+                                title="طباعة إذن صرف العهدة"
                               >
                                 <FileCheck2 className="w-3.5 h-3.5" />
                               </Button>
                             )}
-
-                            {/* QR Code */}
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              onClick={() => {
-                                setSelectedItem(item);
-                                setQrModalOpen(true);
-                              }}
-                              className="h-7 px-1.5 text-slate-500 hover:text-slate-900 dark:hover:text-white rounded-lg"
-                              title="رمز الاستجابة السريعة QR"
-                            >
-                              <QrCode className="w-3.5 h-3.5" />
-                            </Button>
                           </div>
                         </td>
                       </tr>
@@ -540,15 +599,15 @@ export function ArmoryPage() {
         </CardContent>
       </Card>
 
-      {/* Add Weapon / Munition Dialog */}
+      {/* Add Weapon Modal */}
       <Dialog open={addModalOpen} onOpenChange={setAddModalOpen}>
         <DialogContent className="max-w-lg rounded-[28px] p-6 text-start">
           <DialogHeader>
             <DialogTitle className="text-title font-bold text-slate-900 dark:text-white">
-              تسجيل سلاح أو ذخيرة بقسم التسليح
+              تسجيل قطعة سلاح أو ذخائر
             </DialogTitle>
             <DialogDescription className="text-caption text-slate-500">
-              أدخل البيانات الفنية والرقم التسلسلي والعيار لتسجيل القطعة بالخزينة
+              أدخل بيانات السلاح أو الذخائر لتسجيلها برصيد قسم التسليح
             </DialogDescription>
           </DialogHeader>
 
@@ -561,10 +620,10 @@ export function ArmoryPage() {
           >
             <div className="space-y-1.5">
               <Label className="text-caption font-bold">
-                اسم السلاح / طراز القطعة <span className="text-rose-500">*</span>
+                اسم السلاح / العتاد <span className="text-rose-500">*</span>
               </Label>
               <Input
-                placeholder="مثال: بندقية كلاشينكوف AK-47، مسدس جلوك 19، دوشكا 12.7..."
+                placeholder="مثال: بندقية كلاشنكوف AK-47، مسدس غلوك 19، ذخيرة 7.62 مم..."
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                 required
@@ -574,30 +633,39 @@ export function ArmoryPage() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <Label className="text-caption font-bold">
-                  تصنيف التسليح <span className="text-rose-500">*</span>
-                </Label>
-                <Select
+                <div className="flex items-center justify-between">
+                  <Label className="text-caption font-bold">
+                    التصنيف التسليحي <span className="text-rose-500">*</span>
+                  </Label>
+                  <Link
+                    to="/settings/armory-categories"
+                    className="text-micro text-blue-600 hover:underline flex items-center gap-0.5 font-bold"
+                  >
+                    <Settings className="w-3 h-3" />
+                    إدارة التصنيفات
+                  </Link>
+                </div>
+                <select
                   value={formData.category}
                   onChange={(e) => setFormData({ ...formData, category: e.target.value })}
                   required
-                  className="h-10 rounded-xl"
+                  className="w-full h-10 px-3 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#1A2038] text-body-sm font-medium focus:ring-2 focus:ring-[#2B95E8]"
                 >
-                  <option value="">اختر التصنيف</option>
+                  <option value="">اختر تصنيف السلاح</option>
                   {categories.map((c) => (
                     <option key={c.id} value={c.id}>
                       {c.name_ar}
                     </option>
                   ))}
-                </Select>
+                </select>
               </div>
 
               <div className="space-y-1.5">
-                <Label className="text-caption font-bold">العيار / الذخيرة</Label>
+                <Label className="text-caption font-bold">الرقم التسلسلي (للسلاح الفردي)</Label>
                 <Input
-                  placeholder="مثال: 7.62x39, 9x19, 12.7x108..."
-                  value={formData.caliber}
-                  onChange={(e) => setFormData({ ...formData, caliber: e.target.value })}
+                  placeholder="مثال: AK-998231"
+                  value={formData.serial_number}
+                  onChange={(e) => setFormData({ ...formData, serial_number: e.target.value })}
                   className="h-10 rounded-xl dir-ltr text-end font-mono"
                 />
               </div>
@@ -605,19 +673,19 @@ export function ArmoryPage() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <Label className="text-caption font-bold">الرقم التسلسلي للسلاح</Label>
+                <Label className="text-caption font-bold">العيار الباليستي</Label>
                 <Input
-                  placeholder="الرقم المنقوش على جسم السلاح"
-                  value={formData.serial_number}
-                  onChange={(e) => setFormData({ ...formData, serial_number: e.target.value })}
-                  className="h-10 rounded-xl dir-ltr text-end font-mono"
+                  placeholder="مثال: 7.62×39 مم، 9×19 مم..."
+                  value={formData.caliber}
+                  onChange={(e) => setFormData({ ...formData, caliber: e.target.value })}
+                  className="h-10 rounded-xl"
                 />
               </div>
 
               <div className="space-y-1.5">
-                <Label className="text-caption font-bold">الموديل / سنة الصنع</Label>
+                <Label className="text-caption font-bold">الموديل / بلد الصنع</Label>
                 <Input
-                  placeholder="مثال: Type 56, 2022..."
+                  placeholder="مثال: روسي، تركي، إيطالي..."
                   value={formData.model_name}
                   onChange={(e) => setFormData({ ...formData, model_name: e.target.value })}
                   className="h-10 rounded-xl"
@@ -627,7 +695,9 @@ export function ArmoryPage() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <Label className="text-caption font-bold">الكمية الإجمالية</Label>
+                <Label className="text-caption font-bold">
+                  الكمية الإجمالية <span className="text-rose-500">*</span>
+                </Label>
                 <Input
                   type="number"
                   min="1"
@@ -646,22 +716,22 @@ export function ArmoryPage() {
 
               <div className="space-y-1.5">
                 <Label className="text-caption font-bold">الحالة الفنية</Label>
-                <Select
+                <select
                   value={formData.status}
                   onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-                  className="h-10 rounded-xl"
+                  className="w-full h-10 px-3 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#1A2038] text-body-sm font-medium focus:ring-2 focus:ring-[#2B95E8]"
                 >
-                  <option value="good">صالح للخدمة</option>
-                  <option value="maintenance">تحت الصيانة</option>
-                  <option value="damaged">تالف / معطل</option>
-                </Select>
+                  <option value="good">صالح للخدمة والرمي</option>
+                  <option value="maintenance">تحت الصيانة الفنية</option>
+                  <option value="damaged">تالف / غير صالح</option>
+                </select>
               </div>
             </div>
 
             <div className="space-y-1.5">
-              <Label className="text-caption font-bold">ملاحظات والتسجيل الباليستي</Label>
+              <Label className="text-caption font-bold">ملاحظات وموقع الحفظ بالخزينة</Label>
               <Textarea
-                placeholder="أي تفاصيل عن الخزن، الملحقات، أو جهة التوريد..."
+                placeholder="مكان التخزين بخزينة السلاح أو ملاحظات فنية..."
                 value={formData.notes}
                 onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
                 rows={2}
@@ -686,10 +756,10 @@ export function ArmoryPage() {
         <DialogContent className="max-w-md rounded-[28px] p-6 text-start">
           <DialogHeader>
             <DialogTitle className="text-title font-bold text-slate-900 dark:text-white">
-              تسليم عهدة سلاح للفرد
+              صرف وتسليم عهدة سلاح
             </DialogTitle>
             <DialogDescription className="text-caption text-slate-500">
-              صرف وتسليم ({selectedItem?.name}) كعهدة شخصية مسؤولة
+              تسليم ({selectedItem?.name}) كعهدة مسؤولة للأفراد
             </DialogDescription>
           </DialogHeader>
 
@@ -704,38 +774,34 @@ export function ArmoryPage() {
             }}
             className="space-y-4 py-2"
           >
-            <div className="p-3 rounded-2xl bg-amber-50 dark:bg-amber-950/20 border border-amber-200/80 dark:border-amber-900/30 text-caption font-bold text-amber-950 dark:text-amber-200 space-y-1">
-              <div className="flex justify-between">
-                <span>السلاح: {selectedItem?.name}</span>
-                <span className="font-mono">{selectedItem?.serial_number || ""}</span>
-              </div>
-              <div className="flex justify-between text-slate-600 dark:text-gray-300">
-                <span>المتوفر بالخزينة:</span>
-                <span className="font-bold text-emerald-600">{selectedItem?.available_quantity} قطعة</span>
-              </div>
+            <div className="p-3 rounded-2xl bg-blue-50 dark:bg-blue-950/20 border border-blue-200/80 dark:border-blue-900/30 text-caption font-bold text-blue-950 dark:text-blue-200 space-y-1">
+              <p>السلاح: {selectedItem?.name} {selectedItem?.serial_number && `(رقم: ${selectedItem.serial_number})`}</p>
+              <p className="text-slate-600 dark:text-gray-300">
+                المتوفر بالخزينة: <span className="font-bold text-emerald-600">{selectedItem?.available_quantity} قطعة</span>
+              </p>
             </div>
 
             <div className="space-y-1.5">
               <Label className="text-caption font-bold">
-                الفرد المستلم للعهدة <span className="text-rose-500">*</span>
+                المستلم للعهدة <span className="text-rose-500">*</span>
               </Label>
-              <Select
+              <select
                 value={custodyData.member_id}
                 onChange={(e) => setCustodyData({ ...custodyData, member_id: e.target.value })}
                 required
-                className="h-10 rounded-xl"
+                className="w-full h-10 px-3 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#1A2038] text-body-sm font-medium focus:ring-2 focus:ring-[#2B95E8]"
               >
-                <option value="">اختر الفرد من القوة</option>
+                <option value="">اختر الفرد أو المقاتل</option>
                 {members.map((m) => (
                   <option key={m.id} value={m.id}>
-                    {m.full_name} ({m.force_number || "بدون رقم"}) - {m.faction_name || ""}
+                    {m.full_name} ({m.force_number || "بدون رقم"}) — {m.faction_name || ""}
                   </option>
                 ))}
-              </Select>
+              </select>
             </div>
 
             <div className="space-y-1.5">
-              <Label className="text-caption font-bold">الكمية المصروفة</Label>
+              <Label className="text-caption font-bold">الكمية المسلّمة</Label>
               <Input
                 type="number"
                 min="1"
@@ -748,9 +814,9 @@ export function ArmoryPage() {
             </div>
 
             <div className="space-y-1.5">
-              <Label className="text-caption font-bold">ملاحظات التسليم والمهمة</Label>
+              <Label className="text-caption font-bold">ملاحظات وسبب الصرف</Label>
               <Textarea
-                placeholder="أمر العمليات أو سبب صرف السلاح..."
+                placeholder="مهمة عملياتية، حراسة دورية، أو تسليح فصيل..."
                 value={custodyData.notes}
                 onChange={(e) => setCustodyData({ ...custodyData, notes: e.target.value })}
                 rows={2}
@@ -763,22 +829,22 @@ export function ArmoryPage() {
                 إلغاء
               </Button>
               <Button type="submit" disabled={assignCustodyMutation.isPending} className="rounded-xl px-6 font-bold">
-                {assignCustodyMutation.isPending ? "جارٍ التسليم..." : "اعتماد تسليم العهدة"}
+                {assignCustodyMutation.isPending ? "جارٍ الصرف..." : "اعتماد الصرف"}
               </Button>
             </DialogFooter>
           </form>
         </DialogContent>
       </Dialog>
 
-      {/* Return Custody Dialog */}
+      {/* Return Weapon Dialog (with Returning Member Selection) */}
       <Dialog open={returnModalOpen} onOpenChange={setReturnModalOpen}>
         <DialogContent className="max-w-md rounded-[28px] p-6 text-start">
           <DialogHeader>
             <DialogTitle className="text-title font-bold text-slate-900 dark:text-white">
-              إرجاع السلاح إلى خزينة التسليح
+              إرجاع واستلام السلاح إلى الخزينة
             </DialogTitle>
             <DialogDescription className="text-caption text-slate-500">
-              إخلاء طرف الفرد وإرجاع القطعة إلى المستودع الرئيسي
+              إرجاع السلاح إلى خزينة القسم وإخلاء طرف المستلم
             </DialogDescription>
           </DialogHeader>
 
@@ -794,15 +860,30 @@ export function ArmoryPage() {
             className="space-y-4 py-2"
           >
             <div className="p-3 rounded-2xl bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-200/80 dark:border-emerald-900/30 text-caption font-bold text-emerald-950 dark:text-emerald-200 space-y-1">
-              <p>السلاح: {selectedItem?.name}</p>
+              <p>السلاح: {selectedItem?.name} {selectedItem?.serial_number && `(رقم: ${selectedItem.serial_number})`}</p>
               <p className="text-slate-600 dark:text-gray-300">
-                المسلّم حالياً كعهدة: <span className="font-bold text-blue-600">{selectedItem?.assigned_quantity} قطعة</span>
+                المسلّم كعهدة: <span className="font-bold text-blue-600">{selectedItem?.assigned_quantity} قطعة</span>
               </p>
-              {selectedItem?.assigned_member_name && (
-                <p className="text-slate-600 dark:text-gray-300">
-                  بحوزة الفرد: <span className="font-bold text-slate-900 dark:text-white">{selectedItem?.assigned_member_name}</span>
-                </p>
-              )}
+            </div>
+
+            {/* Select returning member explicitly */}
+            <div className="space-y-1.5">
+              <Label className="text-caption font-bold">
+                الفرد المُرجِع للسلاح <span className="text-rose-500">*</span>
+              </Label>
+              <select
+                value={returnData.member_id}
+                onChange={(e) => setReturnData({ ...returnData, member_id: e.target.value })}
+                required
+                className="w-full h-10 px-3 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#1A2038] text-body-sm font-medium focus:ring-2 focus:ring-[#2B95E8]"
+              >
+                <option value="">اختر الفرد المُرجِع</option>
+                {members.map((m) => (
+                  <option key={m.id} value={m.id}>
+                    {m.full_name} ({m.force_number || "بدون رقم"}) — {m.faction_name || ""}
+                  </option>
+                ))}
+              </select>
             </div>
 
             <div className="space-y-1.5">
@@ -821,7 +902,7 @@ export function ArmoryPage() {
             <div className="space-y-1.5">
               <Label className="text-caption font-bold">ملاحظات الفحص والاستلام</Label>
               <Textarea
-                placeholder="حالة السلاح عند الاسترجاع ونظافة السبطانة..."
+                placeholder="حالة السلاح عند الاسترجاع ونظافة السبطانة والإبرة..."
                 value={returnData.notes}
                 onChange={(e) => setReturnData({ ...returnData, notes: e.target.value })}
                 rows={2}
@@ -846,10 +927,10 @@ export function ArmoryPage() {
         <DialogContent className="max-w-md rounded-[28px] p-6 text-start">
           <DialogHeader>
             <DialogTitle className="text-title font-bold text-amber-600 dark:text-amber-400">
-              تسجيل عطل أو إحالة للصيانة
+              تسجيل عطل أو إحالة للصيانة الفنية
             </DialogTitle>
             <DialogDescription className="text-caption text-slate-500">
-              توثيق تلف أو كسر أو عطل بالسلاح وإحالته لورشة الصيانة الفنية
+              توثيق عطل باليستي أو كسر بالسلاح وإحالته لورشة الصيانة
             </DialogDescription>
           </DialogHeader>
 
@@ -866,14 +947,14 @@ export function ArmoryPage() {
           >
             <div className="space-y-1.5">
               <Label className="text-caption font-bold">مصدر السلاح المتعطل</Label>
-              <Select
+              <select
                 value={damageData.source}
                 onChange={(e) => setDamageData({ ...damageData, source: e.target.value })}
-                className="h-10 rounded-xl"
+                className="w-full h-10 px-3 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#1A2038] text-body-sm font-medium focus:ring-2 focus:ring-[#2B95E8]"
               >
                 <option value="custody">من عهدة الفرد الحالية</option>
                 <option value="warehouse">من خزينة المستودع</option>
-              </Select>
+              </select>
             </div>
 
             <div className="space-y-1.5">
@@ -889,7 +970,9 @@ export function ArmoryPage() {
             </div>
 
             <div className="space-y-1.5">
-              <Label className="text-caption font-bold">تقرير ووصف العطل الفني <span className="text-rose-500">*</span></Label>
+              <Label className="text-caption font-bold">
+                تقرير ووصف العطل الفني <span className="text-rose-500">*</span>
+              </Label>
               <Textarea
                 placeholder="شرح طبيعة العطل (انحشار إبرة، كسر مقبض، عطل بالسبطانة...)"
                 value={damageData.notes}
@@ -905,14 +988,14 @@ export function ArmoryPage() {
                 إلغاء
               </Button>
               <Button type="submit" disabled={markDamagedMutation.isPending} className="rounded-xl px-6 font-bold bg-amber-600 hover:bg-amber-700">
-                {markDamagedMutation.isPending ? "جارٍ الحفظ..." : "إحالة للصيانة"}
+                {markDamagedMutation.isPending ? "جارٍ الحفظ..." : "إثبات العطل"}
               </Button>
             </DialogFooter>
           </form>
         </DialogContent>
       </Dialog>
 
-      {/* Handover Card Print Modal */}
+      {/* Custody Handover Voucher Dialog */}
       {selectedItem && (
         <CustodyHandoverVoucherDialog
           open={voucherModalOpen}
@@ -927,30 +1010,14 @@ export function ArmoryPage() {
         />
       )}
 
-      {/* QR Code Dialog */}
+      {/* Weapon Details & Custody Chain Modal */}
       {selectedItem && (
-        <Dialog open={qrModalOpen} onOpenChange={setQrModalOpen}>
-          <DialogContent className="max-w-sm rounded-[28px] p-6 text-center">
-            <DialogHeader>
-              <DialogTitle className="text-title font-bold text-slate-900 dark:text-white">
-                رمز QR لسلاح: {selectedItem.name}
-              </DialogTitle>
-              <DialogDescription className="text-caption text-slate-500">
-                امسح الرمز عبر كاميرا الماسح للتحقق والتعرف الفوري على السلاح
-              </DialogDescription>
-            </DialogHeader>
-
-            <div className="flex flex-col items-center justify-center p-4">
-              <AssetQRCode
-                type="armory"
-                id={selectedItem.id}
-                code={selectedItem.serial_number || selectedItem.item_code || `ARM-${selectedItem.id}`}
-                title={selectedItem.name}
-                subtitle={`العيار: ${selectedItem.caliber || '—'} | الرقم: ${selectedItem.serial_number || '—'}`}
-              />
-            </div>
-          </DialogContent>
-        </Dialog>
+        <AssetDetailHistoryDialog
+          open={detailsModalOpen}
+          onOpenChange={setDetailsModalOpen}
+          item={selectedItem}
+          type="weapon"
+        />
       )}
     </div>
   );

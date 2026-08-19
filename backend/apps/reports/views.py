@@ -14,7 +14,6 @@ from apps.core.permissions.classes import scope_queryset_to_user_factions, user_
 from apps.members.models import Member, MemberDocument
 from apps.reports.composer import compose, document_to_pdf_bytes
 from apps.reports.exports import members_to_xlsx
-from apps.reports.idcards import qr_data_uri
 from apps.reports.renderer import render_html_to_pdf, render_template_to_pdf
 from apps.reports.sections import SECTION_BY_KEY, SECTION_REGISTRY
 
@@ -165,11 +164,8 @@ class MemberPrintView(APIView):
 
 
 class MemberIdCardsView(APIView):
-    """GET /api/members/id-cards/?ids=1,2,3&qr=1 — batch ID cards, one
-    85.6x54mm page per member, in the given order (see PLAN.md: "template
-    accepts a list of members, batch N-up on A4 is the inevitable next
-    request" — this endpoint is the list-accepting part; N-up layout is
-    future work, not needed for the local/VPS target yet).
+    """GET /api/members/id-cards/?ids=1,2,3 — batch ID cards, one
+    85.6x54mm page per member, in the given order.
     """
 
     permission_classes = [IsAuthenticated]
@@ -177,7 +173,6 @@ class MemberIdCardsView(APIView):
     @extend_schema(
         parameters=[
             OpenApiParameter("ids", OpenApiTypes.STR, description="Comma-separated member ids"),
-            OpenApiParameter("qr", OpenApiTypes.INT, description="1 to include a QR code of the force number"),
         ],
         responses={200: OpenApiTypes.BINARY},
     )
@@ -197,11 +192,9 @@ class MemberIdCardsView(APIView):
         if missing:
             return HttpResponseBadRequest(f"Unknown or inaccessible member id(s): {', '.join(missing)}")
 
-        include_qr = request.query_params.get("qr") == "1"
         cards = [
             {
                 "member": by_id[i],
-                "qr": qr_data_uri(by_id[i].force_number) if include_qr else None,
             }
             for i in ids
         ]

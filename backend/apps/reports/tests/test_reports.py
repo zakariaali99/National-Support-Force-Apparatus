@@ -186,15 +186,6 @@ class MemberIdCardsTests(ReportsTestCase):
         reader = PdfReader(io.BytesIO(response.content))
         self.assertEqual(len(reader.pages), 2)
 
-    def test_id_cards_with_qr_flag_still_renders(self):
-        self.client.force_authenticate(self.printer)
-
-        response = self.client.get(f"/api/members/id-cards/?ids={self.member.id}&qr=1")
-
-        self.assertEqual(response.status_code, 200)
-        reader = PdfReader(io.BytesIO(response.content))
-        self.assertEqual(len(reader.pages), 1)
-
     def test_faction_scoped_user_cannot_include_inaccessible_member(self):
         self.client.force_authenticate(self.scoped_printer)
 
