@@ -25,6 +25,7 @@ class UserSerializer(serializers.ModelSerializer):
             "is_active",
             "is_verified",
             "is_staff",
+            "is_superuser",
             "roles",
             "factions",
             "password",

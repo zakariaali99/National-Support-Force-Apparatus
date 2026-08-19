@@ -55,6 +55,7 @@ export function UsersPage() {
   const [isActive, setIsActive] = useState(true);
   const [isVerified, setIsVerified] = useState(false);
   const [isStaff, setIsStaff] = useState(false);
+  const [isSuperuser, setIsSuperuser] = useState(false);
   const [selectedRoles, setSelectedRoles] = useState([]);
   const [selectedFactions, setSelectedFactions] = useState([]);
   const [validationError, setValidationError] = useState("");
@@ -70,6 +71,7 @@ export function UsersPage() {
     setIsActive(true);
     setIsVerified(true);
     setIsStaff(false);
+    setIsSuperuser(false);
     setSelectedRoles([]);
     setSelectedFactions([]);
     setValidationError("");
@@ -87,6 +89,7 @@ export function UsersPage() {
     setIsActive(user.is_active);
     setIsVerified(user.is_verified);
     setIsStaff(user.is_staff);
+    setIsSuperuser(Boolean(user.is_superuser));
     setSelectedRoles(user.roles || []);
     setSelectedFactions(user.factions || []);
     setValidationError("");
@@ -139,6 +142,7 @@ export function UsersPage() {
       is_active: isActive,
       is_verified: isVerified,
       is_staff: isStaff,
+      is_superuser: isSuperuser,
       roles: selectedRoles,
       factions: selectedFactions,
     };
@@ -175,8 +179,15 @@ export function UsersPage() {
       key: "username",
       label: "اسم المستخدم / الحساب",
       render: (row) => (
-        <div className="flex flex-col">
-          <span className="font-semibold">{row.username}</span>
+        <div className="flex flex-col gap-1 items-start">
+          <div className="flex items-center gap-2">
+            <span className="font-semibold">{row.username}</span>
+            {row.is_superuser && (
+              <span className="bg-amber-100 text-amber-900 dark:bg-amber-900/40 dark:text-amber-300 text-caption font-bold px-2 py-0.5 rounded-full border border-amber-300/40">
+                مدير خارق (Superuser)
+              </span>
+            )}
+          </div>
           <span className="text-caption text-muted-foreground">{row.email || "لا يوجد بريد إلكتروني"}</span>
         </div>
       ),
@@ -195,6 +206,11 @@ export function UsersPage() {
       label: "الأدوار",
       render: (row) => (
         <div className="flex flex-wrap gap-1">
+          {row.is_superuser && (
+            <span className="bg-primary/20 text-primary font-bold text-caption px-2 py-0.5 rounded-full">
+              كافة الصلاحيات (Admin)
+            </span>
+          )}
           {row.roles?.map((roleId) => {
             const roleObj = roles.find((r) => r.id === roleId);
             return (
@@ -375,7 +391,7 @@ export function UsersPage() {
               </div>
             </div>
 
-            <div className="grid grid-cols-3 gap-4 border-t border-slate-100 dark:border-white/10 pt-4">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 border-t border-slate-100 dark:border-white/10 pt-4">
               <div className="flex flex-col gap-1.5 p-3 rounded-2xl bg-slate-50 dark:bg-white/5 border border-slate-200/60 dark:border-white/5">
                 <Label htmlFor="isActive" className="text-caption font-bold text-slate-800 dark:text-slate-200">الحساب نشط ومفعل</Label>
                 <Switch id="isActive" checked={isActive} onCheckedChange={setIsActive} className="mt-1" />
@@ -387,6 +403,10 @@ export function UsersPage() {
               <div className="flex flex-col gap-1.5 p-3 rounded-2xl bg-slate-50 dark:bg-white/5 border border-slate-200/60 dark:border-white/5">
                 <Label htmlFor="isStaff" className="text-caption font-bold text-slate-800 dark:text-slate-200">حق دخول الإدارة</Label>
                 <Switch id="isStaff" checked={isStaff} onCheckedChange={setIsStaff} className="mt-1" />
+              </div>
+              <div className="flex flex-col gap-1.5 p-3 rounded-2xl bg-amber-500/10 border border-amber-500/30">
+                <Label htmlFor="isSuperuser" className="text-caption font-bold text-amber-900 dark:text-amber-300">مدير خارق (Superuser)</Label>
+                <Switch id="isSuperuser" checked={isSuperuser} onCheckedChange={setIsSuperuser} className="mt-1" />
               </div>
             </div>
 

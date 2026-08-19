@@ -126,6 +126,12 @@ class Vehicle(BaseModel):
         help_text="الرامي أو المسؤول عن السلاح المثبت",
     )
 
+    destination = models.CharField(
+        max_length=255, blank=True, default="", help_text="وجهة التحرك / خط السير الحالي"
+    )
+    purpose = models.CharField(
+        max_length=255, blank=True, default="", help_text="الغرض من التحرك / المهمة الحالية"
+    )
     notes = models.TextField(blank=True, help_text="ملاحظات إضافية")
 
     created_by = models.ForeignKey(
@@ -190,6 +196,12 @@ class VehicleCustodyRecord(BaseModel):
     )
     action_date = models.DateField(auto_now_add=True, help_text="تاريخ الإجراء")
     odometer = models.PositiveIntegerField(null=True, blank=True, help_text="قراءة العداد (كم)")
+    destination = models.CharField(
+        max_length=255, blank=True, default="", help_text="وجهة التحرك / خط السير"
+    )
+    purpose = models.CharField(
+        max_length=255, blank=True, default="", help_text="الغرض من التحرك / المهمة"
+    )
     notes = models.TextField(blank=True, help_text="ملاحظات وحالة الآلية")
     issued_by = models.ForeignKey(
         "core.User", null=True, blank=True, on_delete=models.SET_NULL, related_name="+"

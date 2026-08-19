@@ -176,6 +176,18 @@ export function AssetDetailHistoryDialog({ open, onOpenChange, item, type = "wea
                       {item.driver_name ? `${item.driver_name} (${item.driver_force_number || "—"})` : "المستودع الرئيسي (غير مخصص)"}
                     </span>
                   </div>
+                  {item.driver_name && (
+                    <>
+                      <div className="p-2.5 rounded-xl bg-blue-50 dark:bg-blue-950/20 border border-blue-200/60 dark:border-blue-900/30">
+                        <span className="text-blue-800 dark:text-blue-300 block">وجهة التحرك</span>
+                        <span className="font-bold text-blue-950 dark:text-blue-100">{item.destination || "وفق خط السير المعتمد"}</span>
+                      </div>
+                      <div className="p-2.5 rounded-xl bg-blue-50 dark:bg-blue-950/20 border border-blue-200/60 dark:border-blue-900/30">
+                        <span className="text-blue-800 dark:text-blue-300 block">الغرض من التحرك</span>
+                        <span className="font-bold text-blue-950 dark:text-blue-100">{item.purpose || "مهمة إدارية / عملياتية رسمية"}</span>
+                      </div>
+                    </>
+                  )}
                   {item.has_weapon && (
                     <>
                       <div className="p-2.5 rounded-xl bg-amber-50 dark:bg-amber-950/20 border border-amber-200/60 dark:border-amber-900/30">

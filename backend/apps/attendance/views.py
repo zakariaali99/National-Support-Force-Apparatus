@@ -52,13 +52,13 @@ class DailyAttendanceViewSet(ModelViewSet):
     permission_map = {
         "list": "attendance.view",
         "retrieve": "attendance.view",
-        "create": "attendance.manage",
-        "update": "attendance.manage",
-        "partial_update": "attendance.manage",
-        "destroy": "attendance.manage",
+        "create": ["attendance.record", "attendance.manage"],
+        "update": ["attendance.record", "attendance.manage"],
+        "partial_update": ["attendance.record", "attendance.manage"],
+        "destroy": ["attendance.record", "attendance.manage"],
         "daily_sheet": "attendance.view",
         "monthly_matrix": "attendance.view",
-        "record_bulk": "attendance.manage",
+        "record_bulk": ["attendance.record", "attendance.manage"],
     }
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     filterset_fields = ["date", "member", "status"]

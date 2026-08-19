@@ -97,6 +97,8 @@ class VehicleViewSet(ModelViewSet):
         "update": ["transportation.manage"],
         "partial_update": ["transportation.manage"],
         "destroy": ["transportation.manage"],
+        "return_vehicle": ["transportation.manage"],
+        "assign_driver": ["transportation.manage"],
     }
     queryset = (
         Vehicle.objects.select_related(
@@ -228,10 +230,12 @@ class VehicleViewSet(ModelViewSet):
             issued_by=request.user,
         )
 
-        # Clear assigned driver upon return to pool
+        # Clear assigned driver, destination, and purpose upon return to pool
         vehicle.assigned_driver = None
+        vehicle.destination = ""
+        vehicle.purpose = ""
         vehicle.status = vehicle_status
-        vehicle.save(update_fields=["assigned_driver", "status"])
+        vehicle.save(update_fields=["assigned_driver", "destination", "purpose", "status"])
 
         log_activity(
             actor=request.user,
@@ -254,9 +258,11 @@ class VehicleViewSet(ModelViewSet):
 
     @action(detail=True, methods=["post"], url_path="assign-driver")
     def assign_driver(self, request, pk=None):
-        """Assign vehicle to a driver / custodian."""
+        """Assign vehicle to a driver / custodian with trip destination and purpose."""
         vehicle = self.get_object()
         driver_id = request.data.get("driver_id")
+        destination = request.data.get("destination", "").strip()
+        purpose = request.data.get("purpose", "").strip()
         notes = request.data.get("notes", "")
         odometer = request.data.get("odometer")
 
@@ -274,8 +280,10 @@ class VehicleViewSet(ModelViewSet):
             )
 
         vehicle.assigned_driver = driver
+        vehicle.destination = destination
+        vehicle.purpose = purpose
         vehicle.status = "ready"
-        vehicle.save(update_fields=["assigned_driver", "status"])
+        vehicle.save(update_fields=["assigned_driver", "destination", "purpose", "status"])
 
         VehicleCustodyRecord.objects.create(
             vehicle=vehicle,
@@ -284,6 +292,8 @@ class VehicleViewSet(ModelViewSet):
             faction=vehicle.faction or getattr(driver, "faction", None),
             action="assigned",
             odometer=int(odometer) if odometer else None,
+            destination=destination,
+            purpose=purpose,
             notes=notes or "تسليم عهدة الآلية للسائق",
             issued_by=request.user,
         )
@@ -300,6 +310,8 @@ class VehicleViewSet(ModelViewSet):
                 "plate_number": vehicle.plate_number,
                 "driver": driver.full_name,
                 "driver_force_number": driver.force_number,
+                "destination": destination,
+                "purpose": purpose,
             },
             request=request,
         )

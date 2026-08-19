@@ -543,7 +543,7 @@ export function printAssetCardInNewWindow({ item = {}, domain = "inventory", typ
 /**
  * Formats Custody Handover Voucher into official printable document.
  */
-export function printCustodyVoucherInNewWindow({ custody, custodyRecord, item = {}, member = {}, action = "صرف عهدة", voucherNumber }) {
+export function printCustodyVoucherInNewWindow({ custody, custodyRecord, item = {}, member = {}, action = "صرف عهدة", notes, voucherNumber }) {
   const rec = custodyRecord || custody || {};
   const isArmory = Boolean(item.serial_number || item.caliber || rec.serial_number);
   const docTitle = `محضر ${action} رسمي معتمد`;
@@ -563,6 +563,8 @@ export function printCustodyVoucherInNewWindow({ custody, custodyRecord, item = 
     ? (item.serial_number || rec.serial_number || item.caliber || "—")
     : (item.item_code || rec.item_code || "—");
 
+  const effectiveNotes = notes || rec.notes || custody?.notes || item?.notes || "";
+
   const contentHtml = `
     <div class="section-title">بيانات المستلم / صاحب العهدة</div>
     <div class="form-grid">
@@ -581,6 +583,13 @@ export function printCustodyVoucherInNewWindow({ custody, custodyRecord, item = 
       <div class="form-row"><span class="form-label">${isArmory ? "الرقم التسلسلي (Serial):" : "كود القطعة:"}</span><span class="form-value font-mono">${itemCodeOrSerial}</span></div>
       <div class="form-row"><span class="form-label">الحالة عند التسليم:</span><span class="form-value" style="color: #16a34a;">ممتازة وجاهزة للاستخدام</span></div>
     </div>
+
+    ${effectiveNotes ? `
+    <div class="section-title">ملاحظات وبيان التكليف والصرف</div>
+    <div style="background: #f8fafc; border: 1.5px solid #cbd5e1; padding: 12px 16px; border-radius: 8px; font-size: 11.5px; line-height: 1.6; color: #1e293b; margin-bottom: 16px;">
+      <strong style="color: #0a2540;">ملاحظات الصرف والتكليف: </strong>${effectiveNotes}
+    </div>
+    ` : ""}
 
     <div class="section-title">إقرار وتعهد الاستلام</div>
     <div style="background: #f8fafc; border: 1.5px solid #cbd5e1; padding: 14px 18px; border-radius: 8px; font-size: 11.5px; line-height: 1.7; color: #1e293b; margin-bottom: 20px;">
@@ -602,12 +611,13 @@ export function printCustodyVoucherInNewWindow({ custody, custodyRecord, item = 
 /**
  * Formats Vehicle Trip Ticket into official printable document.
  */
-export function printTripTicketInNewWindow({ vehicle = {}, trip = {}, tripNumber }) {
+export function printTripTicketInNewWindow({ vehicle = {}, trip = {}, tripNumber, notes }) {
   const docTitle = "أمر تحرك ومهمة مركبة آلية رسمي";
   const department = "إدارة النقليات والآليات";
   const docType = "أمر تحرك رسمي";
   const vName = vehicle.name || "الآلية والمركبة";
   const tNum = tripNumber || trip.id || `TRIP-${Date.now().toString().slice(-5)}`;
+  const effectiveNotes = notes || trip.notes || vehicle.notes || "";
 
   const contentHtml = `
     <div class="section-title">بيانات الآلية والمركبة</div>
@@ -623,10 +633,41 @@ export function printTripTicketInNewWindow({ vehicle = {}, trip = {}, tripNumber
     <div class="section-title">بيانات السائق المكلف والمهمة</div>
     <div class="form-grid">
       <div class="form-row"><span class="form-label">السائق المكلف:</span><span class="form-value">${vehicle.driver_name || trip.driver_name || vehicle.assigned_driver_name || "—"}</span></div>
-      <div class="form-row"><span class="form-label">وجهة التحرك:</span><span class="form-value">${trip.destination || "وفق خط السير المعتمد"}</span></div>
+      <div class="form-row"><span class="form-label">وجهة التحرك:</span><span class="form-value">${trip.destination || vehicle.destination || "وفق خط السير المعتمد"}</span></div>
       <div class="form-row"><span class="form-label">تاريخ ووقت التحرك:</span><span class="form-value">${trip.departure_time || new Date().toLocaleString("ar-LY")}</span></div>
-      <div class="form-row"><span class="form-label">الغرض من التحرك:</span><span class="form-value">${trip.purpose || "مهمة إدارية / عملياتية رسمية"}</span></div>
+      <div class="form-row"><span class="form-label">الغرض من التحرك:</span><span class="form-value">${trip.purpose || vehicle.purpose || "مهمة إدارية / عملياتية رسمية"}</span></div>
     </div>
+
+    <div class="section-title">بيانات خط السير وقراءات العداد والعودة</div>
+    <table class="gov-table">
+      <thead>
+        <tr>
+          <th>نقطة الانطلاق</th>
+          <th>الوجهة / خط السير</th>
+          <th style="text-align: center;">عداد البداية (كم)</th>
+          <th style="text-align: center;">عداد العودة (كم)</th>
+          <th style="text-align: center;">ساعة الخروج</th>
+          <th style="text-align: center;">ساعة الرجوع</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>مقر الجهاز الرئيسي</td>
+          <td style="font-weight: 700; color: #1e40af;">${trip.destination || vehicle.destination || "وفق خط السير المعتمد"}</td>
+          <td style="text-align: center; font-family: monospace; font-weight: 700;">${trip.start_odometer || vehicle.odometer_reading || "0"} كم</td>
+          <td style="text-align: center; font-family: monospace; font-weight: 700; color: #047857;">${trip.return_odometer ? `${trip.return_odometer} كم` : "..................... كم"}</td>
+          <td style="text-align: center; font-family: monospace;">${trip.departure_time || "........ : ........"}</td>
+          <td style="text-align: center; font-family: monospace; font-weight: 700; color: #047857;">${trip.return_time || "........ : ........"}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    ${effectiveNotes ? `
+    <div class="section-title">ملاحظات ومأمورية التحرك والتكليف</div>
+    <div style="background: #f8fafc; border: 1.5px solid #cbd5e1; padding: 12px 16px; border-radius: 8px; font-size: 11.5px; line-height: 1.6; color: #1e293b; margin-bottom: 16px;">
+      <strong style="color: #0a2540;">ملاحظات التكليف والمأمورية: </strong>${effectiveNotes}
+    </div>
+    ` : ""}
 
     <div class="section-title">تعليمات السير والانضباط</div>
     <div style="background: #f8fafc; border: 1px solid #e2e8f0; padding: 12px 16px; border-radius: 8px; font-size: 11.5px; color: #475569; margin-bottom: 16px;">

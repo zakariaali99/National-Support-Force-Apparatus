@@ -58,9 +58,15 @@ class HasPermission(BasePermission):
         if not request.user or not request.user.is_authenticated:
             return False
 
+        # Superusers always pass all permission checks unconditionally
+        if request.user.is_superuser:
+            return True
+
         permission_map = getattr(view, "permission_map", None)
         if permission_map is not None:
             action = getattr(view, "action", None)
+            if not action and hasattr(request, "method"):
+                action = request.method.lower()
             if action not in permission_map:
                 return False
             codename = permission_map[action]

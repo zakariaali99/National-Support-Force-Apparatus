@@ -571,6 +571,7 @@ class CustodyVoucherPdfView(APIView):
             "item_code": request.query_params.get("item_code", "—"),
             "item_serial": request.query_params.get("item_serial", "—"),
             "quantity": request.query_params.get("quantity", "1"),
+            "notes": request.query_params.get("notes", "").strip(),
         }
 
         html = render_to_string("print/custody_voucher.html", context)
@@ -619,9 +620,13 @@ class VehicleTripTicketPdfView(APIView):
             "driver_name": (vehicle.assigned_driver.full_name if vehicle and vehicle.assigned_driver else request.query_params.get("driver_name", "غير محدد")),
             "weapon_name": (vehicle.mounted_weapon_name if vehicle and vehicle.has_weapon else request.query_params.get("weapon_name", "غير مسلحة")),
             "weapon_serial": (vehicle.mounted_weapon_serial if vehicle and vehicle.has_weapon else request.query_params.get("weapon_serial", "—")),
-            "gunner_name": (vehicle.weapon_assigned_member.full_name if vehicle and vehicle.weapon_assigned_member else request.query_params.get("gunner_name", "—")),
             "start_odometer": getattr(vehicle, "odometer_reading", None) or request.query_params.get("start_odometer", "0"),
-            "destination": request.query_params.get("destination", ".................................."),
+            "return_odometer": request.query_params.get("return_odometer", ""),
+            "departure_time": request.query_params.get("departure_time", ""),
+            "return_time": request.query_params.get("return_time", ""),
+            "destination": request.query_params.get("destination") or getattr(vehicle, "destination", "") or "وفق خط السير المعتمد",
+            "purpose": request.query_params.get("purpose") or getattr(vehicle, "purpose", "") or "مهمة إدارية / عملياتية رسمية",
+            "notes": request.query_params.get("notes") or getattr(vehicle, "notes", "") or "",
         }
 
         html = render_to_string("print/trip_ticket.html", context)

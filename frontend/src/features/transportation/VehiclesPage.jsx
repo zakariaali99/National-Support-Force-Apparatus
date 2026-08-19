@@ -194,6 +194,8 @@ export default function VehiclesPage() {
       driver_name: "",
       driver_force_number: "",
       driver_phone: "",
+      destination: vehicle.destination || "",
+      purpose: vehicle.purpose || "",
       notes: "",
     });
     setAssignOpen(true);
@@ -696,6 +698,27 @@ export default function VehiclesPage() {
                     </option>
                   ))}
                 </select>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <Label className="text-caption font-bold">وجهة التحرك / خط السير المعتمد</Label>
+                  <Input
+                    placeholder="مثال: طرابلس - معسكر اليرموك / دوريات النطاق الأمني"
+                    value={assignData.destination}
+                    onChange={(e) => setAssignData({ ...assignData, destination: e.target.value })}
+                    className="h-10 rounded-xl text-body-sm"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-caption font-bold">الغرض من التحرك / المهمة</Label>
+                  <Input
+                    placeholder="مثال: مأمورية استطلاع ونقل أفراد / دعم وإسناد لوجستي"
+                    value={assignData.purpose}
+                    onChange={(e) => setAssignData({ ...assignData, purpose: e.target.value })}
+                    className="h-10 rounded-xl text-body-sm"
+                  />
+                </div>
               </div>
 
               <div className="space-y-1.5">

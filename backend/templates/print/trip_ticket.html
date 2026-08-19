@@ -91,6 +91,14 @@
         <span class="value">{{ driver_name|default:"غير محدد" }}</span>
       </div>
       <div>
+        <span class="label">وجهة التحرك:</span>
+        <span class="value">{{ destination|default:"وفق خط السير المعتمد" }}</span>
+      </div>
+      <div>
+        <span class="label">الغرض من التحرك:</span>
+        <span class="value">{{ purpose|default:"مهمة إدارية / عملياتية رسمية" }}</span>
+      </div>
+      <div>
         <span class="label">السلاح المثبت:</span>
         <span class="value">{{ weapon_name|default:"غير مسلحة" }}</span>
       </div>
@@ -125,12 +133,21 @@
         <td style="padding:10pt 8pt;">مقر الجهاز الرئيسي</td>
         <td style="padding:10pt 8pt;">{{ destination|default:".................................." }}</td>
         <td style="text-align:center; font-family:monospace; font-weight:700;">{{ start_odometer|default:"0" }} كم</td>
-        <td style="text-align:center; font-family:monospace;">..................... كم</td>
-        <td style="text-align:center; font-family:monospace;">........ : ........</td>
-        <td style="text-align:center; font-family:monospace;">........ : ........</td>
+        <td style="text-align:center; font-family:monospace; font-weight:700; color:#047857;">{% if return_odometer %}{{ return_odometer }} كم{% else %}..................... كم{% endif %}</td>
+        <td style="text-align:center; font-family:monospace;">{{ departure_time|default:"........ : ........" }}</td>
+        <td style="text-align:center; font-family:monospace; font-weight:700; color:#047857;">{{ return_time|default:"........ : ........" }}</td>
       </tr>
     </tbody>
   </table>
+
+  {% if notes %}
+  <div class="voucher-card" style="margin-top: 12pt; margin-bottom: 12pt;">
+    <h3 style="color:#0a2540; font-size:10.5pt; border-bottom:1pt solid #e2e8f0; padding-bottom:3pt; margin-bottom:6pt;">
+      ملاحظات ومأمورية التحرك والتكليف:
+    </h3>
+    <p style="margin:0; font-size:9.5pt; color:#334155; line-height:1.5;">{{ notes }}</p>
+  </div>
+  {% endif %}
 
   <!-- Signatures -->
   <div class="signatures">
