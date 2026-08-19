@@ -1,0 +1,1 @@
+import"./api-DVjQ8yrN.js";import{t as e}from"./createResourceHooks-B5mBVdWk.js";var t=e(`inventory-items`,`equipment/items/`),n=e(`equipment-categories`,`equipment/categories/`),r=t.useList;t.useCreate,t.useUpdate,t.useDelete;var i=n.useList,a=n.useCreate,o=n.useUpdate,s=n.useDelete;export{o as a,r as i,a as n,s as r,i as t};

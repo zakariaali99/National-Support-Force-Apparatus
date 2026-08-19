@@ -85,3 +85,34 @@ class EquipmentStockAndCustodyTests(TestCase):
 
         # Total custody records created = 3 (assigned, returned, damaged)
         self.assertEqual(CustodyRecord.objects.filter(item=item).count(), 3)
+
+    def test_domain_filtering_armory_vs_inventory(self):
+        # 1. Create armory category & weapon
+        armory_cat = InventoryCategory.objects.create(
+            code="rifles_test", name_ar="بنادق آلية", category_type="rifle", domain="armory"
+        )
+        weapon = InventoryItem.objects.create(
+            category=armory_cat,
+            domain="armory",
+            name="بندقية كلاشينكوف AK-47",
+            serial_number="AK-TEST-001",
+            caliber="7.62x39",
+            total_quantity=10,
+            available_quantity=10,
+        )
+
+        # 2. Query items with domain=armory vs domain=inventory
+        res_armory = self.client.get("/api/inventory/items/?domain=armory")
+        self.assertEqual(res_armory.status_code, 200)
+        armory_items = res_armory.data["results"] if "results" in res_armory.data else res_armory.data
+        self.assertEqual(len(armory_items), 1)
+        self.assertEqual(armory_items[0]["name"], "بندقية كلاشينكوف AK-47")
+        self.assertEqual(armory_items[0]["domain_display"], "قسم التسليح والأسلحة")
+
+        # 3. Query categories with domain=armory
+        res_cats = self.client.get("/api/inventory/categories/?domain=armory")
+        self.assertEqual(res_cats.status_code, 200)
+        armory_cats = res_cats.data["results"] if "results" in res_cats.data else res_cats.data
+        armory_cat_names = [c["name_ar"] for c in armory_cats]
+        self.assertIn("بنادق آلية", armory_cat_names)
+

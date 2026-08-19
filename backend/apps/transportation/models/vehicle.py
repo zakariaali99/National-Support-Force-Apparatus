@@ -43,13 +43,28 @@ class Vehicle(BaseModel):
     )
 
     # Vehicle affiliation
+    affiliation_type = models.CharField(
+        max_length=20,
+        choices=[("internal", "تابعة للجهاز (فصيل داخلي)"), ("external", "تابعة لوحدة / جهة خارجية")],
+        default="internal",
+        db_index=True,
+        help_text="نوع التبعية (داخلية للجهاز أو خارجية)",
+    )
     faction = models.ForeignKey(
         "organization.Faction",
         null=True,
         blank=True,
         on_delete=models.SET_NULL,
         related_name="vehicles",
-        help_text="تبعية المركبة الفصائلية",
+        help_text="تبعية المركبة الفصائلية (في حال التبعية الداخلية)",
+    )
+    external_unit = models.ForeignKey(
+        "transportation.ExternalUnit",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="vehicles",
+        help_text="الوحدة أو الجهة الخارجية التابعة لها المركبة بالكامل",
     )
     assigned_driver = models.ForeignKey(
         "members.Member",
@@ -80,6 +95,12 @@ class Vehicle(BaseModel):
     )
 
     # Weapon affiliation (separate from vehicle affiliation)
+    weapon_affiliation_type = models.CharField(
+        max_length=20,
+        choices=[("internal", "تابعة للجهاز (فصيل داخلي)"), ("external", "تابعة لوحدة / جهة خارجية")],
+        default="internal",
+        help_text="نوع تبعية السلاح المثبت",
+    )
     weapon_faction = models.ForeignKey(
         "organization.Faction",
         null=True,
@@ -87,6 +108,14 @@ class Vehicle(BaseModel):
         on_delete=models.SET_NULL,
         related_name="mounted_weapon_vehicles",
         help_text="تبعية السلاح الفصائلية",
+    )
+    weapon_external_unit = models.ForeignKey(
+        "transportation.ExternalUnit",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="mounted_weapons",
+        help_text="الوحدة الخارجية التابع لها السلاح المثبت",
     )
     weapon_assigned_member = models.ForeignKey(
         "members.Member",

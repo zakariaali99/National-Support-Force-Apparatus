@@ -109,11 +109,13 @@ export function VehicleTripVoucherDialog({ vehicle, open, onOpenChange }) {
               </div>
               <div>
                 <span className="text-slate-500 block">رقم الهيكل (VIN):</span>
-                <span className="font-bold text-slate-900 font-mono">{vehicle.chassis_number || "—"}</span>
+                <span className="font-bold text-slate-900 font-mono">{vehicle.vin_number || vehicle.chassis_number || "—"}</span>
               </div>
               <div>
-                <span className="text-slate-500 block">الفصيل التابعة له:</span>
-                <span className="font-bold text-slate-900">{vehicle.faction_name || "الإدارة العامة"}</span>
+                <span className="text-slate-500 block">جهة التبعية:</span>
+                <span className="font-bold text-slate-900">
+                  {vehicle.external_unit_name ? `جهة خارجية: ${vehicle.external_unit_name}` : vehicle.faction_name ? `الجهاز: ${vehicle.faction_name}` : "الإدارة العامة"}
+                </span>
               </div>
             </div>
           </div>
@@ -127,19 +129,19 @@ export function VehicleTripVoucherDialog({ vehicle, open, onOpenChange }) {
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-caption">
               <div>
                 <span className="text-slate-500 block">السائق المكلف:</span>
-                <span className="font-bold text-slate-900 text-body-sm">{vehicle.assigned_driver_name || "غير محدد"}</span>
+                <span className="font-bold text-slate-900 text-body-sm">{vehicle.driver_name || vehicle.assigned_driver_name || "غير محدد"}</span>
               </div>
               <div>
                 <span className="text-slate-500 block">السلاح المثبت:</span>
-                <span className="font-bold text-slate-900">{vehicle.has_weapon ? (vehicle.weapon_name || "مثبت") : "غير مسلحة"}</span>
+                <span className="font-bold text-slate-900">{vehicle.has_weapon ? (vehicle.mounted_weapon_name || vehicle.weapon_name || "مثبت") : "غير مسلحة"}</span>
               </div>
               <div>
                 <span className="text-slate-500 block">رقم السلاح:</span>
-                <span className="font-bold text-slate-900 font-mono">{vehicle.weapon_serial_number || "—"}</span>
+                <span className="font-bold text-slate-900 font-mono">{vehicle.mounted_weapon_serial || vehicle.weapon_serial_number || "—"}</span>
               </div>
               <div>
                 <span className="text-slate-500 block">الرامي المكلف:</span>
-                <span className="font-bold text-slate-900">{vehicle.assigned_gunner_name || "—"}</span>
+                <span className="font-bold text-slate-900">{vehicle.weapon_operator_name || vehicle.assigned_gunner_name || "—"}</span>
               </div>
             </div>
           </div>

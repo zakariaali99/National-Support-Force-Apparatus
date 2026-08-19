@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from "react";
-import { useVehicles, useDeleteVehicle } from "./api";
+import { useVehicles, useDeleteVehicle, useExternalUnits } from "./api";
 import { VehicleFormDialog } from "./VehicleFormDialog";
 import { Button } from "../../components/ui/Button";
 import { Badge } from "../../components/ui/Badge";
@@ -22,6 +22,8 @@ import {
   Trash2,
   FileCheck2,
   QrCode,
+  Building2,
+  Globe,
 } from "lucide-react";
 import { VehicleTripVoucherDialog } from "./VehicleTripVoucherDialog";
 import { AssetQRCode } from "../../components/qr/AssetQRCode";
@@ -48,7 +50,9 @@ export default function VehiclesPage() {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [typeFilter, setTypeFilter] = useState("all");
+  const [affiliationFilter, setAffiliationFilter] = useState("all");
   const [factionFilter, setFactionFilter] = useState("all");
+  const [externalUnitFilter, setExternalUnitFilter] = useState("all");
   const [weaponFilter, setWeaponFilter] = useState("all");
 
   const [formOpen, setFormOpen] = useState(false);
@@ -59,6 +63,7 @@ export default function VehiclesPage() {
   const [selectedVehicle, setSelectedVehicle] = useState(null);
 
   const { data: factions = [] } = useFactions();
+  const { data: externalUnits = [] } = useExternalUnits({ is_active: true });
   const deleteVehicle = useDeleteVehicle();
 
   const queryParams = useMemo(() => {
@@ -66,10 +71,12 @@ export default function VehiclesPage() {
     if (search) params.search = search;
     if (statusFilter !== "all") params.status = statusFilter;
     if (typeFilter !== "all") params.vehicle_type = typeFilter;
+    if (affiliationFilter !== "all") params.affiliation_type = affiliationFilter;
     if (factionFilter !== "all") params.faction = factionFilter;
+    if (externalUnitFilter !== "all") params.external_unit = externalUnitFilter;
     if (weaponFilter !== "all") params.has_weapon = weaponFilter;
     return params;
-  }, [search, statusFilter, typeFilter, factionFilter, weaponFilter]);
+  }, [search, statusFilter, typeFilter, affiliationFilter, factionFilter, externalUnitFilter, weaponFilter]);
 
   const { data: vehiclesData, isLoading } = useVehicles(queryParams);
   const vehicles = useMemo(() => {
@@ -81,9 +88,9 @@ export default function VehiclesPage() {
   const stats = useMemo(() => {
     const total = vehicles.length;
     const ready = vehicles.filter((v) => v.status === "ready").length;
-    const maintenance = vehicles.filter((v) => v.status === "maintenance").length;
+    const external = vehicles.filter((v) => v.affiliation_type === "external" || Boolean(v.external_unit_name)).length;
     const withWeapon = vehicles.filter((v) => v.has_weapon).length;
-    return { total, ready, maintenance, withWeapon };
+    return { total, ready, external, withWeapon };
   }, [vehicles]);
 
   const handleEdit = (vehicle) => {
@@ -144,16 +151,29 @@ export default function VehiclesPage() {
     {
       header: "تبعية المركبة والسائق",
       accessor: "faction_name",
-      cell: (v) => (
-        <div className="space-y-0.5">
-          <div className="text-body-sm text-slate-900 dark:text-slate-100 font-semibold">
-            {v.faction_name || "—"}
+      cell: (v) => {
+        const isExternal = v.affiliation_type === "external" || Boolean(v.external_unit_name);
+        return (
+          <div className="space-y-1">
+            <div>
+              {isExternal ? (
+                <Badge variant="primary" className="gap-1 font-bold text-micro bg-purple-50 text-purple-700 dark:bg-purple-950/40 dark:text-purple-300 border-purple-200 dark:border-purple-800/40">
+                  <Globe className="w-3 h-3" />
+                  <span>جهة خارجية: {v.external_unit_name || "وحدة خارجية"}</span>
+                </Badge>
+              ) : (
+                <Badge variant="success" className="gap-1 font-bold text-micro">
+                  <Building2 className="w-3 h-3" />
+                  <span>الجهاز: {v.faction_name || "عام"}</span>
+                </Badge>
+              )}
+            </div>
+            <div className="text-caption text-slate-500 font-medium">
+              {v.driver_name ? `السائق: ${v.driver_name}` : "بدون سائق محدد"}
+            </div>
           </div>
-          <div className="text-caption text-slate-500">
-            {v.driver_name ? `السائق: ${v.driver_name}` : "بدون سائق محدد"}
-          </div>
-        </div>
-      ),
+        );
+      },
     },
     {
       header: "السلاح المثبت (قسم التسليح)",
@@ -171,7 +191,11 @@ export default function VehiclesPage() {
               </Badge>
             </div>
             <div className="text-caption text-slate-500 font-mono">
-              {v.weapon_operator_name ? `الرامي: ${v.weapon_operator_name}` : v.weapon_faction_name || "مخصص للعمليات"}
+              {v.weapon_operator_name
+                ? `الرامي: ${v.weapon_operator_name}`
+                : v.weapon_external_unit_name
+                ? `تبعية: ${v.weapon_external_unit_name}`
+                : v.weapon_faction_name || "مخصص للعمليات"}
             </div>
           </div>
         );
@@ -219,18 +243,19 @@ export default function VehiclesPage() {
           <Button
             variant="ghost"
             size="sm"
-            className="h-7.5 w-7.5 p-0 rounded-lg text-slate-600 dark:text-slate-300"
+            className="h-7.5 px-2 text-slate-600 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950/30"
             onClick={() => handleEdit(v)}
-            title="تعديل"
+            title="تعديل بيانات المركبة"
           >
             <Pencil className="w-3.5 h-3.5" />
           </Button>
+
           <Button
             variant="ghost"
             size="sm"
+            className="h-7.5 px-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/30"
             onClick={() => setDeletingVehicle(v)}
-            className="h-7.5 w-7.5 p-0 rounded-lg text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/50"
-            title="حذف"
+            title="حذف المركبة"
           >
             <Trash2 className="w-3.5 h-3.5" />
           </Button>
@@ -240,20 +265,25 @@ export default function VehiclesPage() {
   ];
 
   return (
-    <div className="space-y-6" dir="rtl">
+    <div className="space-y-6">
+      {/* Page Header */}
       <PageHeader
-        title="قسم النقلية والمركبات"
-        description="سجل إدارة وتتبع الآليات والمركبات العسكرية والإدارية وتجهيزات التسليح الميداني."
+        title="قسم النقلية والآليات"
+        subtitle="إدارة وتوثيق أسطول المركبات، تبعية الوحدات الداخلية والخارجية، السائقين، والتسليح الميداني"
       >
-        <div className="flex items-center gap-2">
-          <Button variant="primary" onClick={handleAdd} className="gap-1.5">
+        <div className="flex items-center gap-2.5">
+          <Button
+            variant="primary"
+            onClick={handleAdd}
+            className="flex items-center gap-2 text-body-sm font-semibold shadow-xs"
+          >
             <Plus className="w-4 h-4" />
             <span>إضافة مركبة جديدة</span>
           </Button>
         </div>
       </PageHeader>
 
-      {/* KPI Cards (Niqabaty Signature Style) */}
+      {/* KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
         <StatCard
           title="إجمالي أسطول المركبات"
@@ -271,12 +301,12 @@ export default function VehiclesPage() {
           tone="success"
         />
         <StatCard
-          title="تحت الصيانة والإصلاح"
-          value={stats.maintenance}
-          subtitle="بانتظار قطع الغيار والفحص"
-          icon={Wrench}
+          title="تبعية لجهات خارجية"
+          value={stats.external}
+          subtitle="آليات بتبعية وإعارة خارجية"
+          icon={Globe}
           variant="default"
-          tone="warning"
+          tone="primary"
         />
         <StatCard
           title="مركبات مسلحة"
@@ -293,6 +323,37 @@ export default function VehiclesPage() {
         onSearch={setSearch}
         searchPlaceholder="بحث باسم المركبة، رقم الهيكل، رقم اللوحة، أو السلاح..."
       >
+        <Select
+          label="نوع التبعية"
+          value={affiliationFilter}
+          onValueChange={setAffiliationFilter}
+          options={[
+            { value: "all", label: "كافة التبعيات" },
+            { value: "internal", label: "تابعة للجهاز" },
+            { value: "external", label: "تابعة لجهة خارجية" },
+          ]}
+        />
+        {affiliationFilter === "external" ? (
+          <Select
+            label="الجهة الخارجية"
+            value={externalUnitFilter}
+            onValueChange={setExternalUnitFilter}
+            options={[
+              { value: "all", label: "كافة الجهات الخارجية" },
+              ...externalUnits.map((u) => ({ value: String(u.id), label: u.name_ar })),
+            ]}
+          />
+        ) : (
+          <Select
+            label="الفصيل الداخلي"
+            value={factionFilter}
+            onValueChange={setFactionFilter}
+            options={[
+              { value: "all", label: "كافة الفصائل" },
+              ...factions.map((f) => ({ value: String(f.id), label: f.name_ar })),
+            ]}
+          />
+        )}
         <Select
           label="الحالة التشغيلية"
           value={statusFilter}
@@ -320,16 +381,7 @@ export default function VehiclesPage() {
           ]}
         />
         <Select
-          label="الفصيل التابعة له"
-          value={factionFilter}
-          onValueChange={setFactionFilter}
-          options={[
-            { value: "all", label: "كافة الفصائل" },
-            ...factions.map((f) => ({ value: String(f.id), label: f.name_ar })),
-          ]}
-        />
-        <Select
-          label="حالة التسليح الميداني"
+          label="حالة التسليح"
           value={weaponFilter}
           onValueChange={setWeaponFilter}
           options={[
@@ -368,45 +420,70 @@ export default function VehiclesPage() {
       >
         <AlertDialogContent dir="rtl">
           <AlertDialogHeader>
-            <div className="flex items-center gap-2.5">
-              <div className="p-2 rounded-xl bg-rose-50 text-rose-700 dark:bg-rose-950/50 dark:text-rose-300">
-                <AlertTriangle className="w-5 h-5" />
-              </div>
-              <div>
-                <AlertDialogTitle>تأكيد حذف المركبة</AlertDialogTitle>
-                <AlertDialogDescription>
-                  هل أنت متأكد من رغبتك في حذف المركبة ({deletingVehicle?.name}) ورقم الهيكل ({deletingVehicle?.vin_number})؟
-                </AlertDialogDescription>
-              </div>
+            <div className="flex items-center gap-2.5 text-rose-600">
+              <AlertTriangle className="w-5 h-5" />
+              <AlertDialogTitle>حذف المركبة من الأسطول</AlertDialogTitle>
             </div>
+            <AlertDialogDescription className="text-slate-600 dark:text-slate-400">
+              هل أنت متأكد من حذف المركبة{" "}
+              <strong className="text-slate-900 dark:text-slate-100 font-semibold">
+                "{deletingVehicle?.name}"
+              </strong>{" "}
+              (رقم الهيكل: {deletingVehicle?.vin_number})؟ لا يمكن التراجع عن هذا الإجراء.
+            </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <Button type="button" variant="outline" onClick={() => setDeletingVehicle(null)}>
+            <Button
+              variant="outline"
+              onClick={() => setDeletingVehicle(null)}
+            >
               إلغاء
             </Button>
-            <Button type="button" variant="destructive" onClick={confirmDelete}>
-              تأكيد الحذف
+            <Button
+              variant="danger"
+              onClick={confirmDelete}
+              disabled={deleteVehicle.isPending}
+            >
+              {deleteVehicle.isPending ? "جارٍ الحذف..." : "تأكيد الحذف"}
             </Button>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
 
-      {/* Official Vehicle Trip Order Voucher Dialog */}
-      <VehicleTripVoucherDialog
-        vehicle={selectedVehicle}
-        open={tripVoucherOpen}
-        onOpenChange={setTripVoucherOpen}
-      />
+      {/* Trip Voucher / Daily Assignment Modal */}
+      {selectedVehicle && (
+        <VehicleTripVoucherDialog
+          open={tripVoucherOpen}
+          onOpenChange={setTripVoucherOpen}
+          vehicle={selectedVehicle}
+        />
+      )}
 
-      {/* Printable Vehicle QR Tag Modal */}
-      <AssetQRCode
-        title={selectedVehicle?.name}
-        subtitle={`لوحة: ${selectedVehicle?.plate_number || "—"} • هيكل: ${selectedVehicle?.chassis_number || "—"}`}
-        code={selectedVehicle?.chassis_number || selectedVehicle?.plate_number || `VEH-${selectedVehicle?.id}`}
-        type="vehicle"
-        open={qrModalOpen}
-        onOpenChange={setQrModalOpen}
-      />
+      {/* Asset QR Code Modal */}
+      {selectedVehicle && (
+        <Dialog open={qrModalOpen} onOpenChange={setQrModalOpen}>
+          <DialogContent className="max-w-sm rounded-[28px] p-6 text-center">
+            <DialogHeader>
+              <DialogTitle className="text-title font-bold text-slate-900 dark:text-white">
+                رمز QR لمركبة: {selectedVehicle.name}
+              </DialogTitle>
+              <DialogDescription className="text-caption text-slate-500">
+                امسح الرمز عبر ماسح الكاميرا للحصول على أمر التحرك والبيانات الميدانية
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="flex flex-col items-center justify-center p-4">
+              <AssetQRCode
+                type="vehicle"
+                id={selectedVehicle.id}
+                code={selectedVehicle.vin_number || selectedVehicle.plate_number || `VEH-${selectedVehicle.id}`}
+                title={selectedVehicle.name}
+                subtitle={`الهيكل: ${selectedVehicle.vin_number} | اللوحة: ${selectedVehicle.plate_number || '—'}`}
+              />
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   );
 }

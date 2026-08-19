@@ -3,16 +3,19 @@ import {
   Archive,
   Building2,
   ChevronLeft,
+  Crosshair,
   Layers,
+  Package,
+  PackageCheck,
   ScrollText,
   Settings,
   Shield,
+  ShieldAlert,
   ShieldCheck,
   Sliders,
   UserCheck,
   Users,
   Car,
-  Package,
   CalendarCheck,
   FileCheck2,
 } from "lucide-react";
@@ -28,9 +31,57 @@ export function SettingsHubPage() {
 
   const categories = [
     {
+      id: "armory_settings",
+      title: "إعدادات قسم التسليح والأسلحة",
+      subtitle: "إدارة وتخصيص تصنيفات الأسلحة الخفيفة، المتوسطة، الثقيلة، والذخائر",
+      items: [
+        {
+          id: "armory-categories",
+          title: "تصنيفات وأنواع التسليح",
+          description: "تعريف وتعديل فئات وأنواع الأسلحة والذخائر والعيارات المعتمدة بالمنظومة.",
+          icon: Crosshair,
+          to: "/settings/armory-categories",
+          badge: "تسليح",
+          permission: "settings.manage",
+        },
+      ],
+    },
+    {
+      id: "inventory_settings",
+      title: "إعدادات المخازن والعتاد العام",
+      subtitle: "إدارة فئات المهمات والملابس والمكاتب والتجهيزات الإدارية والميدانية",
+      items: [
+        {
+          id: "inventory-categories",
+          title: "تصنيفات المخازن والعتاد العام",
+          description: "إدارة فئات الملابس، الأثاث، أجهزة الاتصال، المعدات الطبية، والقرطاسية.",
+          icon: PackageCheck,
+          to: "/settings/inventory-categories",
+          badge: "مستودع",
+          permission: "settings.manage",
+        },
+      ],
+    },
+    {
+      id: "transportation_settings",
+      title: "إعدادات قسم النقلية والآليات",
+      subtitle: "إدارة وتوثيق الجهات والوحدات الخارجية لتبعية المركبات والأسطول",
+      items: [
+        {
+          id: "external-units",
+          title: "الوحدات والجهات الخارجية",
+          description: "إدارة قائمة الأجهزة والكتائب والوحدات الخارجية التابعة لها المركبات أو المعارة إليها.",
+          icon: Building2,
+          to: "/settings/external-units",
+          badge: "جهات خارجية",
+          permission: "settings.manage",
+        },
+      ],
+    },
+    {
       id: "organization",
       title: "الهيكل التنظيمي والتشكيلات",
-      subtitle: "إدارة الإدارات، تصنيفات العتاد، الرتب، والتسلسل الإداري بالجهاز",
+      subtitle: "إدارة الإدارات، القطاعات، الرتب، والتسلسل الإداري بالجهاز",
       items: [
         {
           id: "factions",
@@ -49,15 +100,6 @@ export function SettingsHubPage() {
           to: "/organization/ranks",
           badge: "رتب",
           permission: "organization.manage",
-        },
-        {
-          id: "equipment-categories",
-          title: "تصنيفات العتاد والأسلحة",
-          description: "إدارة وتعديل فئات وتصنيفات الأسلحة والذخائر والعتاد بالمستودع.",
-          icon: Layers,
-          to: "/settings/equipment-categories",
-          badge: "مستودع",
-          permission: "settings.manage",
         },
       ],
     },
@@ -87,103 +129,65 @@ export function SettingsHubPage() {
       ],
     },
     {
-      id: "modules",
-      title: "المنظومات والأقسام التشغيلية",
-      subtitle: "الوصول المباشر لإدارة السجلات، التمام، المستودعات، والأسطول",
-      items: [
-        {
-          id: "members",
-          title: "سجل شؤون الأفراد",
-          description: "إدارة السجلات العسكرية والمدنية، بطاقات الهوية، والملفات الإدارية.",
-          icon: Users,
-          to: "/members",
-          permission: "member.view",
-          badge: "أفراد",
-        },
-        {
-          id: "attendance",
-          title: "التمام والانضباط اليومي",
-          description: "كشوفات الحضور، التأخير، الانصراف المبكر، وحساب الإجازات التلقائي.",
-          icon: CalendarCheck,
-          to: "/attendance/daily",
-          permission: "attendance.view",
-          badge: "عمليات",
-        },
-        {
-          id: "transportation",
-          title: "قسم النقلية والآليات",
-          description: "حصر ومتابعة أسطول المركبات، السائقين، التسليح الميداني، وأوامر التحرك.",
-          icon: Car,
-          to: "/transportation",
-          permission: "transportation.view",
-          badge: "آليات",
-        },
-        {
-          id: "inventory",
-          title: "المستودع والتسليح والعهد",
-          description: "إدارة رصيد الذخائر، السلاح، المهمات، ومحاضر تسليم واستلام العهد.",
-          icon: Package,
-          to: "/inventory",
-          permission: "equipment.view",
-          badge: "إمداد",
-        },
-      ],
-    },
-    {
       id: "system",
-      title: "النظام والضبط الأمني والنسخ الاحتياطي",
-      subtitle: "إعدادات متطلبات الإدخال، سجل التدقيق والنسخ الاحتياطية",
+      title: "الأمان والرقابة والمطابقة",
+      subtitle: "سجل التدقيق، النسخ الاحتياطي، وإعدادات التحقق من البيانات",
       items: [
         {
           id: "field-requirements",
-          title: "متطلبات الإدخال والحقول",
-          description: "تحديد الحقول الإلزامية والاختيارية في نماذج إضافة الأفراد.",
-          icon: Sliders,
+          title: "إلزامية الحقول والبيانات",
+          description: "تخصيص وإلزامية حقول نماذج الأفراد والبيانات حسب اللوائح الإدارية.",
+          icon: FileCheck2,
           to: "/settings/field-requirements",
           permission: "settings.manage",
-          badge: "نماذج",
-        },
-        {
-          id: "audit",
-          title: "سجل التدقيق والرقابة الأمني",
-          description: "تتبع وحصر كافة الإجراءات والعمليات المنفذة على المنظومة الإدارية.",
-          icon: ScrollText,
-          to: "/audit",
-          permission: "audit.view",
-          badge: "تدقيق",
+          badge: "إعدادات",
         },
         {
           id: "backups",
-          title: "النسخ الاحتياطية وقواعد البيانات",
-          description: "إجراء وتنزيل واسترجاع النسخ الاحتياطية المشفرة لقواعد البيانات.",
+          title: "النسخ الاحتياطية",
+          description: "إدارة النسخ الاحتياطي لقاعدة البيانات وتنزيلها واسترجاعها بأمان.",
           icon: Archive,
           to: "/backups",
           permission: "backup.run",
           badge: "أمان",
+        },
+        {
+          id: "audit",
+          title: "سجل تدقيق العمليات",
+          description: "متابعة ورصد كافة العمليات الحساسة وتغييرات البيانات من قبل المستخدمين.",
+          icon: ScrollText,
+          to: "/audit",
+          permission: "audit.view",
+          badge: "رقابة",
         },
       ],
     },
   ];
 
   return (
-    <div className="space-y-8" dir="rtl">
+    <div className="space-y-8">
       <PageHeader
-        title="مركز الإعدادات والضبط الإداري الشامل"
-        description="لوحة التحكم المركزية لضبط الهيكل التنظيمي، الصلاحيات، الأقسام الإدارية، وسجلات الأمان."
+        title="مركز إعدادات النظام"
+        subtitle="التحكم الشامل في تصنيفات الأسلحة والمخازن، تبعية المركبات، الهيكل التنظيمي، الصلاحيات والأمان"
       />
 
       <div className="space-y-8">
-        {categories.map((group) => {
-          const visibleItems = group.items.filter(
+        {categories.map((category) => {
+          const visibleItems = category.items.filter(
             (item) => !item.permission || hasPermission(item.permission)
           );
+
           if (visibleItems.length === 0) return null;
 
           return (
-            <div key={group.id} className="space-y-3.5">
-              <div>
-                <h2 className="text-section font-bold text-slate-900 dark:text-white">{group.title}</h2>
-                <p className="text-caption text-slate-500 dark:text-gray-400 font-medium">{group.subtitle}</p>
+            <div key={category.id} className="space-y-4">
+              <div className="border-b border-slate-200/80 dark:border-white/10 pb-2 text-start">
+                <h2 className="text-section font-bold text-slate-900 dark:text-white">
+                  {category.title}
+                </h2>
+                <p className="text-caption text-slate-500 dark:text-gray-400 font-medium">
+                  {category.subtitle}
+                </p>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -193,28 +197,36 @@ export function SettingsHubPage() {
                     <Card
                       key={item.id}
                       onClick={() => navigate(item.to)}
-                      className="group relative cursor-pointer rounded-[28px] border border-slate-200/80 dark:border-white/10 bg-white dark:bg-[#1A2038] hover:border-[#2B95E8]/60 hover:shadow-md transition-all duration-200 overflow-hidden"
+                      className="group cursor-pointer border border-slate-200/80 dark:border-white/10 bg-white dark:bg-[#1A2038] hover:border-blue-400 dark:hover:border-blue-500/50 hover:shadow-md transition-all duration-200"
                     >
-                      <div className="p-6 flex flex-col justify-between h-full space-y-4">
-                        <div className="flex items-start justify-between gap-3">
-                          <div className="p-3 rounded-2xl bg-blue-50 dark:bg-white/5 text-[#2B95E8] group-hover:bg-[#2B95E8] group-hover:text-white transition-colors">
-                            <Icon className="h-6 w-6" />
+                      <div className="p-5 flex flex-col justify-between h-full space-y-4 text-start">
+                        <div className="space-y-3">
+                          <div className="flex items-center justify-between">
+                            <div className="w-11 h-11 rounded-2xl bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 flex items-center justify-center group-hover:scale-105 transition-transform">
+                              <Icon className="w-5 h-5" />
+                            </div>
+                            {item.badge && (
+                              <Badge variant="secondary" className="font-bold">
+                                {item.badge}
+                              </Badge>
+                            )}
                           </div>
-                          {item.badge && (
-                            <Badge variant="navy" className="text-caption font-semibold">
-                              {item.badge}
-                            </Badge>
-                          )}
+
+                          <div className="space-y-1">
+                            <h3 className="text-body font-bold text-slate-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                              {item.title}
+                            </h3>
+                            <p className="text-caption text-slate-500 dark:text-gray-400 leading-relaxed font-normal">
+                              {item.description}
+                            </p>
+                          </div>
                         </div>
 
-                        <div className="space-y-1.5">
-                          <h3 className="text-body font-bold text-foreground group-hover:text-primary transition-colors flex items-center justify-between">
-                            <span>{item.title}</span>
-                            <ChevronLeft className="h-4 w-4 opacity-0 group-hover:opacity-100 transition-opacity text-primary" />
-                          </h3>
-                          <p className="text-caption text-muted-foreground leading-relaxed">
-                            {item.description}
-                          </p>
+                        <div className="flex items-center justify-end text-caption font-bold text-blue-600 dark:text-blue-400 pt-2 border-t border-slate-100 dark:border-white/5">
+                          <span className="flex items-center gap-1 group-hover:-translate-x-1 transition-transform">
+                            فتح الإعدادات
+                            <ChevronLeft className="w-4 h-4" />
+                          </span>
                         </div>
                       </div>
                     </Card>

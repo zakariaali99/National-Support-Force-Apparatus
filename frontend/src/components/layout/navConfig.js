@@ -5,17 +5,20 @@ import {
   CalendarDays,
   Car,
   Clock,
+  Crosshair,
+  Layers,
   LayoutDashboard,
   PackageCheck,
   ScrollText,
   Settings,
   Shield,
+  ShieldAlert,
   UserCheck,
   UserPlus,
   Users,
 } from "lucide-react";
 
-// Central nav registry.
+// Central nav registry with separate Armory, Inventory, and Transportation sections.
 export const NAV_GROUPS = [
   {
     id: "general",
@@ -36,11 +39,18 @@ export const NAV_GROUPS = [
     ],
   },
   {
-    id: "logistics",
-    title: "النقلية والإمداد والتسليح",
+    id: "armory",
+    title: "قسم التسليح والأسلحة والذخائر",
     items: [
-      { to: "/transportation", label: "قسم النقلية والمركبات", icon: Car, permission: "transportation.view", breadcrumb: "قسم النقلية والمركبات" },
-      { to: "/inventory", label: "المستودع والمخزن والعهد", icon: PackageCheck, permission: "equipment.view", breadcrumb: "المستودع والمخزن والعهد" },
+      { to: "/armory", label: "سجل الأسلحة والذخائر", icon: Crosshair, permission: "equipment.view", breadcrumb: "سجل الأسلحة والذخائر" },
+    ],
+  },
+  {
+    id: "logistics",
+    title: "المخازن والنقلية والإمداد",
+    items: [
+      { to: "/inventory", label: "المخازن والعتاد العام", icon: PackageCheck, permission: "equipment.view", breadcrumb: "المخازن والعتاد العام" },
+      { to: "/transportation", label: "قسم النقلية والآليات", icon: Car, permission: "transportation.view", breadcrumb: "قسم النقلية والآليات" },
     ],
   },
   {
@@ -66,7 +76,10 @@ export const NAV_GROUPS = [
 export const ALL_NAV_ITEMS = [
   ...NAV_GROUPS.flatMap((g) => g.items),
   { to: "/settings/field-requirements", label: "متطلبات الحقول", icon: Settings, permission: "settings.manage", breadcrumb: "متطلبات الحقول" },
-  { to: "/settings/equipment-categories", label: "تصنيفات العتاد والأسلحة", icon: Settings, breadcrumb: "تصنيفات العتاد والأسلحة" },
+  { to: "/settings/armory-categories", label: "تصنيفات وأنواع التسليح", icon: Crosshair, permission: "settings.manage", breadcrumb: "تصنيفات وأنواع التسليح" },
+  { to: "/settings/inventory-categories", label: "تصنيفات المخازن والعتاد العام", icon: PackageCheck, permission: "settings.manage", breadcrumb: "تصنيفات المخازن والعتاد العام" },
+  { to: "/settings/external-units", label: "الوحدات والجهات الخارجية", icon: Building2, permission: "settings.manage", breadcrumb: "الوحدات والجهات الخارجية" },
+  { to: "/settings/equipment-categories", label: "تصنيفات العتاد القديمة", icon: Layers, breadcrumb: "تصنيفات العتاد" },
   { to: "/settings/roles", label: "الأدوار والصلاحيات", icon: Shield, permission: "roles.manage", breadcrumb: "الأدوار والصلاحيات" },
   { to: "/settings/users", label: "مستخدمو النظام", icon: UserCheck, permission: "users.manage", breadcrumb: "مستخدمو النظام" },
 ];

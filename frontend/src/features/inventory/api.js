@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "../../lib/api";
 import { createResourceHooks } from "../../lib/createResourceHooks";
 
@@ -12,6 +12,8 @@ export const useDeleteInventoryItem = inventoryApi.useDelete;
 
 export const useCategories = categoriesApi.useList;
 export const useCreateCategory = categoriesApi.useCreate;
+export const useUpdateCategory = categoriesApi.useUpdate;
+export const useDeleteCategory = categoriesApi.useDelete;
 
 export const useAssignCustody = () => {
   const qc = useQueryClient();
@@ -23,6 +25,7 @@ export const useAssignCustody = () => {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["equipment-items"] });
       qc.invalidateQueries({ queryKey: ["inventory-items"] });
+      qc.invalidateQueries({ queryKey: ["armory-items"] });
     },
   });
 };
@@ -37,6 +40,7 @@ export const useReleaseCustody = () => {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["equipment-items"] });
       qc.invalidateQueries({ queryKey: ["inventory-items"] });
+      qc.invalidateQueries({ queryKey: ["armory-items"] });
     },
   });
 };
@@ -51,6 +55,7 @@ export const useMarkDamaged = () => {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["equipment-items"] });
       qc.invalidateQueries({ queryKey: ["inventory-items"] });
+      qc.invalidateQueries({ queryKey: ["armory-items"] });
     },
   });
 };

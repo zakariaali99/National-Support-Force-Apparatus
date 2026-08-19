@@ -106,6 +106,47 @@ class VehicleTests(TestCase):
         self.assertEqual(vehicle.mounted_weapon_name, "")
         self.assertIsNone(vehicle.weapon_faction)
 
+    def test_external_unit_crud_and_vehicle_affiliation(self):
+        from apps.transportation.models import ExternalUnit
+
+        # 1. Create External Unit
+        unit_res = self.client.post(
+            "/api/transportation/external-units/",
+            {
+                "name_ar": "اللواء 444 قتال",
+                "commander_name": "عقيد / محمود حمزة",
+                "phone": "0910000001",
+                "notes": "إعارة عملياتية مشتركة",
+                "is_active": True,
+            },
+        )
+        self.assertEqual(unit_res.status_code, 201, unit_res.data)
+        unit_id = unit_res.data["id"]
+
+        # 2. Create Vehicle affiliated with External Unit
+        vehicle_res = self.client.post(
+            "/api/transportation/vehicles/",
+            {
+                "name": "تويوتا لاندكروزر تابعة للواء 444",
+                "vehicle_type": "patrol",
+                "vin_number": "VIN-EXT-444-99",
+                "plate_number": "10-44499",
+                "affiliation_type": "external",
+                "external_unit": unit_id,
+                "assigned_driver": self.driver.id,
+            },
+        )
+        self.assertEqual(vehicle_res.status_code, 201, vehicle_res.data)
+        self.assertEqual(vehicle_res.data["external_unit_name"], "اللواء 444 قتال")
+        self.assertEqual(vehicle_res.data["affiliation_type_display"], "تابعة لوحدة / جهة خارجية")
+
+        # 3. Filter vehicles by external affiliation and external_unit
+        filter_res = self.client.get(f"/api/transportation/vehicles/?affiliation_type=external&external_unit={unit_id}")
+        self.assertEqual(filter_res.status_code, 200)
+        items = filter_res.data["results"] if "results" in filter_res.data else filter_res.data
+        self.assertEqual(len(items), 1)
+        self.assertEqual(items[0]["vin_number"], "VIN-EXT-444-99")
+
     def test_search_and_filtering(self):
         Vehicle.objects.create(
             name="إسعاف تويوتا هايس",

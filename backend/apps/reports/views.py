@@ -303,9 +303,18 @@ class VehicleTripTicketPdfView(APIView):
         vehicle = None
         if pk:
             try:
-                vehicle = Vehicle.objects.select_related("faction", "assigned_driver", "weapon_assigned_member").get(pk=pk)
+                vehicle = Vehicle.objects.select_related(
+                    "faction", "external_unit", "assigned_driver", "weapon_faction", "weapon_external_unit", "weapon_assigned_member"
+                ).get(pk=pk)
             except Vehicle.DoesNotExist:
                 raise Http404("المركبة غير موجودة")
+
+        affiliation_text = "الإدارة العامة"
+        if vehicle:
+            if vehicle.external_unit:
+                affiliation_text = f"جهة خارجية: {vehicle.external_unit.name_ar}"
+            elif vehicle.faction:
+                affiliation_text = f"الجهاز: {vehicle.faction.name_ar}"
 
         context = {
             "trip_number": request.query_params.get("trip_number", f"TRIP-{timezone.now().strftime('%y%m%d%H%M')}"),
@@ -313,7 +322,7 @@ class VehicleTripTicketPdfView(APIView):
             "vehicle_name": vehicle.name if vehicle else request.query_params.get("vehicle_name", "—"),
             "plate_number": vehicle.plate_number if vehicle else request.query_params.get("plate_number", "—"),
             "chassis_number": vehicle.vin_number if vehicle else request.query_params.get("chassis_number", "—"),
-            "faction_name": (vehicle.faction.name_ar if vehicle and vehicle.faction else request.query_params.get("faction_name", "الإدارة العامة")),
+            "faction_name": affiliation_text,
             "driver_name": (vehicle.assigned_driver.full_name if vehicle and vehicle.assigned_driver else request.query_params.get("driver_name", "غير محدد")),
             "weapon_name": (vehicle.mounted_weapon_name if vehicle and vehicle.has_weapon else request.query_params.get("weapon_name", "غير مسلحة")),
             "weapon_serial": (vehicle.mounted_weapon_serial if vehicle and vehicle.has_weapon else request.query_params.get("weapon_serial", "—")),

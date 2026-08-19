@@ -17,6 +17,11 @@ EQUIPMENT_TYPE_CHOICES = [
     ("other", "أخرى"),
 ]
 
+DOMAIN_CHOICES = [
+    ("armory", "قسم التسليح والأسلحة"),
+    ("inventory", "المخازن والعتاد العام"),
+]
+
 ITEM_STATUS_CHOICES = [
     ("good", "صالح للاستعمال"),
     ("maintenance", "تحت الصيانة"),
@@ -30,7 +35,10 @@ class InventoryCategory(BaseModel):
 
     code = models.SlugField(max_length=50, unique=True)
     name_ar = models.CharField(max_length=100)
-    category_type = models.CharField(max_length=20, choices=EQUIPMENT_TYPE_CHOICES, default="rifle")
+    domain = models.CharField(
+        max_length=20, choices=DOMAIN_CHOICES, default="inventory", db_index=True, help_text="القسم التابع له التصنيف"
+    )
+    category_type = models.CharField(max_length=20, choices=EQUIPMENT_TYPE_CHOICES, default="general")
     description = models.TextField(blank=True)
 
     class Meta:
@@ -39,7 +47,7 @@ class InventoryCategory(BaseModel):
         verbose_name_plural = "تصنيفات العتاد والمخزن"
 
     def __str__(self):
-        return self.name_ar
+        return f"{self.name_ar} ({self.get_domain_display()})"
 
 
 class InventoryItem(BaseModel):
@@ -47,6 +55,9 @@ class InventoryItem(BaseModel):
 
     category = models.ForeignKey(
         InventoryCategory, on_delete=models.PROTECT, related_name="items"
+    )
+    domain = models.CharField(
+        max_length=20, choices=DOMAIN_CHOICES, default="inventory", db_index=True, help_text="نطاق الصنف (تسليح أم مخازن عامة)"
     )
     name = models.CharField(max_length=150, help_text="اسم الصنف أو السلاح")
     item_code = models.CharField(max_length=100, db_index=True, blank=True, help_text="رقم الصنف أو الكود المخزني")

@@ -6,10 +6,7 @@ import { LoginPage } from "./features/auth/LoginPage";
 import { ProtectedRoute, PermissionRoute } from "./features/auth/ProtectedRoute";
 import { PermissionDeniedDialog } from "./components/ui/PermissionDeniedDialog";
 
-// Route-level code splitting — each feature area becomes its own chunk,
-// fetched on first navigation instead of all landing in the single
-// >500KB bundle flagged since Phase 1 (see NEXT.md). LoginPage/AppShell/
-// ProtectedRoute stay eager: they're needed before any route decision.
+// Route-level code splitting
 const DashboardPage = lazy(() => import("./features/dashboard/DashboardPage").then((m) => ({ default: m.DashboardPage || m.default })));
 const MemberDetail = lazy(() => import("./features/members/MemberDetail").then((m) => ({ default: m.MemberDetail || m.default })));
 const MemberForm = lazy(() => import("./features/members/MemberForm").then((m) => ({ default: m.MemberForm || m.default })));
@@ -18,11 +15,15 @@ const FactionsPage = lazy(() => import("./features/organization/FactionsPage").t
 const RanksPage = lazy(() => import("./features/organization/RanksPage").then((m) => ({ default: m.RanksPage || m.default })));
 const FieldRequirementsPage = lazy(() => import("./features/settings/FieldRequirementsPage").then((m) => ({ default: m.FieldRequirementsPage || m.default })));
 const EquipmentCategoriesPage = lazy(() => import("./features/settings/EquipmentCategoriesPage").then((m) => ({ default: m.EquipmentCategoriesPage || m.default })));
+const ArmoryCategoriesPage = lazy(() => import("./features/settings/ArmoryCategoriesPage").then((m) => ({ default: m.ArmoryCategoriesPage || m.default })));
+const GeneralInventoryCategoriesPage = lazy(() => import("./features/settings/GeneralInventoryCategoriesPage").then((m) => ({ default: m.GeneralInventoryCategoriesPage || m.default })));
+const ExternalUnitsPage = lazy(() => import("./features/settings/ExternalUnitsPage").then((m) => ({ default: m.ExternalUnitsPage || m.default })));
 const SettingsHubPage = lazy(() => import("./features/settings/SettingsHubPage").then((m) => ({ default: m.SettingsHubPage || m.default })));
 const RolesPage = lazy(() => import("./features/settings/RolesPage").then((m) => ({ default: m.RolesPage || m.default })));
 const UsersPage = lazy(() => import("./features/settings/UsersPage").then((m) => ({ default: m.UsersPage || m.default })));
 const AuditPage = lazy(() => import("./features/audit/AuditPage").then((m) => ({ default: m.AuditPage || m.default })));
 const BackupsPage = lazy(() => import("./features/backups/BackupsPage").then((m) => ({ default: m.BackupsPage || m.default })));
+const ArmoryPage = lazy(() => import("./features/armory/ArmoryPage").then((m) => ({ default: m.ArmoryPage || m.default })));
 const InventoryPage = lazy(() => import("./features/inventory/InventoryPage").then((m) => ({ default: m.InventoryPage || m.default })));
 const VehiclesPage = lazy(() => import("./features/transportation/VehiclesPage").then((m) => ({ default: m.VehiclesPage || m.default })));
 const DailyAttendancePage = lazy(() => import("./features/attendance/DailyAttendancePage").then((m) => ({ default: m.DailyAttendancePage || m.default })));
@@ -100,6 +101,16 @@ export default function App() {
             }
           />
           <Route
+            path="/attendance/daily"
+            element={
+              <PermissionRoute permission="attendance.view">
+                <Suspense fallback={<RouteFallback />}>
+                  <DailyAttendancePage />
+                </Suspense>
+              </PermissionRoute>
+            }
+          />
+          <Route
             path="/attendance/monthly"
             element={
               <PermissionRoute permission="attendance.view">
@@ -130,6 +141,26 @@ export default function App() {
             }
           />
           <Route
+            path="/armory"
+            element={
+              <PermissionRoute permission="equipment.view">
+                <Suspense fallback={<RouteFallback />}>
+                  <ArmoryPage />
+                </Suspense>
+              </PermissionRoute>
+            }
+          />
+          <Route
+            path="/inventory"
+            element={
+              <PermissionRoute permission="equipment.view">
+                <Suspense fallback={<RouteFallback />}>
+                  <InventoryPage />
+                </Suspense>
+              </PermissionRoute>
+            }
+          />
+          <Route
             path="/organization/ranks"
             element={
               <PermissionRoute permission="organization.manage">
@@ -150,21 +181,41 @@ export default function App() {
             }
           />
           <Route
-            path="/inventory"
-            element={
-              <PermissionRoute permission="equipment.view">
-                <Suspense fallback={<RouteFallback />}>
-                  <InventoryPage />
-                </Suspense>
-              </PermissionRoute>
-            }
-          />
-          <Route
             path="/settings"
             element={
               <PermissionRoute permission="settings.manage">
                 <Suspense fallback={<RouteFallback />}>
                   <SettingsHubPage />
+                </Suspense>
+              </PermissionRoute>
+            }
+          />
+          <Route
+            path="/settings/armory-categories"
+            element={
+              <PermissionRoute permission="settings.manage">
+                <Suspense fallback={<RouteFallback />}>
+                  <ArmoryCategoriesPage />
+                </Suspense>
+              </PermissionRoute>
+            }
+          />
+          <Route
+            path="/settings/inventory-categories"
+            element={
+              <PermissionRoute permission="settings.manage">
+                <Suspense fallback={<RouteFallback />}>
+                  <GeneralInventoryCategoriesPage />
+                </Suspense>
+              </PermissionRoute>
+            }
+          />
+          <Route
+            path="/settings/external-units"
+            element={
+              <PermissionRoute permission="settings.manage">
+                <Suspense fallback={<RouteFallback />}>
+                  <ExternalUnitsPage />
                 </Suspense>
               </PermissionRoute>
             }
