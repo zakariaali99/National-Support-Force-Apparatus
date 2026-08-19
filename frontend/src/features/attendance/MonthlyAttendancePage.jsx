@@ -10,6 +10,7 @@ import { StatCard } from "../../components/ui/StatCard";
 import { Pagination } from "../../components/ui/Pagination";
 import { showToast } from "../../components/ui/Toast";
 import { openAuthedPdf, downloadAuthedFile } from "../reports/api";
+import { printAuthedHtml } from "../../lib/printUtils";
 import { MemberMonthCalendarDialog } from "./MemberMonthCalendarDialog";
 import {
   FileSpreadsheet,
@@ -125,14 +126,11 @@ export function MonthlyAttendancePage() {
     return params.toString();
   };
 
-  const handlePrint = async () => {
-    setIsProcessing(true);
+  const handlePrint = () => {
     try {
-      await openAuthedPdf(`reports/attendance/monthly/pdf/?${buildPdfParams()}`);
+      printAuthedHtml(`reports/attendance/monthly/pdf/?${buildPdfParams()}`);
     } catch {
       showToast("تعذر فتح كشف التمام الشهري في تبويب جديد", "error");
-    } finally {
-      setIsProcessing(false);
     }
   };
 

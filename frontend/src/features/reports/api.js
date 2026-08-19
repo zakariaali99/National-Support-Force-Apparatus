@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { api } from "../../lib/api";
 import { tokenStorage } from "../../lib/tokenStorage";
+import { printAuthedHtml } from "../../lib/printUtils";
 
 export function useReportSections() {
   return useQuery({
@@ -16,6 +17,8 @@ function appendAuthToken(url) {
   if (url.includes("token=")) return url;
   return `${url}${separator}token=${encodeURIComponent(token)}`;
 }
+
+export { printAuthedHtml };
 
 /** Fetches the composed PDF as an authenticated blob and opens it in a new
  * tab — also passes JWT query parameter for robust cross-origin opening.

@@ -1,5 +1,5 @@
 import calendar
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from decimal import Decimal
 from django.db import transaction
 
@@ -245,4 +245,40 @@ class ShiftRotationService:
             record.deducted_vacation_days = Decimal("0.0")
 
         record.save()
+
+        # Cascade absence across subsequent rest days in the shift cycle
+        if status in ("unexcused_absence", "excused_absence"):
+            group = member.shift_rosters.filter(is_active=True).first()
+            if group and group.cycle_days > 1 and group.rest_days > 0:
+                delta_days = (target_date - group.anchor_date).days
+                day_in_cycle = (delta_days + group.group_offset) % group.cycle_days
+                if day_in_cycle < group.work_days:
+                    remaining_duty_days = (group.work_days - 1) - day_in_cycle
+                    for offset in range(1 + remaining_duty_days, 1 + remaining_duty_days + group.rest_days):
+                        cascade_date = target_date + timedelta(days=offset)
+                        cascade_rec, _ = DailyAttendance.objects.get_or_create(
+                            member=member,
+                            date=cascade_date,
+                            defaults={"expected_status": "off", "recorded_by": recorded_by},
+                        )
+                        cascade_rec.status = status
+                        cascade_rec.expected_status = "off"
+                        cascade_rec.notes = f"غياب متتابع تلقائي تبعاً لغياب نوبة يوم {target_date}"
+                        cascade_rec.recorded_by = recorded_by
+                        cascade_rec.save()
+        elif status == "present":
+            group = member.shift_rosters.filter(is_active=True).first()
+            if group and group.cycle_days > 1 and group.rest_days > 0:
+                delta_days = (target_date - group.anchor_date).days
+                day_in_cycle = (delta_days + group.group_offset) % group.cycle_days
+                if day_in_cycle < group.work_days:
+                    remaining_duty_days = (group.work_days - 1) - day_in_cycle
+                    for offset in range(1 + remaining_duty_days, 1 + remaining_duty_days + group.rest_days):
+                        cascade_date = target_date + timedelta(days=offset)
+                        DailyAttendance.objects.filter(
+                            member=member,
+                            date=cascade_date,
+                            notes__contains="غياب متتابع تلقائي",
+                        ).update(status="shift_off", notes="")
+
         return record

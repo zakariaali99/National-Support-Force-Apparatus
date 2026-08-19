@@ -54,6 +54,15 @@ const SHIFT_TEMPLATES = [
     rest_days: 4,
     shift_hours: 24,
   },
+  {
+    id: "custom",
+    name: "نظام مخصص (تحديد أيام العمل والراحة)",
+    description: "تحديد مرن لعدد أيام العمل المتتالية وأيام الراحة وساعات النوبة.",
+    cycle_days: 4,
+    work_days: 1,
+    rest_days: 3,
+    shift_hours: 24,
+  },
 ];
 
 const SHIFT_LETTERS = [
@@ -81,11 +90,13 @@ export function ShiftRostersPage() {
   const updateRoster = useUpdateShiftRoster();
   const deleteRoster = useDeleteShiftRoster();
 
-  // Simplified Form State
+  // Form State
   const [formData, setFormData] = useState({
     name_ar: "",
     faction: "",
     pattern: "alert_24_72",
+    work_days: 1,
+    rest_days: 3,
     shift_letter_offset: 0,
     shift_hours: 24,
     member_ids: [],
@@ -99,6 +110,8 @@ export function ShiftRostersPage() {
       name_ar: "",
       faction: factionId ? String(factionId) : factions[0]?.id ? String(factions[0].id) : "",
       pattern: tpl.id,
+      work_days: tpl.work_days,
+      rest_days: tpl.rest_days,
       shift_letter_offset: 0,
       shift_hours: tpl.shift_hours,
       member_ids: [],
@@ -113,6 +126,8 @@ export function ShiftRostersPage() {
       name_ar: group.name_ar,
       faction: group.faction ? String(group.faction) : "",
       pattern: group.pattern,
+      work_days: group.work_days || 1,
+      rest_days: group.rest_days || 3,
       shift_letter_offset: group.group_offset || 0,
       shift_hours: group.shift_hours || 24,
       member_ids: group.member_ids || (group.members ? group.members.map((m) => m.id) : []),
@@ -153,14 +168,18 @@ export function ShiftRostersPage() {
     }
 
     const tpl = SHIFT_TEMPLATES.find((t) => t.id === formData.pattern) || SHIFT_TEMPLATES[1];
+    const isCustom = formData.pattern === "custom";
+    const workDays = isCustom ? parseInt(formData.work_days) || 1 : tpl.work_days;
+    const restDays = isCustom ? parseInt(formData.rest_days) || 1 : tpl.rest_days;
+    const cycleDays = isCustom ? workDays + restDays : tpl.cycle_days;
 
     const payload = {
       name_ar: formData.name_ar.trim(),
       faction: parseInt(formData.faction),
       pattern: formData.pattern,
-      cycle_days: tpl.cycle_days,
-      work_days: tpl.work_days,
-      rest_days: tpl.rest_days,
+      cycle_days: cycleDays,
+      work_days: workDays,
+      rest_days: restDays,
       anchor_date: "2026-01-01",
       group_offset: parseInt(formData.shift_letter_offset) || 0,
       shift_hours: parseFloat(formData.shift_hours) || tpl.shift_hours,
@@ -404,6 +423,8 @@ export function ShiftRostersPage() {
                     setFormData({
                       ...formData,
                       pattern: val,
+                      work_days: t ? t.work_days : 1,
+                      rest_days: t ? t.rest_days : 3,
                       shift_hours: t ? t.shift_hours : 24,
                     });
                   }}
@@ -421,6 +442,50 @@ export function ShiftRostersPage() {
                 />
               </div>
             </div>
+
+            {/* Custom Cycle Settings */}
+            {formData.pattern === "custom" && (
+              <div className="p-4 rounded-2xl border border-blue-200/80 dark:border-blue-900/40 bg-blue-50/50 dark:bg-blue-950/20 grid grid-cols-1 md:grid-cols-3 gap-3.5 text-start">
+                <div className="space-y-1.5">
+                  <Label className="text-caption font-bold text-slate-700 dark:text-gray-300">أيام العمل المتتالية *</Label>
+                  <Input
+                    type="number"
+                    min={1}
+                    max={30}
+                    value={formData.work_days}
+                    onChange={(e) => setFormData({ ...formData, work_days: Math.max(1, parseInt(e.target.value) || 1) })}
+                    className="rounded-xl h-10 bg-white dark:bg-[#1A2038]"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-caption font-bold text-slate-700 dark:text-gray-300">أيام الراحة المتتالية *</Label>
+                  <Input
+                    type="number"
+                    min={0}
+                    max={30}
+                    value={formData.rest_days}
+                    onChange={(e) => setFormData({ ...formData, rest_days: Math.max(0, parseInt(e.target.value) || 0) })}
+                    className="rounded-xl h-10 bg-white dark:bg-[#1A2038]"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-caption font-bold text-slate-700 dark:text-gray-300">ساعات الوردية *</Label>
+                  <Input
+                    type="number"
+                    min={1}
+                    max={48}
+                    step={0.5}
+                    value={formData.shift_hours}
+                    onChange={(e) => setFormData({ ...formData, shift_hours: parseFloat(e.target.value) || 24 })}
+                    className="rounded-xl h-10 bg-white dark:bg-[#1A2038]"
+                  />
+                </div>
+                <div className="col-span-full pt-1 text-micro font-bold text-blue-700 dark:text-blue-300 flex items-center justify-between">
+                  <span>إجمالي أيام الدورة التكرارية: {(parseInt(formData.work_days) || 1) + (parseInt(formData.rest_days) || 0)} أيام</span>
+                  <span>(تكرار منتظم للوردية والراحة)</span>
+                </div>
+              </div>
+            )}
 
             {/* Member Multi-Select Card */}
             <div className="space-y-2.5 text-start">

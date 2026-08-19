@@ -76,6 +76,10 @@ export function GeneralInventoryCategoriesPage() {
     },
   });
 
+  useEffect(() => {
+    register("category_type");
+  }, [register]);
+
   const filteredCategories = useMemo(() => {
     return (categories || []).filter((c) => {
       if (!search.trim()) return true;
@@ -271,7 +275,7 @@ export function GeneralInventoryCategoriesPage() {
               </label>
               <Select
                 value={watch("category_type")}
-                onValueChange={(val) => setValue("category_type", val)}
+                onValueChange={(val) => setValue("category_type", val, { shouldDirty: true, shouldValidate: true })}
               >
                 <SelectTrigger className="h-10 rounded-xl">
                   <SelectValue placeholder="اختر النوع" />

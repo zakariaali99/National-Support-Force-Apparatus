@@ -1,10 +1,37 @@
+import { tokenStorage } from "./tokenStorage";
+
+/**
+ * Appends JWT access token and optional html=1 parameter to an API endpoint URL.
+ */
+export function buildAuthedPrintUrl(url, htmlOnly = true) {
+  const token = tokenStorage.getAccess();
+  let finalUrl = url;
+  const separator = finalUrl.includes("?") ? "&" : "?";
+  if (htmlOnly && !finalUrl.includes("html=")) {
+    finalUrl = `${finalUrl}${separator}html=1`;
+  }
+  if (token && !finalUrl.includes("token=")) {
+    const sep = finalUrl.includes("?") ? "&" : "?";
+    finalUrl = `${finalUrl}${sep}token=${encodeURIComponent(token)}`;
+  }
+  return `/api/${finalUrl.replace(/^\/?api\//, "")}`;
+}
+
+/**
+ * Directly opens an authenticated print endpoint in a new window/tab for native browser printing.
+ */
+export function printAuthedHtml(url) {
+  const finalUrl = buildAuthedPrintUrl(url, true);
+  window.open(finalUrl, "_blank");
+}
+
 /**
  * Unified Government Print Engine
  * Official Header: دولة ليبيا — الجهاز الوطني للقوى المساندة / الوحدة القتالية الرابعة
- * Consistent Metadata: (الإدارة، نوع المستند، الرقم المرجعي التلقائي، تاريخ الطباعة، وتوقيت الإصدار)
+ * Consistent Metadata: (الإدارة التابعة على اليمين، الرقم المرجعي على اليسار تحت خط فاصل)
+ * Consistent Footer: (تاريخ الطباعة، توقيت الإصدار، منظومة الإدارة الإلكترونية)
  * Supports Portrait and Landscape orientations, with consistent signatures and page styling.
  */
-
 export function openPrintWindow({
   title,
   subtitle,
@@ -64,6 +91,7 @@ export function openPrintWindow({
       font-size: 12.5px;
       -webkit-print-color-adjust: exact;
       print-color-adjust: exact;
+      padding-bottom: 50px;
     }
     
     /* Screen Top Floating Toolbar */
@@ -130,43 +158,52 @@ export function openPrintWindow({
       box-shadow: 0 0 20px rgba(0,0,0,0.08);
       border-radius: 4px;
       position: relative;
+      display: flex;
+      flex-direction: column;
     }
 
-    /* Official Government Header */
-    .gov-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      border-bottom: 2.5px solid #0f172a;
-      padding-bottom: 12px;
+    .doc-content-wrapper {
+      flex: 1 0 auto;
+    }
+
+    /* Official Government Header layout */
+    .gov-header-container {
       margin-bottom: 16px;
+    }
+    .gov-header-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 8px;
     }
     .gov-title-group h1 {
       font-size: 16px;
       font-weight: 800;
-      color: #0f172a;
+      color: #0a2540;
       line-height: 1.3;
     }
     .gov-title-group h2 {
       font-size: 13px;
       font-weight: 700;
-      color: #2563eb;
+      color: #0a2540;
       margin-top: 2px;
     }
-    .gov-meta-grid {
-      display: grid;
-      grid-template-columns: auto auto;
-      gap: 3px 14px;
-      text-align: right;
-      font-size: 11px;
-      color: #475569;
-      background: #f8fafc;
-      padding: 6px 10px;
-      border: 1px solid #e2e8f0;
-      border-radius: 6px;
+    .gov-logo {
+      height: 58px;
+      width: auto;
+      object-fit: contain;
     }
-    .gov-meta-grid strong {
-      color: #0f172a;
+    .gov-header-line {
+      border-bottom: 2px solid #0a2540;
+      margin-bottom: 8px;
+    }
+    .gov-header-metadata {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11.5px;
+      font-weight: 700;
+      color: #334155;
+      padding-bottom: 6px;
     }
 
     /* Document Title Banner */
@@ -176,7 +213,7 @@ export function openPrintWindow({
       border-radius: 8px;
       padding: 10px 16px;
       text-align: center;
-      margin-bottom: 18px;
+      margin-bottom: 16px;
     }
     .doc-banner h3 {
       font-size: 15px;
@@ -294,10 +331,23 @@ export function openPrintWindow({
       color: #64748b;
     }
 
+    /* Consistent Bottom Footer */
+    .gov-print-footer {
+      border-top: 1px solid #cbd5e1;
+      padding-top: 6px;
+      margin-top: auto;
+      display: flex;
+      justify-content: space-between;
+      font-size: 8.5pt;
+      color: #64748b;
+      flex-shrink: 0;
+    }
+
     /* Print Styles */
     @media print {
       body {
         background: #ffffff;
+        padding-bottom: 0;
       }
       .screen-toolbar {
         display: none !important;
@@ -308,6 +358,14 @@ export function openPrintWindow({
         box-shadow: none;
         width: 100%;
         min-height: auto;
+        display: block;
+      }
+      .gov-print-footer {
+        position: fixed;
+        bottom: 0;
+        left: 10mm;
+        right: 10mm;
+        margin-top: 0;
       }
       @page {
         size: ${isLandscape ? "A4 landscape" : "A4 portrait"};
@@ -333,18 +391,19 @@ export function openPrintWindow({
   </div>
 
   <div class="document-page">
-    <!-- Header -->
-    <div class="gov-header">
-      <div class="gov-title-group">
-        <h1>دولة ليبيا — الجهاز الوطني للقوى المساندة</h1>
-        <h2>الوحدة القتالية الرابعة</h2>
+    <!-- Header Container -->
+    <div class="gov-header-container">
+      <div class="gov-header-top">
+        <div class="gov-title-group">
+          <h1>دولة ليبيا</h1>
+          <h2>الجهاز الوطني للقوى المساندة / الوحدة القتالية الرابعة</h2>
+        </div>
+        <img class="gov-logo" src="/static/nasf-seal.jpg" alt="شعار الجهاز" onerror="this.src='/src/assets/brand/nasf-seal.jpg'" />
       </div>
-      <div class="gov-meta-grid">
-        <div><strong>الإدارة:</strong> ${department}</div>
-        <div><strong>نوع المستند:</strong> ${docType}</div>
-        <div><strong>الرقم المرجعي:</strong> ${docNum}</div>
-        <div><strong>تاريخ الطباعة:</strong> ${currentDate}</div>
-        <div style="grid-column: span 2;"><strong>توقيت الإصدار:</strong> ${currentTime}</div>
+      <div class="gov-header-line"></div>
+      <div class="gov-header-metadata">
+        <span>الإدارة التابعة: ${department}</span>
+        <span>الرقم المرجعي للمستند: ${docNum}</span>
       </div>
     </div>
 
@@ -379,6 +438,13 @@ export function openPrintWindow({
     `
         : ""
     }
+
+    <!-- Consistent Footer -->
+    <div class="gov-print-footer">
+      <span>تاريخ الطباعة: ${currentDate}</span>
+      <span>توقيت الإصدار: ${currentTime}</span>
+      <span>الجهاز الوطني للقوى المساندة - منظومة الإدارة الإلكترونية</span>
+    </div>
   </div>
 </body>
 </html>`;
@@ -389,232 +455,197 @@ export function openPrintWindow({
 }
 
 /**
- * Formats Asset (Weapon, Vehicle, or Inventory) into an official printable document.
+ * Formats Asset Card into official printable document.
  */
-export function printAssetCardInNewWindow({ item, history = [], type = "weapon" }) {
-  if (!item) return;
+export function printAssetCardInNewWindow({ item = {}, domain = "inventory", type, history = [] }) {
+  const isArmory = domain === "armory" || type === "weapon" || Boolean(item.serial_number || item.caliber);
+  const docTitle = isArmory
+    ? `بطاقة صنف سلاح وتجهيز تسليحي: ${item.name || "صنف تسليحي"}`
+    : `بطاقة صنف ومواصفات مستودعية: ${item.name || "صنف مستودعي"}`;
 
-  const docTitle =
-    type === "weapon"
-      ? `بطاقة حصر وسجل تاريخ الحيازة للقطعة التسليحية: ${item.name || ""}`
-      : type === "vehicle"
-      ? `بطاقة تسجيل وسلسلة عهدة الآلية: ${item.name || ""}`
-      : `بطاقة صنف مخزني وسجل صرف العهدة: ${item.name || ""}`;
+  const department = isArmory ? "إدارة التسليح والذخائر" : "المستودع والمخازن العامة";
+  const docType = isArmory ? "بطاقة صنف تسليحي" : "بطاقة صنف مخزني";
 
-  const docSubtitle =
-    type === "weapon"
-      ? `الرقم التسلسلي: ${item.serial_number || "—"} | العيار: ${item.caliber || "—"}`
-      : type === "vehicle"
-      ? `رقم الهيكل: ${item.vin_number || "—"} | رقم اللوحة: ${item.plate_number || "—"}`
-      : `كود الصنف: ${item.item_code || "—"} | التصنيف: ${item.category_name || "—"}`;
-
-  const department =
-    type === "weapon"
-      ? "إدارة التسليح والذخائر"
-      : type === "vehicle"
-      ? "إدارة النقليات والآليات"
-      : "المستودع والمخازن العامة";
-
-  const docType =
-    type === "weapon"
-      ? "بطاقة أصل وسجل حيازة تسليحية"
-      : type === "vehicle"
-      ? "بطاقة آلية وسلسلة عهدة"
-      : "بطاقة صنف ومحضر حيازة";
-
-  // Build specifications form grid
-  let specsHtml = "";
-  if (type === "weapon") {
-    specsHtml = `
-      <div class="section-title">أولاً: البيانات الفنية والتسليحية للقطعة</div>
-      <div class="form-grid">
-        <div class="form-row"><span class="form-label">اسم السلاح / العتاد:</span><span class="form-value">${item.name || "—"}</span></div>
-        <div class="form-row"><span class="form-label">التصنيف التسليحي:</span><span class="form-value">${item.category_name || "—"}</span></div>
-        <div class="form-row"><span class="form-label">الرقم التسلسلي المنقوش:</span><span class="form-value font-mono">${item.serial_number || "—"}</span></div>
-        <div class="form-row"><span class="form-label">العيار الباليستي:</span><span class="form-value">${item.caliber || "—"}</span></div>
-        <div class="form-row"><span class="form-label">الموديل / بلد الصنع:</span><span class="form-value">${item.model_name || "—"}</span></div>
-        <div class="form-row"><span class="form-label">الحالة الفنية للقطعة:</span><span class="form-value">${item.status_display || item.status || "صالح للخدمة"}</span></div>
-        <div class="form-row"><span class="form-label">الكمية الإجمالية:</span><span class="form-value">${item.total_quantity || 1}</span></div>
-        <div class="form-row"><span class="form-label">المتوفر في الخزينة:</span><span class="form-value">${item.available_quantity ?? 1}</span></div>
-        <div class="form-row" style="grid-column: span 2;"><span class="form-label">موقع الحفظ والملاحظات:</span><span class="form-value">${item.notes || "مسجل بخزينة الأسلحة الرئيسية"}</span></div>
-      </div>
-    `;
-  } else if (type === "vehicle") {
-    specsHtml = `
-      <div class="section-title">أولاً: البيانات الفنية والمواصفات الرسمية للمركبة</div>
-      <div class="form-grid">
-        <div class="form-row"><span class="form-label">اسم وطراز المركبة:</span><span class="form-value">${item.name || "—"}</span></div>
-        <div class="form-row"><span class="form-label">نوع المركبة:</span><span class="form-value">${item.vehicle_type_display || item.vehicle_type || "—"}</span></div>
-        <div class="form-row"><span class="form-label">رقم الهيكل (VIN):</span><span class="form-value font-mono">${item.vin_number || "—"}</span></div>
-        <div class="form-row"><span class="form-label">رقم اللوحة المعدنية:</span><span class="form-value">${item.plate_number || "—"}</span></div>
-        <div class="form-row"><span class="form-label">سنة الصنع والموديل:</span><span class="form-value">${item.model_year || "—"}</span></div>
-        <div class="form-row"><span class="form-label">اللون:</span><span class="form-value">${item.color || "—"}</span></div>
-        <div class="form-row"><span class="form-label">نوع التبعية:</span><span class="form-value">${item.affiliation_type === "external" ? `جهة خارجية (${item.external_unit_name || "—"})` : `وحدة داخلية (${item.faction_name || "—"})`}</span></div>
-        <div class="form-row"><span class="form-label">حالة التشغيل:</span><span class="form-value">${item.status_display || item.status || "جاهزة للعمليات"}</span></div>
-        <div class="form-row"><span class="form-label">السائق المسند إليه:</span><span class="form-value">${item.driver_name ? `${item.driver_name} (${item.driver_force_number || ""})` : "غير مسند لسائق حالياً"}</span></div>
-        <div class="form-row"><span class="form-label">السلاح المثبت:</span><span class="form-value">${item.has_weapon ? `${item.mounted_weapon_name || "سلاح مثبت"} (رقم: ${item.mounted_weapon_serial || "—"})` : "بدون سلاح مثبت"}</span></div>
-      </div>
-    `;
-  } else {
-    specsHtml = `
-      <div class="section-title">أولاً: البيانات الفنية والمخزنية للصنف</div>
-      <div class="form-grid">
-        <div class="form-row"><span class="form-label">اسم الصنف:</span><span class="form-value">${item.name || "—"}</span></div>
-        <div class="form-row"><span class="form-label">التصنيف العام:</span><span class="form-value">${item.category_name || "—"}</span></div>
-        <div class="form-row"><span class="form-label">كود الصنف / الباركود:</span><span class="form-value font-mono">${item.item_code || "—"}</span></div>
-        <div class="form-row"><span class="form-label">وحدة القياس / العبوة:</span><span class="form-value">${item.unit || "قطعة"}</span></div>
-        <div class="form-row"><span class="form-label">إجمالي الرصيد:</span><span class="form-value">${item.total_quantity || 0}</span></div>
-        <div class="form-row"><span class="form-label">المتوفر بالمخزن:</span><span class="form-value">${item.available_quantity ?? item.total_quantity ?? 0}</span></div>
-        <div class="form-row"><span class="form-label">المسلّم كعهدة:</span><span class="form-value">${(item.total_quantity || 0) - (item.available_quantity || 0)}</span></div>
-        <div class="form-row"><span class="form-label">حالة الصنف:</span><span class="form-value">${item.status_display || item.status || "صالح للاستخدام"}</span></div>
-        <div class="form-row" style="grid-column: span 2;"><span class="form-label">ملاحظات ومكان التخزين:</span><span class="form-value">${item.notes || "مسجل بالمستودع المركزي"}</span></div>
-      </div>
-    `;
-  }
-
-  // Build History Table
-  let historyHtml = `
-    <div class="section-title">ثانياً: سجل سلسلة الحيازة والتنقلات والعهد الرسمية</div>
-  `;
-
-  if (!history || history.length === 0) {
-    historyHtml += `
-      <div style="border: 1px solid #e2e8f0; border-radius: 8px; padding: 14px; text-align: center; color: #64748b; font-size: 12px; margin-bottom: 20px;">
-        لا توجد سجلات حيازة أو تنقلات سابقة مسجلة على هذا الأصل حتى تاريخه.
-      </div>
-    `;
-  } else {
-    historyHtml += `
-      <table class="gov-table">
-        <thead>
+  const historyRowsHtml = Array.isArray(history) && history.length > 0
+    ? `
+    <div class="section-title">سجل الحركات والعمليات السابقة على الصنف</div>
+    <table class="gov-table">
+      <thead>
+        <tr>
+          <th style="width: 30px; text-align: center;">#</th>
+          <th>تاريخ العملية</th>
+          <th>نوع الحركة</th>
+          <th>الكمية</th>
+          <th>المستلم / القائم بالإجراء</th>
+          <th>البيان والملاحظات</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${history.slice(0, 15).map((h, idx) => `
           <tr>
-            <th style="width: 30px;">#</th>
-            <th>تاريخ الإجراء</th>
-            <th>نوع الحركة / الإجراء</th>
-            <th>المستلم / المستفيد</th>
-            <th>الرقم العسكري / التبعية</th>
-            <th>القائم بالصرف والإجراء</th>
-            <th>ملاحظات</th>
+            <td style="text-align: center; font-weight: 700;">${idx + 1}</td>
+            <td>${h.created_at ? new Date(h.created_at).toLocaleDateString("ar-LY") : h.date || "—"}</td>
+            <td style="font-weight: 700;">${h.action_display || h.action_type || h.action || "حركة مستودعية"}</td>
+            <td style="text-align: center; font-weight: 700;">${h.quantity ?? 1}</td>
+            <td>${h.member_name || h.performed_by_name || "—"}</td>
+            <td>${h.notes || h.description || "—"}</td>
           </tr>
-        </thead>
-        <tbody>
-          ${history
-            .map(
-              (rec, index) => `
-            <tr>
-              <td style="text-align: center; font-weight: 700;">${index + 1}</td>
-              <td>${rec.action_date || rec.created_at ? new Date(rec.action_date || rec.created_at).toLocaleDateString("ar-LY") : "—"}</td>
-              <td style="font-weight: 700;">${rec.action_display || rec.action || "تسليم عهدة"}</td>
-              <td>${rec.member_name || rec.driver_name || rec.driver || "—"}</td>
-              <td>${rec.force_number || rec.external_unit_name || rec.faction_name || "—"}</td>
-              <td>${rec.issued_by_name || rec.issued_by || "مسؤول المنظومة"}</td>
-              <td>${rec.notes || "—"}</td>
-            </tr>
-          `
-            )
-            .join("")}
-        </tbody>
-      </table>
-    `;
-  }
+        `).join("")}
+      </tbody>
+    </table>
+    `
+    : "";
 
-  const contentHtml = specsHtml + historyHtml;
+  const contentHtml = `
+    <div class="section-title">المواصفات الفنية والبيانات الأساسية</div>
+    <div class="form-grid">
+      <div class="form-row"><span class="form-label">اسم الصنف:</span><span class="form-value">${item.name || "—"}</span></div>
+      <div class="form-row"><span class="form-label">التصنيف:</span><span class="form-value">${item.category_name || "عام"}</span></div>
+      <div class="form-row"><span class="form-label">${isArmory ? "العيار / المواصفة:" : "كود الصنف:"}</span><span class="form-value">${item.caliber || item.item_code || "—"}</span></div>
+      <div class="form-row"><span class="form-label">الرقم التسلسلي:</span><span class="form-value font-mono">${item.serial_number || "غير محدد"}</span></div>
+      <div class="form-row"><span class="form-label">بلد الصنع / المصنع:</span><span class="form-value">${item.manufacturer || "—"}</span></div>
+      <div class="form-row"><span class="form-label">موقع التخزين / الجناح:</span><span class="form-value">${item.storage_location || "المستودع الرئيسي"}</span></div>
+    </div>
+
+    <div class="section-title">الأرصدة الحالية وحالة العهدة والتخزين</div>
+    <div class="form-grid" style="grid-template-columns: repeat(4, 1fr);">
+      <div class="form-row"><span class="form-label">إجمالي الرصيد:</span><span class="form-value font-mono" style="font-size: 14px; font-weight: 800;">${item.total_quantity ?? 0}</span></div>
+      <div class="form-row"><span class="form-label">المتاح بالمخزن:</span><span class="form-value font-mono" style="font-size: 14px; color: #16a34a; font-weight: 800;">${item.available_quantity ?? 0}</span></div>
+      <div class="form-row"><span class="form-label">المسلّم بعهدة:</span><span class="form-value font-mono" style="font-size: 14px; color: #2563eb; font-weight: 800;">${item.assigned_quantity ?? 0}</span></div>
+      <div class="form-row"><span class="form-label">التالف / المعطل:</span><span class="form-value font-mono" style="font-size: 14px; color: #dc2626; font-weight: 800;">${item.damaged_quantity ?? 0}</span></div>
+    </div>
+
+    ${
+      item.notes
+        ? `
+      <div class="section-title">الملاحظات والتعليمات الفنية</div>
+      <div style="background: #f8fafc; border: 1px solid #e2e8f0; padding: 12px 16px; border-radius: 8px; font-size: 12px; color: #334155; margin-bottom: 16px;">
+        ${item.notes}
+      </div>
+    `
+        : ""
+    }
+
+    ${historyRowsHtml}
+  `;
 
   openPrintWindow({
     title: docTitle,
-    subtitle: docSubtitle,
+    subtitle: `كود الصنف: ${item.serial_number || item.item_code || "NASF-ITEM"} | الحالة العامة: ممتاز وجاهز للصرف`,
     department,
     docType,
-    documentNumber: `CARD-${item.id}-${Date.now().toString().slice(-4)}`,
+    documentNumber: `CARD-${(item.id || Date.now().toString().slice(-5)).toString().padStart(5, "0")}`,
     orientation: "portrait",
     contentHtml,
   });
 }
 
 /**
- * Formats Custody Handover Voucher into official printable document in new window.
+ * Formats Custody Handover Voucher into official printable document.
  */
-export function printCustodyVoucherInNewWindow({ item, custodyRecord, voucherNumber }) {
-  const recipientName = custodyRecord?.member_name || "الفرد المستلم للعهدة";
-  const recipientForceNumber = custodyRecord?.force_number || "—";
-  const recipientRank = custodyRecord?.rank_name || "عضو بالقوة";
-  const recipientFaction = custodyRecord?.faction_name || "الإدارة العامة";
+export function printCustodyVoucherInNewWindow({ custody, custodyRecord, item = {}, member = {}, action = "صرف عهدة", voucherNumber }) {
+  const rec = custodyRecord || custody || {};
+  const isArmory = Boolean(item.serial_number || item.caliber || rec.serial_number);
+  const docTitle = `محضر ${action} رسمي معتمد`;
+  const department = isArmory ? "إدارة التسليح والذخائر" : "إدارة المستودعات والعهد العامة";
+  const docType = "محضر تسليم واستلام عهدة";
 
-  const itemName = item?.name || custodyRecord?.item_name || "صنف عسكري / مهمات";
-  const itemCode = item?.code || custodyRecord?.item_code || "—";
-  const itemSerial = item?.serial_number || custodyRecord?.serial_number || "—";
-  const itemCategory = item?.category_name || "مهمات وعتاد";
-  const quantity = custodyRecord?.quantity || 1;
+  const memberName = member?.full_name || rec.member_name || rec.recipient_name || "—";
+  const forceNumber = member?.force_number || rec.force_number || rec.recipient_force_number || "—";
+  const rankName = member?.rank_name || rec.rank_name || rec.recipient_rank || "عضو";
+  const factionName = member?.faction_name || rec.faction_name || rec.recipient_faction || "عام";
+  const nationalNumber = member?.national_number || rec.national_number || "—";
+  const phone = member?.phone_number || rec.phone || rec.phone_number || "—";
+
+  const itemName = item?.name || rec.item_name || "—";
+  const itemQty = rec.quantity || custody?.quantity || 1;
+  const itemCodeOrSerial = isArmory
+    ? (item.serial_number || rec.serial_number || item.caliber || "—")
+    : (item.item_code || rec.item_code || "—");
 
   const contentHtml = `
-    <div class="section-title">أولاً: بيانات الطرف المستلم للعهدة</div>
+    <div class="section-title">بيانات المستلم / صاحب العهدة</div>
     <div class="form-grid">
-      <div class="form-row"><span class="form-label">اسم المستلم الكامل:</span><span class="form-value">${recipientName}</span></div>
-      <div class="form-row"><span class="form-label">الرقم العسكري:</span><span class="form-value font-mono">${recipientForceNumber}</span></div>
-      <div class="form-row"><span class="form-label">الرتبة العسكرية:</span><span class="form-value">${recipientRank}</span></div>
-      <div class="form-row"><span class="form-label">الوحدة / الفصيل:</span><span class="form-value">${recipientFaction}</span></div>
+      <div class="form-row"><span class="form-label">اسم المستلم:</span><span class="form-value">${memberName}</span></div>
+      <div class="form-row"><span class="form-label">الرقم العسكري:</span><span class="form-value font-mono">${forceNumber}</span></div>
+      <div class="form-row"><span class="form-label">الرتبة العسكرية:</span><span class="form-value">${rankName}</span></div>
+      <div class="form-row"><span class="form-label">الإدارة / الفصيل:</span><span class="form-value">${factionName}</span></div>
+      <div class="form-row"><span class="form-label">الرقم الوطني:</span><span class="form-value font-mono">${nationalNumber}</span></div>
+      <div class="form-row"><span class="form-label">رقم الهاتف:</span><span class="form-value font-mono">${phone}</span></div>
     </div>
 
-    <div class="section-title">ثانياً: تفاصيل الصنف المسلّم كعهدة رسمية</div>
+    <div class="section-title">بيانات الصنف أو السلاح المسلّم</div>
     <div class="form-grid">
-      <div class="form-row"><span class="form-label">اسم الصنف / العتاد:</span><span class="form-value">${itemName}</span></div>
-      <div class="form-row"><span class="form-label">التصنيف:</span><span class="form-value">${itemCategory}</span></div>
-      <div class="form-row"><span class="form-label">كود الصنف:</span><span class="form-value font-mono">${itemCode}</span></div>
-      <div class="form-row"><span class="form-label">الرقم التسلسلي:</span><span class="form-value font-mono">${itemSerial}</span></div>
-      <div class="form-row"><span class="form-label">الكمية المسلمة:</span><span class="form-value">${quantity}</span></div>
-      <div class="form-row"><span class="form-label">تاريخ التسليم:</span><span class="form-value">${new Date().toLocaleDateString("ar-LY")}</span></div>
-      <div class="form-row" style="grid-column: span 2;"><span class="form-label">إقرار الاستلام:</span><span class="form-value">أقر أنا المستلم أعلاه بأنني استلمت الصنف الموضح بكامل حالته الفنية وأتعهد بالمحافظة عليه وفق اللوائح المعمول بها.</span></div>
+      <div class="form-row"><span class="form-label">الصنف المسلّم:</span><span class="form-value">${itemName}</span></div>
+      <div class="form-row"><span class="form-label">الكمية المسلّمة:</span><span class="form-value font-mono" style="font-weight: 800;">${itemQty} قطعة</span></div>
+      <div class="form-row"><span class="form-label">${isArmory ? "الرقم التسلسلي (Serial):" : "كود القطعة:"}</span><span class="form-value font-mono">${itemCodeOrSerial}</span></div>
+      <div class="form-row"><span class="form-label">الحالة عند التسليم:</span><span class="form-value" style="color: #16a34a;">ممتازة وجاهزة للاستخدام</span></div>
+    </div>
+
+    <div class="section-title">إقرار وتعهد الاستلام</div>
+    <div style="background: #f8fafc; border: 1.5px solid #cbd5e1; padding: 14px 18px; border-radius: 8px; font-size: 11.5px; line-height: 1.7; color: #1e293b; margin-bottom: 20px;">
+      أقر أنا المذكور بياناتي أعلاه بأنني قد استلمت العهدة الموضحة تفاصيلها بهذا المحضر، وهي بحالة فنية ممتازة وصالحة للاستعمال، وأتعهد بالمحافظة التامة عليها واستخدامها وفق الأوامر والتعليمات العسكرية المعمول بها، وتحمل المسؤولية القانونية والإدارية الكاملة في حال فقدانها أو إتلافها أو إهمالها.
     </div>
   `;
 
   openPrintWindow({
-    title: "محضر تسليم واستلام عهدة ومهمات عسكرية رسمية",
-    subtitle: `رقم المحضر: ${voucherNumber || "VOUCH-" + Date.now().toString().slice(-6)}`,
-    department: "إدارة التسليح والمهمات والعهد",
-    docType: "محضر تسليم واستلام عهدة",
-    documentNumber: voucherNumber,
+    title: docTitle,
+    subtitle: `رقم إذن الصرف: ${voucherNumber || rec.id || "VCH-001"} | تاريخ التسليم: ${new Date().toLocaleDateString("ar-LY")}`,
+    department,
+    docType,
+    documentNumber: voucherNumber || `VOUCHER-${(rec.id || Date.now().toString().slice(-5))}`,
     orientation: "portrait",
     contentHtml,
   });
 }
 
 /**
- * Formats Vehicle Trip Voucher into official printable document in new window.
+ * Formats Vehicle Trip Ticket into official printable document.
  */
-export function printVehicleTripVoucherInNewWindow({ vehicle, tripNumber }) {
-  if (!vehicle) return;
+export function printTripTicketInNewWindow({ vehicle = {}, trip = {}, tripNumber }) {
+  const docTitle = "أمر تحرك ومهمة مركبة آلية رسمي";
+  const department = "إدارة النقليات والآليات";
+  const docType = "أمر تحرك رسمي";
+  const vName = vehicle.name || "الآلية والمركبة";
+  const tNum = tripNumber || trip.id || `TRIP-${Date.now().toString().slice(-5)}`;
 
   const contentHtml = `
-    <div class="section-title">أولاً: بيانات الآلية / المركبة المأمورة</div>
+    <div class="section-title">بيانات الآلية والمركبة</div>
     <div class="form-grid">
-      <div class="form-row"><span class="form-label">اسم وطراز المركبة:</span><span class="form-value">${vehicle.name || "—"}</span></div>
-      <div class="form-row"><span class="form-label">رقم اللوحة المعدنية:</span><span class="form-value font-mono">${vehicle.plate_number || "—"}</span></div>
+      <div class="form-row"><span class="form-label">المركبة والطراز:</span><span class="form-value">${vName}</span></div>
+      <div class="form-row"><span class="form-label">رقم اللوحة:</span><span class="form-value font-mono">${vehicle.plate_number || "بدون لوحة"}</span></div>
       <div class="form-row"><span class="form-label">رقم الهيكل (VIN):</span><span class="form-value font-mono">${vehicle.vin_number || "—"}</span></div>
-      <div class="form-row"><span class="form-label">نوع التبعية:</span><span class="form-value">${vehicle.affiliation_type === "external" ? `جهة خارجية (${vehicle.external_unit_name || "—"})` : `فصيل داخلي (${vehicle.faction_name || "—"})`}</span></div>
-      <div class="form-row"><span class="form-label">السائق المكلّف:</span><span class="form-value">${vehicle.driver_name || "غير محدد"}</span></div>
-      <div class="form-row"><span class="form-label">الرقم العسكري للسائق:</span><span class="form-value font-mono">${vehicle.driver_force_number || "—"}</span></div>
-      <div class="form-row" style="grid-column: span 2;"><span class="form-label">السلاح والتجهيز:</span><span class="form-value">${vehicle.has_weapon ? `${vehicle.mounted_weapon_name || "سلاح مثبت"} (رقم: ${vehicle.mounted_weapon_serial || "—"})` : "بدون تسليح مثبت"}</span></div>
+      <div class="form-row"><span class="form-label">التبعية:</span><span class="form-value">${vehicle.affiliation_type === "external" ? vehicle.external_unit_name || "جهة خارجية" : vehicle.faction_name || "عام"}</span></div>
+      <div class="form-row"><span class="form-label">قراءة العداد الحالية:</span><span class="form-value font-mono">${vehicle.odometer_reading ? `${vehicle.odometer_reading} كم` : "—"}</span></div>
+      <div class="form-row"><span class="form-label">التسليح المثبت:</span><span class="form-value">${vehicle.has_weapon ? vehicle.mounted_weapon_name : "غير مسلحة"}</span></div>
     </div>
 
-    <div class="section-title">ثانياً: خط السير والتكليف العملياتي</div>
+    <div class="section-title">بيانات السائق المكلف والمهمة</div>
     <div class="form-grid">
-      <div class="form-row"><span class="form-label">نقطة الانطلاق:</span><span class="form-value">المقر الرئيسي / معسكر القوة</span></div>
-      <div class="form-row"><span class="form-label">الوجهة والمهمة:</span><span class="form-value">مأمورية عملياتية وتأمين رسمي</span></div>
-      <div class="form-row"><span class="form-label">تاريخ وتوقيت الانطلاق:</span><span class="form-value">${new Date().toLocaleDateString("ar-LY")}</span></div>
-      <div class="form-row"><span class="form-label">مدة الإذن:</span><span class="form-value">24 ساعة من تاريخ وساعة الإصدار</span></div>
+      <div class="form-row"><span class="form-label">السائق المكلف:</span><span class="form-value">${vehicle.driver_name || trip.driver_name || vehicle.assigned_driver_name || "—"}</span></div>
+      <div class="form-row"><span class="form-label">وجهة التحرك:</span><span class="form-value">${trip.destination || "وفق خط السير المعتمد"}</span></div>
+      <div class="form-row"><span class="form-label">تاريخ ووقت التحرك:</span><span class="form-value">${trip.departure_time || new Date().toLocaleString("ar-LY")}</span></div>
+      <div class="form-row"><span class="form-label">الغرض من التحرك:</span><span class="form-value">${trip.purpose || "مهمة إدارية / عملياتية رسمية"}</span></div>
+    </div>
+
+    <div class="section-title">تعليمات السير والانضباط</div>
+    <div style="background: #f8fafc; border: 1px solid #e2e8f0; padding: 12px 16px; border-radius: 8px; font-size: 11.5px; color: #475569; margin-bottom: 16px;">
+      يُحظر استخدام المركبة في غير الأغراض المحددة بأمر التحرك، ويلتزم السائق بقواعد المرور والسرعات المحددة وفحص السوائل والإطارات قبل الانطلاق.
     </div>
   `;
 
   openPrintWindow({
-    title: "أمر تحرك ومأمورية آلية عسكرية رسمية",
-    subtitle: `إذن تحرك رسمي صادر للمركبة: ${vehicle.name} (لوحة: ${vehicle.plate_number || "—"})`,
-    department: "شعبة النقليات والحركة",
-    docType: "أمر تحرك وبطاقة تشغيل",
-    documentNumber: tripNumber || `TRIP-${Date.now().toString().slice(-6)}`,
+    title: docTitle,
+    subtitle: `رقم أمر التحرك: ${tNum} | المركبة: ${vName}`,
+    department,
+    docType,
+    documentNumber: tNum,
     orientation: "portrait",
     contentHtml,
   });
 }
+
+export const printVehicleTripVoucherInNewWindow = printTripTicketInNewWindow;
 
 /**
  * Formats full Inventory or Armory stocktaking summary table into official printable document.
@@ -628,31 +659,9 @@ export function printInventorySummaryInNewWindow({ items = [], domain = "invento
   const department = isArmory ? "إدارة التسليح والذخائر" : "المستودع والمخازن العامة";
   const docType = isArmory ? "كشف حصر تسليحي" : "كشف جرد مستودع";
 
-  let totalQty = 0;
-  let availQty = 0;
-  let assignQty = 0;
-  let dmgQty = 0;
-
-  items.forEach((it) => {
-    totalQty += Number(it.total_quantity) || 0;
-    availQty += Number(it.available_quantity) || 0;
-    assignQty += Number(it.assigned_quantity) || 0;
-    dmgQty += Number(it.damaged_quantity) || 0;
-  });
-
   const filterBox = filtersSummary
     ? `<div class="filter-summary-box"><strong>معايير التصفية المطبقة:</strong> ${filtersSummary}</div>`
     : "";
-
-  const statsHtml = `
-    ${filterBox}
-    <div class="form-grid" style="grid-template-columns: repeat(4, 1fr); margin-bottom: 16px; background: #f8fafc;">
-      <div class="form-row"><span class="form-label">إجمالي الأصناف:</span><span class="form-value">${items.length} صنف</span></div>
-      <div class="form-row"><span class="form-label">إجمالي الرصيد:</span><span class="form-value">${totalQty} قطعة</span></div>
-      <div class="form-row"><span class="form-label">المتوفر بالمستودع:</span><span class="form-value" style="color: #16a34a;">${availQty}</span></div>
-      <div class="form-row"><span class="form-label">المسلّم كعهدة:</span><span class="form-value" style="color: #2563eb;">${assignQty}</span></div>
-    </div>
-  `;
 
   const rowsHtml = items.length === 0
     ? `<tr><td colspan="8" style="text-align: center; padding: 18px; color: #64748b;">لا توجد أصناف مسجلة في هذا الكشف.</td></tr>`
@@ -701,7 +710,7 @@ export function printInventorySummaryInNewWindow({ items = [], domain = "invento
     docType,
     documentNumber: `INV-SUM-${Date.now().toString().slice(-6)}`,
     orientation: isArmory ? "portrait" : "landscape",
-    contentHtml: statsHtml + tableHtml,
+    contentHtml: filterBox + tableHtml,
   });
 }
 
@@ -711,24 +720,9 @@ export function printInventorySummaryInNewWindow({ items = [], domain = "invento
 export function printVehiclesSummaryInNewWindow({ vehicles = [], filtersSummary = "" }) {
   const docTitle = "كشف حصر وجرد أسطول الآليات والمركبات الرسمي";
 
-  const total = vehicles.length;
-  const ready = vehicles.filter((v) => v.status === "ready").length;
-  const external = vehicles.filter((v) => v.affiliation_type === "external" || Boolean(v.external_unit_name)).length;
-  const withWeapon = vehicles.filter((v) => v.has_weapon).length;
-
   const filterBox = filtersSummary
     ? `<div class="filter-summary-box"><strong>معايير التصفية المطبقة:</strong> ${filtersSummary}</div>`
     : "";
-
-  const statsHtml = `
-    ${filterBox}
-    <div class="form-grid" style="grid-template-columns: repeat(4, 1fr); margin-bottom: 16px; background: #f8fafc;">
-      <div class="form-row"><span class="form-label">إجمالي الأسطول:</span><span class="form-value">${total} آلية</span></div>
-      <div class="form-row"><span class="form-label">جاهزة للعمليات:</span><span class="form-value" style="color: #16a34a;">${ready}</span></div>
-      <div class="form-row"><span class="form-label">تبعية خارجية:</span><span class="form-value" style="color: #7c3aed;">${external}</span></div>
-      <div class="form-row"><span class="form-label">مركبات مسلحة:</span><span class="form-value" style="color: #d97706;">${withWeapon}</span></div>
-    </div>
-  `;
 
   const rowsHtml = vehicles.length === 0
     ? `<tr><td colspan="8" style="text-align: center; padding: 18px; color: #64748b;">لا توجد مركبات مسجلة في هذا الكشف.</td></tr>`
@@ -777,7 +771,7 @@ export function printVehiclesSummaryInNewWindow({ vehicles = [], filtersSummary 
     docType: "كشف حصر أسطول الآليات",
     documentNumber: `VEH-SUM-${Date.now().toString().slice(-6)}`,
     orientation: "landscape",
-    contentHtml: statsHtml + tableHtml,
+    contentHtml: filterBox + tableHtml,
   });
 }
 
@@ -790,15 +784,6 @@ export function printAuditLogsInNewWindow({ logs = [], filtersSummary = "" }) {
   const filterBox = filtersSummary
     ? `<div class="filter-summary-box"><strong>معايير التصفية المطبقة:</strong> ${filtersSummary}</div>`
     : "";
-
-  const statsHtml = `
-    ${filterBox}
-    <div class="form-grid" style="grid-template-columns: repeat(3, 1fr); margin-bottom: 16px; background: #f8fafc;">
-      <div class="form-row"><span class="form-label">إجمالي العمليات:</span><span class="form-value">${logs.length} عملية</span></div>
-      <div class="form-row"><span class="form-label">تاريخ التقرير:</span><span class="form-value">${new Date().toLocaleDateString("ar-LY")}</span></div>
-      <div class="form-row"><span class="form-label">مستوى التوثيق:</span><span class="form-value" style="color: #2563eb;">تدقيق شامل وموثق</span></div>
-    </div>
-  `;
 
   const rowsHtml = logs.length === 0
     ? `<tr><td colspan="7" style="text-align: center; padding: 18px; color: #64748b;">لا توجد سجلات تدقيق مطابقة لمعايير البحث والتصفية.</td></tr>`
@@ -845,7 +830,7 @@ export function printAuditLogsInNewWindow({ logs = [], filtersSummary = "" }) {
     docType: "تقرير تدقيق ومطابقة أنشطة",
     documentNumber: `AUDIT-${Date.now().toString().slice(-6)}`,
     orientation: "landscape",
-    contentHtml: statsHtml + tableHtml,
+    contentHtml: filterBox + tableHtml,
   });
 }
 
@@ -858,15 +843,6 @@ export function printMembersSummaryInNewWindow({ members = [], filtersSummary = 
   const filterBox = filtersSummary
     ? `<div class="filter-summary-box"><strong>معايير التصفية المطبقة:</strong> ${filtersSummary}</div>`
     : "";
-
-  const statsHtml = `
-    ${filterBox}
-    <div class="form-grid" style="grid-template-columns: repeat(3, 1fr); margin-bottom: 16px; background: #f8fafc;">
-      <div class="form-row"><span class="form-label">إجمالي الأفراد:</span><span class="form-value">${members.length} فرد</span></div>
-      <div class="form-row"><span class="form-label">تاريخ الحصر:</span><span class="form-value">${new Date().toLocaleDateString("ar-LY")}</span></div>
-      <div class="form-row"><span class="form-label">حالة القيد:</span><span class="form-value" style="color: #16a34a;">كشف رسمي معتمد</span></div>
-    </div>
-  `;
 
   const rowsHtml = members.length === 0
     ? `<tr><td colspan="7" style="text-align: center; padding: 18px; color: #64748b;">لا توجد سجلات أفراد مطابقة لخيارات التصفية.</td></tr>`
@@ -913,6 +889,73 @@ export function printMembersSummaryInNewWindow({ members = [], filtersSummary = 
     docType: "كشف حصر قوة عسكرية",
     documentNumber: `MEM-SUM-${Date.now().toString().slice(-6)}`,
     orientation: "landscape",
-    contentHtml: statsHtml + tableHtml,
+    contentHtml: filterBox + tableHtml,
+  });
+}
+
+/**
+ * Formats Individual Member Profile into official printable document (Portrait).
+ */
+export function printMemberProfileInNewWindow({ member = {} }) {
+  const docTitle = `استمارة وبيانات قيد فرد: ${member.full_name || "عضو"}`;
+  const department = member.faction_name ? `إدارة / ${member.faction_name}` : "شعبة شؤون الأفراد والضباط";
+  const docType = "استمارة قيد وبيانات فرد";
+  const forceNumber = member.force_number || "—";
+  const photoSrc = member.photo_url || member.photo || member.photo_thumb_url;
+
+  const photoHtml = photoSrc
+    ? `<img src="${photoSrc}" alt="صورة الفرد" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.parentElement.innerHTML='<span style=\\'font-size: 10px; color: #94a3b8; font-weight: bold;\\'>صورة شخصية</span>'" />`
+    : `<div style="display: flex; align-items: center; justify-content: center; height: 100%; font-size: 11px; font-weight: 700; color: #94a3b8; text-align: center; line-height: 1.4;">صورة الفرد<br>(غير متوفرة)</div>`;
+
+  const topCardHtml = `
+    <div style="display: flex; align-items: center; justify-content: space-between; gap: 20px; background: #f8fafc; border: 1.5px solid #cbd5e1; border-radius: 10px; padding: 14px 18px; margin-bottom: 18px;">
+      <div style="width: 95px; height: 120px; border: 1.5px solid #0a2540; border-radius: 6px; background: #ffffff; overflow: hidden; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+        ${photoHtml}
+      </div>
+      <div style="flex: 1;">
+        <h2 style="font-size: 17px; font-weight: 800; color: #0a2540; margin: 0 0 10px 0;">${member.full_name || "—"}</h2>
+        <div class="form-grid" style="padding: 0; background: transparent; border: none; margin-bottom: 0; gap: 6px 14px;">
+          <div class="form-row"><span class="form-label" style="min-width: 90px;">الرقم الحربي:</span><span class="form-value font-mono" style="font-weight: 800; color: #0a2540;">${forceNumber}</span></div>
+          <div class="form-row"><span class="form-label" style="min-width: 90px;">الرتبة العسكرية:</span><span class="form-value" style="font-weight: 700; color: #2563eb;">${member.rank_name || "—"}</span></div>
+          <div class="form-row"><span class="form-label" style="min-width: 90px;">الإدارة التابع لها:</span><span class="form-value">${member.faction_name || "—"}</span></div>
+          <div class="form-row"><span class="form-label" style="min-width: 90px;">حالة الخدمة:</span><span class="form-value" style="color: #16a34a; font-weight: 700;">${member.service_status === "active" ? "نشط / بالخدمة" : member.service_status || "نشط"}</span></div>
+        </div>
+      </div>
+    </div>
+  `;
+
+  const personalDataHtml = `
+    <div class="section-title">البيانات الشخصية والسكنية</div>
+    <div class="form-grid">
+      <div class="form-row"><span class="form-label">الرقم الوطني:</span><span class="form-value font-mono">${member.national_number || "—"}</span></div>
+      <div class="form-row"><span class="form-label">رقم الهوية:</span><span class="form-value font-mono">${member.id_card_number || "—"}</span></div>
+      <div class="form-row"><span class="form-label">رقم جواز السفر:</span><span class="form-value font-mono">${member.passport_number || "—"}</span></div>
+      <div class="form-row"><span class="form-label">اسم الأم:</span><span class="form-value">${member.mother_name || "—"}</span></div>
+      <div class="form-row"><span class="form-label">تاريخ الميلاد:</span><span class="form-value font-mono">${member.date_of_birth || "—"}</span></div>
+      <div class="form-row"><span class="form-label">مكان الميلاد:</span><span class="form-value">${member.place_of_birth || "—"}</span></div>
+      <div class="form-row"><span class="form-label">فصيلة الدم:</span><span class="form-value font-mono" style="font-weight: 800; color: #dc2626;">${member.blood_type || "—"}</span></div>
+      <div class="form-row"><span class="form-label">رقم الهاتف:</span><span class="form-value font-mono">${member.phone || member.phone_number || "—"}</span></div>
+      <div class="form-row"><span class="form-label">تاريخ الالتحاق:</span><span class="form-value font-mono">${member.join_date || "—"}</span></div>
+      <div class="form-row"><span class="form-label">السكن الحالي:</span><span class="form-value">${member.current_residence || "—"}</span></div>
+      <div class="form-row"><span class="form-label">أقرب نقطة دالة:</span><span class="form-value">${member.nearest_landmark || "—"}</span></div>
+      <div class="form-row"><span class="form-label">حالة الاعتماد:</span><span class="form-value" style="font-weight: 700;">${member.approval_status === "approved" ? "معتمد" : member.approval_status || "معتمد"}</span></div>
+    </div>
+  `;
+
+  const pledgesHtml = `
+    <div class="section-title">التعهدات والالتزامات المسجلة</div>
+    <div style="background: #f8fafc; border: 1px solid #cbd5e1; padding: 12px 16px; border-radius: 8px; font-size: 11.5px; line-height: 1.7; color: #334155; margin-bottom: 16px;">
+      ${member.pledges ? member.pledges.replace(/\n/g, "<br>") : "لا توجد تعهدات خاصة مسجلة، ويلتزم الفرد بالواجبات واللوائح العسكرية المعمول بها بالجهاز."}
+    </div>
+  `;
+
+  openPrintWindow({
+    title: docTitle,
+    subtitle: `الرقم الحربي: ${forceNumber} | الرتبة: ${member.rank_name || "—"} | الإدارة: ${member.faction_name || "—"}`,
+    department,
+    docType,
+    documentNumber: forceNumber,
+    orientation: "portrait",
+    contentHtml: topCardHtml + personalDataHtml + pledgesHtml,
   });
 }

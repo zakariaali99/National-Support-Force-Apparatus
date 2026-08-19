@@ -16,6 +16,7 @@ import { Checkbox } from "../../components/ui/Checkbox";
 import { showToast } from "../../components/ui/Toast";
 import { staggerIn } from "../../lib/motion";
 import { useReportSections, openAuthedPdf, downloadAuthedFile } from "../reports/api";
+import { printMemberProfileInNewWindow } from "../../lib/printUtils";
 import { useMemberDocuments } from "./api";
 
 export function PrintDialog({ member, open: controlledOpen, onOpenChange: setControlledOpen, trigger }) {
@@ -104,12 +105,16 @@ export function PrintDialog({ member, open: controlledOpen, onOpenChange: setCon
     }
     setBusy(true);
     try {
-      const url = buildUrl() + (download ? "&download=1" : "");
       if (download) {
+        const url = buildUrl() + "&download=1";
         await downloadAuthedFile(url, `ملف_${member.force_number}_${member.full_name}.pdf`);
         showToast("تم بدء تنزيل ملف PDF", "success");
       } else {
-        await openAuthedPdf(url);
+        printMemberProfileInNewWindow({
+          member,
+          sections: selectedSections,
+          documents: documents.filter((d) => selectedDocuments.has(d.id)),
+        });
       }
       handleOpenChange(false);
     } catch {

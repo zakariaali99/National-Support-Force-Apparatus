@@ -440,8 +440,8 @@ export function MemberList() {
                           variant="ghost"
                           size="icon"
                           className="h-7.5 w-7.5 rounded-lg text-slate-500 hover:text-[#2B95E8] dark:hover:text-slate-100"
-                          title="طباعة البطاقة الرسمية"
-                          onClick={() => handlePrint(member)}
+                          title="طباعة ملف الفرد"
+                          onClick={() => setActiveProcedure({ type: "print", member })}
                         >
                           <Printer className="h-3.5 w-3.5" />
                         </Button>

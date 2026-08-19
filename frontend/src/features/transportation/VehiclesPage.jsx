@@ -392,9 +392,9 @@ export default function VehiclesPage() {
           </div>
 
           {/* Clean Responsive Executive Data Table */}
-          <div className="rounded-2xl border border-slate-200/80 dark:border-white/10 overflow-hidden">
-            <table className="w-full text-start text-body-sm table-auto">
-              <thead className="bg-slate-50 dark:bg-white/5 border-b border-slate-200/80 dark:border-white/10 text-slate-700 dark:text-gray-300 font-bold">
+          <div className="rounded-2xl border border-slate-200/80 dark:border-white/10 overflow-x-auto scrollbar-thin">
+            <table className="w-full text-start text-body-sm table-auto min-w-[850px]">
+              <thead className="bg-slate-50 dark:bg-white/5 border-b border-slate-200/80 dark:border-white/10 text-slate-700 dark:text-gray-300 font-bold text-caption">
                 <tr>
                   <th className="py-2.5 px-3 text-start">المركبة والطراز</th>
                   <th className="py-2.5 px-3 text-start">رقم الهيكل واللوحة</th>

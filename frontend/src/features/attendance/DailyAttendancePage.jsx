@@ -32,7 +32,7 @@ import {
   Sparkles,
   RotateCcw,
 } from "lucide-react";
-import { DailyAttendancePrintDialog } from "./DailyAttendancePrintDialog";
+import { printAuthedHtml } from "../../lib/printUtils";
 import { AttendanceDetailsDialog } from "./AttendanceDetailsDialog";
 import { AttendanceChangeConfirmDialog } from "./AttendanceChangeConfirmDialog";
 
@@ -45,9 +45,15 @@ export function DailyAttendancePage() {
   const [statusFilter, setStatusFilter] = useState("all");
   const [localRows, setLocalRows] = useState([]);
   const [isDirty, setIsDirty] = useState(false);
-  const [printModalOpen, setPrintModalOpen] = useState(false);
   const [confirmModalOpen, setConfirmModalOpen] = useState(false);
   const [activeDetailsRow, setActiveDetailsRow] = useState(null);
+
+  const handleDirectPrint = () => {
+    const q = new URLSearchParams();
+    if (selectedDate) q.set("date", selectedDate);
+    if (selectedFaction && selectedFaction !== "all") q.set("faction", selectedFaction);
+    printAuthedHtml(`reports/attendance/daily/pdf/?${q.toString()}`);
+  };
 
   const { data: factions = [] } = useFactions();
 
@@ -292,7 +298,7 @@ export function DailyAttendancePage() {
         <div className="flex flex-wrap items-center gap-2.5">
           <Button
             variant="outline"
-            onClick={() => setPrintModalOpen(true)}
+            onClick={handleDirectPrint}
             className="gap-2 rounded-2xl font-bold border-slate-200/80 dark:border-white/10"
           >
             <Printer className="w-4 h-4 text-[#2B95E8]" />
@@ -714,16 +720,6 @@ export function DailyAttendancePage() {
         open={Boolean(activeDetailsRow)}
         onOpenChange={(isOpen) => !isOpen && setActiveDetailsRow(null)}
         onSave={handleSaveDetails}
-      />
-
-      {/* Official Daily Attendance Print Dialog */}
-      <DailyAttendancePrintDialog
-        rows={localRows}
-        date={selectedDate}
-        factionId={selectedFaction}
-        factionName={factions.find((f) => String(f.id) === String(selectedFaction))?.name_ar}
-        open={printModalOpen}
-        onOpenChange={setPrintModalOpen}
       />
 
       {/* Attendance Change Confirmation Dialog (Changed Rows Only) */}

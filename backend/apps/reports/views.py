@@ -64,6 +64,236 @@ def _get_photo_data_uri(member):
     return None
 
 
+def get_html_print_response(html_content, title="تقرير رسمي", orientation="portrait"):
+    """Wraps HTML content with Google Fonts, modern screen toolbar, and auto-print trigger for browser compatibility."""
+    import re
+    is_landscape = orientation == "landscape"
+    
+    inject_head = f"""
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after {{
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }}
+        body {{
+            font-family: 'Cairo', system-ui, -apple-system, sans-serif !important;
+            background-color: #f1f5f9;
+            color: #0f172a;
+            line-height: 1.6;
+            font-size: 12.5px;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+            padding-bottom: 50px;
+        }}
+        
+        /* Screen Top Floating Toolbar */
+        .screen-toolbar {{
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: #0f172a;
+            color: #ffffff;
+            padding: 12px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            font-family: 'Cairo', sans-serif;
+        }}
+        .screen-toolbar .title {{
+            font-weight: 700;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }}
+        .screen-toolbar .btn-group {{
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }}
+        .btn {{
+            font-family: inherit;
+            font-size: 12.5px;
+            font-weight: 700;
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.15s ease;
+        }}
+        .btn-primary {{
+            background: #2563eb;
+            color: #ffffff;
+        }}
+        .btn-primary:hover {{
+            background: #1d4ed8;
+        }}
+        .btn-outline {{
+            background: rgba(255,255,255,0.1);
+            color: #ffffff;
+            border: 1px solid rgba(255,255,255,0.2);
+        }}
+        .btn-outline:hover {{
+            background: rgba(255,255,255,0.2);
+        }}
+
+        /* A4 Document Page Container */
+        .document-page {{
+            width: {'297mm' if is_landscape else '210mm'};
+            min-height: {'210mm' if is_landscape else '297mm'};
+            margin: 24px auto;
+            background: #ffffff;
+            padding: {'14mm 16mm' if is_landscape else '18mm 18mm'};
+            box-shadow: 0 0 20px rgba(0,0,0,0.08);
+            border-radius: 4px;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }}
+
+        .doc-content-wrapper {{
+            flex: 1 0 auto;
+        }}
+
+        .print-footer, .gov-print-footer {{
+            border-top: 1px solid #cbd5e1;
+            padding-top: 6px;
+            margin-top: auto;
+            display: flex;
+            justify-content: space-between;
+            font-size: 8.5pt;
+            color: #64748b;
+            font-family: 'Cairo', sans-serif;
+            flex-shrink: 0;
+        }}
+
+        .page-break {{
+            page-break-after: always;
+            break-after: page;
+        }}
+
+        /* Print Styles */
+        @media print {{
+            body {{
+                background: #ffffff;
+                padding-bottom: 0;
+            }}
+            .screen-toolbar, .no-print {{
+                display: none !important;
+            }}
+            .document-page {{
+                margin: 0;
+                padding: {'6mm 8mm' if is_landscape else '8mm 10mm'};
+                box-shadow: none;
+                width: 100%;
+                min-height: auto;
+                display: block;
+            }}
+            .print-footer, .gov-print-footer {{
+                position: fixed;
+                bottom: 0;
+                left: 10mm;
+                right: 10mm;
+                margin-top: 0;
+            }}
+            @page {{
+                size: {'A4 landscape' if is_landscape else 'A4 portrait'};
+                margin: {'8mm' if is_landscape else '10mm'};
+            }}
+        }}
+    </style>
+    """
+    
+    now_local = timezone.localtime(timezone.now()) if timezone.is_aware(timezone.now()) else timezone.now()
+    date_str = now_local.strftime("%Y-%m-%d")
+    time_str = now_local.strftime("%H:%M")
+    
+    toolbar_html = f"""
+    <div class="screen-toolbar">
+        <div class="title">
+            <span>📄</span>
+            <span>{title}</span>
+        </div>
+        <div class="btn-group">
+            <button class="btn btn-primary" onclick="window.print()">
+                <span>🖨️ طباعة المستند الآن</span>
+            </button>
+            <button class="btn btn-outline" onclick="window.close()">
+                <span>إغلاق النافذة</span>
+            </button>
+        </div>
+    </div>
+    """
+    
+    footer_html = f"""
+    <div class="print-footer">
+        <span>تاريخ الطباعة: {date_str}</span>
+        <span>توقيت الإصدار: {time_str}</span>
+        <span>الجهاز الوطني للقوى المساندة - منظومة الإدارة الإلكترونية</span>
+    </div>
+    """
+    
+    inject_script = """
+    <script>
+        window.onload = function() {
+            setTimeout(function() {
+                window.print();
+            }, 500);
+        };
+    </script>
+    """
+    
+    # Replace relative static paths to absolute relative to root so browser loads them correctly
+    html_content = html_content.replace('src="static/', 'src="/static/')
+    html_content = html_content.replace("src='static/", "src='/static/")
+    
+    # If the html_content already contains a full html doc, adapt it
+    if "<html" in html_content:
+        # Extract body content if present
+        body_match = re.search(r"<body[^>]*>([\s\S]*?)</body>", html_content, re.IGNORECASE)
+        inner_content = body_match.group(1) if body_match else html_content
+    else:
+        inner_content = html_content
+        
+    # Check if already wrapped in document-page
+    if "class=\"document-page" not in inner_content and "class='document-page" not in inner_content:
+        # Wrap in document-page with footer
+        page_body = f"""
+        <div class="document-page">
+            <div class="doc-content-wrapper">
+                {inner_content}
+            </div>
+            {footer_html}
+        </div>
+        """
+    else:
+        page_body = inner_content
+        
+    full_html = f"""<!DOCTYPE html>
+    <html lang="ar" dir="rtl">
+    <head>
+        <meta charset="utf-8">
+        <title>{title}</title>
+        {inject_head}
+    </head>
+    <body>
+        {toolbar_html}
+        {page_body}
+        {inject_script}
+    </body>
+    </html>
+    """
+    return HttpResponse(full_html, content_type="text/html; charset=utf-8")
+
+
 class MemberPrintView(APIView):
     """GET /api/members/<id>/print/?sections=profile,notes&documents=3,5
 
@@ -83,10 +313,12 @@ class MemberPrintView(APIView):
             OpenApiParameter("sections", OpenApiTypes.STR, description="قائمة القطاعات المفصولة بفواصل"),
             OpenApiParameter("documents", OpenApiTypes.STR, description="قائمة المستندات المفصولة بفواصل"),
             OpenApiParameter("preview", OpenApiTypes.STR, description="1 لمعاينة HTML"),
+            OpenApiParameter("html", OpenApiTypes.STR, description="1 للطباعة عبر المتصفح كـ HTML"),
         ],
         responses={200: OpenApiTypes.BINARY},
     )
     def get(self, request, pk):
+        import re
         try:
             member = Member.objects.select_related("rank", "faction").get(pk=pk)
         except Member.DoesNotExist as exc:
@@ -120,11 +352,76 @@ class MemberPrintView(APIView):
             },
         }
 
-        if request.query_params.get("preview") == "1":
-            # Dev-only preview of a single section's HTML (not the merged
-            # PDF, which only exists as bytes) — first requested section.
-            key = section_keys[0]
-            return HttpResponse(render_to_string(SECTION_BY_KEY[key]["template"], contexts[key]))
+        now_local = timezone.localtime(timezone.now()) if timezone.is_aware(timezone.now()) else timezone.now()
+        date_str = now_local.strftime("%Y-%m-%d")
+        time_str = now_local.strftime("%H:%M")
+        
+        footer_html = f"""
+        <div class="print-footer">
+            <span>تاريخ الطباعة: {date_str}</span>
+            <span>توقيت الإصدار: {time_str}</span>
+            <span>الجهاز الوطني للقوى المساندة - منظومة الإدارة الإلكترونية</span>
+        </div>
+        """
+
+        if request.query_params.get("html") == "1" or request.query_params.get("preview") == "1":
+            pages_html = ""
+            for key in section_keys:
+                sec_html = render_to_string(SECTION_BY_KEY[key]["template"], contexts[key])
+                # Extract body content if sec_html is a full HTML page
+                if "<body" in sec_html:
+                    body_match = re.search(r"<body[^>]*>([\s\S]*?)</body>", sec_html, re.IGNORECASE)
+                    content = body_match.group(1) if body_match else sec_html
+                else:
+                    content = sec_html
+                
+                # Remove any existing footer inside template content so we have our unified one
+                content = re.sub(r'<div class=["\']print-footer["\'][\s\S]*?</div>', '', content)
+                content = re.sub(r'<p class=["\']muted["\'][\s\S]*?تاريخ تجهيز وتحرير الطباعة[\s\S]*?</p>', '', content)
+                
+                pages_html += f"""
+                <div class="document-page page-break">
+                    <div class="doc-content-wrapper">
+                        {content}
+                    </div>
+                    {footer_html}
+                </div>
+                """
+            
+            # Scanned documents if any
+            if document_ids:
+                documents = MemberDocument.objects.filter(id__in=document_ids, member=member)
+                by_id = {str(d.id): d for d in documents}
+                for doc_id in document_ids:
+                    doc = by_id.get(doc_id)
+                    if not doc:
+                        continue
+                    if doc.content_type in ("image/jpeg", "image/png"):
+                        doc_url = doc.file.url if hasattr(doc.file, 'url') else f"/media/{doc.file.name}"
+                        doc_img_html = f"""
+                        <div class="document-page page-break">
+                            <div class="doc-content-wrapper">
+                                <div class="gov-header-container" style="margin-bottom: 16px;">
+                                    <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 8px;">
+                                        <div style="text-align: right;">
+                                            <h1 style="font-size: 15pt; font-weight: 800; color: #0a2540; margin: 0 0 2px 0;">دولة ليبيا</h1>
+                                            <h2 style="font-size: 12.5pt; font-weight: 700; color: #0a2540; margin: 0 0 4px 0;">الجهاز الوطني للقوى المساندة / الوحدة القتالية الرابعة</h2>
+                                            <h3 style="font-size: 11pt; font-weight: 700; color: #2563eb; margin: 0;">وثيقة مرفقة: {doc.document_type.name_ar if doc.document_type else 'مستند'}</h3>
+                                        </div>
+                                        <img src="/static/nasf-seal.jpg" alt="شعار الجهاز" style="height: 58px; width: auto; object-fit: contain;" />
+                                    </div>
+                                    <div style="border-bottom: 2px solid #0a2540; margin-bottom: 6px;"></div>
+                                </div>
+                                <div style="text-align: center; margin-top: 20px;">
+                                    <img src="{doc_url}" style="max-width: 100%; max-height: 700px; object-fit: contain; border: 1px solid #cbd5e1; border-radius: 6px;" alt="{doc.original_name}" />
+                                </div>
+                            </div>
+                            {footer_html}
+                        </div>
+                        """
+                        pages_html += doc_img_html
+
+            return get_html_print_response(pages_html, title=f"ملف الفرد - {member.full_name}", orientation="portrait")
 
         pdf_chunks = []
         for key in section_keys:
@@ -277,6 +574,9 @@ class CustodyVoucherPdfView(APIView):
         }
 
         html = render_to_string("print/custody_voucher.html", context)
+        if request.query_params.get("html") == "1":
+            return get_html_print_response(html, title=f"محضر عهدة - {context['voucher_number']}")
+
         pdf_bytes = render_html_to_pdf(html)
 
         response = HttpResponse(pdf_bytes, content_type="application/pdf")
@@ -325,6 +625,9 @@ class VehicleTripTicketPdfView(APIView):
         }
 
         html = render_to_string("print/trip_ticket.html", context)
+        if request.query_params.get("html") == "1":
+            return get_html_print_response(html, title=f"أمر تحرك - {context['trip_number']}")
+
         pdf_bytes = render_html_to_pdf(html)
 
         response = HttpResponse(pdf_bytes, content_type="application/pdf")
@@ -390,6 +693,9 @@ class DailyAttendancePdfView(APIView):
         }
 
         html = render_to_string("print/daily_attendance.html", context)
+        if request.query_params.get("html") == "1":
+            return get_html_print_response(html, title=f"كشف التمام اليومي - {date_str}", orientation="landscape")
+
         pdf_bytes = render_html_to_pdf(html)
 
         response = HttpResponse(pdf_bytes, content_type="application/pdf")
@@ -427,6 +733,9 @@ class InventorySummaryPdfView(APIView):
         }
 
         html = render_to_string("print/inventory_summary.html", context)
+        if request.query_params.get("html") == "1":
+            return get_html_print_response(html, title="تقرير جرد المستودع العام", orientation="landscape")
+
         pdf_bytes = render_html_to_pdf(html)
 
         response = HttpResponse(pdf_bytes, content_type="application/pdf")
@@ -537,6 +846,9 @@ class MonthlyAttendancePdfView(APIView):
         }
 
         html = render_to_string("print/monthly_attendance.html", context)
+        if request.query_params.get("html") == "1":
+            return get_html_print_response(html, title=f"كشف التمام الشهري - {year}-{month}", orientation="landscape")
+
         pdf_bytes = render_html_to_pdf(html)
 
         response = HttpResponse(pdf_bytes, content_type="application/pdf")

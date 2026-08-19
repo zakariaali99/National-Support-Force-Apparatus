@@ -26,6 +26,7 @@ export const NAV_GROUPS = [
       { to: "/", label: "لوحة التحكم", icon: LayoutDashboard, end: true, breadcrumb: "لوحة التحكم" },
       { to: "/members", label: "سجل الأفراد", icon: Users, permission: "member.view", breadcrumb: "سجل الأفراد" },
       { to: "/attendance", label: "التمام اليومي والانضباط", icon: CalendarCheck2, permission: "attendance.view", breadcrumb: "التمام اليومي" },
+      { to: "/attendance/monthly", label: "التمام الشهري", icon: CalendarDays, permission: "attendance.view", breadcrumb: "التمام الشهري" },
       { to: "/attendance/rosters", label: "فصائل النوبات والورديات", icon: Clock, permission: "attendance.view", breadcrumb: "فصائل النوبات والورديات" },
     ],
   },
