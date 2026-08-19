@@ -38,6 +38,7 @@ import { factionsApi, ranksApi } from "../organization/api";
 import { downloadAuthedFile } from "../reports/api";
 import { useMembers, useUpdateMember } from "./api";
 import { PrintDialog } from "./PrintDialog";
+import { printMembersSummaryInNewWindow } from "../../lib/printUtils";
 import { SERVICE_STATUS_OPTIONS, serviceStatusLabel } from "./constants";
 import { useAssignableUsers, useCreateMemberEvaluation, useCreateMemberNote, useCreateMemberTask } from "../workflow/api";
 
@@ -127,6 +128,24 @@ export function MemberList() {
     }
   }
 
+  function handlePrintFiltered() {
+    const filtersList = [];
+    if (search.trim()) filtersList.push(`بحث: "${search.trim()}"`);
+    if (faction) {
+      const fName = factions.find((f) => String(f.id) === faction)?.name_ar;
+      if (fName) filtersList.push(`الإدارة: ${fName}`);
+    }
+    if (rank) {
+      const rName = ranks.find((r) => String(r.id) === rank)?.name_ar;
+      if (rName) filtersList.push(`الرتبة: ${rName}`);
+    }
+    if (serviceStatus) {
+      filtersList.push(`حالة الخدمة: ${serviceStatusLabel(serviceStatus)}`);
+    }
+    const filtersSummary = filtersList.join(" | ");
+    printMembersSummaryInNewWindow({ members, filtersSummary });
+  }
+
   return (
     <div className="space-y-6">
       {/* Top Banner Row */}
@@ -134,6 +153,15 @@ export function MemberList() {
         title="سجل أفراد القوة"
         description="إدارة وعرض ملفات أفراد الجهاز الوطني بالقوة المساندة مع تنفيذ الإجراءات السريعة والبحث المتقدم."
       >
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={handlePrintFiltered}
+          className="shadow-sm border-slate-200/80 dark:border-white/10"
+        >
+          <Printer className="me-2 h-4 w-4 text-blue-600 dark:text-blue-400" />
+          طباعة الكشف المفلتر
+        </Button>
         {canExport && (
           <Button variant="outline" size="sm" disabled={exporting} onClick={handleExport} className="shadow-sm">
             {exporting ? <Loader2 className="me-2 h-4 w-4 animate-spin" /> : <FileSpreadsheet className="me-2 h-4 w-4 text-emerald-600" />}

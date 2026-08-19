@@ -266,7 +266,19 @@ export function ArmoryPage() {
   }, [items]);
 
   function handlePrintSummary() {
-    printInventorySummaryInNewWindow({ items: filteredItems, domain: "armory" });
+    const tabLabels = {
+      all: "كافة الأسلحة والذخائر",
+      available: "المتوفر في الخزينة فقط",
+      assigned: "المسلّم كعهدة للأفراد",
+      maintenance: "تحت الصيانة والفحص",
+      damaged: "تالف / معطل",
+    };
+    const filtersList = [];
+    if (typeTab && tabLabels[typeTab]) filtersList.push(`التبويب: ${tabLabels[typeTab]}`);
+    if (search && search.trim()) filtersList.push(`بحث: "${search.trim()}"`);
+    const filtersSummary = filtersList.join(" | ");
+
+    printInventorySummaryInNewWindow({ items: filteredItems, domain: "armory", filtersSummary });
   }
 
   return (

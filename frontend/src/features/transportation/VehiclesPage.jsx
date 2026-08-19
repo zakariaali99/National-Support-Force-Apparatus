@@ -246,7 +246,23 @@ export default function VehiclesPage() {
   };
 
   const handlePrintSummary = () => {
-    printVehiclesSummaryInNewWindow({ vehicles: filteredVehicles });
+    const tabLabels = {
+      all: "كافة الآليات",
+      ready: "جاهزة للخدمة",
+      maintenance: "تحت الصيانة",
+      damaged: "معطلة",
+      external: "تبعية خارجية",
+      with_weapon: "مركبات مسلحة",
+    };
+    const filtersList = [];
+    if (activeTab && tabLabels[activeTab]) filtersList.push(`التبويب: ${tabLabels[activeTab]}`);
+    if (typeFilter && VEHICLE_TYPE_LABELS[typeFilter]) filtersList.push(`النوع: ${VEHICLE_TYPE_LABELS[typeFilter]}`);
+    if (affiliationFilter === "internal") filtersList.push("التبعية: تابعة للجهاز");
+    if (affiliationFilter === "external") filtersList.push("التبعية: جهة خارجية");
+    if (search && search.trim()) filtersList.push(`بحث: "${search.trim()}"`);
+    const filtersSummary = filtersList.join(" | ");
+
+    printVehiclesSummaryInNewWindow({ vehicles: filteredVehicles, filtersSummary });
   };
 
   return (

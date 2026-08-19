@@ -280,7 +280,19 @@ export function InventoryPage() {
   }, [items]);
 
   function handlePrintSummary() {
-    printInventorySummaryInNewWindow({ items: filteredItems, domain: "inventory" });
+    const tabLabels = {
+      all: "كافة المهمات والعهد العامة",
+      available: "المتوفر بالمستودع فقط",
+      assigned: "المسلّم كعهدة للأفراد",
+      maintenance: "تحت الصيانة",
+      damaged: "تالف / مكهن",
+    };
+    const filtersList = [];
+    if (workflowTab && tabLabels[workflowTab]) filtersList.push(`التبويب: ${tabLabels[workflowTab]}`);
+    if (search && search.trim()) filtersList.push(`بحث: "${search.trim()}"`);
+    const filtersSummary = filtersList.join(" | ");
+
+    printInventorySummaryInNewWindow({ items: filteredItems, domain: "inventory", filtersSummary });
   }
 
   return (

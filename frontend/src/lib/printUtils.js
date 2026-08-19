@@ -1,10 +1,30 @@
 /**
- * Utility to generate and open official government-grade printable documents in a dedicated new window.
- * Avoids printing application chrome, sidebars, modals, or dark UI themes.
+ * Unified Government Print Engine
+ * Official Header: دولة ليبيا — الجهاز الوطني للقوى المساندة / الوحدة القتالية الرابعة
+ * Consistent Metadata: (الإدارة، نوع المستند، الرقم المرجعي التلقائي، تاريخ الطباعة، وتوقيت الإصدار)
+ * Supports Portrait and Landscape orientations, with consistent signatures and page styling.
  */
 
-export function openPrintWindow({ title, subtitle, documentNumber, contentHtml }) {
-  const printWindow = window.open("", "_blank", "width=920,height=1080,menubar=no,toolbar=no,location=no,status=no");
+export function openPrintWindow({
+  title,
+  subtitle,
+  department = "إدارة الشؤون الإدارية والعهد",
+  docType = "كشف رسمي معتمد",
+  documentNumber,
+  orientation = "portrait",
+  contentHtml,
+  showSignatures = true,
+}) {
+  const isLandscape = orientation === "landscape";
+  const windowWidth = isLandscape ? 1200 : 920;
+  const windowHeight = isLandscape ? 850 : 1080;
+
+  const printWindow = window.open(
+    "",
+    "_blank",
+    `width=${windowWidth},height=${windowHeight},menubar=no,toolbar=no,location=no,status=no`
+  );
+
   if (!printWindow) {
     alert("يرجى السماح بالنوافذ المنبثقة (Popups) لعرض وطباعة المستند في نافذة مستقلة.");
     return;
@@ -19,6 +39,8 @@ export function openPrintWindow({ title, subtitle, documentNumber, contentHtml }
     hour: "2-digit",
     minute: "2-digit",
   });
+
+  const docNum = documentNumber || `NASF-${Math.floor(100000 + Math.random() * 900000)}`;
 
   const fullHtml = `<!DOCTYPE html>
 <html lang="ar" dir="rtl">
@@ -39,12 +61,12 @@ export function openPrintWindow({ title, subtitle, documentNumber, contentHtml }
       background-color: #f1f5f9;
       color: #0f172a;
       line-height: 1.6;
-      font-size: 13px;
+      font-size: 12.5px;
       -webkit-print-color-adjust: exact;
       print-color-adjust: exact;
     }
     
-    /* Screen Top Toolbar */
+    /* Screen Top Floating Toolbar */
     .screen-toolbar {
       position: sticky;
       top: 0;
@@ -100,11 +122,11 @@ export function openPrintWindow({ title, subtitle, documentNumber, contentHtml }
 
     /* A4 Document Page Container */
     .document-page {
-      width: 210mm;
-      min-height: 297mm;
+      width: ${isLandscape ? "297mm" : "210mm"};
+      min-height: ${isLandscape ? "210mm" : "297mm"};
       margin: 24px auto;
       background: #ffffff;
-      padding: 20mm 18mm;
+      padding: ${isLandscape ? "14mm 16mm" : "18mm 18mm"};
       box-shadow: 0 0 20px rgba(0,0,0,0.08);
       border-radius: 4px;
       position: relative;
@@ -115,7 +137,7 @@ export function openPrintWindow({ title, subtitle, documentNumber, contentHtml }
       display: flex;
       align-items: center;
       justify-content: space-between;
-      border-bottom: 2px solid #0f172a;
+      border-bottom: 2.5px solid #0f172a;
       padding-bottom: 12px;
       margin-bottom: 16px;
     }
@@ -128,16 +150,22 @@ export function openPrintWindow({ title, subtitle, documentNumber, contentHtml }
     .gov-title-group h2 {
       font-size: 13px;
       font-weight: 700;
-      color: #334155;
+      color: #2563eb;
       margin-top: 2px;
     }
-    .gov-meta {
-      text-align: left;
+    .gov-meta-grid {
+      display: grid;
+      grid-template-columns: auto auto;
+      gap: 3px 14px;
+      text-align: right;
       font-size: 11px;
       color: #475569;
-      line-height: 1.5;
+      background: #f8fafc;
+      padding: 6px 10px;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
     }
-    .gov-meta strong {
+    .gov-meta-grid strong {
       color: #0f172a;
     }
 
@@ -148,7 +176,7 @@ export function openPrintWindow({ title, subtitle, documentNumber, contentHtml }
       border-radius: 8px;
       padding: 10px 16px;
       text-align: center;
-      margin-bottom: 20px;
+      margin-bottom: 18px;
     }
     .doc-banner h3 {
       font-size: 15px;
@@ -159,6 +187,7 @@ export function openPrintWindow({ title, subtitle, documentNumber, contentHtml }
       font-size: 11.5px;
       color: #64748b;
       margin-top: 2px;
+      font-weight: 600;
     }
 
     /* Form Grid / Details Box */
@@ -169,7 +198,7 @@ export function openPrintWindow({ title, subtitle, documentNumber, contentHtml }
       border-right: 4px solid #2563eb;
       padding-right: 8px;
       margin-bottom: 10px;
-      margin-top: 18px;
+      margin-top: 16px;
     }
     .form-grid {
       display: grid;
@@ -203,19 +232,19 @@ export function openPrintWindow({ title, subtitle, documentNumber, contentHtml }
       width: 100%;
       border-collapse: collapse;
       margin-top: 8px;
-      margin-bottom: 20px;
+      margin-bottom: 18px;
       font-size: 11.5px;
     }
     table.gov-table th {
       background: #f1f5f9;
       color: #0f172a;
       font-weight: 700;
-      padding: 8px 10px;
+      padding: 7px 9px;
       border: 1px solid #cbd5e1;
       text-align: right;
     }
     table.gov-table td {
-      padding: 7px 10px;
+      padding: 6.5px 9px;
       border: 1px solid #e2e8f0;
       color: #334155;
       text-align: right;
@@ -224,19 +253,34 @@ export function openPrintWindow({ title, subtitle, documentNumber, contentHtml }
       background: #f8fafc;
     }
 
+    /* Filter Summary Box */
+    .filter-summary-box {
+      font-size: 11px;
+      color: #475569;
+      background: #f1f5f9;
+      padding: 6px 12px;
+      border-radius: 6px;
+      margin-bottom: 12px;
+      border: 1px solid #e2e8f0;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
     /* Signatures Section */
     .signatures-block {
-      margin-top: 36px;
+      margin-top: 28px;
       display: grid;
       grid-template-columns: 1fr 1fr 1fr;
-      gap: 20px;
+      gap: 16px;
       text-align: center;
       page-break-inside: avoid;
     }
     .sig-box {
       border: 1px dashed #94a3b8;
       border-radius: 8px;
-      padding: 12px 8px 30px;
+      padding: 10px 8px 24px;
       background: #fafafa;
     }
     .sig-title {
@@ -260,14 +304,14 @@ export function openPrintWindow({ title, subtitle, documentNumber, contentHtml }
       }
       .document-page {
         margin: 0;
-        padding: 10mm 12mm;
+        padding: ${isLandscape ? "6mm 8mm" : "8mm 10mm"};
         box-shadow: none;
         width: 100%;
         min-height: auto;
       }
       @page {
-        size: A4 portrait;
-        margin: 10mm;
+        size: ${isLandscape ? "A4 landscape" : "A4 portrait"};
+        margin: ${isLandscape ? "8mm" : "10mm"};
       }
     }
   </style>
@@ -293,12 +337,14 @@ export function openPrintWindow({ title, subtitle, documentNumber, contentHtml }
     <div class="gov-header">
       <div class="gov-title-group">
         <h1>دولة ليبيا — الجهاز الوطني للقوى المساندة</h1>
-        <h2>منظومة الشؤون الإدارية والتسليح والآليات</h2>
+        <h2>الوحدة القتالية الرابعة</h2>
       </div>
-      <div class="gov-meta">
-        <div><strong>الرقم المرجعي:</strong> ${documentNumber || "DOC-" + Math.floor(100000 + Math.random() * 900000)}</div>
+      <div class="gov-meta-grid">
+        <div><strong>الإدارة:</strong> ${department}</div>
+        <div><strong>نوع المستند:</strong> ${docType}</div>
+        <div><strong>الرقم المرجعي:</strong> ${docNum}</div>
         <div><strong>تاريخ الطباعة:</strong> ${currentDate}</div>
-        <div><strong>التوقيت:</strong> ${currentTime}</div>
+        <div style="grid-column: span 2;"><strong>توقيت الإصدار:</strong> ${currentTime}</div>
       </div>
     </div>
 
@@ -312,21 +358,27 @@ export function openPrintWindow({ title, subtitle, documentNumber, contentHtml }
     ${contentHtml}
 
     <!-- Signatures Endorsement -->
-    <div class="signatures-block">
-      <div class="sig-box">
-        <p class="sig-title">مسؤول السجل والعهدة</p>
-        <p class="sig-sub">الاسم: .......................................</p>
-        <p class="sig-sub" style="margin-top: 18px;">التوقيع: .................................</p>
+    ${
+      showSignatures
+        ? `
+      <div class="signatures-block">
+        <div class="sig-box">
+          <p class="sig-title">مسؤول السجل والعهدة</p>
+          <p class="sig-sub">الاسم: .......................................</p>
+          <p class="sig-sub" style="margin-top: 14px;">التوقيع: .................................</p>
+        </div>
+        <div class="sig-box">
+          <p class="sig-title">الضابط المفوّض / رئيس الفرع</p>
+          <p class="sig-sub">الاسم: .......................................</p>
+          <p class="sig-sub" style="margin-top: 14px;">التوقيع: .................................</p>
+        </div>
+        <div class="sig-box" style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 80px;">
+          <p class="sig-title" style="color: #64748b;">الختم الرسمي المعتمد</p>
+        </div>
       </div>
-      <div class="sig-box">
-        <p class="sig-title">الضابط المفوّض / رئيس الفرع</p>
-        <p class="sig-sub">الاسم: .......................................</p>
-        <p class="sig-sub" style="margin-top: 18px;">التوقيع: .................................</p>
-      </div>
-      <div class="sig-box" style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 85px;">
-        <p class="sig-title" style="color: #64748b;">الختم الرسمي المعتمد</p>
-      </div>
-    </div>
+    `
+        : ""
+    }
   </div>
 </body>
 </html>`;
@@ -355,6 +407,20 @@ export function printAssetCardInNewWindow({ item, history = [], type = "weapon" 
       : type === "vehicle"
       ? `رقم الهيكل: ${item.vin_number || "—"} | رقم اللوحة: ${item.plate_number || "—"}`
       : `كود الصنف: ${item.item_code || "—"} | التصنيف: ${item.category_name || "—"}`;
+
+  const department =
+    type === "weapon"
+      ? "إدارة التسليح والذخائر"
+      : type === "vehicle"
+      ? "إدارة النقليات والآليات"
+      : "المستودع والمخازن العامة";
+
+  const docType =
+    type === "weapon"
+      ? "بطاقة أصل وسجل حيازة تسليحية"
+      : type === "vehicle"
+      ? "بطاقة آلية وسلسلة عهدة"
+      : "بطاقة صنف ومحضر حيازة";
 
   // Build specifications form grid
   let specsHtml = "";
@@ -457,7 +523,10 @@ export function printAssetCardInNewWindow({ item, history = [], type = "weapon" 
   openPrintWindow({
     title: docTitle,
     subtitle: docSubtitle,
+    department,
+    docType,
     documentNumber: `CARD-${item.id}-${Date.now().toString().slice(-4)}`,
+    orientation: "portrait",
     contentHtml,
   });
 }
@@ -501,7 +570,10 @@ export function printCustodyVoucherInNewWindow({ item, custodyRecord, voucherNum
   openPrintWindow({
     title: "محضر تسليم واستلام عهدة ومهمات عسكرية رسمية",
     subtitle: `رقم المحضر: ${voucherNumber || "VOUCH-" + Date.now().toString().slice(-6)}`,
+    department: "إدارة التسليح والمهمات والعهد",
+    docType: "محضر تسليم واستلام عهدة",
     documentNumber: voucherNumber,
+    orientation: "portrait",
     contentHtml,
   });
 }
@@ -536,7 +608,10 @@ export function printVehicleTripVoucherInNewWindow({ vehicle, tripNumber }) {
   openPrintWindow({
     title: "أمر تحرك ومأمورية آلية عسكرية رسمية",
     subtitle: `إذن تحرك رسمي صادر للمركبة: ${vehicle.name} (لوحة: ${vehicle.plate_number || "—"})`,
+    department: "شعبة النقليات والحركة",
+    docType: "أمر تحرك وبطاقة تشغيل",
     documentNumber: tripNumber || `TRIP-${Date.now().toString().slice(-6)}`,
+    orientation: "portrait",
     contentHtml,
   });
 }
@@ -544,11 +619,14 @@ export function printVehicleTripVoucherInNewWindow({ vehicle, tripNumber }) {
 /**
  * Formats full Inventory or Armory stocktaking summary table into official printable document.
  */
-export function printInventorySummaryInNewWindow({ items = [], domain = "inventory" }) {
+export function printInventorySummaryInNewWindow({ items = [], domain = "inventory", filtersSummary = "" }) {
   const isArmory = domain === "armory";
   const docTitle = isArmory
     ? "كشف حصر وجرد مستودع التسليح والأسلحة والذخائر الرسمي"
     : "كشف حصر وجرد المستودع والمخازن العامة الرسمي";
+
+  const department = isArmory ? "إدارة التسليح والذخائر" : "المستودع والمخازن العامة";
+  const docType = isArmory ? "كشف حصر تسليحي" : "كشف جرد مستودع";
 
   let totalQty = 0;
   let availQty = 0;
@@ -562,7 +640,12 @@ export function printInventorySummaryInNewWindow({ items = [], domain = "invento
     dmgQty += Number(it.damaged_quantity) || 0;
   });
 
+  const filterBox = filtersSummary
+    ? `<div class="filter-summary-box"><strong>معايير التصفية المطبقة:</strong> ${filtersSummary}</div>`
+    : "";
+
   const statsHtml = `
+    ${filterBox}
     <div class="form-grid" style="grid-template-columns: repeat(4, 1fr); margin-bottom: 16px; background: #f8fafc;">
       <div class="form-row"><span class="form-label">إجمالي الأصناف:</span><span class="form-value">${items.length} صنف</span></div>
       <div class="form-row"><span class="form-label">إجمالي الرصيد:</span><span class="form-value">${totalQty} قطعة</span></div>
@@ -613,16 +696,19 @@ export function printInventorySummaryInNewWindow({ items = [], domain = "invento
 
   openPrintWindow({
     title: docTitle,
-    subtitle: `تاريخ الجرد: ${new Date().toLocaleDateString("ar-LY")} | إجمالي الأصناف: ${items.length}`,
+    subtitle: `تاريخ الجرد: ${new Date().toLocaleDateString("ar-LY")} | إجمالي الأصناف المشمولة: ${items.length}`,
+    department,
+    docType,
     documentNumber: `INV-SUM-${Date.now().toString().slice(-6)}`,
+    orientation: isArmory ? "portrait" : "landscape",
     contentHtml: statsHtml + tableHtml,
   });
 }
 
 /**
- * Formats full Vehicles fleet summary table into official printable document.
+ * Formats full Vehicles fleet summary table into official printable document (Landscape).
  */
-export function printVehiclesSummaryInNewWindow({ vehicles = [] }) {
+export function printVehiclesSummaryInNewWindow({ vehicles = [], filtersSummary = "" }) {
   const docTitle = "كشف حصر وجرد أسطول الآليات والمركبات الرسمي";
 
   const total = vehicles.length;
@@ -630,7 +716,12 @@ export function printVehiclesSummaryInNewWindow({ vehicles = [] }) {
   const external = vehicles.filter((v) => v.affiliation_type === "external" || Boolean(v.external_unit_name)).length;
   const withWeapon = vehicles.filter((v) => v.has_weapon).length;
 
+  const filterBox = filtersSummary
+    ? `<div class="filter-summary-box"><strong>معايير التصفية المطبقة:</strong> ${filtersSummary}</div>`
+    : "";
+
   const statsHtml = `
+    ${filterBox}
     <div class="form-grid" style="grid-template-columns: repeat(4, 1fr); margin-bottom: 16px; background: #f8fafc;">
       <div class="form-row"><span class="form-label">إجمالي الأسطول:</span><span class="form-value">${total} آلية</span></div>
       <div class="form-row"><span class="form-label">جاهزة للعمليات:</span><span class="form-value" style="color: #16a34a;">${ready}</span></div>
@@ -682,9 +773,146 @@ export function printVehiclesSummaryInNewWindow({ vehicles = [] }) {
   openPrintWindow({
     title: docTitle,
     subtitle: `تاريخ الحصر: ${new Date().toLocaleDateString("ar-LY")} | إجمالي المركبات: ${vehicles.length}`,
+    department: "إدارة النقليات والآليات",
+    docType: "كشف حصر أسطول الآليات",
     documentNumber: `VEH-SUM-${Date.now().toString().slice(-6)}`,
+    orientation: "landscape",
     contentHtml: statsHtml + tableHtml,
   });
 }
 
+/**
+ * Formats Audit Log records into official printable document (Landscape).
+ */
+export function printAuditLogsInNewWindow({ logs = [], filtersSummary = "" }) {
+  const docTitle = "سجل التدقيق وتوثيق الأنشطة والعمليات الرسمي";
 
+  const filterBox = filtersSummary
+    ? `<div class="filter-summary-box"><strong>معايير التصفية المطبقة:</strong> ${filtersSummary}</div>`
+    : "";
+
+  const statsHtml = `
+    ${filterBox}
+    <div class="form-grid" style="grid-template-columns: repeat(3, 1fr); margin-bottom: 16px; background: #f8fafc;">
+      <div class="form-row"><span class="form-label">إجمالي العمليات:</span><span class="form-value">${logs.length} عملية</span></div>
+      <div class="form-row"><span class="form-label">تاريخ التقرير:</span><span class="form-value">${new Date().toLocaleDateString("ar-LY")}</span></div>
+      <div class="form-row"><span class="form-label">مستوى التوثيق:</span><span class="form-value" style="color: #2563eb;">تدقيق شامل وموثق</span></div>
+    </div>
+  `;
+
+  const rowsHtml = logs.length === 0
+    ? `<tr><td colspan="7" style="text-align: center; padding: 18px; color: #64748b;">لا توجد سجلات تدقيق مطابقة لمعايير البحث والتصفية.</td></tr>`
+    : logs
+        .map(
+          (log, idx) => `
+        <tr>
+          <td style="text-align: center; font-weight: 700;">${idx + 1}</td>
+          <td>${log.timestamp ? new Date(log.timestamp).toLocaleString("ar-LY") : "—"}</td>
+          <td style="font-weight: 700; color: #0f172a;">${log.actor_name || log.actor_username || "مستخدم النظام"}</td>
+          <td>${log.action_display || log.action || "—"}</td>
+          <td>${log.target_type_display || log.target_type || "—"}</td>
+          <td>${log.description || log.notes || "—"}</td>
+          <td class="font-mono text-micro">${log.ip_address || "—"}</td>
+        </tr>
+      `
+        )
+        .join("");
+
+  const tableHtml = `
+    <div class="section-title">بيان سجل التدقيق والأنشطة الإدارية والعملياتية</div>
+    <table class="gov-table">
+      <thead>
+        <tr>
+          <th style="width: 30px; text-align: center;">#</th>
+          <th>التوقيت والتاريخ</th>
+          <th>المستخدم القائم بالإجراء</th>
+          <th>نوع العملية</th>
+          <th>الكيان المستهدف</th>
+          <th>تفاصيل البيان</th>
+          <th>عنوان IP</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${rowsHtml}
+      </tbody>
+    </table>
+  `;
+
+  openPrintWindow({
+    title: docTitle,
+    subtitle: `تقرير حصر التدقيق والأنشطة الرقمية | إجمالي السجلات: ${logs.length}`,
+    department: "شعبة الرقابة والتدقيق الداخلي",
+    docType: "تقرير تدقيق ومطابقة أنشطة",
+    documentNumber: `AUDIT-${Date.now().toString().slice(-6)}`,
+    orientation: "landscape",
+    contentHtml: statsHtml + tableHtml,
+  });
+}
+
+/**
+ * Formats Members filtered roster into official printable document (Landscape).
+ */
+export function printMembersSummaryInNewWindow({ members = [], filtersSummary = "" }) {
+  const docTitle = "كشف حصر وبيانات أفراد القوة الرسمية";
+
+  const filterBox = filtersSummary
+    ? `<div class="filter-summary-box"><strong>معايير التصفية المطبقة:</strong> ${filtersSummary}</div>`
+    : "";
+
+  const statsHtml = `
+    ${filterBox}
+    <div class="form-grid" style="grid-template-columns: repeat(3, 1fr); margin-bottom: 16px; background: #f8fafc;">
+      <div class="form-row"><span class="form-label">إجمالي الأفراد:</span><span class="form-value">${members.length} فرد</span></div>
+      <div class="form-row"><span class="form-label">تاريخ الحصر:</span><span class="form-value">${new Date().toLocaleDateString("ar-LY")}</span></div>
+      <div class="form-row"><span class="form-label">حالة القيد:</span><span class="form-value" style="color: #16a34a;">كشف رسمي معتمد</span></div>
+    </div>
+  `;
+
+  const rowsHtml = members.length === 0
+    ? `<tr><td colspan="7" style="text-align: center; padding: 18px; color: #64748b;">لا توجد سجلات أفراد مطابقة لخيارات التصفية.</td></tr>`
+    : members
+        .map(
+          (m, idx) => `
+        <tr>
+          <td style="text-align: center; font-weight: 700;">${idx + 1}</td>
+          <td class="font-mono" style="font-weight: 700;">${m.force_number || "—"}</td>
+          <td style="font-weight: 700; color: #0f172a;">${m.full_name || "—"}</td>
+          <td>${m.rank_name || "عضو"}</td>
+          <td>${m.faction_name || "عام"}</td>
+          <td class="font-mono">${m.national_number || "—"}</td>
+          <td>${m.phone_number || "—"}</td>
+        </tr>
+      `
+        )
+        .join("");
+
+  const tableHtml = `
+    <div class="section-title">بيان أفراد القوة والبيانات العسكرية والتنظيمية</div>
+    <table class="gov-table">
+      <thead>
+        <tr>
+          <th style="width: 30px; text-align: center;">#</th>
+          <th>الرقم العسكري</th>
+          <th>الاسم الكامل</th>
+          <th>الرتبة</th>
+          <th>الفصيل / الإدارة</th>
+          <th>الرقم الوطني</th>
+          <th>رقم الهاتف</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${rowsHtml}
+      </tbody>
+    </table>
+  `;
+
+  openPrintWindow({
+    title: docTitle,
+    subtitle: `كشف حصر أفراد القوة والمنتسبين | إجمالي الأفراد: ${members.length}`,
+    department: "شعبة شؤون الأفراد والضباط",
+    docType: "كشف حصر قوة عسكرية",
+    documentNumber: `MEM-SUM-${Date.now().toString().slice(-6)}`,
+    orientation: "landscape",
+    contentHtml: statsHtml + tableHtml,
+  });
+}

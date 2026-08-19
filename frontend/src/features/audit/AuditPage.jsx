@@ -33,6 +33,7 @@ import { showToast } from "../../components/ui/Toast";
 import { downloadAuthedFile } from "../reports/api";
 import { useAuth } from "../auth/AuthContext";
 import { useActivityLog, useAuditStats } from "./api";
+import { printAuditLogsInNewWindow } from "../../lib/printUtils";
 
 const ACTION_LABELS = {
   attendance_record_bulk: "تسجيل تمام مجمع",
@@ -248,6 +249,32 @@ export function AuditPage() {
   const rows = data?.results ?? [];
   const totalCount = data?.count ?? 0;
 
+  const handlePrint = () => {
+    const filtersList = [];
+    if (search.trim()) filtersList.push(`بحث: "${search.trim()}"`);
+    if (action !== "all") {
+      const foundAction = ACTION_OPTIONS.find((a) => a.value === action);
+      filtersList.push(`نوع الإجراء: ${foundAction ? foundAction.label : action}`);
+    }
+    if (targetModel !== "all") {
+      const foundTarget = TARGET_MODELS.find((t) => t.value === targetModel);
+      filtersList.push(`القسم / المكون: ${foundTarget ? foundTarget.label : targetModel}`);
+    }
+    const filtersSummary = filtersList.join(" | ");
+
+    printAuditLogsInNewWindow({
+      logs: rows.map((r) => ({
+        timestamp: r.created_at,
+        actor_name: r.actor_name,
+        action: formatActionText(r.action),
+        target_type: formatTargetText(r.target_model, r.metadata),
+        description: r.description,
+        ip_address: r.ip_address,
+      })),
+      filtersSummary,
+    });
+  };
+
   const handleExportCsv = async () => {
     try {
       showToast("جاري تجهيز وتنزيل سجل التدقيق الأمني...", "info");
@@ -361,16 +388,27 @@ export function AuditPage() {
       <PageHeader
         title="سجل التدقيق الأمني والنشاطات"
         description="سجل العمليات الإدارية والأمنية: تسجيل التمام، العهدة والجرد، تحميل الوثائق، وإصدار أوامر التحرك."
-      >
-        <Button
-          variant="outline"
-          onClick={handleExportCsv}
-          className="gap-2 rounded-2xl font-bold border-slate-200/80 dark:border-white/10"
-        >
-          <FileSpreadsheet className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-          <span>تصدير السجل الأمني (Excel / CSV)</span>
-        </Button>
-      </PageHeader>
+        actions={
+          <div className="flex items-center gap-2.5">
+            <Button
+              variant="outline"
+              onClick={handlePrint}
+              className="gap-2 rounded-2xl font-bold border-slate-200/80 dark:border-white/10"
+            >
+              <Printer className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+              <span>طباعة سجل الأنشطة</span>
+            </Button>
+            <Button
+              variant="outline"
+              onClick={handleExportCsv}
+              className="gap-2 rounded-2xl font-bold border-slate-200/80 dark:border-white/10"
+            >
+              <FileSpreadsheet className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+              <span>تصدير السجل (Excel / CSV)</span>
+            </Button>
+          </div>
+        }
+      />
 
       {/* KPI Stats Strip */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
