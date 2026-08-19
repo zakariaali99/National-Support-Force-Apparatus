@@ -12,51 +12,30 @@ import {
   ScrollText,
   Settings,
   Shield,
-  ShieldAlert,
   UserCheck,
   UserPlus,
   Users,
 } from "lucide-react";
 
-// Central nav registry with separate Armory, Inventory, and Transportation sections.
+// Clean, streamlined navigation structure with clear separation between Armory, Inventory, and Transportation
 export const NAV_GROUPS = [
   {
-    id: "general",
-    title: "العامة وشؤون الأفراد",
+    id: "personnel",
+    title: "شؤون الأفراد والتمام",
     items: [
       { to: "/", label: "لوحة التحكم", icon: LayoutDashboard, end: true, breadcrumb: "لوحة التحكم" },
       { to: "/members", label: "سجل الأفراد", icon: Users, permission: "member.view", breadcrumb: "سجل الأفراد" },
-      { to: "/members/new", label: "إضافة فرد جديد", icon: UserPlus, permission: "member.create", breadcrumb: "إضافة فرد جديد" },
-    ],
-  },
-  {
-    id: "attendance",
-    title: "التمام والانضباط والورديات",
-    items: [
-      { to: "/attendance", label: "التمام اليومي", icon: CalendarCheck2, permission: "attendance.view", breadcrumb: "التمام اليومي" },
-      { to: "/attendance/monthly", label: "التمام الشهري", icon: CalendarDays, permission: "attendance.view", breadcrumb: "التمام الشهري" },
+      { to: "/attendance", label: "التمام اليومي والانضباط", icon: CalendarCheck2, permission: "attendance.view", breadcrumb: "التمام اليومي" },
       { to: "/attendance/rosters", label: "فصائل النوبات والورديات", icon: Clock, permission: "attendance.view", breadcrumb: "فصائل النوبات والورديات" },
     ],
   },
   {
-    id: "armory",
-    title: "قسم التسليح والأسلحة",
+    id: "logistics",
+    title: "العهد والمستودعات",
     items: [
-      { to: "/armory", label: "سجل الأسلحة والذخائر", icon: Crosshair, permission: "equipment.view", breadcrumb: "سجل الأسلحة والذخائر" },
-    ],
-  },
-  {
-    id: "inventory",
-    title: "المستودع والمخازن العامة",
-    items: [
-      { to: "/inventory", label: "المخازن والعتاد العام", icon: PackageCheck, permission: "equipment.view", breadcrumb: "المخازن والعتاد العام" },
-    ],
-  },
-  {
-    id: "transportation",
-    title: "قسم النقلية والآليات",
-    items: [
-      { to: "/transportation", label: "سجل المركبات والآليات", icon: Car, permission: "transportation.view", breadcrumb: "سجل المركبات والآليات" },
+      { to: "/armory", label: "قسم التسليح والأسلحة", icon: Crosshair, permission: "equipment.view", breadcrumb: "قسم التسليح والأسلحة" },
+      { to: "/inventory", label: "المستودع والمخازن العامة", icon: PackageCheck, permission: "equipment.view", breadcrumb: "المستودع والمخازن العامة" },
+      { to: "/transportation", label: "قسم النقلية والآليات", icon: Car, permission: "transportation.view", breadcrumb: "قسم النقلية والآليات" },
     ],
   },
   {
@@ -69,11 +48,11 @@ export const NAV_GROUPS = [
   },
   {
     id: "system",
-    title: "الرقابة والنظام",
+    title: "الإدارة والنظام",
     items: [
-      { to: "/audit", label: "سجل التدقيق", icon: ScrollText, permission: "audit.view", breadcrumb: "سجل التدقيق" },
+      { to: "/audit", label: "سجل التدقيق والأنشطة", icon: ScrollText, permission: "audit.view", breadcrumb: "سجل التدقيق" },
       { to: "/backups", label: "النسخ الاحتياطية", icon: Archive, permission: "backup.run", breadcrumb: "النسخ الاحتياطية" },
-      { to: "/settings", label: "إعدادات النظام", icon: Settings, permission: "settings.manage", breadcrumb: "إعدادات النظام" },
+      { to: "/settings", label: "إعدادات المنظومة", icon: Settings, permission: "settings.manage", breadcrumb: "إعدادات النظام" },
     ],
   },
 ];
@@ -81,6 +60,8 @@ export const NAV_GROUPS = [
 // All route metadata for breadcrumbs and palette lookups
 export const ALL_NAV_ITEMS = [
   ...NAV_GROUPS.flatMap((g) => g.items),
+  { to: "/members/new", label: "إضافة فرد جديد", icon: UserPlus, permission: "member.create", breadcrumb: "إضافة فرد جديد" },
+  { to: "/attendance/monthly", label: "التمام الشهري", icon: CalendarDays, permission: "attendance.view", breadcrumb: "التمام الشهري" },
   { to: "/settings/field-requirements", label: "متطلبات الحقول", icon: Settings, permission: "settings.manage", breadcrumb: "متطلبات الحقول" },
   { to: "/settings/armory-categories", label: "تصنيفات وأنواع التسليح", icon: Crosshair, permission: "settings.manage", breadcrumb: "تصنيفات وأنواع التسليح" },
   { to: "/settings/inventory-categories", label: "تصنيفات المخازن والعتاد العام", icon: PackageCheck, permission: "settings.manage", breadcrumb: "تصنيفات المخازن والعتاد العام" },

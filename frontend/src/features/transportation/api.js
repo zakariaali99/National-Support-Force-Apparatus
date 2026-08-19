@@ -21,8 +21,10 @@ export const useExternalUnits = (params = {}, options = {}) => {
   return useQuery({
     queryKey: ["external-units", params],
     queryFn: async () => {
-      const { data } = await api.get("transportation/external-units/", { params });
-      return data;
+      const { data } = await api.get("transportation/external-units/", { params: { page_size: 200, ...params } });
+      if (Array.isArray(data)) return data;
+      if (Array.isArray(data?.results)) return data.results;
+      return [];
     },
     ...options,
   });
@@ -32,8 +34,10 @@ export const useVehicleCustodyRecords = (params = {}, options = {}) => {
   return useQuery({
     queryKey: ["vehicle-custody-records", params],
     queryFn: async () => {
-      const { data } = await api.get("transportation/vehicle-custody-records/", { params });
-      return data;
+      const { data } = await api.get("transportation/vehicle-custody-records/", { params: { page_size: 200, ...params } });
+      if (Array.isArray(data)) return data;
+      if (Array.isArray(data?.results)) return data.results;
+      return [];
     },
     ...options,
   });

@@ -4,6 +4,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { Button } from "../../components/ui/Button";
 import { showToast } from "../../components/ui/Toast";
 import { openAuthedPdf, downloadAuthedFile } from "../reports/api";
+import { printVehicleTripVoucherInNewWindow } from "../../lib/printUtils";
 import nasfSeal from "../../assets/brand/nasf-seal.jpg";
 
 export function VehicleTripVoucherDialog({ vehicle, open, onOpenChange }) {
@@ -11,16 +12,9 @@ export function VehicleTripVoucherDialog({ vehicle, open, onOpenChange }) {
   const [isProcessing, setIsProcessing] = useState(false);
   const tripNumber = useRef(`TRIP-${Math.floor(100000 + Math.random() * 900000)}`).current;
 
-  const handlePrint = async () => {
-    if (!vehicle?.id) return;
-    setIsProcessing(true);
-    try {
-      await openAuthedPdf(`reports/transportation/vehicle/${vehicle.id}/trip-ticket/`);
-    } catch {
-      showToast("تعذر فتح أمر التحرك في تبويب جديد", "error");
-    } finally {
-      setIsProcessing(false);
-    }
+  const handlePrint = () => {
+    if (!vehicle) return;
+    printVehicleTripVoucherInNewWindow({ vehicle, tripNumber });
   };
 
   const handleDownloadPdf = async () => {

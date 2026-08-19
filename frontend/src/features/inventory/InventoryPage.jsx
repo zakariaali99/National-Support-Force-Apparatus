@@ -10,13 +10,10 @@ import {
   AlertTriangle,
   FileCheck2,
   Printer,
-  Shield,
-  Layers,
   Boxes,
   UserCheck,
   CheckCircle,
   Eye,
-  Wrench,
   Settings,
 } from "lucide-react";
 
@@ -25,7 +22,6 @@ import { PageHeader } from "../../components/ui/PageHeader";
 import { Card, CardContent } from "../../components/ui/Card";
 import { Button } from "../../components/ui/Button";
 import { Input } from "../../components/ui/Input";
-import { Select } from "../../components/ui/Select";
 import { Badge } from "../../components/ui/Badge";
 import {
   Dialog,
@@ -41,7 +37,7 @@ import { showToast } from "../../components/ui/Toast";
 import { StatCard } from "../../components/ui/StatCard";
 import { CustodyHandoverVoucherDialog } from "./CustodyHandoverVoucherDialog";
 import { AssetDetailHistoryDialog } from "../../components/equipment/AssetDetailHistoryDialog";
-import { openAuthedPdf } from "../reports/api";
+import { printInventorySummaryInNewWindow } from "../../lib/printUtils";
 
 const STATUS_MAP = {
   good: { label: "صالح للاستعمال", variant: "success" },
@@ -142,10 +138,15 @@ export function InventoryPage() {
   const createMutation = useMutation({
     mutationFn: (data) =>
       api.post("equipment/items/", {
-        ...data,
+        name: data.name.trim(),
         category: Number(data.category),
+        item_code: data.item_code ? data.item_code.trim() : "",
+        size_spec: data.size_spec ? data.size_spec.trim() : "",
+        model_name: data.model_name ? data.model_name.trim() : "",
         total_quantity: Number(data.total_quantity) || 1,
         available_quantity: Number(data.available_quantity) || Number(data.total_quantity) || 1,
+        status: data.status || "good",
+        notes: data.notes ? data.notes.trim() : "",
         domain: "inventory",
       }),
     onSuccess: () => {
@@ -214,7 +215,17 @@ export function InventoryPage() {
   }
 
   function handleOpenAdd() {
-    resetForm();
+    setFormData({
+      name: "",
+      category: categories.length > 0 ? String(categories[0].id) : "",
+      item_code: "",
+      size_spec: "",
+      model_name: "",
+      total_quantity: "1",
+      available_quantity: "1",
+      status: "good",
+      notes: "",
+    });
     setAddModalOpen(true);
   }
 
@@ -268,25 +279,18 @@ export function InventoryPage() {
     };
   }, [items]);
 
-  async function handlePrintSummary() {
-    try {
-      setIsPrintingSummary(true);
-      await openAuthedPdf("reports/inventory/summary/pdf/");
-    } catch {
-      showToast({ title: "تعذر فتح تقرير المخازن", description: "يرجى المحاولة مجدداً.", type: "error" });
-    } finally {
-      setIsPrintingSummary(false);
-    }
+  function handlePrintSummary() {
+    printInventorySummaryInNewWindow({ items: filteredItems, domain: "inventory" });
   }
 
   return (
     <div className="space-y-6">
-      {/* Header */}
+      {/* Header with Explicit Visible Buttons */}
       <PageHeader
         title="المستودع والمخازن العامة"
-        subtitle="إدارة وتوثيق المهمات، التجهيزات الإدارية، العهد العامة، وحركة الاستلام والصرف"
-        action={
-          <div className="flex items-center gap-2">
+        description="إدارة وتوثيق المهمات، التجهيزات الإدارية، العهد العامة، وحركة الاستلام والصرف"
+        actions={
+          <div className="flex items-center gap-2.5">
             <Button
               variant="outline"
               onClick={handlePrintSummary}
@@ -296,9 +300,13 @@ export function InventoryPage() {
               <Printer className="h-4.5 w-4.5 text-blue-600" />
               {isPrintingSummary ? "جارٍ التجهيز..." : "طباعة كشف المخزن"}
             </Button>
-            <Button onClick={handleOpenAdd} className="gap-2 font-bold shadow-sm">
+            <Button
+              variant="primary"
+              onClick={handleOpenAdd}
+              className="gap-2 font-bold shadow-sm bg-[#2B95E8] hover:bg-blue-600 text-white"
+            >
               <Plus className="h-4.5 w-4.5" />
-              تسجيل صنف جديد
+              <span>تسجيل صنف جديد</span>
             </Button>
           </div>
         }
@@ -426,8 +434,16 @@ export function InventoryPage() {
                   </tr>
                 ) : filteredItems.length === 0 ? (
                   <tr>
-                    <td colSpan={6} className="text-center py-10 text-slate-400 font-medium">
-                      لا توجد أصناف مسجلة في المخزن تطابق خيارات البحث.
+                    <td colSpan={6} className="text-center py-12 text-slate-400 font-medium space-y-2">
+                      <p>لا توجد أصناف مسجلة في المخزن تطابق خيارات البحث.</p>
+                      <Button
+                        size="sm"
+                        onClick={handleOpenAdd}
+                        className="font-bold gap-1.5 mx-auto bg-[#2B95E8] hover:bg-blue-600 text-white"
+                      >
+                        <Plus className="w-4 h-4" />
+                        <span>تسجيل أول صنف الآن</span>
+                      </Button>
                     </td>
                   </tr>
                 ) : (
@@ -619,6 +635,10 @@ export function InventoryPage() {
           <form
             onSubmit={(e) => {
               e.preventDefault();
+              if (!formData.category) {
+                showToast({ title: "يرجى اختيار التصنيف المخزني أولاً", type: "error" });
+                return;
+              }
               createMutation.mutate(formData);
             }}
             className="space-y-4 py-2"
@@ -663,6 +683,11 @@ export function InventoryPage() {
                     </option>
                   ))}
                 </select>
+                {categories.length === 0 && (
+                  <p className="text-micro text-amber-600 font-semibold">
+                    لا توجد تصنيفات مخزنية مسجلة. يرجى إضافة تصنيف من إعدادات المنظومة.
+                  </p>
+                )}
               </div>
 
               <div className="space-y-1.5">
@@ -748,7 +773,7 @@ export function InventoryPage() {
               <Button type="button" variant="outline" onClick={() => setAddModalOpen(false)} className="rounded-xl px-5 font-bold">
                 إلغاء
               </Button>
-              <Button type="submit" disabled={createMutation.isPending} className="rounded-xl px-6 font-bold">
+              <Button type="submit" disabled={createMutation.isPending} className="rounded-xl px-6 font-bold bg-[#2B95E8] hover:bg-blue-600 text-white">
                 {createMutation.isPending ? "جارٍ الحفظ..." : "تسجيل الصنف"}
               </Button>
             </DialogFooter>
@@ -833,7 +858,7 @@ export function InventoryPage() {
               <Button type="button" variant="outline" onClick={() => setCustodyModalOpen(false)} className="rounded-xl px-5 font-bold">
                 إلغاء
               </Button>
-              <Button type="submit" disabled={assignCustodyMutation.isPending} className="rounded-xl px-6 font-bold">
+              <Button type="submit" disabled={assignCustodyMutation.isPending} className="rounded-xl px-6 font-bold bg-[#2B95E8] hover:bg-blue-600 text-white">
                 {assignCustodyMutation.isPending ? "جارٍ الصرف..." : "اعتماد الصرف"}
               </Button>
             </DialogFooter>
@@ -919,7 +944,7 @@ export function InventoryPage() {
               <Button type="button" variant="outline" onClick={() => setReturnModalOpen(false)} className="rounded-xl px-5 font-bold">
                 إلغاء
               </Button>
-              <Button type="submit" disabled={releaseCustodyMutation.isPending} className="rounded-xl px-6 font-bold bg-emerald-600 hover:bg-emerald-700">
+              <Button type="submit" disabled={releaseCustodyMutation.isPending} className="rounded-xl px-6 font-bold bg-emerald-600 hover:bg-emerald-700 text-white">
                 {releaseCustodyMutation.isPending ? "جارٍ الإرجاع..." : "تأكيد الاستلام بالمستودع"}
               </Button>
             </DialogFooter>
@@ -992,7 +1017,7 @@ export function InventoryPage() {
               <Button type="button" variant="outline" onClick={() => setDamageModalOpen(false)} className="rounded-xl px-5 font-bold">
                 إلغاء
               </Button>
-              <Button type="submit" disabled={markDamagedMutation.isPending} className="rounded-xl px-6 font-bold bg-amber-600 hover:bg-amber-700">
+              <Button type="submit" disabled={markDamagedMutation.isPending} className="rounded-xl px-6 font-bold bg-amber-600 hover:bg-amber-700 text-white">
                 {markDamagedMutation.isPending ? "جارٍ الحفظ..." : "إثبات التلف"}
               </Button>
             </DialogFooter>

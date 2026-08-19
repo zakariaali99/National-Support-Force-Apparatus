@@ -40,10 +40,17 @@ export function ExternalUnitsPage() {
   const [editingUnit, setEditingUnit] = useState(null);
   const [deletingUnit, setDeletingUnit] = useState(null);
 
-  const { data: units = [], isLoading } = useExternalUnits();
+  const { data: rawUnits, isLoading } = useExternalUnits();
   const createUnit = useCreateExternalUnit();
   const updateUnit = useUpdateExternalUnit();
   const deleteUnit = useDeleteExternalUnit();
+
+  const units = useMemo(() => {
+    if (!rawUnits) return [];
+    if (Array.isArray(rawUnits)) return rawUnits;
+    if (Array.isArray(rawUnits.results)) return rawUnits.results;
+    return [];
+  }, [rawUnits]);
 
   const {
     register,
@@ -119,11 +126,11 @@ export function ExternalUnitsPage() {
     <div className="space-y-6">
       <PageHeader
         title="الوحدات والجهات الخارجية"
-        subtitle="إدارة وتوثيق الوحدات والكتائب والأجهزة الخارجية التابعة لها المركبات أو المعارة إليها"
-        action={
-          <Button onClick={handleOpenCreate} className="gap-2 font-bold shadow-sm">
+        description="إدارة وتوثيق الوحدات والكتائب والأجهزة الخارجية التابعة لها المركبات أو المعارة إليها"
+        actions={
+          <Button onClick={handleOpenCreate} className="gap-2 font-bold shadow-sm bg-[#2B95E8] hover:bg-blue-600 text-white">
             <Plus className="h-4.5 w-4.5" />
-            إضافة جهة/وحدة جديدة
+            <span>إضافة جهة خارجية جديدة</span>
           </Button>
         }
       />

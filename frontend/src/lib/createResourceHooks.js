@@ -15,8 +15,12 @@ export function createResourceHooks(key, endpoint) {
   function useList(params) {
     return useQuery({
       queryKey: [key, params],
-      queryFn: async () =>
-        (await api.get(endpoint, { params: { page_size: 200, ...params } })).data.results,
+      queryFn: async () => {
+        const res = (await api.get(endpoint, { params: { page_size: 200, ...params } })).data;
+        if (Array.isArray(res)) return res;
+        if (Array.isArray(res?.results)) return res.results;
+        return [];
+      },
     });
   }
 

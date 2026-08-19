@@ -98,9 +98,10 @@ export function DataTable({
       )}
     >
       <tr>
-        {normalizedColumns.map((col) => (
+        {normalizedColumns.map((col, cIdx) => (
           <th
-                     className={cn(
+            key={col.key || cIdx}
+            className={cn(
               "px-3.5 py-2.5 text-start font-bold text-caption text-slate-500 dark:text-gray-400 tracking-wide",
               col.align === "center" && "text-center",
               col.align === "end" && "text-end",

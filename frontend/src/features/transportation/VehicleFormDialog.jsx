@@ -1,16 +1,32 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useMemo } from "react";
 import { useForm } from "react-hook-form";
+import { Link } from "react-router-dom";
 import { Button } from "../../components/ui/Button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "../../components/ui/Dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "../../components/ui/Dialog";
 import { Input } from "../../components/ui/Input";
 import { Label } from "../../components/ui/Label";
-import { Select } from "../../components/ui/Select";
 import { Switch } from "../../components/ui/Switch";
 import { Textarea } from "../../components/ui/Textarea";
 import { useFactions } from "../organization/api";
 import { useMembers } from "../members/api";
 import { useCreateVehicle, useUpdateVehicle, useExternalUnits } from "./api";
-import { Car, Crosshair, UserCheck, AlertCircle, Building2, Globe } from "lucide-react";
+import { showToast } from "../../components/ui/Toast";
+import {
+  Car,
+  Crosshair,
+  UserCheck,
+  AlertCircle,
+  Building2,
+  Globe,
+  Settings,
+} from "lucide-react";
 
 const VEHICLE_TYPES = [
   { value: "patrol", label: "دورية / استطلاع" },
@@ -34,13 +50,31 @@ export function VehicleFormDialog({ open, onOpenChange, vehicle = null }) {
   const isEdit = Boolean(vehicle);
   const createVehicle = useCreateVehicle();
   const updateVehicle = useUpdateVehicle();
-  const { data: factionsRaw = [] } = useFactions({ enabled: Boolean(open) });
-  const { data: externalUnitsRaw = [] } = useExternalUnits({ is_active: true }, { enabled: Boolean(open) });
-  const { data: membersData } = useMembers({ page_size: 200 }, { enabled: Boolean(open) });
 
-  const factions = Array.isArray(factionsRaw) ? factionsRaw : (factionsRaw?.results || []);
-  const externalUnits = Array.isArray(externalUnitsRaw) ? externalUnitsRaw : (externalUnitsRaw?.results || []);
-  const members = Array.isArray(membersData) ? membersData : (membersData?.results || []);
+  const { data: factionsRaw } = useFactions({ enabled: Boolean(open) });
+  const { data: externalUnitsRaw } = useExternalUnits({ is_active: true }, { enabled: Boolean(open) });
+  const { data: membersRaw } = useMembers({ page_size: 200 }, { enabled: Boolean(open) });
+
+  const factions = useMemo(() => {
+    if (!factionsRaw) return [];
+    if (Array.isArray(factionsRaw)) return factionsRaw;
+    if (Array.isArray(factionsRaw.results)) return factionsRaw.results;
+    return [];
+  }, [factionsRaw]);
+
+  const externalUnits = useMemo(() => {
+    if (!externalUnitsRaw) return [];
+    if (Array.isArray(externalUnitsRaw)) return externalUnitsRaw;
+    if (Array.isArray(externalUnitsRaw.results)) return externalUnitsRaw.results;
+    return [];
+  }, [externalUnitsRaw]);
+
+  const members = useMemo(() => {
+    if (!membersRaw) return [];
+    if (Array.isArray(membersRaw)) return membersRaw;
+    if (Array.isArray(membersRaw.results)) return membersRaw.results;
+    return [];
+  }, [membersRaw]);
 
   const {
     register,
@@ -84,7 +118,7 @@ export function VehicleFormDialog({ open, onOpenChange, vehicle = null }) {
         vehicle_type: vehicle.vehicle_type || "pickup",
         vin_number: vehicle.vin_number || "",
         plate_number: vehicle.plate_number || "",
-        model_year: vehicle.model_year || "",
+        model_year: vehicle.model_year ? String(vehicle.model_year) : "",
         color: vehicle.color || "",
         status: vehicle.status || "ready",
         affiliation_type: vehicle.affiliation_type || (vehicle.external_unit ? "external" : "internal"),
@@ -126,98 +160,140 @@ export function VehicleFormDialog({ open, onOpenChange, vehicle = null }) {
   }, [vehicle, reset, open]);
 
   const onSubmit = async (values) => {
-    const payload = {
-      ...values,
-      affiliation_type: values.affiliation_type,
-      faction: values.affiliation_type === "internal" && values.faction ? parseInt(values.faction, 10) : null,
-      external_unit: values.affiliation_type === "external" && values.external_unit ? parseInt(values.external_unit, 10) : null,
-      assigned_driver: values.assigned_driver ? parseInt(values.assigned_driver, 10) : null,
-      has_weapon: Boolean(values.has_weapon),
-      weapon_affiliation_type: values.weapon_affiliation_type,
-      weapon_faction:
-        values.has_weapon && values.weapon_affiliation_type === "internal" && values.weapon_faction
-          ? parseInt(values.weapon_faction, 10)
-          : null,
-      weapon_external_unit:
-        values.has_weapon && values.weapon_affiliation_type === "external" && values.weapon_external_unit
-          ? parseInt(values.weapon_external_unit, 10)
-          : null,
-      weapon_assigned_member:
-        values.has_weapon && values.weapon_assigned_member
-          ? parseInt(values.weapon_assigned_member, 10)
-          : null,
-    };
+    try {
+      const payload = {
+        name: values.name.trim(),
+        vehicle_type: values.vehicle_type,
+        vin_number: values.vin_number.trim(),
+        plate_number: values.plate_number ? values.plate_number.trim() : "",
+        model_year: values.model_year ? parseInt(values.model_year, 10) : null,
+        color: values.color ? values.color.trim() : "",
+        status: values.status,
+        affiliation_type: values.affiliation_type,
+        faction: values.affiliation_type === "internal" && values.faction ? parseInt(values.faction, 10) : null,
+        external_unit: values.affiliation_type === "external" && values.external_unit ? parseInt(values.external_unit, 10) : null,
+        assigned_driver: values.assigned_driver ? parseInt(values.assigned_driver, 10) : null,
+        has_weapon: Boolean(values.has_weapon),
+        mounted_weapon_name: values.has_weapon ? (values.mounted_weapon_name || "").trim() : "",
+        mounted_weapon_serial: values.has_weapon ? (values.mounted_weapon_serial || "").trim() : "",
+        weapon_affiliation_type: values.weapon_affiliation_type,
+        weapon_faction:
+          values.has_weapon && values.weapon_affiliation_type === "internal" && values.weapon_faction
+            ? parseInt(values.weapon_faction, 10)
+            : null,
+        weapon_external_unit:
+          values.has_weapon && values.weapon_affiliation_type === "external" && values.weapon_external_unit
+            ? parseInt(values.weapon_external_unit, 10)
+            : null,
+        weapon_assigned_member:
+          values.has_weapon && values.weapon_assigned_member
+            ? parseInt(values.weapon_assigned_member, 10)
+            : null,
+        notes: values.notes ? values.notes.trim() : "",
+      };
 
-    if (isEdit) {
-      await updateVehicle.mutateAsync({ id: vehicle.id, data: payload });
-    } else {
-      await createVehicle.mutateAsync(payload);
+      if (isEdit) {
+        await updateVehicle.mutateAsync({ id: vehicle.id, data: payload });
+        showToast({ title: "تم تحديث بيانات المركبة بنجاح", type: "success" });
+      } else {
+        await createVehicle.mutateAsync(payload);
+        showToast({ title: "تم تسجيل المركبة بنجاح", type: "success" });
+      }
+      onOpenChange(false);
+    } catch (err) {
+      const errData = err.response?.data;
+      let errorMsg = "تأكد من صحة البيانات المدخلة";
+      if (errData) {
+        if (typeof errData === "string") errorMsg = errData;
+        else if (errData.detail) errorMsg = errData.detail;
+        else if (typeof errData === "object") {
+          errorMsg = Object.entries(errData)
+            .map(([k, v]) => `${k}: ${Array.isArray(v) ? v.join(", ") : v}`)
+            .join(" | ");
+        }
+      }
+      showToast({
+        title: "خطأ أثناء حفظ المركبة",
+        description: errorMsg,
+        type: "error",
+      });
     }
-    onOpenChange(false);
   };
+
+  const selectStyle =
+    "w-full h-11 px-4 rounded-2xl border border-slate-200/80 dark:border-white/10 bg-slate-100 dark:bg-white/5 text-body-sm font-medium text-slate-800 dark:text-slate-200 focus:outline-none focus:!bg-white dark:focus:!bg-[#101422] focus:border-[#2B95E8] focus:ring-3 focus:ring-[#2B95E8]/20 transition-all";
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[720px] max-h-[90vh] overflow-y-auto" dir="rtl">
-        <DialogHeader>
-          <div className="flex items-center gap-2.5">
-            <div className="p-2 rounded-xl bg-blue-50 text-blue-700 dark:bg-blue-950/50 dark:text-blue-300">
-              <Car className="w-5 h-5" />
-            </div>
-            <div>
-              <DialogTitle>{isEdit ? "تعديل بيانات المركبة" : "إضافة مركبة / آلية جديدة"}</DialogTitle>
-              <DialogDescription>تسجيل بيانات المركبة التابعة للأسطول وتحديد جهة التبعية والسائق والتسليح.</DialogDescription>
-            </div>
-          </div>
+      <DialogContent className="max-w-3xl max-h-[92vh] overflow-y-auto p-0 rounded-[28px] border border-slate-200/80 dark:border-white/10 bg-white dark:bg-[#1A2038]">
+        <DialogHeader className="p-6 pb-4 border-b border-slate-100 dark:border-white/10 bg-slate-50/50 dark:bg-white/5">
+          <DialogTitle className="text-title font-bold text-slate-900 dark:text-white flex items-center gap-2">
+            <Car className="w-5 h-5 text-[#2B95E8]" />
+            <span>{isEdit ? `تعديل بيانات المركبة: ${vehicle.name}` : "تسجيل مركبة أو آلية جديدة"}</span>
+          </DialogTitle>
+          <DialogDescription className="text-caption text-slate-500">
+            أدخل مواصفات الآلية، التبعية الإدارية، السائق المسؤول، وبيانات التسليح الميداني
+          </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 pt-1">
-          {/* Section 1: Vehicle Base Details */}
+        <form onSubmit={handleSubmit(onSubmit)} className="p-6 space-y-6 text-start">
+          {/* Section 1: Vehicle Specifications */}
           <div className="space-y-4">
-            <div className="flex items-center gap-2 pb-2 border-b border-slate-100 dark:border-slate-800">
+            <div className="flex items-center gap-2 border-b border-slate-100 dark:border-white/10 pb-2">
               <div className="p-1 rounded-md bg-blue-50 text-blue-700 dark:bg-blue-950/50 dark:text-blue-300">
                 <Car className="w-4 h-4" />
               </div>
-              <span className="text-body-sm font-bold text-slate-900 dark:text-slate-100">بيانات الآلية والمركبة</span>
+              <span className="text-body-sm font-bold text-slate-900 dark:text-slate-100">المواصفات الفنية للآلية</span>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-1.5">
-                <Label htmlFor="name" className="text-label text-slate-800 dark:text-slate-200">اسم / طراز المركبة *</Label>
+                <Label htmlFor="name" className="text-label text-slate-800 dark:text-slate-200">
+                  اسم أو طراز المركبة <span className="text-rose-500">*</span>
+                </Label>
                 <Input
                   id="name"
-                  placeholder="مثال: تويوتا لاندكروزر LC79"
+                  placeholder="مثال: تويوتا لاندكروزر / نيسان باترول / مصفحة فهد"
                   {...register("name", { required: "اسم المركبة مطلوب" })}
+                  className={errors.name ? "border-rose-500" : ""}
                 />
-                {errors.name && <p className="text-caption text-danger">{errors.name.message}</p>}
+                {errors.name && <p className="text-micro text-rose-500 font-semibold">{errors.name.message}</p>}
               </div>
 
               <div className="space-y-1.5">
-                <Label htmlFor="vehicle_type" className="text-label text-slate-800 dark:text-slate-200">نوع الآلية *</Label>
-                <Select
-                  value={watch("vehicle_type")}
-                  onValueChange={(val) => setValue("vehicle_type", val)}
-                  options={VEHICLE_TYPES}
-                />
+                <Label htmlFor="vehicle_type" className="text-label text-slate-800 dark:text-slate-200">
+                  تصنيف ونوع الآلية <span className="text-rose-500">*</span>
+                </Label>
+                <select id="vehicle_type" {...register("vehicle_type")} className={selectStyle}>
+                  {VEHICLE_TYPES.map((t) => (
+                    <option key={t.value} value={t.value}>
+                      {t.label}
+                    </option>
+                  ))}
+                </select>
               </div>
 
               <div className="space-y-1.5">
-                <Label htmlFor="vin_number" className="text-label text-slate-800 dark:text-slate-200">رقم الهيكل (VIN / Chassis) *</Label>
+                <Label htmlFor="vin_number" className="text-label text-slate-800 dark:text-slate-200">
+                  رقم الهيكل / VIN <span className="text-rose-500">*</span>
+                </Label>
                 <Input
                   id="vin_number"
-                  placeholder="رقم الهيكل المعدني"
+                  placeholder="مثال: JTEBU25J..."
                   dir="ltr"
-                  className="font-mono"
+                  className={`font-mono ${errors.vin_number ? "border-rose-500" : ""}`}
                   {...register("vin_number", { required: "رقم الهيكل مطلوب" })}
                 />
-                {errors.vin_number && <p className="text-caption text-danger">{errors.vin_number.message}</p>}
+                {errors.vin_number && <p className="text-micro text-rose-500 font-semibold">{errors.vin_number.message}</p>}
               </div>
 
               <div className="space-y-1.5">
-                <Label htmlFor="plate_number" className="text-label text-slate-800 dark:text-slate-200">رقم اللوحة العسكرية / المدنية</Label>
+                <Label htmlFor="plate_number" className="text-label text-slate-800 dark:text-slate-200">
+                  رقم اللوحة المعدنية
+                </Label>
                 <Input
                   id="plate_number"
-                  placeholder="مثال: 10-12345"
+                  placeholder="مثال: 5-12345 / لوحة عسكرية"
                   dir="ltr"
                   className="font-mono"
                   {...register("plate_number")}
@@ -225,38 +301,38 @@ export function VehicleFormDialog({ open, onOpenChange, vehicle = null }) {
               </div>
 
               <div className="space-y-1.5">
-                <Label htmlFor="model_year" className="text-label text-slate-800 dark:text-slate-200">سنة الصنع</Label>
+                <Label htmlFor="model_year" className="text-label text-slate-800 dark:text-slate-200">سنة الصنع / الموديل</Label>
                 <Input
                   id="model_year"
-                  placeholder="مثال: 2024"
+                  type="number"
+                  placeholder="مثال: 2023"
                   dir="ltr"
+                  className="font-mono"
                   {...register("model_year")}
                 />
               </div>
 
               <div className="space-y-1.5">
-                <Label htmlFor="color" className="text-label text-slate-800 dark:text-slate-200">اللون</Label>
-                <Input
-                  id="color"
-                  placeholder="مثال: بيج عسكري / أسود"
-                  {...register("color")}
-                />
+                <Label htmlFor="color" className="text-label text-slate-800 dark:text-slate-200">اللون / التمويه</Label>
+                <Input id="color" placeholder="مثال: أبيض / صحراوي مموه / أسود" {...register("color")} />
               </div>
 
               <div className="space-y-1.5 md:col-span-2">
-                <Label htmlFor="status" className="text-label text-slate-800 dark:text-slate-200">الحالة التشغيلية</Label>
-                <Select
-                  value={watch("status")}
-                  onValueChange={(val) => setValue("status", val)}
-                  options={VEHICLE_STATUSES}
-                />
+                <Label htmlFor="status" className="text-label text-slate-800 dark:text-slate-200">الحالة التشغيلية للمركبة</Label>
+                <select id="status" {...register("status")} className={selectStyle}>
+                  {VEHICLE_STATUSES.map((s) => (
+                    <option key={s.value} value={s.value}>
+                      {s.label}
+                    </option>
+                  ))}
+                </select>
               </div>
             </div>
           </div>
 
-          {/* Section 2: Vehicle Affiliation & Driver */}
+          {/* Section 2: Affiliation & Driver Assignment */}
           <div className="space-y-4">
-            <div className="flex items-center gap-2 pb-2 border-b border-slate-100 dark:border-slate-800">
+            <div className="flex items-center gap-2 border-b border-slate-100 dark:border-white/10 pb-2">
               <div className="p-1 rounded-md bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300">
                 <UserCheck className="w-4 h-4" />
               </div>
@@ -297,45 +373,55 @@ export function VehicleFormDialog({ open, onOpenChange, vehicle = null }) {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {affiliationType === "internal" ? (
                 <div className="space-y-1.5">
-                  <Label htmlFor="faction" className="text-label text-slate-800 dark:text-slate-200">الفصيل / القسم التابعة له المركبة</Label>
-                  <Select
-                    value={watch("faction")}
-                    onValueChange={(val) => setValue("faction", val)}
-                    options={[
-                      { value: "", label: "غير محدد / عام" },
-                      ...factions.map((f) => ({ value: String(f.id), label: f.name_ar })),
-                    ]}
-                  />
+                  <Label htmlFor="faction" className="text-label text-slate-800 dark:text-slate-200">
+                    الفصيل / القسم التابعة له المركبة
+                  </Label>
+                  <select id="faction" {...register("faction")} className={selectStyle}>
+                    <option value="">غير محدد / عام</option>
+                    {factions.map((f) => (
+                      <option key={f.id} value={f.id}>
+                        {f.name_ar}
+                      </option>
+                    ))}
+                  </select>
                 </div>
               ) : (
                 <div className="space-y-1.5">
-                  <Label htmlFor="external_unit" className="text-label text-slate-800 dark:text-slate-200">
-                    الوحدة أو الجهة الخارجية التابعة لها *
-                  </Label>
-                  <Select
-                    value={watch("external_unit")}
-                    onValueChange={(val) => setValue("external_unit", val)}
-                    options={[
-                      { value: "", label: "اختر الوحدة أو الجهة الخارجية" },
-                      ...externalUnits.map((u) => ({ value: String(u.id), label: u.name_ar })),
-                    ]}
-                  />
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="external_unit" className="text-label text-slate-800 dark:text-slate-200">
+                      الوحدة أو الجهة الخارجية <span className="text-rose-500">*</span>
+                    </Label>
+                    <Link
+                      to="/settings/external-units"
+                      className="text-micro text-blue-600 hover:underline flex items-center gap-0.5 font-bold"
+                    >
+                      <Settings className="w-3 h-3" />
+                      إدارة الوحدات الخارجية
+                    </Link>
+                  </div>
+                  <select id="external_unit" {...register("external_unit")} className={selectStyle} required>
+                    <option value="">اختر الوحدة أو الجهة الخارجية</option>
+                    {externalUnits.map((u) => (
+                      <option key={u.id} value={u.id}>
+                        {u.name_ar} {u.code ? `(${u.code})` : ""}
+                      </option>
+                    ))}
+                  </select>
                 </div>
               )}
 
               <div className="space-y-1.5">
-                <Label htmlFor="assigned_driver" className="text-label text-slate-800 dark:text-slate-200">السائق أو المسؤول عن المركبة</Label>
-                <Select
-                  value={watch("assigned_driver")}
-                  onValueChange={(val) => setValue("assigned_driver", val)}
-                  options={[
-                    { value: "", label: "غير معين (سائق نوبة)" },
-                    ...members.map((m) => ({
-                      value: String(m.id),
-                      label: `${m.full_name} (${m.force_number || "بدون رقم"})`,
-                    })),
-                  ]}
-                />
+                <Label htmlFor="assigned_driver" className="text-label text-slate-800 dark:text-slate-200">
+                  السائق أو المسؤول عن المركبة
+                </Label>
+                <select id="assigned_driver" {...register("assigned_driver")} className={selectStyle}>
+                  <option value="">غير معين (سائق نوبة / المستودع)</option>
+                  {members.map((m) => (
+                    <option key={m.id} value={m.id}>
+                      {m.full_name} ({m.force_number || "بدون رقم"}) — {m.faction_name || ""}
+                    </option>
+                  ))}
+                </select>
               </div>
             </div>
           </div>
@@ -372,7 +458,9 @@ export function VehicleFormDialog({ open, onOpenChange, vehicle = null }) {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-1.5">
-                    <Label htmlFor="mounted_weapon_name" className="text-label text-slate-800 dark:text-slate-200">اسم / نوع السلاح المثبت *</Label>
+                    <Label htmlFor="mounted_weapon_name" className="text-label text-slate-800 dark:text-slate-200">
+                      اسم / نوع السلاح المثبت <span className="text-rose-500">*</span>
+                    </Label>
                     <Input
                       id="mounted_weapon_name"
                       placeholder="مثال: رشاش دوشكا 12.7 مم / رشاش 14.5"
@@ -383,7 +471,9 @@ export function VehicleFormDialog({ open, onOpenChange, vehicle = null }) {
                   </div>
 
                   <div className="space-y-1.5">
-                    <Label htmlFor="mounted_weapon_serial" className="text-label text-slate-800 dark:text-slate-200">رقم السلاح التسلسلي *</Label>
+                    <Label htmlFor="mounted_weapon_serial" className="text-label text-slate-800 dark:text-slate-200">
+                      رقم السلاح التسلسلي <span className="text-rose-500">*</span>
+                    </Label>
                     <Input
                       id="mounted_weapon_serial"
                       placeholder="مثال: WPN-DSHK-0921"
@@ -398,55 +488,58 @@ export function VehicleFormDialog({ open, onOpenChange, vehicle = null }) {
                   {/* Weapon Affiliation Selector */}
                   <div className="space-y-1.5">
                     <Label className="text-label text-slate-800 dark:text-slate-200">جهة تبعية السلاح</Label>
-                    <Select
+                    <select
                       value={weaponAffiliationType}
-                      onValueChange={(val) => setValue("weapon_affiliation_type", val)}
-                      options={[
-                        { value: "internal", label: "تابعة للجهاز (فصيل داخلي)" },
-                        { value: "external", label: "تابعة لجهة خارجية" },
-                      ]}
-                    />
+                      onChange={(e) => setValue("weapon_affiliation_type", e.target.value)}
+                      className={selectStyle}
+                    >
+                      <option value="internal">تابعة للجهاز (فصيل داخلي)</option>
+                      <option value="external">تابعة لجهة خارجية</option>
+                    </select>
                   </div>
 
                   {weaponAffiliationType === "internal" ? (
                     <div className="space-y-1.5">
-                      <Label htmlFor="weapon_faction" className="text-label text-slate-800 dark:text-slate-200">فصيل تبعية السلاح</Label>
-                      <Select
-                        value={watch("weapon_faction")}
-                        onValueChange={(val) => setValue("weapon_faction", val)}
-                        options={[
-                          { value: "", label: "نفس فصيل المركبة" },
-                          ...factions.map((f) => ({ value: String(f.id), label: f.name_ar })),
-                        ]}
-                      />
+                      <Label htmlFor="weapon_faction" className="text-label text-slate-800 dark:text-slate-200">
+                        فصيل تبعية السلاح
+                      </Label>
+                      <select id="weapon_faction" {...register("weapon_faction")} className={selectStyle}>
+                        <option value="">نفس فصيل المركبة</option>
+                        {factions.map((f) => (
+                          <option key={f.id} value={f.id}>
+                            {f.name_ar}
+                          </option>
+                        ))}
+                      </select>
                     </div>
                   ) : (
                     <div className="space-y-1.5">
-                      <Label htmlFor="weapon_external_unit" className="text-label text-slate-800 dark:text-slate-200">الوحدة الخارجية للسلاح</Label>
-                      <Select
-                        value={watch("weapon_external_unit")}
-                        onValueChange={(val) => setValue("weapon_external_unit", val)}
-                        options={[
-                          { value: "", label: "اختر الوحدة الخارجية" },
-                          ...externalUnits.map((u) => ({ value: String(u.id), label: u.name_ar })),
-                        ]}
-                      />
+                      <Label htmlFor="weapon_external_unit" className="text-label text-slate-800 dark:text-slate-200">
+                        الوحدة الخارجية للسلاح
+                      </Label>
+                      <select id="weapon_external_unit" {...register("weapon_external_unit")} className={selectStyle}>
+                        <option value="">اختر الوحدة الخارجية للسلاح</option>
+                        {externalUnits.map((u) => (
+                          <option key={u.id} value={u.id}>
+                            {u.name_ar}
+                          </option>
+                        ))}
+                      </select>
                     </div>
                   )}
 
                   <div className="space-y-1.5 md:col-span-2">
-                    <Label htmlFor="weapon_assigned_member" className="text-label text-slate-800 dark:text-slate-200">الرامي المكلف بالسلاح</Label>
-                    <Select
-                      value={watch("weapon_assigned_member")}
-                      onValueChange={(val) => setValue("weapon_assigned_member", val)}
-                      options={[
-                        { value: "", label: "غير معين (رامي نوبة)" },
-                        ...members.map((m) => ({
-                          value: String(m.id),
-                          label: `${m.full_name} (${m.force_number || "بدون رقم"})`,
-                        })),
-                      ]}
-                    />
+                    <Label htmlFor="weapon_assigned_member" className="text-label text-slate-800 dark:text-slate-200">
+                      الرامي المكلف بالسلاح
+                    </Label>
+                    <select id="weapon_assigned_member" {...register("weapon_assigned_member")} className={selectStyle}>
+                      <option value="">غير معين (رامي نوبة)</option>
+                      {members.map((m) => (
+                        <option key={m.id} value={m.id}>
+                          {m.full_name} ({m.force_number || "بدون رقم"}) — {m.faction_name || ""}
+                        </option>
+                      ))}
+                    </select>
                   </div>
                 </div>
               </div>
@@ -458,25 +551,19 @@ export function VehicleFormDialog({ open, onOpenChange, vehicle = null }) {
             <Label htmlFor="notes" className="text-label text-slate-800 dark:text-slate-200">ملاحظات إضافية عن المركبة</Label>
             <Textarea
               id="notes"
-              placeholder="أي تفاصيل فنية، حالة الإطارات، أو تجهيزات خاصة..."
+              placeholder="تجهيزات خاصة، حالة الإطارات، تجهيزات الاتصال..."
               {...register("notes")}
+              rows={2}
+              className="rounded-2xl resize-none text-body-sm"
             />
           </div>
 
-          <DialogFooter>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => onOpenChange(false)}
-            >
+          <DialogFooter className="pt-4 border-t border-slate-100 dark:border-white/10 flex items-center justify-end gap-2">
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)} className="rounded-xl px-5 font-bold">
               إلغاء
             </Button>
-            <Button
-              type="submit"
-              variant="primary"
-              disabled={isSubmitting}
-            >
-              {isEdit ? "حفظ التعديلات" : "إضافة المركبة"}
+            <Button type="submit" disabled={isSubmitting || createVehicle.isPending || updateVehicle.isPending} className="rounded-xl px-6 font-bold">
+              {isSubmitting || createVehicle.isPending || updateVehicle.isPending ? "جارٍ الحفظ..." : isEdit ? "تحديث البيانات" : "تسجيل المركبة"}
             </Button>
           </DialogFooter>
         </form>

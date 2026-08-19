@@ -5,6 +5,7 @@ import { Button } from "../../components/ui/Button";
 import { Badge } from "../../components/ui/Badge";
 import { showToast } from "../../components/ui/Toast";
 import { openAuthedPdf, downloadAuthedFile } from "../reports/api";
+import { printCustodyVoucherInNewWindow } from "../../lib/printUtils";
 import nasfSeal from "../../assets/brand/nasf-seal.jpg";
 
 export function CustodyHandoverVoucherDialog({ item, custodyRecord, open, onOpenChange }) {
@@ -41,15 +42,8 @@ export function CustodyHandoverVoucherDialog({ item, custodyRecord, open, onOpen
     }).toString();
   };
 
-  const handlePrint = async () => {
-    setIsProcessing(true);
-    try {
-      await openAuthedPdf(`reports/inventory/custody-voucher/?${buildParams()}`);
-    } catch {
-      showToast("تعذر فتح ملف الطباعة في تبويب جديد", "error");
-    } finally {
-      setIsProcessing(false);
-    }
+  const handlePrint = () => {
+    printCustodyVoucherInNewWindow({ item, custodyRecord, voucherNumber });
   };
 
   const handleDownloadPdf = async () => {

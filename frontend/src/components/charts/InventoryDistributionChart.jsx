@@ -1,10 +1,10 @@
 import { useMemo } from "react";
-import { Package, Shield, CheckCircle2, UserCheck, AlertTriangle } from "lucide-react";
+import { Package } from "lucide-react";
 import { cn } from "../../lib/utils";
 import { useInventoryItems } from "../../features/inventory/api";
 
 export function InventoryDistributionChart({ className }) {
-  const { data: rawItems } = useInventoryItems({ page_size: 200 });
+  const { data: rawItems } = useInventoryItems({ page_size: 200, domain: "inventory" });
   const items = useMemo(() => {
     return Array.isArray(rawItems) ? rawItems : (rawItems?.results ?? []);
   }, [rawItems]);
@@ -15,56 +15,28 @@ export function InventoryDistributionChart({ className }) {
     let assignedQty = 0;
     let damagedQty = 0;
 
-    let weaponsCount = 0;
-    let gearCount = 0;
-    let commsCount = 0;
-    let medicalCount = 0;
-
     items.forEach((item) => {
       const tot = item.total_quantity || 1;
       totalQty += tot;
       availableQty += item.available_quantity || 0;
       assignedQty += item.assigned_quantity || 0;
       damagedQty += item.damaged_quantity || 0;
-
-      if (["rifle", "pistol", "machine_gun", "ammo"].includes(item.category_type)) {
-        weaponsCount += tot;
-      } else if (item.category_type === "communication") {
-        commsCount += tot;
-      } else if (item.category_type === "medical") {
-        medicalCount += tot;
-      } else {
-        gearCount += tot;
-      }
     });
 
-    if (totalQty === 0) {
-      totalQty = 1450;
-      availableQty = 980;
-      assignedQty = 440;
-      damagedQty = 30;
-      weaponsCount = 620;
-      gearCount = 510;
-      commsCount = 200;
-      medicalCount = 120;
-    }
-
-    const availablePercent = Math.round((availableQty / totalQty) * 100);
-    const assignedPercent = Math.round((assignedQty / totalQty) * 100);
-    const damagedPercent = Math.round((damagedQty / totalQty) * 100);
+    const safeTotal = totalQty > 0 ? totalQty : 1;
+    const availablePercent = Math.round((availableQty / safeTotal) * 100);
+    const assignedPercent = Math.round((assignedQty / safeTotal) * 100);
+    const damagedPercent = Math.round((damagedQty / safeTotal) * 100);
 
     return {
       totalQty,
       availableQty,
       assignedQty,
       damagedQty,
-      availablePercent,
-      assignedPercent,
-      damagedPercent,
-      weaponsCount,
-      gearCount,
-      commsCount,
-      medicalCount,
+      availablePercent: totalQty > 0 ? availablePercent : 0,
+      assignedPercent: totalQty > 0 ? assignedPercent : 0,
+      damagedPercent: totalQty > 0 ? damagedPercent : 0,
+      itemTypesCount: items.length,
     };
   }, [items]);
 
@@ -77,11 +49,11 @@ export function InventoryDistributionChart({ className }) {
               <Package className="h-4 w-4" />
             </div>
             <h3 className="text-title font-bold text-slate-900 dark:text-white tracking-tight">
-              توزيع حركة المخزون والعهد
+              حركة المخزون والعهد العامة
             </h3>
           </div>
           <p className="text-caption text-slate-500 dark:text-gray-400">
-            توزيع العهد الميدانية الحية مقارنة بالرصيد المتاح بالمستودع
+            حالة المهمات والتجهيزات العامة بالمستودع مقارنة بالعهد المصروفة
           </p>
         </div>
 
@@ -95,17 +67,17 @@ export function InventoryDistributionChart({ className }) {
         <div className="h-4 w-full bg-slate-100 dark:bg-white/5 rounded-full overflow-hidden flex shadow-inner">
           <div
             style={{ width: `${stats.availablePercent}%` }}
-            className="bg-[#2B95E8] hover:brightness-110 transition-all cursor-pointer"
+            className="bg-[#2B95E8] hover:brightness-110 transition-all"
             title={`متاح بالمستودع: ${stats.availablePercent}%`}
           />
           <div
             style={{ width: `${stats.assignedPercent}%` }}
-            className="bg-[#5468D4] hover:brightness-110 transition-all cursor-pointer"
+            className="bg-[#5468D4] hover:brightness-110 transition-all"
             title={`مسلم كعهدة: ${stats.assignedPercent}%`}
           />
           <div
             style={{ width: `${stats.damagedPercent}%` }}
-            className="bg-rose-500 hover:brightness-110 transition-all cursor-pointer"
+            className="bg-rose-500 hover:brightness-110 transition-all"
             title={`تالف / مكهن: ${stats.damagedPercent}%`}
           />
         </div>
@@ -126,23 +98,23 @@ export function InventoryDistributionChart({ className }) {
         </div>
       </div>
 
-      {/* Category Breakdown Chips */}
+      {/* Numerical Stats Breakdown */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-1">
         <div className="p-3 rounded-2xl bg-slate-50 dark:bg-white/5 border border-slate-200/60 dark:border-white/10 text-center">
-          <p className="text-caption text-slate-500 dark:text-gray-400 font-medium">أسلحة وذخائر</p>
-          <p className="text-title font-bold text-slate-900 dark:text-white font-mono mt-0.5">{stats.weaponsCount}</p>
+          <p className="text-caption text-slate-500 dark:text-gray-400 font-medium">عدد الأصناف</p>
+          <p className="text-title font-bold text-slate-900 dark:text-white font-mono mt-0.5">{stats.itemTypesCount}</p>
         </div>
-        <div className="p-3 rounded-2xl bg-slate-50 dark:bg-white/5 border border-slate-200/60 dark:border-white/10 text-center">
-          <p className="text-caption text-slate-500 dark:text-gray-400 font-medium">مهمات ومعدات</p>
-          <p className="text-title font-bold text-slate-900 dark:text-white font-mono mt-0.5">{stats.gearCount}</p>
+        <div className="p-3 rounded-2xl bg-emerald-50/50 dark:bg-emerald-950/20 border border-emerald-200/60 dark:border-emerald-900/30 text-center">
+          <p className="text-caption text-emerald-700 dark:text-emerald-300 font-medium">المتوفر بالمستودع</p>
+          <p className="text-title font-bold text-emerald-700 dark:text-emerald-300 font-mono mt-0.5">{stats.availableQty}</p>
         </div>
-        <div className="p-3 rounded-2xl bg-slate-50 dark:bg-white/5 border border-slate-200/60 dark:border-white/10 text-center">
-          <p className="text-caption text-slate-500 dark:text-gray-400 font-medium">أجهزة اتصال</p>
-          <p className="text-title font-bold text-slate-900 dark:text-white font-mono mt-0.5">{stats.commsCount}</p>
+        <div className="p-3 rounded-2xl bg-blue-50/50 dark:bg-blue-950/20 border border-blue-200/60 dark:border-blue-900/30 text-center">
+          <p className="text-caption text-blue-700 dark:text-blue-300 font-medium">العهد المصروفة</p>
+          <p className="text-title font-bold text-blue-700 dark:text-blue-300 font-mono mt-0.5">{stats.assignedQty}</p>
         </div>
-        <div className="p-3 rounded-2xl bg-slate-50 dark:bg-white/5 border border-slate-200/60 dark:border-white/10 text-center">
-          <p className="text-caption text-slate-500 dark:text-gray-400 font-medium">مستلزمات طبية</p>
-          <p className="text-title font-bold text-slate-900 dark:text-white font-mono mt-0.5">{stats.medicalCount}</p>
+        <div className="p-3 rounded-2xl bg-rose-50/50 dark:bg-rose-950/20 border border-rose-200/60 dark:border-rose-900/30 text-center">
+          <p className="text-caption text-rose-700 dark:text-rose-300 font-medium">تالف ومكهن</p>
+          <p className="text-title font-bold text-rose-700 dark:text-rose-300 font-mono mt-0.5">{stats.damagedQty}</p>
         </div>
       </div>
     </div>

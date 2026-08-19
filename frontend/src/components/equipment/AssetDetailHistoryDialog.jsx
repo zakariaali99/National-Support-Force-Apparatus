@@ -11,6 +11,7 @@ import {
 import { Button } from "../ui/Button";
 import { Badge } from "../ui/Badge";
 import { api } from "../../lib/api";
+import { printAssetCardInNewWindow } from "../../lib/printUtils";
 import sealUrl from "../../assets/brand/nasf-seal.jpg";
 import {
   Printer,
@@ -58,7 +59,7 @@ export function AssetDetailHistoryDialog({ open, onOpenChange, item, type = "wea
         });
         return res.data;
       } else {
-        const res = await api.get("equipment/custody-records/", {
+        const res = await api.get("equipment/custody/", {
           params: { item: item.id },
         });
         return res.data;
@@ -74,7 +75,7 @@ export function AssetDetailHistoryDialog({ open, onOpenChange, item, type = "wea
   const statusBadge = STATUS_LABELS[item.status] || { label: item.status || "—", variant: "secondary" };
 
   const handlePrint = () => {
-    window.print();
+    printAssetCardInNewWindow({ item, history, type });
   };
 
   return (
@@ -110,10 +111,10 @@ export function AssetDetailHistoryDialog({ open, onOpenChange, item, type = "wea
             <Button
               onClick={handlePrint}
               variant="outline"
-              className="gap-2 font-bold rounded-xl border-slate-200 dark:border-white/10 shadow-xs print:hidden"
+              className="gap-2 font-bold rounded-xl border-slate-200 dark:border-white/10 shadow-xs"
             >
               <Printer className="w-4 h-4 text-blue-600" />
-              طباعة بطاقة وسلسلة الحيازة
+              <span>طباعة بطاقة الأصل وسجل الحيازة (نافذة جديدة)</span>
             </Button>
           </div>
         </DialogHeader>

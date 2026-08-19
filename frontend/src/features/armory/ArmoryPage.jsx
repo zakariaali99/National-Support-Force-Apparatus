@@ -14,6 +14,7 @@ import {
   Boxes,
   UserCheck,
   CheckCircle,
+  PackageCheck,
   Eye,
   Settings,
 } from "lucide-react";
@@ -38,7 +39,7 @@ import { showToast } from "../../components/ui/Toast";
 import { StatCard } from "../../components/ui/StatCard";
 import { CustodyHandoverVoucherDialog } from "../inventory/CustodyHandoverVoucherDialog";
 import { AssetDetailHistoryDialog } from "../../components/equipment/AssetDetailHistoryDialog";
-import { openAuthedPdf } from "../reports/api";
+import { printInventorySummaryInNewWindow } from "../../lib/printUtils";
 
 const STATUS_MAP = {
   good: { label: "صالح للخدمة", variant: "success" },
@@ -264,15 +265,8 @@ export function ArmoryPage() {
     };
   }, [items]);
 
-  async function handlePrintSummary() {
-    try {
-      setIsPrintingSummary(true);
-      await openAuthedPdf("reports/inventory/summary/pdf/");
-    } catch {
-      showToast({ title: "تعذر فتح تقرير التسليح", description: "يرجى المحاولة مجدداً.", type: "error" });
-    } finally {
-      setIsPrintingSummary(false);
-    }
+  function handlePrintSummary() {
+    printInventorySummaryInNewWindow({ items: filteredItems, domain: "armory" });
   }
 
   return (
@@ -280,9 +274,9 @@ export function ArmoryPage() {
       {/* Page Header */}
       <PageHeader
         title="قسم التسليح والأسلحة والذخائر"
-        subtitle="حصر ومتابعة الأسلحة الفردية، الرشاشات، الذخائر، السجلات الباليستية، وعهد الأفراد والمصفحات"
-        action={
-          <div className="flex items-center gap-2">
+        description="حصر ومتابعة الأسلحة الفردية، الرشاشات، الذخائر، السجلات الباليستية، وعهد الأفراد والمصفحات"
+        actions={
+          <div className="flex items-center gap-2.5">
             <Button
               variant="outline"
               onClick={handlePrintSummary}
@@ -292,9 +286,13 @@ export function ArmoryPage() {
               <Printer className="h-4.5 w-4.5 text-blue-600" />
               {isPrintingSummary ? "جارٍ التجهيز..." : "طباعة كشف التسليح"}
             </Button>
-            <Button onClick={handleOpenAdd} className="gap-2 font-bold shadow-sm">
+            <Button
+              variant="primary"
+              onClick={handleOpenAdd}
+              className="gap-2 font-bold shadow-sm bg-[#2B95E8] hover:bg-blue-600 text-white"
+            >
               <Plus className="h-4.5 w-4.5" />
-              تسجيل سلاح / ذخيرة
+              <span>تسجيل سلاح / ذخيرة</span>
             </Button>
           </div>
         }
