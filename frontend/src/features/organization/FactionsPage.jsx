@@ -75,8 +75,16 @@ export function FactionsPage() {
         showToast("تم تحديث الإدارة بنجاح", "success");
       }
       setDialogState(null);
-    } catch {
-      showToast("حدث خطأ أثناء الحفظ", "error");
+    } catch (err) {
+      const serverMsg =
+        err?.response?.data?.detail ||
+        (typeof err?.response?.data === "object"
+          ? Object.entries(err.response.data)
+              .map(([k, v]) => `${k}: ${Array.isArray(v) ? v.join(", ") : v}`)
+              .join(" | ")
+          : null) ||
+        "حدث خطأ أثناء الحفظ";
+      showToast(serverMsg, "error");
     }
   }
 
@@ -85,8 +93,14 @@ export function FactionsPage() {
       try {
         await deleteMutation.mutateAsync(faction.id);
         showToast("تم حذف الإدارة", "success");
-      } catch {
-        showToast("تعذر حذف الإدارة", "error");
+      } catch (err) {
+        const serverMsg =
+          err?.response?.data?.detail ||
+          (typeof err?.response?.data === "object"
+            ? Object.values(err.response.data).flat().join(" - ")
+            : null) ||
+          "تعذر حذف الإدارة";
+        showToast(serverMsg, "error");
       }
     }
   }

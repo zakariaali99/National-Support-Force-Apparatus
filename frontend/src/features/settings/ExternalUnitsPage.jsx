@@ -27,6 +27,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "../../components/ui/AlertDialog";
+import { showToast } from "../../components/ui/Toast";
 import {
   useExternalUnits,
   useCreateExternalUnit,
@@ -107,19 +108,45 @@ export function ExternalUnitsPage() {
   }
 
   async function onSubmit(data) {
-    if (editingUnit) {
-      await updateUnit.mutateAsync({ id: editingUnit.id, ...data });
-    } else {
-      await createUnit.mutateAsync(data);
+    try {
+      if (editingUnit) {
+        await updateUnit.mutateAsync({ id: editingUnit.id, ...data });
+        showToast("تم تحديث بيانات الجهة بنجاح", "success");
+      } else {
+        await createUnit.mutateAsync(data);
+        showToast("تمت إضافة الجهة الخارجية بنجاح", "success");
+      }
+      setFormOpen(false);
+      reset();
+    } catch (err) {
+      const serverMsg =
+        err?.response?.data?.detail ||
+        (typeof err?.response?.data === "object"
+          ? Object.entries(err.response.data)
+              .map(([k, v]) => `${k}: ${Array.isArray(v) ? v.join(", ") : v}`)
+              .join(" | ")
+          : null) ||
+        "حدث خطأ أثناء حفظ بيانات الجهة";
+      showToast(serverMsg, "error");
     }
-    setFormOpen(false);
-    reset();
   }
 
   async function handleDelete() {
     if (!deletingUnit) return;
-    await deleteUnit.mutateAsync(deletingUnit.id);
-    setDeletingUnit(null);
+    try {
+      await deleteUnit.mutateAsync(deletingUnit.id);
+      showToast("تم حذف الجهة الخارجية بنجاح", "success");
+      setDeletingUnit(null);
+    } catch (err) {
+      const serverMsg =
+        err?.response?.data?.detail ||
+        (typeof err?.response?.data === "object"
+          ? Object.values(err.response.data).flat().join(" - ")
+          : null) ||
+        "تعذر حذف الجهة الخارجية";
+      showToast(serverMsg, "error");
+      setDeletingUnit(null);
+    }
   }
 
   return (

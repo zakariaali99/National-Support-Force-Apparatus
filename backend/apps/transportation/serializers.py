@@ -1,3 +1,5 @@
+import uuid
+from django.utils.text import slugify
 from rest_framework import serializers
 
 from apps.transportation.models.external_unit import ExternalUnit
@@ -5,6 +7,7 @@ from apps.transportation.models.vehicle import Vehicle, VehicleCustodyRecord
 
 
 class ExternalUnitSerializer(serializers.ModelSerializer):
+    code = serializers.CharField(required=False, allow_blank=True)
     vehicles_count = serializers.IntegerField(source="vehicles.count", read_only=True)
 
     class Meta:
@@ -22,6 +25,15 @@ class ExternalUnitSerializer(serializers.ModelSerializer):
             "updated_at",
         ]
         read_only_fields = ["created_at", "updated_at"]
+
+    def create(self, validated_data):
+        if not validated_data.get("code"):
+            base_slug = slugify(validated_data.get("name_ar", ""), allow_unicode=True) or "unit"
+            code = f"{base_slug}-{uuid.uuid4().hex[:6]}"
+            while ExternalUnit.objects.filter(code=code).exists():
+                code = f"{base_slug}-{uuid.uuid4().hex[:6]}"
+            validated_data["code"] = code
+        return super().create(validated_data)
 
 
 class VehicleSerializer(serializers.ModelSerializer):

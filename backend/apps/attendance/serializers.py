@@ -1,3 +1,5 @@
+import uuid
+from django.utils.text import slugify
 from rest_framework import serializers
 
 from apps.attendance.models import DailyAttendance, ShiftRosterGroup
@@ -5,6 +7,7 @@ from apps.members.models import Member
 
 
 class ShiftRosterGroupSerializer(serializers.ModelSerializer):
+    code = serializers.CharField(required=False, allow_blank=True)
     faction_name = serializers.CharField(source="faction.name_ar", read_only=True)
     pattern_display = serializers.CharField(
         source="get_pattern_display", read_only=True
@@ -44,6 +47,15 @@ class ShiftRosterGroupSerializer(serializers.ModelSerializer):
             "updated_at",
         ]
         read_only_fields = ["created_at", "updated_at"]
+
+    def create(self, validated_data):
+        if not validated_data.get("code"):
+            base_slug = slugify(validated_data.get("name_ar", ""), allow_unicode=True) or "shift"
+            code = f"{base_slug}-{uuid.uuid4().hex[:6]}"
+            while ShiftRosterGroup.objects.filter(code=code).exists():
+                code = f"{base_slug}-{uuid.uuid4().hex[:6]}"
+            validated_data["code"] = code
+        return super().create(validated_data)
 
 
 class DailyAttendanceSerializer(serializers.ModelSerializer):

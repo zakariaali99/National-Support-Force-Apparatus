@@ -61,19 +61,44 @@ export function RanksPage() {
   }
 
   async function onSubmit(values) {
-    if (dialogState === "create") {
-      const code = generateSlug(values.name_ar);
-      await createRank.mutateAsync({ ...values, code });
-    } else {
-      const code = dialogState.code || generateSlug(values.name_ar);
-      await updateRank.mutateAsync({ id: dialogState.id, ...values, code });
+    try {
+      if (dialogState === "create") {
+        const code = generateSlug(values.name_ar);
+        await createRank.mutateAsync({ ...values, code });
+        showToast("تمت إضافة الرتبة بنجاح", "success");
+      } else {
+        const code = dialogState.code || generateSlug(values.name_ar);
+        await updateRank.mutateAsync({ id: dialogState.id, ...values, code });
+        showToast("تم تحديث الرتبة بنجاح", "success");
+      }
+      setDialogState(null);
+    } catch (err) {
+      const serverMsg =
+        err?.response?.data?.detail ||
+        (typeof err?.response?.data === "object"
+          ? Object.entries(err.response.data)
+              .map(([k, v]) => `${k}: ${Array.isArray(v) ? v.join(", ") : v}`)
+              .join(" | ")
+          : null) ||
+        "حدث خطأ أثناء حفظ الرتبة";
+      showToast(serverMsg, "error");
     }
-    setDialogState(null);
   }
 
   async function onDelete(rank) {
     if (window.confirm(`هل تريد حذف الرتبة "${rank.name_ar}"؟`)) {
-      await removeRank.mutateAsync(rank.id);
+      try {
+        await removeRank.mutateAsync(rank.id);
+        showToast("تم حذف الرتبة بنجاح", "success");
+      } catch (err) {
+        const serverMsg =
+          err?.response?.data?.detail ||
+          (typeof err?.response?.data === "object"
+            ? Object.values(err.response.data).flat().join(" - ")
+            : null) ||
+          "تعذر حذف الرتبة";
+        showToast(serverMsg, "error");
+      }
     }
   }
 

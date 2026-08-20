@@ -115,20 +115,46 @@ export function GeneralInventoryCategoriesPage() {
   }
 
   async function onSubmit(data) {
-    const payload = { ...data, domain: "inventory" };
-    if (editingCat) {
-      await updateCategory.mutateAsync({ id: editingCat.id, ...payload });
-    } else {
-      await createCategory.mutateAsync(payload);
+    try {
+      const payload = { ...data, domain: "inventory" };
+      if (editingCat) {
+        await updateCategory.mutateAsync({ id: editingCat.id, ...payload });
+        showToast("تم تحديث التصنيف بنجاح", "success");
+      } else {
+        await createCategory.mutateAsync(payload);
+        showToast("تمت إضافة التصنيف بنجاح", "success");
+      }
+      setFormOpen(false);
+      reset();
+    } catch (err) {
+      const serverMsg =
+        err?.response?.data?.detail ||
+        (typeof err?.response?.data === "object"
+          ? Object.entries(err.response.data)
+              .map(([k, v]) => `${k}: ${Array.isArray(v) ? v.join(", ") : v}`)
+              .join(" | ")
+          : null) ||
+        "حدث خطأ أثناء حفظ التصنيف";
+      showToast(serverMsg, "error");
     }
-    setFormOpen(false);
-    reset();
   }
 
   async function handleDelete() {
     if (!deletingCat) return;
-    await deleteCategory.mutateAsync(deletingCat.id);
-    setDeletingCat(null);
+    try {
+      await deleteCategory.mutateAsync(deletingCat.id);
+      showToast("تم حذف التصنيف بنجاح", "success");
+      setDeletingCat(null);
+    } catch (err) {
+      const serverMsg =
+        err?.response?.data?.detail ||
+        (typeof err?.response?.data === "object"
+          ? Object.values(err.response.data).flat().join(" - ")
+          : null) ||
+        "تعذر حذف التصنيف";
+      showToast(serverMsg, "error");
+      setDeletingCat(null);
+    }
   }
 
   return (
