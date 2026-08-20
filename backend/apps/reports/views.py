@@ -255,7 +255,6 @@ class MemberPrintView(APIView):
         <div class="print-footer">
             <span>تاريخ الطباعة: {date_str}</span>
             <span>توقيت الإصدار: {time_str}</span>
-            <span>الجهاز الوطني للقوى المساندة - منظومة الإدارة الإلكترونية</span>
         </div>
         """
 

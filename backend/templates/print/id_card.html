@@ -28,7 +28,7 @@
 {% for card in cards %}
 <div class="card">
   <div class="top">
-    <img class="seal" src="/static/nasf-seal.jpg" alt="الشعار" /><span class="org">الجهاز الوطني للقوى المساندة - الوحدة القتالية الرابعة</span>
+    <img class="seal" src="{% include 'print/_seal_data_uri.html' %}" alt="الشعار" /><span class="org">الجهاز الوطني للقوى المساندة - الوحدة القتالية الرابعة</span>
   </div>
   <div>
     <div class="name">{{ card.member.full_name }}</div>

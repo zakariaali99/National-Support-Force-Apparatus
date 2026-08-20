@@ -1,5 +1,4 @@
 <div class="gov-print-footer">
   <span>تاريخ الطباعة: {% if print_date %}{{ print_date }}{% elif date %}{{ date }}{% elif printed_at %}{{ printed_at|date:"Y-m-d" }}{% else %}—{% endif %}</span>
   <span>توقيت الإصدار: {% if print_time %}{{ print_time }}{% elif printed_at %}{{ printed_at|date:"H:i" }}{% else %}—{% endif %}</span>
-  <span>الجهاز الوطني للقوى المساندة — منظومة الإدارة الإلكترونية</span>
 </div>

@@ -7,7 +7,7 @@
   <style>
     @page {
       size: A4 landscape;
-      margin: 8mm 10mm 10mm 10mm;
+      margin: 8mm 10mm 8mm 10mm;
     }
   </style>
   {% block extra_head %}{% endblock %}
@@ -22,13 +22,15 @@
       {% block content %}{% endblock %}
     </div>
 
-    {% block signatures %}
-      {% include "print/_signatures.html" %}
-    {% endblock %}
+    <div class="bottom-endorsement-block">
+      {% block signatures %}
+        {% include "print/_signatures.html" %}
+      {% endblock %}
 
-    {% block footer %}
-      {% include "print/_footer.html" %}
-    {% endblock %}
+      {% block footer %}
+        {% include "print/_footer.html" %}
+      {% endblock %}
+    </div>
   </div>
 </body>
 </html>

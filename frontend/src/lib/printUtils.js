@@ -1,5 +1,6 @@
 import { api } from "./api";
 import { showToast } from "../components/ui/Toast";
+import nasfSealUrl from "../assets/brand/nasf-seal.jpg";
 
 /**
  * Opens an authenticated print endpoint in a new window/tab for native browser
@@ -66,7 +67,7 @@ export function printAuthedHtml(url) {
  * Unified Government Print Engine
  * Official Header: دولة ليبيا — الجهاز الوطني للقوى المساندة / الوحدة القتالية الرابعة
  * Consistent Metadata: (الإدارة التابعة على اليمين، الرقم المرجعي على اليسار تحت خط فاصل)
- * Consistent Footer: (تاريخ الطباعة، توقيت الإصدار، منظومة الإدارة الإلكترونية)
+ * Consistent Footer: (تاريخ الطباعة، توقيت الإصدار)
  * Supports Portrait and Landscape orientations, with consistent signatures and page styling.
  */
 export function openPrintWindow({
@@ -188,19 +189,30 @@ export function openPrintWindow({
     /* A4 Document Page Container */
     .document-page {
       width: ${isLandscape ? "297mm" : "210mm"};
-      min-height: ${isLandscape ? "210mm" : "297mm"};
-      margin: 24px auto;
+      min-height: ${isLandscape ? "188mm" : "272mm"};
+      margin: 20px auto;
       background: #ffffff;
-      padding: ${isLandscape ? "14mm 16mm" : "18mm 18mm"};
+      padding: ${isLandscape ? "10mm 12mm" : "12mm 14mm"};
       box-shadow: 0 0 20px rgba(0,0,0,0.08);
       border-radius: 4px;
       position: relative;
+      box-sizing: border-box;
       display: flex;
       flex-direction: column;
     }
 
     .doc-content-wrapper {
       flex: 1 0 auto;
+      width: 100%;
+    }
+
+    .bottom-endorsement-block {
+      margin-top: auto;
+      flex-shrink: 0;
+      width: 100%;
+      break-inside: avoid;
+      page-break-inside: avoid;
+      padding-top: 14px;
     }
 
     /* Official Government Header layout */
@@ -248,123 +260,116 @@ export function openPrintWindow({
       background: #f8fafc;
       border: 1.5px solid #cbd5e1;
       border-radius: 8px;
-      padding: 10px 16px;
+      padding: 8px 16px;
       text-align: center;
       margin-bottom: 16px;
     }
     .doc-banner h3 {
       font-size: 15px;
       font-weight: 800;
-      color: #0f172a;
+      color: #0a2540;
     }
     .doc-banner p {
-      font-size: 11.5px;
+      font-size: 11px;
       color: #64748b;
       margin-top: 2px;
-      font-weight: 600;
     }
 
-    /* Form Grid / Details Box */
+    /* Form Fields Grid System */
     .section-title {
       font-size: 13px;
       font-weight: 700;
-      color: #0f172a;
-      border-right: 4px solid #2563eb;
+      color: #0a2540;
+      border-right: 4px solid #0a2540;
       padding-right: 8px;
-      margin-bottom: 10px;
-      margin-top: 16px;
+      margin-bottom: 8px;
+      margin-top: 14px;
     }
     .form-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
       gap: 8px 16px;
       background: #ffffff;
-      border: 1px solid #e2e8f0;
-      border-radius: 8px;
-      padding: 12px 16px;
-      margin-bottom: 16px;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      padding: 10px 14px;
+      margin-bottom: 14px;
     }
     .form-row {
       display: flex;
       align-items: baseline;
       gap: 6px;
-      font-size: 12px;
     }
     .form-label {
       font-weight: 700;
-      color: #475569;
+      color: #64748b;
       min-width: 110px;
+      font-size: 11.5px;
     }
     .form-value {
-      font-weight: 600;
+      font-weight: 700;
       color: #0f172a;
-      word-break: break-word;
+      font-size: 12px;
+    }
+    .font-mono {
+      font-family: monospace;
     }
 
-    /* Tables */
+    /* High-density Government Data Table */
     table.gov-table {
       width: 100%;
       border-collapse: collapse;
-      margin-top: 8px;
-      margin-bottom: 18px;
-      font-size: 11.5px;
+      font-size: 11px;
+      margin-bottom: 14px;
     }
     table.gov-table th {
       background: #f1f5f9;
-      color: #0f172a;
+      color: #0a2540;
       font-weight: 700;
-      padding: 7px 9px;
+      padding: 7px 10px;
       border: 1px solid #cbd5e1;
-      text-align: right;
+      text-align: start;
     }
     table.gov-table td {
-      padding: 6.5px 9px;
-      border: 1px solid #e2e8f0;
-      color: #334155;
-      text-align: right;
+      padding: 6px 10px;
+      border: 1px solid #cbd5e1;
+      color: #1e293b;
+      text-align: start;
+      vertical-align: middle;
     }
     table.gov-table tr:nth-child(even) td {
-      background: #f8fafc;
-    }
-
-    /* Filter Summary Box */
-    .filter-summary-box {
-      font-size: 11px;
-      color: #475569;
-      background: #f1f5f9;
-      padding: 6px 12px;
-      border-radius: 6px;
-      margin-bottom: 12px;
-      border: 1px solid #e2e8f0;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      flex-wrap: wrap;
+      background-color: #fafafa;
     }
 
     /* Signatures Section */
     .signatures-block {
-      margin-top: 28px;
+      margin-top: 0;
+      margin-bottom: 8px;
       display: grid;
       grid-template-columns: 1fr 1fr 1fr;
       gap: 16px;
       text-align: center;
+      break-inside: avoid;
       page-break-inside: avoid;
     }
     .sig-box {
       border: 1px dashed #94a3b8;
-      border-radius: 8px;
-      padding: 10px 8px 24px;
+      border-radius: 6px;
+      padding: 8px 8px 20px;
       background: #fafafa;
+      min-height: 80px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
     }
     .sig-title {
-      font-size: 12px;
-      font-weight: 700;
-      color: #0f172a;
+      font-size: 11.5px;
+      font-weight: 800;
+      color: #0a2540;
       margin-bottom: 4px;
     }
     .sig-sub {
-      font-size: 10.5px;
+      font-size: 10px;
       color: #64748b;
     }
 
@@ -372,12 +377,13 @@ export function openPrintWindow({
     .gov-print-footer {
       border-top: 1px solid #cbd5e1;
       padding-top: 6px;
-      margin-top: auto;
+      margin-top: 8px;
       display: flex;
       justify-content: space-between;
-      font-size: 8.5pt;
+      font-size: 10px;
       color: #64748b;
       flex-shrink: 0;
+      break-inside: avoid;
     }
 
     /* Print Styles */
@@ -391,22 +397,31 @@ export function openPrintWindow({
       }
       .document-page {
         margin: 0;
-        padding: ${isLandscape ? "6mm 8mm" : "8mm 10mm"};
+        padding: 0;
         box-shadow: none;
         width: 100%;
-        min-height: auto;
-        display: block;
+        min-height: ${isLandscape ? "188mm" : "272mm"};
+        display: flex;
+        flex-direction: column;
+      }
+      .doc-content-wrapper {
+        flex: 1 0 auto;
+      }
+      .bottom-endorsement-block {
+        margin-top: auto;
+        break-inside: avoid;
+        page-break-inside: avoid;
       }
       .gov-print-footer {
-        position: fixed;
-        bottom: 0;
-        left: 10mm;
-        right: 10mm;
-        margin-top: 0;
+        position: relative;
+        bottom: auto;
+        left: auto;
+        right: auto;
+        margin-top: 6px;
       }
       @page {
         size: ${isLandscape ? "A4 landscape" : "A4 portrait"};
-        margin: ${isLandscape ? "8mm" : "10mm"};
+        margin: ${isLandscape ? "8mm 10mm" : "10mm 12mm"};
       }
     }
   </style>
@@ -435,7 +450,7 @@ export function openPrintWindow({
           <h1>دولة ليبيا</h1>
           <h2>الجهاز الوطني للقوى المساندة / الوحدة القتالية الرابعة</h2>
         </div>
-        <img class="gov-logo" src="/static/nasf-seal.jpg" alt="شعار الجهاز" onerror="this.src='/src/assets/brand/nasf-seal.jpg'" />
+        <img class="gov-logo" src="${nasfSealUrl}" alt="شعار الجهاز" onerror="this.src='/nasf-seal.jpg'" />
       </div>
       <div class="gov-header-line"></div>
       <div class="gov-header-metadata">
@@ -451,36 +466,40 @@ export function openPrintWindow({
     </div>
 
     <!-- Main Content Form Body -->
-    ${contentHtml}
+    <div class="doc-content-wrapper">
+      ${contentHtml}
+    </div>
 
-    <!-- Signatures Endorsement -->
-    ${
-      showSignatures
-        ? `
-      <div class="signatures-block">
-        <div class="sig-box">
-          <p class="sig-title">مسؤول السجل والعهدة</p>
-          <p class="sig-sub">الاسم: .......................................</p>
-          <p class="sig-sub" style="margin-top: 14px;">التوقيع: .................................</p>
+    <!-- Bottom Endorsement & Signatures Pinned Block -->
+    <div class="bottom-endorsement-block">
+      ${
+        showSignatures
+          ? `
+        <div class="signatures-block">
+          <div class="sig-box">
+            <p class="sig-title">مسؤول السجل والعهدة</p>
+            <p class="sig-sub">الاسم: .......................................</p>
+            <p class="sig-sub" style="margin-top: 14px;">التوقيع: .................................</p>
+          </div>
+          <div class="sig-box">
+            <p class="sig-title">الضابط المفوّض / رئيس شعبة الشؤون الإدارية</p>
+            <p class="sig-sub">الاسم: .......................................</p>
+            <p class="sig-sub" style="margin-top: 14px;">التوقيع: .................................</p>
+          </div>
+          <div class="sig-box" style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 80px;">
+            <p class="sig-title" style="color: #64748b; font-size: 12px;">الختم الرسمي المعتمد</p>
+            <p class="sig-sub" style="margin-top: 4px; font-weight: 700; color: #0a2540;">(يعتمد / آمر القوة)</p>
+          </div>
         </div>
-        <div class="sig-box">
-          <p class="sig-title">الضابط المفوّض / رئيس الفرع</p>
-          <p class="sig-sub">الاسم: .......................................</p>
-          <p class="sig-sub" style="margin-top: 14px;">التوقيع: .................................</p>
-        </div>
-        <div class="sig-box" style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 80px;">
-          <p class="sig-title" style="color: #64748b;">الختم الرسمي المعتمد</p>
-        </div>
+      `
+          : ""
+      }
+
+      <!-- Consistent Footer -->
+      <div class="gov-print-footer">
+        <span>تاريخ الطباعة: ${currentDate}</span>
+        <span>توقيت الإصدار: ${currentTime}</span>
       </div>
-    `
-        : ""
-    }
-
-    <!-- Consistent Footer -->
-    <div class="gov-print-footer">
-      <span>تاريخ الطباعة: ${currentDate}</span>
-      <span>توقيت الإصدار: ${currentTime}</span>
-      <span>الجهاز الوطني للقوى المساندة - منظومة الإدارة الإلكترونية</span>
     </div>
   </div>
 </body>
