@@ -18,12 +18,12 @@ from apps.equipment.serializers import (
 class InventoryCategoryViewSet(ModelViewSet):
     permission_classes = [IsAuthenticated, HasPermission]
     permission_map = {
-        "list": ["equipment.view", "equipment.manage", "settings.manage"],
-        "retrieve": ["equipment.view", "equipment.manage", "settings.manage"],
-        "create": ["equipment.manage", "settings.manage"],
-        "update": ["equipment.manage", "settings.manage"],
-        "partial_update": ["equipment.manage", "settings.manage"],
-        "destroy": ["equipment.manage", "settings.manage"],
+        "list": ["equipment.view", "equipment.manage", "armory.view", "armory.manage", "settings.manage"],
+        "retrieve": ["equipment.view", "equipment.manage", "armory.view", "armory.manage", "settings.manage"],
+        "create": ["equipment.manage", "armory.manage", "settings.manage"],
+        "update": ["equipment.manage", "armory.manage", "settings.manage"],
+        "partial_update": ["equipment.manage", "armory.manage", "settings.manage"],
+        "destroy": ["equipment.manage", "armory.manage", "settings.manage"],
     }
     queryset = InventoryCategory.objects.all()
     serializer_class = InventoryCategorySerializer
@@ -89,15 +89,15 @@ class InventoryCategoryViewSet(ModelViewSet):
 class InventoryItemViewSet(ModelViewSet):
     permission_classes = [IsAuthenticated, HasPermission]
     permission_map = {
-        "list": ["equipment.view", "equipment.manage", "transportation.view", "transportation.manage"],
-        "retrieve": ["equipment.view", "equipment.manage", "transportation.view", "transportation.manage"],
-        "create": ["equipment.manage"],
-        "update": ["equipment.manage"],
-        "partial_update": ["equipment.manage"],
-        "destroy": ["equipment.manage"],
-        "assign_custody": ["equipment.manage"],
-        "release_custody": ["equipment.manage"],
-        "mark_damaged": ["equipment.manage"],
+        "list": ["equipment.view", "equipment.manage", "armory.view", "armory.manage", "transportation.view", "transportation.manage"],
+        "retrieve": ["equipment.view", "equipment.manage", "armory.view", "armory.manage", "transportation.view", "transportation.manage"],
+        "create": ["equipment.manage", "armory.manage"],
+        "update": ["equipment.manage", "armory.manage"],
+        "partial_update": ["equipment.manage", "armory.manage"],
+        "destroy": ["equipment.manage", "armory.manage"],
+        "assign_custody": ["equipment.manage", "armory.manage"],
+        "release_custody": ["equipment.manage", "armory.manage"],
+        "mark_damaged": ["equipment.manage", "armory.manage"],
     }
     queryset = (
         InventoryItem.objects.select_related("category", "faction", "assigned_member").all()
@@ -364,12 +364,12 @@ class InventoryItemViewSet(ModelViewSet):
 class CustodyRecordViewSet(ModelViewSet):
     permission_classes = [IsAuthenticated, HasPermission]
     permission_map = {
-        "list": ["equipment.view", "equipment.manage"],
-        "retrieve": ["equipment.view", "equipment.manage"],
-        "create": ["equipment.manage"],
-        "update": ["equipment.manage"],
-        "partial_update": ["equipment.manage"],
-        "destroy": ["equipment.manage"],
+        "list": ["equipment.view", "equipment.manage", "armory.view", "armory.manage"],
+        "retrieve": ["equipment.view", "equipment.manage", "armory.view", "armory.manage"],
+        "create": ["equipment.manage", "armory.manage"],
+        "update": ["equipment.manage", "armory.manage"],
+        "partial_update": ["equipment.manage", "armory.manage"],
+        "destroy": ["equipment.manage", "armory.manage"],
     }
     queryset = CustodyRecord.objects.select_related("item", "member", "faction").all()
     serializer_class = CustodyRecordSerializer

@@ -66,7 +66,14 @@ export function AuthProvider({ children }) {
   }, []);
 
   const hasPermission = useCallback(
-    (codename) => Boolean(user?.is_superuser || user?.permissions?.includes(codename)),
+    (codename) => {
+      if (!user) return false;
+      if (user.is_superuser) return true;
+      if (Array.isArray(codename)) {
+        return codename.some((cn) => user.permissions?.includes(cn));
+      }
+      return Boolean(user.permissions?.includes(codename));
+    },
     [user]
   );
 

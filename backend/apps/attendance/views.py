@@ -33,7 +33,15 @@ STATUS_AR_LABELS = {
 
 
 class ShiftRosterGroupViewSet(ModelViewSet):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, HasPermission]
+    permission_map = {
+        "list": "attendance.view",
+        "retrieve": "attendance.view",
+        "create": ["attendance.record", "attendance.manage"],
+        "update": ["attendance.record", "attendance.manage"],
+        "partial_update": ["attendance.record", "attendance.manage"],
+        "destroy": ["attendance.record", "attendance.manage"],
+    }
     queryset = ShiftRosterGroup.objects.select_related("faction").prefetch_related("members").all()
     serializer_class = ShiftRosterGroupSerializer
 

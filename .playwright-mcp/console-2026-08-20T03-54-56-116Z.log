@@ -1,0 +1,46 @@
+[  216140ms] [ERROR] ReferenceError: useEffect is not defined
+    at R (http://localhost:8000/assets/ArmoryCategoriesPage-CQk1Bbsj.js:1:1412)
+    at To (http://localhost:8000/assets/index-D0VpABJs.js:9:47527)
+    at vc (http://localhost:8000/assets/index-D0VpABJs.js:9:70080)
+    at Fc (http://localhost:8000/assets/index-D0VpABJs.js:9:80144)
+    at Lu (http://localhost:8000/assets/index-D0VpABJs.js:9:115793)
+    at Pu (http://localhost:8000/assets/index-D0VpABJs.js:9:114857)
+    at Nu (http://localhost:8000/assets/index-D0VpABJs.js:9:114694)
+    at xu (http://localhost:8000/assets/index-D0VpABJs.js:9:111546)
+    at pd (http://localhost:8000/assets/index-D0VpABJs.js:9:123103)
+    at MessagePort.D (http://localhost:8000/assets/index-D0VpABJs.js:2:2914) @ http://localhost:8000/assets/index-D0VpABJs.js:8
+[  216142ms] [ERROR] ErrorBoundary caught an unhandled error: ReferenceError: useEffect is not defined
+    at R (http://localhost:8000/assets/ArmoryCategoriesPage-CQk1Bbsj.js:1:1412)
+    at To (http://localhost:8000/assets/index-D0VpABJs.js:9:47527)
+    at vc (http://localhost:8000/assets/index-D0VpABJs.js:9:70080)
+    at Fc (http://localhost:8000/assets/index-D0VpABJs.js:9:80144)
+    at Lu (http://localhost:8000/assets/index-D0VpABJs.js:9:115793)
+    at Pu (http://localhost:8000/assets/index-D0VpABJs.js:9:114857)
+    at Nu (http://localhost:8000/assets/index-D0VpABJs.js:9:114694)
+    at xu (http://localhost:8000/assets/index-D0VpABJs.js:9:111546)
+    at pd (http://localhost:8000/assets/index-D0VpABJs.js:9:123103)
+    at MessagePort.D (http://localhost:8000/assets/index-D0VpABJs.js:2:2914) {componentStack: 
+    at R (http://localhost:8000/assets/ArmoryCate…p://localhost:8000/assets/dist-Bc8Oh59Z.js:1:380)} @ http://localhost:8000/assets/index-D0VpABJs.js:75
+[  217584ms] [ERROR] ReferenceError: useEffect is not defined
+    at R (http://localhost:8000/assets/GeneralInventoryCategoriesPage-BlA3L0Xc.js:1:1462)
+    at To (http://localhost:8000/assets/index-D0VpABJs.js:9:47527)
+    at vc (http://localhost:8000/assets/index-D0VpABJs.js:9:70080)
+    at Fc (http://localhost:8000/assets/index-D0VpABJs.js:9:80144)
+    at Lu (http://localhost:8000/assets/index-D0VpABJs.js:9:115793)
+    at Pu (http://localhost:8000/assets/index-D0VpABJs.js:9:114857)
+    at Nu (http://localhost:8000/assets/index-D0VpABJs.js:9:114694)
+    at xu (http://localhost:8000/assets/index-D0VpABJs.js:9:111546)
+    at pd (http://localhost:8000/assets/index-D0VpABJs.js:9:123103)
+    at MessagePort.D (http://localhost:8000/assets/index-D0VpABJs.js:2:2914) @ http://localhost:8000/assets/index-D0VpABJs.js:8
+[  217584ms] [ERROR] ErrorBoundary caught an unhandled error: ReferenceError: useEffect is not defined
+    at R (http://localhost:8000/assets/GeneralInventoryCategoriesPage-BlA3L0Xc.js:1:1462)
+    at To (http://localhost:8000/assets/index-D0VpABJs.js:9:47527)
+    at vc (http://localhost:8000/assets/index-D0VpABJs.js:9:70080)
+    at Fc (http://localhost:8000/assets/index-D0VpABJs.js:9:80144)
+    at Lu (http://localhost:8000/assets/index-D0VpABJs.js:9:115793)
+    at Pu (http://localhost:8000/assets/index-D0VpABJs.js:9:114857)
+    at Nu (http://localhost:8000/assets/index-D0VpABJs.js:9:114694)
+    at xu (http://localhost:8000/assets/index-D0VpABJs.js:9:111546)
+    at pd (http://localhost:8000/assets/index-D0VpABJs.js:9:123103)
+    at MessagePort.D (http://localhost:8000/assets/index-D0VpABJs.js:2:2914) {componentStack: 
+    at R (http://localhost:8000/assets/GeneralInv…p://localhost:8000/assets/dist-Bc8Oh59Z.js:1:380)} @ http://localhost:8000/assets/index-D0VpABJs.js:75

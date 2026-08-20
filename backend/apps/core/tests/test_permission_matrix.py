@@ -18,7 +18,7 @@ from rest_framework.test import APIClient
 from apps.core.models import Role, User
 from apps.core.permissions.registry import SYSTEM_ROLE_PRESETS
 
-# (url, required permission codename or None for "any authenticated user")
+# (url, required permission codename(s) or None for "any authenticated user")
 ENDPOINTS = [
     ("/api/members/", "member.view"),
     ("/api/member-documents/", "document.view"),
@@ -37,6 +37,14 @@ ENDPOINTS = [
     ("/api/audit/activity/", "audit.view"),
     ("/api/backups/", "backup.run"),
     ("/api/reports/sections/", None),
+    ("/api/attendance/records/", "attendance.view"),
+    ("/api/attendance/rosters/", "attendance.view"),
+    ("/api/equipment/categories/", ("equipment.view", "equipment.manage", "armory.view", "armory.manage", "settings.manage")),
+    ("/api/equipment/items/", ("equipment.view", "equipment.manage", "armory.view", "armory.manage", "transportation.view", "transportation.manage")),
+    ("/api/equipment/custody/", ("equipment.view", "equipment.manage", "armory.view", "armory.manage")),
+    ("/api/transportation/vehicles/", ("transportation.view", "transportation.manage")),
+    ("/api/transportation/external-units/", ("transportation.view", "transportation.manage", "settings.manage")),
+    ("/api/transportation/vehicle-custody-records/", ("transportation.view", "transportation.manage")),
 ]
 
 
@@ -65,7 +73,13 @@ class PermissionMatrixTests(TestCase):
 
             for url, required in ENDPOINTS:
                 response = client.get(url)
-                expected_ok = required is None or required in permissions
+                if required is None:
+                    expected_ok = True
+                elif isinstance(required, (list, tuple, set)):
+                    expected_ok = any(req in permissions for req in required)
+                else:
+                    expected_ok = required in permissions
+
                 actual_ok = response.status_code == 200
 
                 if expected_ok != actual_ok:

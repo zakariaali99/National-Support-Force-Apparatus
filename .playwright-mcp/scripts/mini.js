@@ -1,0 +1,1 @@
+async (page) => { await page.goto("http://localhost:8000/"); return page.url(); }

@@ -1,0 +1,22 @@
+- generic [ref=e534]:
+  - button "تبديل المظهر" [ref=e537] [cursor=pointer]
+  - generic [ref=e541]:
+    - generic [ref=e542]:
+      - img "شعار الجهاز الوطني للقوى المساندة" [ref=e545]
+      - generic [ref=e546]:
+        - heading "الجهاز الوطني للقوى المساندة" [level=1] [ref=e547]
+        - generic [ref=e548]: الوحدة القتالية الرابعة
+        - paragraph [ref=e550]: منظومة التوثيق وإدارة شؤون الأفراد والعتاد
+    - generic [ref=e551]:
+      - generic [ref=e552]:
+        - generic [ref=e553]: اسم المستخدم
+        - textbox "اسم المستخدم" [ref=e555]:
+          - /placeholder: أدخل اسم المستخدم...
+      - generic [ref=e559]:
+        - generic [ref=e560]: كلمة المرور
+        - generic [ref=e561]:
+          - textbox "كلمة المرور" [ref=e562]:
+            - /placeholder: أدخل كلمة المرور...
+          - button "إظهار كلمة المرور" [ref=e566]
+      - button "تسجيل الدخول إلى النظام" [ref=e570] [cursor=pointer]
+    - generic [ref=e576]: نظام موثق ومشفّر — للاستخدام الإداري المعتمد فقط

@@ -1,0 +1,83 @@
+- generic [ref=e582]:
+  - link "تخطَّ إلى المحتوى الرئيسي" [ref=e583] [cursor=pointer]:
+    - /url: "#main-content"
+  - complementary [ref=e584]:
+    - generic [ref=e585]:
+      - generic [ref=e586]:
+        - generic [ref=e587]:
+          - img "شعار الجهاز" [ref=e589]
+          - generic [ref=e591]:
+            - paragraph [ref=e592]: الجهاز الوطني للقوى المساندة
+            - paragraph [ref=e593]: منظومة الشؤون الإدارية
+        - button "طي القائمة" [ref=e595] [cursor=pointer]
+      - navigation [ref=e599]:
+        - generic [ref=e600]:
+          - paragraph [ref=e601]: شؤون الأفراد والتمام
+          - generic [ref=e602]:
+            - link "لوحة التحكم" [ref=e603] [cursor=pointer]:
+              - /url: /
+            - link "سجل الأفراد" [ref=e612] [cursor=pointer]:
+              - /url: /members
+      - generic [ref=e620]:
+        - generic [ref=e621]:
+          - generic [ref=e622]: ع
+          - generic [ref=e623]:
+            - paragraph [ref=e624]: عمر السويحلي
+            - paragraph [ref=e625]: مستخدم إداري
+        - button "تسجيل الخروج" [ref=e629] [cursor=pointer]:
+          - generic [ref=e633]: خروج
+  - generic [ref=e634]:
+    - banner [ref=e635]:
+      - navigation "مسار التنقل" [ref=e636]:
+        - generic [ref=e637]: لوحة التحكم
+      - generic [ref=e639]:
+        - button "فتح لوحة الأوامر (Ctrl+K / ⌘K)" [ref=e640] [cursor=pointer]:
+          - generic [ref=e644]: بحث...
+          - generic [ref=e645]: Ctrl+K
+        - button "الإشعارات" [ref=e646] [cursor=pointer]
+        - button "تبديل المظهر" [ref=e650] [cursor=pointer]
+        - button "عمر السويحلي عمر السويحلي" [ref=e653] [cursor=pointer]:
+          - img "عمر السويحلي" [ref=e654]:
+            - generic [ref=e655]: عا
+          - generic [ref=e656]: عمر السويحلي
+    - main [ref=e657]:
+      - generic [ref=e658]:
+        - generic [ref=e660]:
+          - generic [ref=e661]:
+            - generic [ref=e662]: الخميس، 20 أغسطس 2026
+            - heading "أهلاً بك، عمر السويحلي 👋" [level=1] [ref=e666]
+            - paragraph [ref=e667]: لوحة التحكم الرئيسية لإدارة السجلات، شؤون الأفراد، والمستودع بالجهاز الوطني للقوى المساندة.
+          - link [ref=e669] [cursor=pointer]:
+            - /url: /members
+            - button "السجل العام" [ref=e670]
+        - generic [ref=e674]:
+          - generic [ref=e675]:
+            - paragraph [ref=e677]: إجمالي القوة المسجلة
+            - generic [ref=e684]:
+              - heading "0" [level=3] [ref=e685]
+              - paragraph [ref=e686]: كافة الأفراد والضباط بالوحدة
+          - generic [ref=e688]:
+            - paragraph [ref=e689]: القوة العاملة بالخدمة
+            - heading "0" [level=3] [ref=e691]
+            - paragraph [ref=e692]: الأفراد على رأس العمل حالياً
+          - generic [ref=e698]:
+            - paragraph [ref=e700]: الأفراد في إجازة / راحة
+            - generic [ref=e704]:
+              - heading "0" [level=3] [ref=e705]
+              - paragraph [ref=e706]: إجازات رسمية وراحات نوبة
+          - generic [ref=e708]:
+            - paragraph [ref=e709]: معاملات بانتظار الاعتماد
+            - heading "0" [level=3] [ref=e711]
+            - paragraph [ref=e712]: طلبات تحتاج لمراجعة المدير
+        - generic [ref=e716]:
+          - generic [ref=e717]:
+            - generic [ref=e718]:
+              - generic [ref=e719]:
+                - heading "أحدث الأفراد المسجلين" [level=2] [ref=e720]
+                - paragraph [ref=e721]: سجل ببيانات آخر الأفراد المضافين للمنظومة الإدارية
+              - link "عرض السجل الكامل" [ref=e722] [cursor=pointer]:
+                - /url: /members
+            - paragraph [ref=e727]: لا يوجد أعضاء مسجلين بعد.
+          - generic [ref=e729]:
+            - heading "روابط وإجراءات سريعة" [level=2] [ref=e730]
+            - paragraph [ref=e731]: وصول سريع لمهام وأقسام الإدارة اليومية

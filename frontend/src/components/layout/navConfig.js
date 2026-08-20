@@ -34,8 +34,8 @@ export const NAV_GROUPS = [
     id: "logistics",
     title: "العهد والمستودعات",
     items: [
-      { to: "/armory", label: "قسم التسليح والأسلحة", icon: Crosshair, permission: "equipment.view", breadcrumb: "قسم التسليح والأسلحة" },
-      { to: "/inventory", label: "المستودع والمخازن العامة", icon: PackageCheck, permission: "equipment.view", breadcrumb: "المستودع والمخازن العامة" },
+      { to: "/armory", label: "قسم التسليح والأسلحة", icon: Crosshair, permission: ["armory.view", "equipment.view"], breadcrumb: "قسم التسليح والأسلحة" },
+      { to: "/inventory", label: "المستودع والمخازن العامة", icon: PackageCheck, permission: ["equipment.view", "armory.view"], breadcrumb: "المستودع والمخازن العامة" },
       { to: "/transportation", label: "قسم النقلية والآليات", icon: Car, permission: "transportation.view", breadcrumb: "قسم النقلية والآليات" },
     ],
   },

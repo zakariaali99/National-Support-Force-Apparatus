@@ -1,0 +1,276 @@
+- generic [ref=e58]:
+  - link "تخطَّ إلى المحتوى الرئيسي" [ref=e59] [cursor=pointer]:
+    - /url: "#main-content"
+  - complementary [ref=e60]:
+    - generic [ref=e61]:
+      - generic [ref=e62]:
+        - generic [ref=e63]:
+          - img "شعار الجهاز" [ref=e65]
+          - generic [ref=e67]:
+            - paragraph [ref=e68]: الجهاز الوطني للقوى المساندة
+            - paragraph [ref=e69]: منظومة الشؤون الإدارية
+        - button "طي القائمة" [ref=e71] [cursor=pointer]
+      - navigation [ref=e75]:
+        - generic [ref=e76]:
+          - paragraph [ref=e77]: شؤون الأفراد والتمام
+          - generic [ref=e78]:
+            - link "لوحة التحكم" [ref=e79] [cursor=pointer]:
+              - /url: /
+            - link "سجل الأفراد" [ref=e88] [cursor=pointer]:
+              - /url: /members
+            - link "التمام اليومي والانضباط" [ref=e96] [cursor=pointer]:
+              - /url: /attendance
+            - link "التمام الشهري" [ref=e104] [cursor=pointer]:
+              - /url: /attendance/monthly
+            - link "فصائل النوبات والورديات" [ref=e109] [cursor=pointer]:
+              - /url: /attendance/rosters
+        - generic [ref=e115]:
+          - paragraph [ref=e116]: العهد والمستودعات
+          - generic [ref=e117]:
+            - link "قسم التسليح والأسلحة" [ref=e118] [cursor=pointer]:
+              - /url: /armory
+            - link "المستودع والمخازن العامة" [ref=e123] [cursor=pointer]:
+              - /url: /inventory
+            - link "قسم النقلية والآليات" [ref=e131] [cursor=pointer]:
+              - /url: /transportation
+        - generic [ref=e138]:
+          - paragraph [ref=e139]: الهيكل والتوزيع
+          - generic [ref=e140]:
+            - link "الإدارات والفصائل" [ref=e141] [cursor=pointer]:
+              - /url: /organization/factions
+            - link "الرتب العسكرية" [ref=e148] [cursor=pointer]:
+              - /url: /organization/ranks
+        - generic [ref=e153]:
+          - paragraph [ref=e154]: الإدارة والنظام
+          - generic [ref=e155]:
+            - link "سجل التدقيق والأنشطة" [ref=e156] [cursor=pointer]:
+              - /url: /audit
+            - link "النسخ الاحتياطية" [ref=e162] [cursor=pointer]:
+              - /url: /backups
+            - link "إعدادات المنظومة" [ref=e168] [cursor=pointer]:
+              - /url: /settings
+      - generic [ref=e174]:
+        - generic [ref=e175]:
+          - generic [ref=e176]: أ
+          - generic [ref=e177]:
+            - paragraph [ref=e178]: أحمد الورفلي
+            - paragraph [ref=e179]: مدير عام النظام
+        - button "تسجيل الخروج" [ref=e183] [cursor=pointer]:
+          - generic [ref=e187]: خروج
+  - generic [ref=e188]:
+    - banner [ref=e189]:
+      - navigation "مسار التنقل" [ref=e190]:
+        - generic [ref=e191]: لوحة التحكم
+      - generic [ref=e193]:
+        - button "فتح لوحة الأوامر (Ctrl+K / ⌘K)" [ref=e194] [cursor=pointer]:
+          - generic [ref=e198]: بحث...
+          - generic [ref=e199]: Ctrl+K
+        - button "الإشعارات" [ref=e200] [cursor=pointer]
+        - button "تبديل المظهر" [ref=e204] [cursor=pointer]
+        - button "أحمد الورفلي أحمد الورفلي" [ref=e207] [cursor=pointer]:
+          - img "أحمد الورفلي" [ref=e208]:
+            - generic [ref=e209]: أا
+          - generic [ref=e210]: أحمد الورفلي
+    - main [ref=e211]:
+      - generic [ref=e212]:
+        - generic [ref=e214]:
+          - generic [ref=e215]:
+            - generic [ref=e216]: الخميس، 20 أغسطس 2026
+            - heading "أهلاً بك، أحمد الورفلي 👋" [level=1] [ref=e220]
+            - paragraph [ref=e221]: لوحة التحكم الرئيسية لإدارة السجلات، شؤون الأفراد، والمستودع بالجهاز الوطني للقوى المساندة.
+          - generic [ref=e222]:
+            - link [ref=e223] [cursor=pointer]:
+              - /url: /members/new
+              - button "تسجيل فرد جديد" [ref=e224]
+            - link [ref=e228] [cursor=pointer]:
+              - /url: /members
+              - button "السجل العام" [ref=e229]
+        - generic [ref=e233]:
+          - generic [ref=e234]:
+            - paragraph [ref=e236]: إجمالي القوة المسجلة
+            - generic [ref=e243]:
+              - heading "0" [level=3] [ref=e244]
+              - paragraph [ref=e245]: كافة الأفراد والضباط بالوحدة
+          - generic [ref=e247]:
+            - paragraph [ref=e248]: القوة العاملة بالخدمة
+            - heading "0" [level=3] [ref=e250]
+            - paragraph [ref=e251]: الأفراد على رأس العمل حالياً
+          - generic [ref=e257]:
+            - paragraph [ref=e259]: الأفراد في إجازة / راحة
+            - generic [ref=e263]:
+              - heading "0" [level=3] [ref=e264]
+              - paragraph [ref=e265]: إجازات رسمية وراحات نوبة
+          - generic [ref=e267]:
+            - paragraph [ref=e268]: معاملات بانتظار الاعتماد
+            - heading "0" [level=3] [ref=e270]
+            - paragraph [ref=e274]: طلبات تحتاج لمراجعة المدير
+        - generic [ref=e278]:
+          - generic [ref=e279]:
+            - generic [ref=e280]:
+              - generic [ref=e281]:
+                - heading "أحدث الأفراد المسجلين" [level=2] [ref=e282]
+                - paragraph [ref=e283]: سجل ببيانات آخر الأفراد المضافين للمنظومة الإدارية
+              - link "عرض السجل الكامل" [ref=e284] [cursor=pointer]:
+                - /url: /members
+            - table [ref=e290]:
+              - rowgroup [ref=e291]:
+                - row [ref=e292]:
+                  - columnheader "الاسم الكامل" [ref=e293]
+                  - columnheader "الرقم الحربي" [ref=e294]
+                  - columnheader "الإدارة" [ref=e295]
+                  - columnheader "تاريخ القيد" [ref=e296]
+              - rowgroup [ref=e297]:
+                - row [ref=e298]:
+                  - cell [ref=e299]:
+                    - link "جمال صالح رمضان الباروني" [ref=e300] [cursor=pointer]:
+                      - /url: /members/13
+                  - cell "10232" [ref=e305]
+                  - cell "فصيل الإنذار والتدخل السريع" [ref=e306]
+                  - cell [ref=e307]
+                - row [ref=e308]:
+                  - cell [ref=e309]:
+                    - link "عادل مفتاح إبراهيم القره مانلي" [ref=e310] [cursor=pointer]:
+                      - /url: /members/12
+                  - cell "10255" [ref=e315]
+                  - cell "فصيل الحراسات والمنشآت" [ref=e316]
+                  - cell [ref=e317]
+                - row [ref=e318]:
+                  - cell [ref=e319]:
+                    - link "طارق المهدي الهادي المنتصر" [ref=e320] [cursor=pointer]:
+                      - /url: /members/10
+                  - cell "10211" [ref=e325]
+                  - cell "فصيل الدوريات والاستطلاع" [ref=e326]
+                  - cell [ref=e327]
+                - row [ref=e328]:
+                  - cell [ref=e329]:
+                    - link "عمر مصطفى عبد اللطيف السويحلي" [ref=e330] [cursor=pointer]:
+                      - /url: /members/9
+                  - cell "10190" [ref=e335]
+                  - cell "فصيل الإنذار والتدخل السريع" [ref=e336]
+                  - cell [ref=e337]
+                - row [ref=e338]:
+                  - cell [ref=e339]:
+                    - link "فتحي عبد السلام محمد حليم" [ref=e340] [cursor=pointer]:
+                      - /url: /members/8
+                  - cell "10168" [ref=e345]
+                  - cell "فصيل الدوريات والاستطلاع" [ref=e346]
+                  - cell [ref=e347]
+          - generic [ref=e348]:
+            - generic [ref=e349]:
+              - heading "روابط وإجراءات سريعة" [level=2] [ref=e350]
+              - paragraph [ref=e351]: وصول سريع لمهام وأقسام الإدارة اليومية
+            - generic [ref=e352]:
+              - link [ref=e353] [cursor=pointer]:
+                - /url: /members/new
+                - generic [ref=e358]:
+                  - paragraph [ref=e359]: إضافة فرد جديد
+                  - paragraph [ref=e360]: إدخال سجل إداري جديد للقوة المساندة
+              - link [ref=e361] [cursor=pointer]:
+                - /url: /organization/factions
+                - generic [ref=e367]:
+                  - paragraph [ref=e368]: إدارة القطاعات والإدارات
+                  - paragraph [ref=e369]: عرض وتوزيع الوحدات والإدارات التنظيمية
+              - link [ref=e370] [cursor=pointer]:
+                - /url: /audit
+                - generic [ref=e374]:
+                  - paragraph [ref=e375]: سجل المراجعة والتدقيق
+                  - paragraph [ref=e376]: تتبع كافة التعديلات والأنشطة الإدارية
+        - generic [ref=e377]:
+          - generic [ref=e378]:
+            - generic [ref=e379]:
+              - generic [ref=e380]:
+                - heading "مؤشر انضباط القوة والتمام" [level=3] [ref=e386]
+                - paragraph [ref=e387]: معدلات الحضور والانضباط عبر فترات الخدمة المتتالية
+              - generic [ref=e388]:
+                - button "آخر 7 أيام" [ref=e389] [cursor=pointer]
+                - button "آخر شهر" [ref=e390] [cursor=pointer]
+            - generic [ref=e391]:
+              - generic [ref=e392]:
+                - generic [ref=e393]:
+                  - generic: "حاضر: 94% | تأخير: 4%"
+                  - generic [ref=e397]: الأحد
+                - generic [ref=e398]:
+                  - generic: "حاضر: 96% | تأخير: 2%"
+                  - generic [ref=e402]: الإثنين
+                - generic [ref=e403]:
+                  - generic: "حاضر: 92% | تأخير: 5%"
+                  - generic [ref=e407]: الثلاثاء
+                - generic [ref=e408]:
+                  - generic: "حاضر: 95% | تأخير: 3%"
+                  - generic [ref=e412]: الأربعاء
+                - generic [ref=e413]:
+                  - generic: "حاضر: 90% | تأخير: 6%"
+                  - generic [ref=e417]: الخميس
+                - generic [ref=e418]:
+                  - generic: "حاضر: 98% | تأخير: 1%"
+                  - generic [ref=e422]: الجمعة (نوبة)
+                - generic [ref=e423]:
+                  - generic: "حاضر: 97% | تأخير: 2%"
+                  - generic [ref=e427]: السبت (نوبة)
+              - generic [ref=e428]:
+                - generic [ref=e429]: حاضر في الموعد (متوسط 95%)
+                - generic [ref=e432]: تأخير بالساعة (متوسط 3%)
+                - generic [ref=e435]: غياب واستئذان (متوسط 2%)
+          - generic [ref=e438]:
+            - generic [ref=e439]:
+              - generic [ref=e440]:
+                - generic [ref=e441]:
+                  - heading "جاهزية أسطول المركبات" [level=3] [ref=e448]
+                  - paragraph [ref=e449]: مؤشر الحالة الفنية والتسليح التكتيكي للمركبات
+                - generic [ref=e450]: "إجمالي: 8 مركبة"
+              - generic [ref=e451]:
+                - generic [ref=e452]:
+                  - 'generic "جاهزة: 100%" [ref=e453] [cursor=pointer]'
+                  - 'generic "صيانة: 17%" [ref=e454] [cursor=pointer]'
+                  - 'generic "خارج الخدمة: 8%" [ref=e455] [cursor=pointer]'
+                - generic [ref=e456]:
+                  - generic [ref=e457]: 0%
+                  - generic [ref=e458]: 50%
+                  - generic [ref=e459]: 100%
+              - generic [ref=e460]:
+                - generic [ref=e461]:
+                  - generic [ref=e462]: جاهزة للعمليات
+                  - paragraph [ref=e467]:
+                    - text: "8"
+                    - generic [ref=e468]: (100%)
+                - generic [ref=e469]:
+                  - generic [ref=e470]: تحت الصيانة
+                  - paragraph [ref=e474]:
+                    - text: "0"
+                    - generic [ref=e475]: (17%)
+                - generic [ref=e476]:
+                  - generic [ref=e477]: خارج الخدمة
+                  - paragraph [ref=e481]:
+                    - text: "0"
+                    - generic [ref=e482]: (8%)
+                - generic [ref=e483]:
+                  - generic [ref=e484]: مركبات مسلحة
+                  - paragraph [ref=e490]: 6 مركبة
+            - generic [ref=e491]:
+              - generic [ref=e492]:
+                - generic [ref=e493]:
+                  - heading "حركة المخزون والعهد العامة" [level=3] [ref=e500]
+                  - paragraph [ref=e501]: حالة المهمات والتجهيزات العامة بالمستودع مقارنة بالعهد المصروفة
+                - generic [ref=e502]: "إجمالي: 357 قطعة"
+              - generic [ref=e503]:
+                - generic [ref=e504]:
+                  - 'generic "متاح بالمستودع: 94%"'
+                  - 'generic "مسلم كعهدة: 6%"'
+                  - 'generic "تالف / مكهن: 0%"'
+                - generic [ref=e505]:
+                  - generic [ref=e506]: متاح بالمستودع (94%)
+                  - generic [ref=e509]: مسلم كعهدة (6%)
+                  - generic [ref=e512]: تالف (0%)
+              - generic [ref=e515]:
+                - generic [ref=e516]:
+                  - paragraph [ref=e517]: عدد الأصناف
+                  - paragraph [ref=e518]: "14"
+                - generic [ref=e519]:
+                  - paragraph [ref=e520]: المتوفر بالمستودع
+                  - paragraph [ref=e521]: "337"
+                - generic [ref=e522]:
+                  - paragraph [ref=e523]: العهد المصروفة
+                  - paragraph [ref=e524]: "20"
+                - generic [ref=e525]:
+                  - paragraph [ref=e526]: تالف ومكهن
+                  - paragraph [ref=e527]: "0"
