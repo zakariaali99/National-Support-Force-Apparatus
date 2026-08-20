@@ -15,6 +15,7 @@ from apps.reports.views import (
 urlpatterns = [
     path("reports/sections/", ReportSectionsView.as_view(), name="report-sections"),
     path("members/<int:pk>/print/", MemberPrintView.as_view(), name="member-print"),
+    path("reports/members/<int:pk>/print/", MemberPrintView.as_view(), name="reports-member-print"),
     path("members/id-cards/", MemberIdCardsView.as_view(), name="member-id-cards"),
     path("members/export/", MemberExportView.as_view(), name="member-export"),
     path("reports/inventory/custody-voucher/", CustodyVoucherPdfView.as_view(), name="custody-voucher-pdf"),

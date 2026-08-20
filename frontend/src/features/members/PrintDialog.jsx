@@ -114,8 +114,10 @@ export function PrintDialog({ member, open: controlledOpen, onOpenChange: setCon
         printAuthedHtml(url);
       }
       handleOpenChange(false);
-    } catch {
-      showToast("تعذر إنشاء وتجهيز ملف الطباعة", "error");
+    } catch (err) {
+      console.error("Print error:", err);
+      const errMsg = err?.response?.data?.detail || (typeof err?.response?.data === "string" ? err.response.data : null) || "تعذر إنشاء وتجهيز ملف الطباعة";
+      showToast(errMsg, "error");
     } finally {
       setBusy(false);
     }
