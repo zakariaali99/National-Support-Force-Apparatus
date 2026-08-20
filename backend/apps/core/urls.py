@@ -5,6 +5,7 @@ from rest_framework_simplejwt.views import TokenRefreshView, TokenVerifyView
 
 from apps.core.views.audit import ActivityLogViewSet, HistoryView
 from apps.core.views.auth import LogoutView, MeView, ThrottledTokenObtainPairView
+from apps.core.views.health import HealthCheckView
 from apps.core.views.backup import (
     BackupDownloadView,
     BackupListView,
@@ -21,6 +22,7 @@ router.register("users", UserViewSet, basename="user")
 router.register("audit/activity", ActivityLogViewSet, basename="activity-log")
 
 urlpatterns = [
+    path("health/", HealthCheckView.as_view(), name="health-check"),
     path("auth/login/", ThrottledTokenObtainPairView.as_view(), name="token_obtain_pair"),
     path("auth/token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
     path("auth/token/verify/", TokenVerifyView.as_view(), name="token_verify"),

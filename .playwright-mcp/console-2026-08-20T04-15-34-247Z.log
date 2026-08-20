@@ -150,3 +150,6 @@
     at <anonymous>:24:7
 [26309178ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:8000/api/notifications/unread_count/:0
 [26309264ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:8000/api/notifications/?ordering=-created_at:0
+[30303252ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:8000/api/notifications/unread_count/:0
+[30303270ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:8000/api/notifications/?ordering=-created_at:0
+[30303285ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:8000/api/auth/token/refresh/:0
