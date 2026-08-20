@@ -21,26 +21,18 @@ export async function openAuthedPdf(url) {
 }
 
 export async function downloadAuthedFile(url, filename) {
+  const isExcel = filename.endsWith(".xlsx") || filename.endsWith(".csv");
+  if (!isExcel) {
+    // For PDF and print documents, trigger the high-fidelity unified print engine immediately
+    printAuthedHtml(url);
+    return;
+  }
+
   try {
     const cleanUrl = url.replace(/^\/?api\//, "");
     const res = await api.get(cleanUrl, { responseType: "blob" });
-    const contentType = res.headers["content-type"] || "";
-
-    // If server returned HTML (due to fallback or html flag), open print preview window
-    if (contentType.includes("text/html") || (res.data && res.data.type === "text/html")) {
-      const text = await res.data.text();
-      const printWindow = window.open("", "_blank");
-      if (printWindow) {
-        printWindow.document.open();
-        printWindow.document.write(text);
-        printWindow.document.close();
-      }
-      return;
-    }
-
-    const isExcel = filename.endsWith(".xlsx") || filename.endsWith(".csv");
-    const blobType = contentType || (isExcel ? "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" : "application/pdf");
-    const blobUrl = URL.createObjectURL(new Blob([res.data], { type: blobType }));
+    const contentType = res.headers["content-type"] || "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+    const blobUrl = URL.createObjectURL(new Blob([res.data], { type: contentType }));
     const link = document.createElement("a");
     link.href = blobUrl;
     link.download = filename;
@@ -49,11 +41,7 @@ export async function downloadAuthedFile(url, filename) {
     link.remove();
     setTimeout(() => URL.revokeObjectURL(blobUrl), 120_000);
   } catch (err) {
-    console.warn("downloadAuthedFile falling back:", err);
-    if (!filename.endsWith(".xlsx") && !filename.endsWith(".csv")) {
-      printAuthedHtml(url);
-    } else {
-      showToast("تعذر تنزيل الملف — حاول مرة أخرى", "error");
-    }
+    console.error("Download error:", err);
+    showToast("تعذر تنزيل الملف — حاول مرة أخرى", "error");
   }
 }

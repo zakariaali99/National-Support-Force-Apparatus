@@ -91,6 +91,7 @@ def get_html_print_response(html_content, title="تقرير رسمي", orientati
     """Wraps HTML content with Google Fonts, modern screen toolbar, and auto-print trigger for browser compatibility."""
     import re
     is_landscape = orientation == "landscape"
+    style_html = render_to_string("print/_style.html")
     
     toolbar_html = f"""
     <div class="screen-toolbar no-print">
@@ -100,7 +101,7 @@ def get_html_print_response(html_content, title="تقرير رسمي", orientati
         </div>
         <div class="btn-group">
             <button class="btn btn-primary" onclick="window.print()">
-                <span>🖨️ طباعة المستند الآن</span>
+                <span>🖨️ طباعة المستند الآن (أو حفظ PDF)</span>
             </button>
             <button class="btn btn-outline" onclick="window.close()">
                 <span>إغلاق النافذة</span>
@@ -114,7 +115,7 @@ def get_html_print_response(html_content, title="تقرير رسمي", orientati
         window.onload = function() {
             setTimeout(function() {
                 window.print();
-            }, 500);
+            }, 600);
         };
     </script>
     """
@@ -124,8 +125,8 @@ def get_html_print_response(html_content, title="تقرير رسمي", orientati
         .screen-toolbar {
             position: sticky;
             top: 0;
-            z-index: 100;
-            background: #0f172a;
+            z-index: 1000;
+            background: #0a2540;
             color: #ffffff;
             padding: 10px 20px;
             display: flex;
@@ -188,7 +189,7 @@ def get_html_print_response(html_content, title="تقرير رسمي", orientati
     html_content = html_content.replace("src='static/", "src='/static/")
     
     if "<head>" in html_content or "<head " in html_content:
-        html_content = re.sub(r"(<head[^>]*>)", r"\1" + toolbar_styles, html_content, count=1, flags=re.IGNORECASE)
+        html_content = re.sub(r"(<head[^>]*>)", r"\1\n" + toolbar_styles, html_content, count=1, flags=re.IGNORECASE)
     
     if "<body" in html_content:
         html_content = re.sub(r"(<body[^>]*>)", r"\1\n" + toolbar_html, html_content, count=1, flags=re.IGNORECASE)
@@ -199,6 +200,7 @@ def get_html_print_response(html_content, title="تقرير رسمي", orientati
         <head>
             <meta charset="utf-8">
             <title>{title}</title>
+            {style_html}
             {toolbar_styles}
         </head>
         <body>
