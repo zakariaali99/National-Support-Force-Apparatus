@@ -194,11 +194,30 @@ function MemberFormInner({ requirements, member, activeRanks, activeFactions, ph
         navigate(`/members/${created.id}`);
       }
     } catch (error) {
+      console.error("Member save error:", error);
+      const status = error.response?.status;
       const data = error.response?.data;
-      if (data && typeof data === "object") {
-        setServerError(Object.values(data).flat().join(" — "));
+
+      if (status === 403) {
+        setServerError("عفواً، لا يمتلك حسابك الحالي الصلاحية الأمنية الكافية لتسجيل أو تعديل بيانات الأفراد (مطلوب صلاحية member.create / member.edit).");
+      } else if (status === 500) {
+        setServerError("حدث خطأ داخلي في الخادم (500) — يرجى التأكد من تشغيل ترحيل الجداول (python manage.py migrate) والتأكد من أذونات مجلد التخزين.");
+      } else if (data && typeof data === "object") {
+        if (data.detail) {
+          setServerError(data.detail);
+        } else if (data.missing_required_fields) {
+          setServerError(data.missing_required_fields);
+        } else {
+          const messages = Object.entries(data).map(([field, msg]) => {
+            const fieldText = typeof msg === "string" ? msg : Array.isArray(msg) ? msg.join(", ") : JSON.stringify(msg);
+            return `${fieldText}`;
+          });
+          setServerError(messages.join(" — "));
+        }
+      } else if (error.message) {
+        setServerError(`تعذر الاتصال بالخادم: ${error.message}`);
       } else {
-        setServerError("تعذر حفظ بيانات الفرد.");
+        setServerError("تعذر حفظ بيانات الفرد — يرجى مراجعة البيانات المدخلة والمحاولة مرة أخرى.");
       }
     }
   }
@@ -214,12 +233,21 @@ function MemberFormInner({ requirements, member, activeRanks, activeFactions, ph
   const showSection2 = ["force_number", "rank", "faction", "join_date"].some(isVisible);
   const showSection3 = ["pledges"].some(isVisible);
 
+  const hasMissingMasterData = activeRanks.length === 0 || activeFactions.length === 0;
+
   return (
     <div className="space-y-6">
       <PageHeader
         title={isEdit ? "تعديل استمارة الفرد" : "تسجيل فرد جديد بالقوة"}
         description="يرجى تعبئة كافة الحقول المطلوبة للتأكد من اكتمال الملف العسكري."
       />
+
+      {hasMissingMasterData && (
+        <div role="alert" className="max-w-4xl mx-auto rounded-control border border-amber-300 bg-amber-50 dark:bg-amber-950/40 p-4 text-body font-semibold text-amber-800 dark:text-amber-200">
+          ⚠️ تنبيه: {activeRanks.length === 0 && "لا توجد رتب عسكرية مسجلة. "} {activeFactions.length === 0 && "لا توجد إدارات أو فصائل مسجلة. "}
+          يرجى تهيئة الرتب والإدارات من قسم الإعدادات أولاً أو تشغيل أمر التهيئة (setup_system) لتتمكن من اختيار الرتبة والإدارة وحفظ الفرد بنجاح.
+        </div>
+      )}
 
       <Card className="max-w-4xl mx-auto shadow-md border-border/50 animate-slide-up">
         <CardContent className="p-6 md:p-8">

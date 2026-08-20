@@ -140,16 +140,40 @@ class MemberSerializer(serializers.ModelSerializer):
                 missing.append(key)
         return missing
 
+    def to_internal_value(self, data):
+        # Clean FormData/dict empty strings to avoid validation failures on dates/numbers
+        if hasattr(data, "copy"):
+            data = data.copy()
+        elif isinstance(data, dict):
+            data = dict(data)
+
+        nullable_keys = ["date_of_birth", "join_date", "latitude", "longitude"]
+        for key in nullable_keys:
+            if key in data and data[key] == "":
+                data[key] = None
+
+        return super().to_internal_value(data)
+
     def validate_national_number(self, value):
         value = normalize_digits(value).strip()
         if not re.fullmatch(r"[0-9]{12}", value):
             raise serializers.ValidationError("الرقم الوطني يجب أن يتكون من 12 رقماً.")
+        qs = Member.objects.filter(national_number=value, is_deleted=False)
+        if self.instance:
+            qs = qs.exclude(pk=self.instance.pk)
+        if qs.exists():
+            raise serializers.ValidationError("الرقم الوطني مسجل مسبقاً لفرد آخر في المنظومة.")
         return value
 
     def validate_force_number(self, value):
         value = normalize_digits(value).strip()
         if not value:
             raise serializers.ValidationError("الرقم الحربي مطلوب.")
+        qs = Member.objects.filter(force_number=value, is_deleted=False)
+        if self.instance:
+            qs = qs.exclude(pk=self.instance.pk)
+        if qs.exists():
+            raise serializers.ValidationError("الرقم الحربي مسجل مسبقاً لفرد آخر في المنظومة.")
         return value
 
     def validate(self, attrs):
@@ -189,9 +213,12 @@ class MemberSerializer(serializers.ModelSerializer):
     def _apply_photo(self, instance, photo_file):
         if photo_file is None:
             return
-        main_file, thumb_file = process_photo(photo_file)
-        instance.photo.save("photo.jpg", main_file, save=False)
-        instance.photo_thumb.save("photo_thumb.jpg", thumb_file, save=False)
+        try:
+            main_file, thumb_file = process_photo(photo_file)
+            instance.photo.save("photo.jpg", main_file, save=False)
+            instance.photo_thumb.save("photo_thumb.jpg", thumb_file, save=False)
+        except Exception as exc:
+            raise serializers.ValidationError({"photo_upload": f"تعذر حفظ الصورة الشخصية: {str(exc)}"})
 
     def create(self, validated_data):
         photo_file = validated_data.pop("photo_upload", None)
