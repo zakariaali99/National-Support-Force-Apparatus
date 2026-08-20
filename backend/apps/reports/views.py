@@ -1,3 +1,4 @@
+from datetime import datetime, date
 from django.http import HttpResponse, HttpResponseBadRequest, Http404
 from django.template.loader import render_to_string
 from django.utils import timezone
@@ -648,7 +649,16 @@ class DailyAttendancePdfView(APIView):
         if not (request.user.has_permission("attendance.view") or request.user.has_permission("attendance.record")):
             raise PermissionDenied("لا تملك صلاحية طباعة كشوفات التمام.")
 
-        date_str = request.query_params.get("date", timezone.now().strftime("%Y-%m-%d"))
+        now = timezone.now()
+        date_param = request.query_params.get("date")
+        if not date_param or str(date_param).lower() in ("null", "undefined", ""):
+            date_str = now.strftime("%Y-%m-%d")
+        else:
+            try:
+                datetime.strptime(str(date_param), "%Y-%m-%d")
+                date_str = str(date_param)
+            except (ValueError, TypeError):
+                date_str = now.strftime("%Y-%m-%d")
         faction_id = request.query_params.get("faction")
 
         from apps.attendance.models import DailyAttendance
@@ -663,20 +673,46 @@ class DailyAttendancePdfView(APIView):
 
         rows = []
         counts = {"present": 0, "late": 0, "excused": 0, "unexcused": 0, "shift_off": 0, "vacation": 0}
+        status_to_count_key = {
+            "present": "present",
+            "late": "late",
+            "excused": "excused",
+            "excused_absence": "excused",
+            "unexcused": "unexcused",
+            "unexcused_absence": "unexcused",
+            "shift_off": "shift_off",
+            "vacation": "vacation",
+            "mission": "present",
+        }
+        status_display_map = {
+            "present": "حاضر",
+            "late": "متأخر",
+            "excused": "مأذون",
+            "excused_absence": "مأذون",
+            "unexcused": "غياب",
+            "unexcused_absence": "غياب",
+            "shift_off": "راحة نوبة",
+            "vacation": "إجازة",
+            "mission": "مأمورية",
+        }
+
         for rec in qs.order_by("member__faction", "member__rank__order", "member__last_name"):
             st = rec.status
-            if st in counts:
-                counts[st] += 1
+            count_key = status_to_count_key.get(st)
+            if count_key and count_key in counts:
+                counts[count_key] += 1
+
             rows.append({
                 "force_number": rec.member.force_number,
                 "rank_name": rec.member.rank.name_ar if rec.member.rank else "",
                 "member_name": rec.member.full_name,
                 "faction_name": rec.member.faction.name_ar if rec.member.faction else "عام",
                 "shift_group_name": getattr(rec.member, "shift_group_name", "—"),
-                "status": rec.status,
+                "status": st,
+                "status_display": status_display_map.get(st, st),
                 "late_hours": str(rec.late_hours) if rec.late_hours else "",
                 "excused_hours": str(rec.excused_hours) if rec.excused_hours else "",
-                "notes": rec.notes,
+                "notes": rec.notes or "",
             })
 
         faction_name = ""
@@ -765,8 +801,18 @@ class MonthlyAttendancePdfView(APIView):
         from apps.organization.models.faction import Faction
 
         now = timezone.now()
-        year = int(request.query_params.get("year", now.year))
-        month = int(request.query_params.get("month", now.month))
+        year_val = request.query_params.get("year")
+        try:
+            year = int(year_val) if year_val and year_val not in ("null", "undefined", "") else now.year
+        except (ValueError, TypeError):
+            year = now.year
+
+        month_val = request.query_params.get("month")
+        try:
+            month = int(month_val) if month_val and month_val not in ("null", "undefined", "") else now.month
+        except (ValueError, TypeError):
+            month = now.month
+
         faction_id = request.query_params.get("faction")
 
         _, days_in_month = calendar.monthrange(year, month)
@@ -840,10 +886,10 @@ class MonthlyAttendancePdfView(APIView):
             })
 
         faction_name = ""
-        if faction_id and faction_id != "all":
+        if faction_id and str(faction_id).lower() not in ("all", "none", "", "null", "undefined"):
             try:
-                faction_name = Faction.objects.get(pk=faction_id).name_ar
-            except Faction.DoesNotExist:
+                faction_name = Faction.objects.get(pk=int(faction_id)).name_ar
+            except (Faction.DoesNotExist, ValueError, TypeError):
                 pass
 
         context = {

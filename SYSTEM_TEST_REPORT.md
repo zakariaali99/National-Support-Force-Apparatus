@@ -98,6 +98,31 @@
 
 ---
 
+## Section C — Fixes Implemented & Verified (2026-08-20, follow-up session)
+
+All Section B "Immediate fixes" (1–4) and "Short term" items (5, 7, 8) are implemented and verified in the browser + backend. Item 6 (A.6) was investigated and found to be a **false positive** — no code change needed.
+
+| # | Finding | Fix | Verification |
+|---|---------|-----|--------------|
+| A.1 | Settings pages crash (`useEffect is not defined`) | Added `useEffect` to react import in `ArmoryCategoriesPage.jsx` + `GeneralInventoryCategoriesPage.jsx` | Both `/settings/armory-categories` and `/settings/inventory-categories` load clean; 0 console errors |
+| A.2 | Daily PDF prints empty before save | `handleDirectPrint` blocks with warning toast "اليوم غير مسجل/معتمد" when `!isAlreadyRecorded`; added `warning` (amber) style to `Toast.jsx` | 2026-08-19/08-13 (unsaved): warning toast fires, no print window opens; 2026-08-18 (saved, 12 records): prints normally |
+| A.3 | viewer1 sees 0 members | `seed_new_modules.py` now skips members who already have a faction (idempotent) and seeds 3 FAC-INF members (10301 فوزي الشريف / 10302 مفتاح المصراتي / 10303 رمضان الغرياني) via `get_or_create` | viewer1 login shows 3 members; seed re-run produces no duplicates (15 total: 4/4/4/3); FAC-INF force numbers 10301/10302/10303 |
+| A.4 | Silent redirect on denied route | `PermissionRoute` shows warning toast "غير مصرح بالوصول — لا تملك صلاحية الدخول إلى هذا القسم" before `<Navigate>`; also found & fixed a **real bug**: `ToastContainer` attached its listener in a passive `useEffect`, which fires *after* deeper components' effects — mount-time toast events were always lost. Switched to `useLayoutEffect` (layout phase runs before all passive effects) | viewer1 → `/settings` redirects to `/members` **with** toast visible (verified via DOM + `nsfa:toast` event capture) |
+| A.5 | ID cards API has no UI | "بطاقة الهوية" outline button on member detail (gated by `member.print`) calling `openAuthedPdf("members/id-cards/?ids=<id>")` | Click on member 13 → new tab opens `blob:http://localhost:8000/...`; request `GET /api/members/id-cards/?ids=13` → 200 |
+| A.6 | "API actions lack user attribution" | **False positive** — serializer correctly maps `actor`/`actor_username`/`actor_name` (the field is `actor`, not `user`). Verified: `actor: 5, actor_username: admin, actor_name: أحمد الورفلي` | No code change |
+| A.7 | ReportLab fallback corrupts Arabic | Removed ReportLab fallback + `_rtl`/`_ensure_arabic_font` from `backend/apps/reports/renderer.py`; `render_html_to_pdf` now raises `RuntimeError` if both Playwright and WeasyPrint fail (fail loud, never silent corrupt output) | All fresh PDFs start with `%PDF-` magic; full test suite passes |
+| A.8 | Token leaked in print URLs | Rewrote `printAuthedHtml` (printUtils.js): fetch via axios with `Authorization: Bearer` header + `html=1`, open `URL.createObjectURL` blob — no token in URL/history/logs; removed `appendAuthToken`; popup-blocked fallback now shows an error toast instead of opening a token URL | Network capture shows `authorization: Bearer eyJ…` header and `?ids=13` (no `token=`) on the id-cards request; blob tab opens correctly |
+
+### Also fixed during this session
+- **Toast event race (real bug, discovered while verifying A.4):** `ToastContainer`'s `window.addEventListener("nsfa:toast")` ran in a passive effect, so events dispatched from another component's `useEffect` during initial mount (e.g. `PermissionRoute` denial) were dropped. Fix: `useLayoutEffect` — all layout effects run before any passive effect, eliminating the race. This affects every mount-time toast app-wide.
+
+### Regression status
+- Backend: `manage.py test` → **Ran 168 tests, OK** (incl. apps.attendance + apps.reports, 41.7s subset).
+- Frontend: `vite build` → success; new bundle `index-DXcNWnzP.js` served by Django/WhiteNoise from `frontend/dist`.
+- Seed idempotency: `seed_new_modules` re-run → no duplicates.
+
+---
+
 ## Appendix — Verified Download Matrix (all artifacts scanned)
 
 | Paper | Route/Trigger | Result | Artifact |
@@ -111,7 +136,7 @@
 | Custody voucher PDF | inventory custody dialog | 1 page, VCH- number, recipient fields | `custody-voucher.pdf` |
 | Vehicle trip ticket PDF | transportation trip dialog | 1 page, TRIP- number, plate/VIN | `trip-ticket-8.pdf` |
 | Inventory stock summary PDF | /api/reports/inventory/summary/pdf/ | 2 pages, INV- number, categories | `inventory-summary.pdf` |
-| ID cards PDF | API only (`/api/members/id-cards/?ids=13`) | 1 page, member/rank/force number | `id-cards.pdf` |
+| ID cards PDF | member detail → بطاقة الهوية (now UI-triggered, A.5) | 1 page, member/rank/force number, no token in URL (A.8) | `id-cards.pdf` |
 | Audit log CSV | /audit → تصدير | 76 rows, 8 cols | `audit-log.csv` |
 | Encrypted DB backup | /backups → إنشاء + تحميل | 276 KB, decrypts OK | `backup-3.sql.enc` |
 

@@ -7,52 +7,58 @@
   <style>
     @page {
       size: A4 landscape;
-      margin: 12mm 10mm 14mm 10mm;
+      margin: 8mm 8mm 10mm 8mm;
       @bottom-left {
         content: "الجهاز الوطني للقوى المساندة — وثيقة إدارية رسمية";
         font-family: 'Cairo', sans-serif;
-        font-size: 8pt;
+        font-size: 7.5pt;
         color: #64748b;
       }
       @bottom-right {
         content: "صفحة " counter(page) " من " counter(pages);
         font-family: 'Cairo', sans-serif;
-        font-size: 8pt;
+        font-size: 7.5pt;
         color: #64748b;
       }
     }
     thead { display: table-header-group; }
     tfoot { display: table-footer-group; }
-    tr { page-break-inside: avoid; }
+    tr { break-inside: avoid; page-break-inside: avoid; }
+
+    .header {
+      border-bottom: 2pt solid #0a2540;
+      padding-bottom: 6pt;
+      margin-bottom: 8pt;
+    }
 
     .stats-grid {
       display: flex;
       justify-content: space-between;
-      gap: 6pt;
+      gap: 5pt;
       background: #f8fafc;
       border: 1pt solid #cbd5e1;
       border-radius: 6pt;
-      padding: 6pt 10pt;
-      margin-bottom: 10pt;
+      padding: 4pt 8pt;
+      margin-bottom: 8pt;
       text-align: center;
     }
     .stat-item {
       flex: 1;
       border: 0.5pt solid #e2e8f0;
       background: #ffffff;
-      padding: 3pt 6pt;
+      padding: 2.5pt 4pt;
       border-radius: 4pt;
     }
     .stat-title { font-size: 7.5pt; color: #64748b; display: block; margin-bottom: 1pt; font-weight: 700; }
-    .stat-val { font-size: 10.5pt; font-weight: 700; font-family: monospace; }
+    .stat-val { font-size: 10.5pt; font-weight: 800; font-family: monospace; }
     
     .attendance-table {
       width: 100%;
       border-collapse: collapse;
-      font-size: 8.5pt;
+      font-size: 8pt;
     }
     .attendance-table th, .attendance-table td {
-      padding: 4pt 5pt;
+      padding: 3.5pt 4.5pt;
       border: 0.5pt solid #cbd5e1;
       text-align: start;
     }
@@ -66,17 +72,18 @@
     .signatures {
       display: flex;
       justify-content: space-around;
-      margin-top: 16pt;
+      margin-top: 10pt;
       text-align: center;
+      break-inside: avoid;
       page-break-inside: avoid;
     }
     .sig-col {
-      width: 160pt;
+      width: 150pt;
     }
     .sig-line {
       border-bottom: 1pt dashed #94a3b8;
-      height: 28pt;
-      margin-bottom: 3pt;
+      height: 20pt;
+      margin-bottom: 2pt;
     }
   </style>
 </head>
@@ -84,15 +91,15 @@
   <!-- Standard Institutional Header -->
   <div class="header">
     <div class="title">
-      <h1 style="font-size:13.5pt;">دولة ليبيا</h1>
-      <p style="font-weight:700; color:#0a2540; margin:0; font-size:10pt;">الجهاز الوطني للقوى المساندة</p>
-      <p style="font-size:8.5pt; color:#64748b; margin:0;">الإدارة العامة للشؤون الإدارية • شعبة العمليات والتمام</p>
+      <h1 style="font-size:12pt; margin:0;">دولة ليبيا</h1>
+      <p style="font-weight:700; color:#0a2540; margin:0; font-size:9.5pt;">الجهاز الوطني للقوى المساندة</p>
+      <p style="font-size:8pt; color:#64748b; margin:0;">الإدارة العامة للشؤون الإدارية • شعبة العمليات والتمام</p>
     </div>
     <div style="text-align:center;">
-      <h2 style="border:none; margin:0; font-size:14pt; color:#0a2540;">كشف التمام اليومي العام للقوة</h2>
-      <span style="font-size:8.5pt; color:#64748b; font-family:monospace;">كشف رقم: {{ report_number|default:"ATT-001" }}</span>
+      <h2 style="border:none; margin:0; font-size:13pt; color:#0a2540;">كشف التمام اليومي العام للقوة</h2>
+      <span style="font-size:8pt; color:#64748b; font-family:monospace;">كشف رقم: {{ report_number|default:"ATT-001" }}</span>
     </div>
-    <div style="text-align:left; font-size:8.5pt; font-family:monospace;">
+    <div style="text-align:left; font-size:8pt; font-family:monospace;">
       <p style="margin:0;">التاريخ: {{ date }}</p>
       <p style="margin:0;">الفصيل: {{ faction_name|default:"كافة الفصائل والوحدات" }}</p>
       <p style="margin:0; font-weight:700; color:#047857;">الحالة: معتمد للعمليات</p>
@@ -135,13 +142,13 @@
   <table class="attendance-table">
     <thead>
       <tr>
-        <th style="width:22pt; text-align:center;">ت</th>
-        <th style="width:75pt; text-align:center;">الرقم العسكري</th>
+        <th style="width:20pt; text-align:center;">ت</th>
+        <th style="width:70pt; text-align:center;">الرقم العسكري</th>
         <th style="text-align:start;">الرتبة والاسم الكامل</th>
         <th style="width:110pt; text-align:start;">الفصيل / النوبة</th>
         <th style="width:65pt; text-align:center;">حالة التمام</th>
-        <th style="width:45pt; text-align:center;">تأخير</th>
-        <th style="width:45pt; text-align:center;">إذن</th>
+        <th style="width:40pt; text-align:center;">تأخير</th>
+        <th style="width:40pt; text-align:center;">إذن</th>
         <th style="text-align:start;">ملاحظات</th>
       </tr>
     </thead>
@@ -151,24 +158,24 @@
         <td style="text-align:center; font-family:monospace;">{{ forloop.counter }}</td>
         <td style="text-align:center; font-family:monospace; font-weight:700;">{{ row.force_number|default:"—" }}</td>
         <td style="font-weight:700;">{{ row.rank_name }} / {{ row.member_name }}</td>
-        <td>{{ row.faction_name }} {% if row.shift_group_name %}({{ row.shift_group_name }}){% endif %}</td>
+        <td>{{ row.faction_name }} {% if row.shift_group_name and row.shift_group_name != '—' %}({{ row.shift_group_name }}){% endif %}</td>
         <td style="text-align:center; font-weight:700;">
           {% if row.status == "present" %}<span style="color:#047857;">حاضر</span>
           {% elif row.status == "late" %}<span style="color:#b45309;">متأخر</span>
-          {% elif row.status == "excused_absence" %}<span style="color:#1d4ed8;">غياب بإذن</span>
-          {% elif row.status == "unexcused_absence" %}<span style="color:#b91c1c;">غياب</span>
+          {% elif row.status == "excused_absence" or row.status == "excused" %}<span style="color:#1d4ed8;">مأذون</span>
+          {% elif row.status == "unexcused_absence" or row.status == "unexcused" %}<span style="color:#b91c1c;">غياب</span>
           {% elif row.status == "shift_off" %}<span style="color:#64748b;">راحة نوبة</span>
           {% elif row.status == "vacation" %}<span style="color:#7e22ce;">إجازة</span>
           {% elif row.status == "mission" %}<span style="color:#4338ca;">مأمورية</span>
-          {% else %}{{ row.status }}{% endif %}
+          {% else %}{{ row.status_display|default:row.status }}{% endif %}
         </td>
         <td style="text-align:center; font-family:monospace;">{% if row.late_hours %}{{ row.late_hours }}س{% else %}—{% endif %}</td>
         <td style="text-align:center; font-family:monospace;">{% if row.excused_hours %}{{ row.excused_hours }}س{% else %}—{% endif %}</td>
-        <td style="color:#475569; font-size:8pt;">{{ row.notes|default:"—" }}</td>
+        <td style="color:#475569; font-size:7.5pt;">{{ row.notes|default:"—" }}</td>
       </tr>
       {% empty %}
       <tr>
-        <td colspan="8" style="text-align:center; color:#64748b; padding:14pt;">لا توجد سجلات تمام لهذا اليوم.</td>
+        <td colspan="8" style="text-align:center; color:#64748b; padding:12pt;">لا توجد سجلات تمام لهذا اليوم.</td>
       </tr>
       {% endfor %}
     </tbody>
@@ -177,19 +184,19 @@
   <!-- Standard Signatures Footer -->
   <div class="signatures">
     <div class="sig-col">
-      <p style="font-weight:700; margin:0 0 4pt 0; font-size:9pt;">ضابط التمام والمتابعة</p>
+      <p style="font-weight:700; margin:0 0 3pt 0; font-size:8.5pt;">ضابط التمام والمتابعة</p>
       <div class="sig-line"></div>
-      <span style="font-size:8pt; color:#64748b;">الاسم والتوقيع</span>
+      <span style="font-size:7.5pt; color:#64748b;">الاسم والتوقيع</span>
     </div>
     <div class="sig-col">
-      <p style="font-weight:700; margin:0 0 4pt 0; font-size:9pt;">رئيس شعبة الشؤون الإدارية</p>
+      <p style="font-weight:700; margin:0 0 3pt 0; font-size:8.5pt;">رئيس شعبة الشؤون الإدارية</p>
       <div class="sig-line"></div>
-      <span style="font-size:8pt; color:#64748b;">الاعتماد والتاريخ</span>
+      <span style="font-size:7.5pt; color:#64748b;">الاعتماد والتاريخ</span>
     </div>
     <div class="sig-col">
-      <p style="font-weight:700; margin:0 0 4pt 0; font-size:9pt;">يعتمد / آمر القوة</p>
+      <p style="font-weight:700; margin:0 0 3pt 0; font-size:8.5pt;">يعتمد / آمر القوة</p>
       <div class="sig-line"></div>
-      <span style="font-size:8pt; color:#64748b;">الختم الرسمي</span>
+      <span style="font-size:7.5pt; color:#64748b;">الختم الرسمي</span>
     </div>
   </div>
 </body>

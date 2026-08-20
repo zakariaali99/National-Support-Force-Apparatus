@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { api } from "../../lib/api";
-import { tokenStorage } from "../../lib/tokenStorage";
 import { printAuthedHtml } from "../../lib/printUtils";
+import { showToast } from "../../components/ui/Toast";
 
 export function useReportSections() {
   return useQuery({
@@ -10,34 +10,23 @@ export function useReportSections() {
   });
 }
 
-function appendAuthToken(url) {
-  const token = tokenStorage.getAccess();
-  if (!token) return url;
-  const separator = url.includes("?") ? "&" : "?";
-  if (url.includes("token=")) return url;
-  return `${url}${separator}token=${encodeURIComponent(token)}`;
-}
-
 export { printAuthedHtml };
 
 /** Fetches the composed PDF as an authenticated blob and opens it in a new
- * tab — also passes JWT query parameter for robust cross-origin opening.
+ * tab — keeps the JWT out of the window URL, browser history, and server logs.
  */
 export async function openAuthedPdf(url) {
-  const authedUrl = appendAuthToken(url);
-  const { data } = await api.get(authedUrl, { responseType: "blob" });
+  const { data } = await api.get(url, { responseType: "blob" });
   const blobUrl = URL.createObjectURL(new Blob([data], { type: "application/pdf" }));
   const newWindow = window.open(blobUrl, "_blank");
   if (!newWindow || newWindow.closed || typeof newWindow.closed === "undefined") {
-    // Popup was blocked — fallback to direct authenticated window navigation
-    window.open(`/api/${authedUrl.replace(/^\/?api\//, "")}`, "_blank");
+    showToast("تعذر فتح المستند — يرجى السماح بالنوافذ المنبثقة", "error");
   }
   setTimeout(() => URL.revokeObjectURL(blobUrl), 120_000);
 }
 
 export async function downloadAuthedFile(url, filename) {
-  const authedUrl = appendAuthToken(url);
-  const { data } = await api.get(authedUrl, { responseType: "blob" });
+  const { data } = await api.get(url, { responseType: "blob" });
   const blobUrl = URL.createObjectURL(new Blob([data], { type: "application/pdf" }));
   const link = document.createElement("a");
   link.href = blobUrl;

@@ -1,0 +1,117 @@
+[ 2187007ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8000/api/notifications/unread_count/:0
+[ 2187008ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8000/api/notifications/?ordering=-created_at:0
+[ 2188013ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8000/api/notifications/unread_count/:0
+[ 2188014ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8000/api/notifications/?ordering=-created_at:0
+[ 3106173ms] TypeError: Failed to execute 'observe' on 'MutationObserver': parameter 1 is not of type 'Node'.
+    at <anonymous>:22:8
+    at <anonymous>:23:5
+    at <anonymous>:24:7
+[ 3116935ms] TypeError: Failed to execute 'observe' on 'MutationObserver': parameter 1 is not of type 'Node'.
+    at <anonymous>:22:8
+    at <anonymous>:23:5
+    at <anonymous>:24:7
+[ 3198680ms] TypeError: Failed to execute 'observe' on 'MutationObserver': parameter 1 is not of type 'Node'.
+    at <anonymous>:22:8
+    at <anonymous>:23:5
+    at <anonymous>:24:7
+[ 3201821ms] TypeError: Failed to execute 'observe' on 'MutationObserver': parameter 1 is not of type 'Node'.
+    at <anonymous>:22:8
+    at <anonymous>:23:5
+    at <anonymous>:24:7
+[ 3225254ms] TypeError: Failed to execute 'observe' on 'MutationObserver': parameter 1 is not of type 'Node'.
+    at <anonymous>:22:8
+    at <anonymous>:23:5
+    at <anonymous>:24:7
+[ 3226045ms] TypeError: Failed to execute 'observe' on 'MutationObserver': parameter 1 is not of type 'Node'.
+    at <anonymous>:22:8
+    at <anonymous>:23:5
+    at <anonymous>:24:7
+[ 3228915ms] TypeError: Failed to execute 'observe' on 'MutationObserver': parameter 1 is not of type 'Node'.
+    at <anonymous>:22:8
+    at <anonymous>:23:5
+    at <anonymous>:24:7
+[ 3243660ms] TypeError: Failed to execute 'observe' on 'MutationObserver': parameter 1 is not of type 'Node'.
+    at <anonymous>:22:8
+    at <anonymous>:23:5
+    at <anonymous>:24:7
+[ 3247005ms] TypeError: Failed to execute 'observe' on 'MutationObserver': parameter 1 is not of type 'Node'.
+    at <anonymous>:22:8
+    at <anonymous>:23:5
+    at <anonymous>:24:7
+    at <anonymous>:4:24
+[ 3316605ms] TypeError: Failed to execute 'observe' on 'MutationObserver': parameter 1 is not of type 'Node'.
+    at <anonymous>:22:8
+    at <anonymous>:23:5
+    at <anonymous>:24:7
+[ 3742650ms] TypeError: Failed to execute 'observe' on 'MutationObserver': parameter 1 is not of type 'Node'.
+    at <anonymous>:22:8
+    at <anonymous>:23:5
+    at <anonymous>:24:7
+[ 3743604ms] TypeError: Failed to execute 'observe' on 'MutationObserver': parameter 1 is not of type 'Node'.
+    at <anonymous>:22:8
+    at <anonymous>:23:5
+    at <anonymous>:24:7
+[ 3744513ms] TypeError: Failed to execute 'observe' on 'MutationObserver': parameter 1 is not of type 'Node'.
+    at <anonymous>:22:8
+    at <anonymous>:23:5
+    at <anonymous>:24:7
+[ 3745394ms] TypeError: Failed to execute 'observe' on 'MutationObserver': parameter 1 is not of type 'Node'.
+    at <anonymous>:22:8
+    at <anonymous>:23:5
+    at <anonymous>:24:7
+[ 3746301ms] TypeError: Failed to execute 'observe' on 'MutationObserver': parameter 1 is not of type 'Node'.
+    at <anonymous>:22:8
+    at <anonymous>:23:5
+    at <anonymous>:24:7
+[ 3747208ms] TypeError: Failed to execute 'observe' on 'MutationObserver': parameter 1 is not of type 'Node'.
+    at <anonymous>:22:8
+    at <anonymous>:23:5
+    at <anonymous>:24:7
+[ 3748144ms] TypeError: Failed to execute 'observe' on 'MutationObserver': parameter 1 is not of type 'Node'.
+    at <anonymous>:22:8
+    at <anonymous>:23:5
+    at <anonymous>:24:7
+[ 3749019ms] TypeError: Failed to execute 'observe' on 'MutationObserver': parameter 1 is not of type 'Node'.
+    at <anonymous>:22:8
+    at <anonymous>:23:5
+    at <anonymous>:24:7
+[ 3749989ms] TypeError: Failed to execute 'observe' on 'MutationObserver': parameter 1 is not of type 'Node'.
+    at <anonymous>:22:8
+    at <anonymous>:23:5
+    at <anonymous>:24:7
+[ 3751255ms] TypeError: Failed to execute 'observe' on 'MutationObserver': parameter 1 is not of type 'Node'.
+    at <anonymous>:22:8
+    at <anonymous>:23:5
+    at <anonymous>:24:7
+[ 3752236ms] TypeError: Failed to execute 'observe' on 'MutationObserver': parameter 1 is not of type 'Node'.
+    at <anonymous>:22:8
+    at <anonymous>:23:5
+    at <anonymous>:24:7
+[ 3753130ms] TypeError: Failed to execute 'observe' on 'MutationObserver': parameter 1 is not of type 'Node'.
+    at <anonymous>:22:8
+    at <anonymous>:23:5
+    at <anonymous>:24:7
+[ 3754021ms] TypeError: Failed to execute 'observe' on 'MutationObserver': parameter 1 is not of type 'Node'.
+    at <anonymous>:22:8
+    at <anonymous>:23:5
+    at <anonymous>:24:7
+[ 3754868ms] TypeError: Failed to execute 'observe' on 'MutationObserver': parameter 1 is not of type 'Node'.
+    at <anonymous>:22:8
+    at <anonymous>:23:5
+    at <anonymous>:24:7
+[ 3755755ms] TypeError: Failed to execute 'observe' on 'MutationObserver': parameter 1 is not of type 'Node'.
+    at <anonymous>:22:8
+    at <anonymous>:23:5
+    at <anonymous>:24:7
+[ 3756625ms] TypeError: Failed to execute 'observe' on 'MutationObserver': parameter 1 is not of type 'Node'.
+    at <anonymous>:22:8
+    at <anonymous>:23:5
+    at <anonymous>:24:7
+[ 3757470ms] TypeError: Failed to execute 'observe' on 'MutationObserver': parameter 1 is not of type 'Node'.
+    at <anonymous>:22:8
+    at <anonymous>:23:5
+    at <anonymous>:24:7
+[ 3758302ms] TypeError: Failed to execute 'observe' on 'MutationObserver': parameter 1 is not of type 'Node'.
+    at <anonymous>:22:8
+    at <anonymous>:23:5
+    at <anonymous>:24:7

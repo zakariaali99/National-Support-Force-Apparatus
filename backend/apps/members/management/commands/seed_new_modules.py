@@ -39,8 +39,11 @@ class Command(BaseCommand):
             self.stdout.write(self.style.WARNING("No members found. Please run seed_system first."))
             return
 
-        # Distribute members across factions if needed
+        # Distribute members across factions if needed (idempotent — never
+        # reshuffles members that already have a faction on re-run).
         for i, m in enumerate(members):
+            if m.faction_id:
+                continue
             if i % 3 == 0:
                 m.faction = alert_faction
             elif i % 3 == 1:
@@ -48,6 +51,46 @@ class Command(BaseCommand):
             else:
                 m.faction = patrol_faction
             m.save()
+
+        # 1b. Seed dedicated FAC-INF members so the FAC-INF-scoped demo
+        # account (viewer1) has data to see.
+        self.stdout.write("Seeding FAC-INF (infantry) members...")
+        from apps.organization.models import Rank
+        inf_rank = Rank.objects.order_by("order").first()
+        fac_inf, _ = Faction.objects.get_or_create(
+            code="FAC-INF", defaults={"name_ar": "فصيل المشاة المقاتلة", "description": "قوات المشاة والعمليات الميدانية"}
+        )
+        fac_inf_members = [
+            {
+                "first_name": "فوزي", "second_name": "محمد", "third_name": "علي", "last_name": "الشريف",
+                "force_number": "10301", "national_number": "119860102938",
+                "date_of_birth": date(1986, 4, 9), "place_of_birth": "الزاوية", "blood_type": "O+",
+                "phone": "0925011223", "join_date": date(2019, 3, 12),
+                "pledges": "التعهد بالانضباط والالتزام بمهام المشاة المقاتلة والعمليات الميدانية.",
+                "service_status": "active", "approval_status": "approved",
+            },
+            {
+                "first_name": "مفتاح", "second_name": "عبد السلام", "third_name": "أحمد", "last_name": "المصراتي",
+                "force_number": "10302", "national_number": "119900203948",
+                "date_of_birth": date(1990, 12, 2), "place_of_birth": "مصراتة", "blood_type": "A+",
+                "phone": "0914022334", "join_date": date(2020, 6, 1),
+                "pledges": "التعهد بالمحافظة على العتاد والسلاح الشخصي والاستعداد الدائم للمهام.",
+                "service_status": "active", "approval_status": "approved",
+            },
+            {
+                "first_name": "رمضان", "second_name": "سالم", "third_name": "مصطفى", "last_name": "الغرياني",
+                "force_number": "10303", "national_number": "119930304956",
+                "date_of_birth": date(1993, 9, 25), "place_of_birth": "غريان", "blood_type": "B+",
+                "phone": "0926033445", "join_date": date(2021, 4, 15),
+                "pledges": "التعهد بحضور التدريبات القتالية والتواجد في الفصيل عند التكليف.",
+                "service_status": "active", "approval_status": "approved",
+            },
+        ]
+        for data in fac_inf_members:
+            Member.objects.get_or_create(
+                force_number=data["force_number"],
+                defaults={**data, "rank": inf_rank, "faction": fac_inf},
+            )
 
         # 2. Seed Shift Rosters
         self.stdout.write("Seeding Alert and Guard shift rotation groups...")

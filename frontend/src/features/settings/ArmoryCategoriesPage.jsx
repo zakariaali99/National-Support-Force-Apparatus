@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Crosshair, Plus, Pencil, Trash2, Search, Shield, Zap, Package } from "lucide-react";
 import { useForm } from "react-hook-form";
 

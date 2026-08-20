@@ -49,6 +49,13 @@ export function DailyAttendancePage() {
   const [activeDetailsRow, setActiveDetailsRow] = useState(null);
 
   const handleDirectPrint = () => {
+    if (!isAlreadyRecorded) {
+      showToast(
+        "لم يتم حفظ واعتماد تمام هذا اليوم بعد — الكشف المطبوع سيكون فارغاً. قم بحفظ واعتماد التمام أولاً ثم اطبع.",
+        "warning"
+      );
+      return;
+    }
     const q = new URLSearchParams();
     if (selectedDate) q.set("date", selectedDate);
     if (selectedFaction && selectedFaction !== "all") q.set("faction", selectedFaction);

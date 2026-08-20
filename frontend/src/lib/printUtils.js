@@ -1,28 +1,65 @@
-import { tokenStorage } from "./tokenStorage";
+import { api } from "./api";
+import { showToast } from "../components/ui/Toast";
 
 /**
- * Appends JWT access token and optional html=1 parameter to an API endpoint URL.
- */
-export function buildAuthedPrintUrl(url, htmlOnly = true) {
-  const token = tokenStorage.getAccess();
-  let finalUrl = url;
-  const separator = finalUrl.includes("?") ? "&" : "?";
-  if (htmlOnly && !finalUrl.includes("html=")) {
-    finalUrl = `${finalUrl}${separator}html=1`;
-  }
-  if (token && !finalUrl.includes("token=")) {
-    const sep = finalUrl.includes("?") ? "&" : "?";
-    finalUrl = `${finalUrl}${sep}token=${encodeURIComponent(token)}`;
-  }
-  return `/api/${finalUrl.replace(/^\/?api\//, "")}`;
-}
-
-/**
- * Directly opens an authenticated print endpoint in a new window/tab for native browser printing.
+ * Opens an authenticated print endpoint in a new window/tab for native browser
+ * printing. The HTML is fetched with the Authorization header and rendered via
+ * a blob URL — the JWT never appears in the window URL, browser history, or
+ * server logs.
  */
 export function printAuthedHtml(url) {
-  const finalUrl = buildAuthedPrintUrl(url, true);
-  window.open(finalUrl, "_blank");
+  // Open window synchronously in the user interaction event loop to bypass popup blockers
+  const printWindow = window.open("", "_blank");
+  if (printWindow) {
+    printWindow.document.write(`
+      <!DOCTYPE html>
+      <html dir="rtl" lang="ar">
+      <head>
+        <meta charset="utf-8">
+        <title>جاري تحضير كشف الطباعة...</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@600;700&display=swap" rel="stylesheet">
+        <style>
+          body { font-family: 'Cairo', sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; background: #f8fafc; color: #0a2540; }
+          .loader { text-align: center; }
+          .spinner { width: 36px; height: 36px; border: 3px solid #cbd5e1; border-top-color: #2563eb; border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 12px; }
+          @keyframes spin { to { transform: rotate(360deg); } }
+        </style>
+      </head>
+      <body>
+        <div class="loader">
+          <div class="spinner"></div>
+          <div>جاري معالجة وتجهيز كشف الطباعة الرسمي...</div>
+        </div>
+      </body>
+      </html>
+    `);
+  }
+
+  const cleanUrl = url.replace(/^\/?api\//, "");
+  const separator = cleanUrl.includes("?") ? "&" : "?";
+  const htmlUrl = cleanUrl.includes("html=") ? cleanUrl : `${cleanUrl}${separator}html=1`;
+
+  api
+    .get(htmlUrl, { responseType: "text" })
+    .then(({ data }) => {
+      if (printWindow && !printWindow.closed) {
+        printWindow.document.open();
+        printWindow.document.write(data);
+        printWindow.document.close();
+      } else {
+        const blobUrl = URL.createObjectURL(new Blob([data], { type: "text/html;charset=utf-8" }));
+        window.open(blobUrl, "_blank");
+      }
+    })
+    .catch((err) => {
+      if (printWindow && !printWindow.closed) {
+        printWindow.close();
+      }
+      console.error("Print error:", err);
+      showToast("تعذر فتح كشف الطباعة — حاول مرة أخرى", "error");
+    });
 }
 
 /**
