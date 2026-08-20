@@ -43,7 +43,7 @@ export function PrintDialog({ member, open: controlledOpen, onOpenChange: setCon
   // Reset selections when modal opens for a member
   useEffect(() => {
     if (isOpen) {
-      setSelectedSections(new Set(["profile", "vacation", "evaluations", "tasks", "pledges"]));
+      setSelectedSections(new Set(["profile", "notes", "tasks", "evaluations", "vacation", "pledges"]));
       setSelectedDocuments(new Set());
     }
   }, [isOpen, member?.id]);
@@ -95,7 +95,7 @@ export function PrintDialog({ member, open: controlledOpen, onOpenChange: setCon
     if (selectedDocuments.size > 0) {
       params.set("documents", Array.from(selectedDocuments).join(","));
     }
-    return `members/${member.id}/print/?${params.toString()}`;
+    return `reports/members/${member.id}/print/?${params.toString()}`;
   }
 
   async function handlePrint(download) {
@@ -110,11 +110,8 @@ export function PrintDialog({ member, open: controlledOpen, onOpenChange: setCon
         await downloadAuthedFile(url, `ملف_${member.force_number}_${member.full_name}.pdf`);
         showToast("تم بدء تنزيل ملف PDF", "success");
       } else {
-        printMemberProfileInNewWindow({
-          member,
-          sections: selectedSections,
-          documents: documents.filter((d) => selectedDocuments.has(d.id)),
-        });
+        const url = buildUrl() + "&html=1";
+        printAuthedHtml(url);
       }
       handleOpenChange(false);
     } catch {

@@ -12,6 +12,9 @@ export function AuthProvider({ children }) {
   const fetchMe = useCallback(async () => {
     const { data } = await api.get("auth/me/");
     setUser(data);
+    try {
+      localStorage.setItem("nsfa_current_user", JSON.stringify(data));
+    } catch {}
     return data;
   }, []);
 
@@ -27,6 +30,9 @@ export function AuthProvider({ children }) {
         await fetchMe();
       } catch {
         tokenStorage.clear();
+        try {
+          localStorage.removeItem("nsfa_current_user");
+        } catch {}
       } finally {
         if (!cancelled) setIsLoading(false);
       }
@@ -37,7 +43,12 @@ export function AuthProvider({ children }) {
     // Raised by the axios interceptor (lib/api.js) when a refresh attempt
     // fails — the session is dead, drop the user out immediately rather
     // than waiting for the next request to notice.
-    const onUnauthorized = () => setUser(null);
+    const onUnauthorized = () => {
+      setUser(null);
+      try {
+        localStorage.removeItem("nsfa_current_user");
+      } catch {}
+    };
     window.addEventListener("nsfa:unauthorized", onUnauthorized);
     return () => {
       cancelled = true;
@@ -57,6 +68,9 @@ export function AuthProvider({ children }) {
   const logout = useCallback(async () => {
     const refresh = tokenStorage.getRefresh();
     tokenStorage.clear();
+    try {
+      localStorage.removeItem("nsfa_current_user");
+    } catch {}
     setUser(null);
     if (refresh) {
       // Best-effort — the user is logged out client-side regardless of

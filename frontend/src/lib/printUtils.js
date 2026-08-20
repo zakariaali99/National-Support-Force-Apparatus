@@ -63,9 +63,17 @@ export function printAuthedHtml(url) {
     });
 }
 
+export function getCurrentUserForPrint() {
+  try {
+    const raw = localStorage.getItem("nsfa_current_user");
+    if (raw) return JSON.parse(raw);
+  } catch {}
+  return null;
+}
+
 /**
  * Unified Government Print Engine
- * Official Header: دولة ليبيا — الجهاز الوطني للقوى المساندة / الوحدة القتالية الرابعة
+ * Official Header: دولة ليبيا — الجهاز الوطني للقوى المساندة
  * Consistent Metadata: (الإدارة التابعة على اليمين، الرقم المرجعي على اليسار تحت خط فاصل)
  * Consistent Footer: (تاريخ الطباعة، توقيت الإصدار)
  * Supports Portrait and Landscape orientations, with consistent signatures and page styling.
@@ -106,6 +114,17 @@ export function openPrintWindow({
   });
 
   const docNum = documentNumber || `NASF-${Math.floor(100000 + Math.random() * 900000)}`;
+
+  const curUser = getCurrentUserForPrint();
+  const curUserName =
+    curUser?.full_name ||
+    (curUser?.first_name ? `${curUser.first_name} ${curUser.last_name}`.trim() : curUser?.username) ||
+    ".......................................";
+  const curUserRoles =
+    curUser?.roles?.map((r) => r.name_ar).join(" / ") ||
+    (curUser?.is_superuser ? "مسؤول المنظومة" : "مسؤول السجل والتوثيق");
+  const curUserFaction = curUser?.faction_name || "";
+  const curUserTitle = curUserFaction ? `${curUserRoles} — ${curUserFaction}` : curUserRoles;
 
   const fullHtml = `<!DOCTYPE html>
 <html lang="ar" dir="rtl">
@@ -346,7 +365,7 @@ export function openPrintWindow({
       margin-top: 0;
       margin-bottom: 8px;
       display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
+      grid-template-columns: 1fr 1fr;
       gap: 16px;
       text-align: center;
       break-inside: avoid;
@@ -355,9 +374,9 @@ export function openPrintWindow({
     .sig-box {
       border: 1px dashed #94a3b8;
       border-radius: 6px;
-      padding: 8px 8px 20px;
+      padding: 8px 8px 16px;
       background: #fafafa;
-      min-height: 80px;
+      min-height: 75px;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
@@ -448,7 +467,7 @@ export function openPrintWindow({
       <div class="gov-header-top">
         <div class="gov-title-group">
           <h1>دولة ليبيا</h1>
-          <h2>الجهاز الوطني للقوى المساندة / الوحدة القتالية الرابعة</h2>
+          <h2>الجهاز الوطني للقوى المساندة</h2>
         </div>
         <img class="gov-logo" src="${nasfSealUrl}" alt="شعار الجهاز" onerror="this.src='/nasf-seal.jpg'" />
       </div>
@@ -477,17 +496,12 @@ export function openPrintWindow({
           ? `
         <div class="signatures-block">
           <div class="sig-box">
-            <p class="sig-title">مسؤول السجل والعهدة</p>
-            <p class="sig-sub">الاسم: .......................................</p>
-            <p class="sig-sub" style="margin-top: 14px;">التوقيع: .................................</p>
+            <p class="sig-title">مسؤول السجل والتوثيق (${curUserTitle})</p>
+            <p class="sig-sub" style="font-weight: 700; color: #0a2540; margin-top: 4px;">الاسم: ${curUserName}</p>
+            <p class="sig-sub" style="margin-top: 10px;">التوقيع: .................................</p>
           </div>
-          <div class="sig-box">
-            <p class="sig-title">الضابط المفوّض / رئيس شعبة الشؤون الإدارية</p>
-            <p class="sig-sub">الاسم: .......................................</p>
-            <p class="sig-sub" style="margin-top: 14px;">التوقيع: .................................</p>
-          </div>
-          <div class="sig-box" style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 80px;">
-            <p class="sig-title" style="color: #64748b; font-size: 12px;">الختم الرسمي المعتمد</p>
+          <div class="sig-box" style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 75px; text-align: center;">
+            <p class="sig-title" style="color: #64748b; font-size: 11px;">الختم الرسمي المعتمد</p>
             <p class="sig-sub" style="margin-top: 4px; font-weight: 700; color: #0a2540;">(يعتمد / آمر القوة)</p>
           </div>
         </div>

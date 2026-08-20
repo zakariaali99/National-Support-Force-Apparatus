@@ -117,3 +117,34 @@
     at <anonymous>:24:7
 [ 6870759ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:8000/api/notifications/unread_count/:0
 [ 6870760ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:8000/api/notifications/?ordering=-created_at:0
+[11273924ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:8000/api/members/?page_size=1&service_status=active:0
+[11274005ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:8000/api/members/?page_size=1&service_status=on_leave:0
+[11274006ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:8000/api/members/?page_size=1:0
+[11274007ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:8000/api/members/?page_size=1&approval_status=pending:0
+[11274008ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:8000/api/factions/?page_size=200:0
+[11274009ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:8000/api/members/?page_size=5&ordering=-created_at:0
+[11274010ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:8000/api/notifications/?ordering=-created_at:0
+[11274011ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:8000/api/transportation/vehicles/?page_size=200:0
+[11274011ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:8000/api/notifications/unread_count/:0
+[11274011ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:8000/api/equipment/items/?page_size=200&domain=inventory:0
+[11274067ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:8000/api/auth/token/refresh/:0
+[22671194ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:8000/api/auth/login/:0
+[22674977ms] [ERROR] Failed to load module script: Expected a JavaScript-or-Wasm module script but the server responded with a MIME type of "text/html". Strict MIME type checking is enforced for module scripts per HTML spec. @ http://localhost:8000/assets/MemberList-8kmmWjFd.js:0
+[22674977ms] [ERROR] Failed to load module script: Expected a JavaScript-or-Wasm module script but the server responded with a MIME type of "text/html". Strict MIME type checking is enforced for module scripts per HTML spec. @ http://localhost:8000/assets/Pagination-DaehT0bk.js:0
+[22674995ms] [ERROR] Failed to load module script: Expected a JavaScript-or-Wasm module script but the server responded with a MIME type of "text/html". Strict MIME type checking is enforced for module scripts per HTML spec. @ http://localhost:8000/assets/PrintDialog-DhRLhzZQ.js:0
+[22675005ms] [ERROR] Failed to load module script: Expected a JavaScript-or-Wasm module script but the server responded with a MIME type of "text/html". Strict MIME type checking is enforced for module scripts per HTML spec. @ http://localhost:8000/assets/api-D3HZLqJf.js:0
+[22675006ms] [ERROR] Failed to load module script: Expected a JavaScript-or-Wasm module script but the server responded with a MIME type of "text/html". Strict MIME type checking is enforced for module scripts per HTML spec. @ http://localhost:8000/assets/printUtils-BN6RxIBj.js:0
+[22675009ms] [ERROR] Failed to load module script: Expected a JavaScript-or-Wasm module script but the server responded with a MIME type of "text/html". Strict MIME type checking is enforced for module scripts per HTML spec. @ http://localhost:8000/assets/Combobox-lGfjsLOK.js:0
+[22675011ms] [ERROR] Failed to load module script: Expected a JavaScript-or-Wasm module script but the server responded with a MIME type of "text/html". Strict MIME type checking is enforced for module scripts per HTML spec. @ http://localhost:8000/assets/Textarea-CnUMQLfr.js:0
+[22675277ms] [ERROR] TypeError: Failed to fetch dynamically imported module: http://localhost:8000/assets/MemberList-8kmmWjFd.js @ http://localhost:8000/assets/index-DMCgu7fD.js:8
+[22675282ms] [ERROR] ErrorBoundary caught an unhandled error: TypeError: Failed to fetch dynamically imported module: http://localhost:8000/assets/MemberList-8kmmWjFd.js {componentStack: 
+    at Lazy (<anonymous>)
+    at Suspense (<anony…p://localhost:8000/assets/dist-Bc8Oh59Z.js:1:380)} @ http://localhost:8000/assets/index-DMCgu7fD.js:75
+[22677421ms] [ERROR] TypeError: Failed to fetch dynamically imported module: http://localhost:8000/assets/MemberList-8kmmWjFd.js @ http://localhost:8000/assets/index-DMCgu7fD.js:8
+[22677421ms] [ERROR] ErrorBoundary caught an unhandled error: TypeError: Failed to fetch dynamically imported module: http://localhost:8000/assets/MemberList-8kmmWjFd.js {componentStack: 
+    at Lazy (<anonymous>)
+    at Suspense (<anony…p://localhost:8000/assets/dist-Bc8Oh59Z.js:1:380)} @ http://localhost:8000/assets/index-DMCgu7fD.js:75
+[22677631ms] TypeError: Failed to execute 'observe' on 'MutationObserver': parameter 1 is not of type 'Node'.
+    at <anonymous>:22:8
+    at <anonymous>:23:5
+    at <anonymous>:24:7

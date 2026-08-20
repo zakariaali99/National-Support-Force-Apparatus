@@ -33,6 +33,28 @@ class ReportSectionsView(APIView):
         )
 
 
+def _get_report_user_context(user):
+    if not user or not user.is_authenticated:
+        return {
+            "sig_1_name": ".......................................",
+            "sig_1_title": "مسؤول السجل والتوثيق",
+            "printed_by_name": "—",
+            "printed_by_title": "مسؤول المنظومة",
+        }
+    full_name = f"{user.first_name} {user.last_name}".strip() or user.username
+    roles = [r.name_ar for r in user.roles.all()]
+    role_str = " / ".join(roles) if roles else ("مسؤول المنظومة" if user.is_superuser else "مسؤول السجل والتوثيق")
+    factions = list(user.factions.all())
+    faction_str = factions[0].name_ar if factions else ""
+    title_str = f"{role_str} — {faction_str}" if faction_str else role_str
+    return {
+        "sig_1_name": full_name,
+        "sig_1_title": f"مسؤول السجل والتوثيق ({title_str})",
+        "printed_by_name": full_name,
+        "printed_by_title": title_str,
+    }
+
+
 def _get_photo_data_uri(member):
     """Safely convert member photo or photo thumbnail into a base64 Data URI
     compatible with WeasyPrint offline PDF compilation. Checks both photo_thumb
@@ -232,18 +254,20 @@ class MemberPrintView(APIView):
             return HttpResponseBadRequest(f"Unknown section key(s): {', '.join(unknown)}")
 
         photo_uri = _get_photo_data_uri(member)
+        user_ctx = _get_report_user_context(request.user)
 
         contexts = {
-            "profile": {"member": member, "printed_at": timezone.now(), "photo_data_uri": photo_uri},
-            "notes": {"member": member, "notes": member.notes.select_related("author").all()},
-            "tasks": {"member": member, "tasks": member.tasks.select_related("assigned_to").all()},
-            "evaluations": {"member": member, "evaluations": member.evaluations.select_related("evaluator").all()},
-            "vacation": {"member": member, "requests": member.vacation_requests.all()},
+            "profile": {"member": member, "printed_at": timezone.now(), "photo_data_uri": photo_uri, **user_ctx},
+            "notes": {"member": member, "notes": member.notes.select_related("author").all(), **user_ctx},
+            "tasks": {"member": member, "tasks": member.tasks.select_related("assigned_to").all(), **user_ctx},
+            "evaluations": {"member": member, "evaluations": member.evaluations.select_related("evaluator").all(), **user_ctx},
+            "vacation": {"member": member, "requests": member.vacation_requests.all(), **user_ctx},
             "pledges": {
                 "member": member,
                 "pledges": member.pledges_list.select_related("created_by").all(),
                 "pledge_text": member.pledges,
                 "printed_at": timezone.now(),
+                **user_ctx,
             },
         }
 
@@ -299,7 +323,7 @@ class MemberPrintView(APIView):
                                     <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 8px;">
                                         <div style="text-align: right;">
                                             <h1 style="font-size: 15pt; font-weight: 800; color: #0a2540; margin: 0 0 2px 0;">دولة ليبيا</h1>
-                                            <h2 style="font-size: 12.5pt; font-weight: 700; color: #0a2540; margin: 0 0 4px 0;">الجهاز الوطني للقوى المساندة / الوحدة القتالية الرابعة</h2>
+                                            <h2 style="font-size: 12.5pt; font-weight: 700; color: #0a2540; margin: 0 0 4px 0;">الجهاز الوطني للقوى المساندة</h2>
                                             <h3 style="font-size: 11pt; font-weight: 700; color: #2563eb; margin: 0;">وثيقة مرفقة: {doc.document_type.name_ar if doc.document_type else 'مستند'}</h3>
                                         </div>
                                         <img src="/static/nasf-seal.jpg" alt="شعار الجهاز" style="height: 58px; width: auto; object-fit: contain;" />
@@ -466,6 +490,7 @@ class CustodyVoucherPdfView(APIView):
             "item_serial": request.query_params.get("item_serial", "—"),
             "quantity": request.query_params.get("quantity", "1"),
             "notes": request.query_params.get("notes", "").strip(),
+            **_get_report_user_context(request.user),
         }
 
         html = render_to_string("print/custody_voucher.html", context)
@@ -521,6 +546,7 @@ class VehicleTripTicketPdfView(APIView):
             "destination": request.query_params.get("destination") or getattr(vehicle, "destination", "") or "وفق خط السير المعتمد",
             "purpose": request.query_params.get("purpose") or getattr(vehicle, "purpose", "") or "مهمة إدارية / عملياتية رسمية",
             "notes": request.query_params.get("notes") or getattr(vehicle, "notes", "") or "",
+            **_get_report_user_context(request.user),
         }
 
         html = render_to_string("print/trip_ticket.html", context)
@@ -627,6 +653,7 @@ class DailyAttendancePdfView(APIView):
             "shift_off": counts["shift_off"],
             "vacation": counts["vacation"],
             "rows": rows,
+            **_get_report_user_context(request.user),
         }
 
         html = render_to_string("print/daily_attendance.html", context)
@@ -667,6 +694,7 @@ class InventorySummaryPdfView(APIView):
             "report_number": f"INV-{timezone.now().strftime('%y%m%d%H%M')}",
             "date": timezone.now().strftime("%Y-%m-%d"),
             "items": items,
+            **_get_report_user_context(request.user),
         }
 
         html = render_to_string("print/inventory_summary.html", context)
@@ -793,6 +821,7 @@ class MonthlyAttendancePdfView(APIView):
             "days_range": list(range(1, days_in_month + 1)),
             "col_span": days_in_month + 6,
             "rows": rows,
+            **_get_report_user_context(request.user),
         }
 
         html = render_to_string("print/monthly_attendance.html", context)

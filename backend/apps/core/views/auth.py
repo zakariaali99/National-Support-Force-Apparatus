@@ -98,6 +98,8 @@ class MeSerializer(serializers.Serializer):
     username = serializers.CharField()
     first_name = serializers.CharField()
     last_name = serializers.CharField()
+    full_name = serializers.CharField()
+    faction_name = serializers.CharField(allow_blank=True)
     email = serializers.CharField()
     is_superuser = serializers.BooleanField()
     roles = RoleSummarySerializer(many=True)
@@ -111,6 +113,9 @@ class MeView(APIView):
     def get(self, request):
         user = request.user
         roles = list(user.roles.all())
+        factions = list(user.factions.all())
+        faction_name = factions[0].name_ar if factions else ""
+        full_name = f"{user.first_name} {user.last_name}".strip() or user.username
         permissions = (
             sorted(ALL_CODENAMES)
             if user.is_superuser
@@ -121,6 +126,8 @@ class MeView(APIView):
             "username": user.username,
             "first_name": user.first_name,
             "last_name": user.last_name,
+            "full_name": full_name,
+            "faction_name": faction_name,
             "email": user.email,
             "is_superuser": user.is_superuser,
             "roles": [{"id": r.id, "name": r.name, "name_ar": r.name_ar} for r in roles],
