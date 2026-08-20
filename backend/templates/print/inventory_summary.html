@@ -1,96 +1,57 @@
-<!DOCTYPE html>
-<html dir="rtl" lang="ar">
-<head>
-  <meta charset="utf-8">
-  <title>تقرير جرد المستودع العام</title>
-  {% include "print/_style.html" %}
-  <style>
-    .signatures {
-      display: flex;
-      justify-content: space-between;
-      margin-top: 24pt;
-      text-align: center;
-    }
-    .sig-col {
-      flex: 1;
-      padding: 0 8pt;
-    }
-    .sig-line {
-      border-bottom: 1pt dashed #94a3b8;
-      height: 35pt;
-      margin-bottom: 4pt;
-    }
-  </style>
-</head>
-<body>
-  <div class="header">
-    <div class="title">
-      <h1>دولة ليبيا</h1>
-      <p style="font-weight:700; color:#0a2540; margin:0;">الجهاز الوطني للقوى المساندة</p>
-      <p style="font-size:9.5pt; color:#64748b; margin:0;">إدارة الإمداد والتسليح والمستودعات</p>
-    </div>
-    <div style="text-align:center;">
-      <h2 style="border:none; margin:0; font-size:15pt; color:#0a2540;">كشف جرد المستودع والعهد الميدانية</h2>
-      <span style="font-size:9pt; color:#64748b; font-family:monospace;">تقرير رقم: {{ report_number|default:"INV-001" }}</span>
-    </div>
-    <div style="text-align:left; font-size:9.5pt; font-family:monospace;">
-      <p style="margin:0;">التاريخ: {{ date }}</p>
-      <p style="margin:0;">النوع: جرد دوري شامل</p>
-      <p style="margin:0; font-weight:700; color:#047857;">الحالة: مطابق ومطابق بالسجلات</p>
-    </div>
-  </div>
+{% extends "print/_master_landscape.html" %}
 
-  <!-- Inventory Table -->
-  <table>
-    <thead>
-      <tr>
-        <th style="width:20pt; text-align:center;">ت</th>
-        <th>اسم الصنف والمواصفات</th>
-        <th>التصنيف</th>
-        <th>الرقم التسلسلي (Serial)</th>
-        <th style="text-align:center;">إجمالي الرصيد</th>
-        <th style="text-align:center;">المتاح بالمخزن</th>
-        <th style="text-align:center;">المسلم بالعهدة</th>
-        <th style="text-align:center;">التالف</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for item in items %}
-      <tr>
-        <td style="text-align:center; font-family:monospace;">{{ forloop.counter }}</td>
-        <td style="font-weight:700;">{{ item.name }}</td>
-        <td>{{ item.category_name|default:"عام" }}</td>
-        <td style="font-family:monospace;">{{ item.serial_number|default:"—" }}</td>
-        <td style="text-align:center; font-family:monospace; font-weight:700;">{{ item.total_quantity }}</td>
-        <td style="text-align:center; font-family:monospace; color:#047857; font-weight:700;">{{ item.available_quantity }}</td>
-        <td style="text-align:center; font-family:monospace; color:#1d4ed8; font-weight:700;">{{ item.assigned_quantity }}</td>
-        <td style="text-align:center; font-family:monospace; color:#b91c1c;">{{ item.damaged_quantity|default:"0" }}</td>
-      </tr>
-      {% empty %}
-      <tr>
-        <td colspan="8" style="text-align:center; color:#64748b; padding:14pt;">لا توجد أصناف مسجلة بالمستودع.</td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+{% block page_title %}تقرير جرد المستودع العام - {{ date }}{% endblock %}
 
-  <!-- Signatures -->
-  <div class="signatures">
-    <div class="sig-col">
-      <p style="font-weight:700; margin:0 0 4pt 0;">لجنة الجرد والمطابقة</p>
-      <div class="sig-line"></div>
-      <span style="font-size:8.5pt; color:#64748b;">التوقيع</span>
-    </div>
-    <div class="sig-col">
-      <p style="font-weight:700; margin:0 0 4pt 0;">أمين المستودع العام</p>
-      <div class="sig-line"></div>
-      <span style="font-size:8.5pt; color:#64748b;">التوقيع والختم</span>
-    </div>
-    <div class="sig-col">
-      <p style="font-weight:700; margin:0 0 4pt 0;">يعتمد / آمر إدارة الإمداد</p>
-      <div class="sig-line"></div>
-      <span style="font-size:8.5pt; color:#64748b;">الختم الرسمي</span>
-    </div>
+{% block content %}
+<table class="gov-table">
+  <thead>
+    <tr>
+      <th style="width: 22pt; text-align: center;">ت</th>
+      <th>اسم الصنف والمواصفات</th>
+      <th>التصنيف</th>
+      <th>الرقم التسلسلي (Serial)</th>
+      <th style="text-align: center; width: 65pt;">إجمالي الرصيد</th>
+      <th style="text-align: center; width: 65pt; color: #15803d;">المتاح بالمخزن</th>
+      <th style="text-align: center; width: 65pt; color: #1d4ed8;">المسلم بالعهدة</th>
+      <th style="text-align: center; width: 55pt; color: #b91c1c;">التالف</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for item in items %}
+    <tr>
+      <td style="text-align: center; font-family: monospace;">{{ forloop.counter }}</td>
+      <td style="font-weight: 700;">{{ item.name }}</td>
+      <td>{{ item.category_name|default:"عام" }}</td>
+      <td style="font-family: monospace;">{{ item.serial_number|default:"—" }}</td>
+      <td style="text-align: center; font-family: monospace; font-weight: 700;">{{ item.total_quantity }}</td>
+      <td style="text-align: center; font-family: monospace; color: #15803d; font-weight: 700;">{{ item.available_quantity }}</td>
+      <td style="text-align: center; font-family: monospace; color: #1d4ed8; font-weight: 700;">{{ item.assigned_quantity }}</td>
+      <td style="text-align: center; font-family: monospace; color: #b91c1c;">{{ item.damaged_quantity|default:"0" }}</td>
+    </tr>
+    {% empty %}
+    <tr>
+      <td colspan="8" style="text-align: center; color: #64748b; padding: 14pt;">لا توجد أصناف مسجلة بالمستودع.</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}
+
+{% block signatures %}
+<div class="signatures-block">
+  <div class="sig-box">
+    <p class="sig-title">لجنة الجرد والمطابقة</p>
+    <p class="sig-sub">الاسم: .......................................</p>
+    <p class="sig-sub" style="margin-top: 10pt;">التوقيع: .................................</p>
   </div>
-</body>
-</html>
+  <div class="sig-box">
+    <p class="sig-title">أمين المستودع العام</p>
+    <p class="sig-sub">الاسم: .......................................</p>
+    <p class="sig-sub" style="margin-top: 10pt;">التوقيع والختم: .......................</p>
+  </div>
+  <div class="sig-box" style="justify-content: center; align-items: center;">
+    <p class="sig-title" style="color: #64748b; font-size: 9pt;">الختم الرسمي المعتمد</p>
+    <p class="sig-sub" style="margin-top: 4pt; font-weight: 700; color: #0a2540;">(يعتمد / آمر الإمداد والتسليح)</p>
+  </div>
+</div>
+{% endblock %}

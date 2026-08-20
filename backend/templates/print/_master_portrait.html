@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+  <meta charset="utf-8">
+  <title>{% block page_title %}{{ title|default:"مستند رسمي - الجهاز الوطني للقوى المساندة" }}{% endblock %}</title>
+  {% include "print/_style.html" %}
+  {% block extra_head %}{% endblock %}
+</head>
+<body>
+  <div class="document-page-portrait">
+    {% block header %}
+      {% include "print/_header.html" %}
+    {% endblock %}
+
+    <div class="doc-content-wrapper">
+      {% block content %}{% endblock %}
+    </div>
+
+    {% block signatures %}
+      {% include "print/_signatures.html" %}
+    {% endblock %}
+
+    {% block footer %}
+      {% include "print/_footer.html" %}
+    {% endblock %}
+  </div>
+</body>
+</html>

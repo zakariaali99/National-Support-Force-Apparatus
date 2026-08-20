@@ -1,57 +1,49 @@
-<!DOCTYPE html>
-<html dir="rtl" lang="ar">
-<head>
-<meta charset="utf-8" />
-{% include "print/_style.html" %}
-</head>
-<body>
-{% include "print/_header.html" with title="ملف الفرد الشخصي" %}
+{% extends "print/_master_portrait.html" %}
 
-<!-- Individual Identity Header Card with Photo Box -->
-<div class="profile-top-card">
+{% block page_title %}ملف الفرد - {{ member.full_name }}{% endblock %}
+
+{% block content %}
+<!-- Individual Identity Card with Photo Frame -->
+<div class="profile-top-box">
   <div class="photo-frame">
     {% if photo_data_uri %}
       <img src="{{ photo_data_uri }}" alt="صورة الفرد" />
     {% else %}
-      <div class="no-photo-text">صورة الفرد<br />(غير متوفرة)</div>
+      <div class="no-photo-text">صورة الفرد<br>(غير متوفرة)</div>
     {% endif %}
   </div>
 
-  <div class="profile-summary">
-    <div class="main-name">{{ member.full_name }}</div>
-    <div class="field-grid">
-      <div class="field"><div class="label">الرقم الحربي</div><div class="value"><bdi dir="ltr">{{ member.force_number }}</bdi></div></div>
-      <div class="field"><div class="label">الرتبة العسكرية</div><div class="value">{{ member.rank.name_ar }}</div></div>
-      <div class="field"><div class="label">الإدارة التابع لها</div><div class="value">{{ member.faction.name_ar }}</div></div>
-      <div class="field"><div class="label">حالة الخدمة</div><div class="value">{{ member.get_service_status_display }}</div></div>
+  <div style="flex: 1;">
+    <h2 style="font-size: 13pt; font-weight: 800; color: #0a2540; margin-bottom: 6pt;">{{ member.full_name }}</h2>
+    <div class="form-grid" style="margin-bottom: 0; background: transparent; border: none; padding: 0;">
+      <div class="form-row"><span class="form-label">الرقم الحربي:</span><span class="form-value font-mono"><bdi dir="ltr">{{ member.force_number }}</bdi></span></div>
+      <div class="form-row"><span class="form-label">الرتبة العسكرية:</span><span class="form-value">{{ member.rank.name_ar|default:"فرد" }}</span></div>
+      <div class="form-row"><span class="form-label">الإدارة التابع لها:</span><span class="form-value">{{ member.faction.name_ar|default:"عام" }}</span></div>
+      <div class="form-row"><span class="form-label">حالة الخدمة:</span><span class="form-value">{{ member.get_service_status_display }}</span></div>
     </div>
   </div>
 </div>
 
-<h2>البيانات الشخصية والسكنية</h2>
-<div class="field-grid">
-  <div class="field"><div class="label">الرقم الوطني</div><div class="value"><bdi dir="ltr">{{ member.national_number }}</bdi></div></div>
-  <div class="field"><div class="label">رقم الهوية الشخصية</div><div class="value"><bdi dir="ltr">{{ member.id_card_number|default:"—" }}</bdi></div></div>
-  <div class="field"><div class="label">رقم جواز السفر</div><div class="value"><bdi dir="ltr">{{ member.passport_number|default:"—" }}</bdi></div></div>
-  <div class="field"><div class="label">اسم الأم</div><div class="value">{{ member.mother_name|default:"—" }}</div></div>
-  <div class="field"><div class="label">تاريخ الميلاد</div><div class="value"><bdi dir="ltr">{{ member.date_of_birth|date:"Y-m-d"|default:"—" }}</bdi></div></div>
-  <div class="field"><div class="label">مكان الميلاد</div><div class="value">{{ member.place_of_birth|default:"—" }}</div></div>
-  <div class="field"><div class="label">فصيلة الدم</div><div class="value"><bdi dir="ltr">{{ member.blood_type|default:"—" }}</bdi></div></div>
-  <div class="field"><div class="label">رقم الهاتف</div><div class="value"><bdi dir="ltr">{{ member.phone|default:"—" }}</bdi></div></div>
-  <div class="field"><div class="label">تاريخ الالتحاق بالخدمة</div><div class="value"><bdi dir="ltr">{{ member.join_date|date:"Y-m-d"|default:"—" }}</bdi></div></div>
-  <div class="field"><div class="label">السكن الحالي</div><div class="value">{{ member.current_residence|default:"—" }}</div></div>
-  <div class="field"><div class="label">أقرب نقطة دالة</div><div class="value">{{ member.nearest_landmark|default:"—" }}</div></div>
-  <div class="field"><div class="label">حالة اعتماد الملف</div><div class="value">{{ member.get_approval_status_display }}</div></div>
+<div class="section-title">البيانات الشخصية والسكنية</div>
+<div class="form-grid">
+  <div class="form-row"><span class="form-label">الرقم الوطني:</span><span class="form-value font-mono"><bdi dir="ltr">{{ member.national_number }}</bdi></span></div>
+  <div class="form-row"><span class="form-label">رقم الهوية الشخصية:</span><span class="form-value font-mono"><bdi dir="ltr">{{ member.id_card_number|default:"—" }}</bdi></span></div>
+  <div class="form-row"><span class="form-label">رقم جواز السفر:</span><span class="form-value font-mono"><bdi dir="ltr">{{ member.passport_number|default:"—" }}</bdi></span></div>
+  <div class="form-row"><span class="form-label">اسم الأم:</span><span class="form-value">{{ member.mother_name|default:"—" }}</span></div>
+  <div class="form-row"><span class="form-label">تاريخ الميلاد:</span><span class="form-value font-mono"><bdi dir="ltr">{{ member.date_of_birth|date:"Y-m-d"|default:"—" }}</bdi></span></div>
+  <div class="form-row"><span class="form-label">مكان الميلاد:</span><span class="form-value">{{ member.place_of_birth|default:"—" }}</span></div>
+  <div class="form-row"><span class="form-label">فصيلة الدم:</span><span class="form-value font-mono"><bdi dir="ltr">{{ member.blood_type|default:"—" }}</bdi></span></div>
+  <div class="form-row"><span class="form-label">رقم الهاتف:</span><span class="form-value font-mono"><bdi dir="ltr">{{ member.phone|default:"—" }}</bdi></span></div>
+  <div class="form-row"><span class="form-label">تاريخ الالتحاق:</span><span class="form-value font-mono"><bdi dir="ltr">{{ member.join_date|date:"Y-m-d"|default:"—" }}</bdi></span></div>
+  <div class="form-row"><span class="form-label">حالة اعتماد الملف:</span><span class="form-value">{{ member.get_approval_status_display }}</span></div>
+  <div class="form-row" style="grid-column: span 2;"><span class="form-label">السكن الحالي:</span><span class="form-value">{{ member.current_residence|default:"—" }}</span></div>
+  <div class="form-row" style="grid-column: span 2;"><span class="form-label">أقرب نقطة دالة:</span><span class="form-value">{{ member.nearest_landmark|default:"—" }}</span></div>
 </div>
 
 {% if member.location_url %}
-<h2>الموقع الجغرافي (Google Maps)</h2>
-<div class="field" style="width: 100%;">
-  <div class="label">رابط خرائط جوجل</div>
-  <div class="value" style="word-break: break-all;"><bdi dir="ltr">{{ member.location_url }}</bdi></div>
+<div class="section-title">الموقع الجغرافي (Google Maps)</div>
+<div class="form-grid" style="grid-template-columns: 1fr;">
+  <div class="form-row"><span class="form-label">رابط خرائط جوجل:</span><span class="form-value font-mono" style="word-break: break-all;"><bdi dir="ltr">{{ member.location_url }}</bdi></span></div>
 </div>
 {% endif %}
-
-<p class="muted" style="margin-top: 24pt;">تاريخ تجهيز وتحرير الطباعة: <bdi dir="ltr">{{ printed_at|date:"Y-m-d" }}</bdi></p>
-</body>
-</html>
+{% endblock %}

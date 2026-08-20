@@ -1,31 +1,29 @@
-<!DOCTYPE html>
-<html dir="rtl" lang="ar">
-<head>
-<meta charset="utf-8" />
-{% include "print/_style.html" %}
-</head>
-<body>
-{% include "print/_header.html" with title="سجل التعهدات والالتزامات" %}
+{% extends "print/_master_portrait.html" %}
 
-<div style="margin-bottom: 14pt;">
-  <p style="font-size: 11pt; font-weight: 700; color: #0a2540;">
-    سجل التعهدات الخاص بالفرد: {{ member.full_name }} (<bdi dir="ltr">{{ member.force_number }}</bdi>)
-  </p>
+{% block page_title %}سجل التعهدات والالتزامات - {{ member.full_name }}{% endblock %}
+
+{% block content %}
+<div class="section-title">بيانات المنتسب المعني بالتعهد</div>
+<div class="form-grid">
+  <div class="form-row"><span class="form-label">الاسم الكامل:</span><span class="form-value">{{ member.full_name }}</span></div>
+  <div class="form-row"><span class="form-label">الرقم الحربي:</span><span class="form-value font-mono"><bdi dir="ltr">{{ member.force_number }}</bdi></span></div>
+  <div class="form-row"><span class="form-label">الرتبة العسكرية:</span><span class="form-value">{{ member.rank.name_ar|default:"فرد" }}</span></div>
+  <div class="form-row"><span class="form-label">التبعية / الفصيل:</span><span class="form-value">{{ member.faction.name_ar|default:"عام" }}</span></div>
 </div>
 
 {% if pledge_text %}
-<div style="background: #f8fafc; border: 1pt solid #cbd5e1; border-radius: 6pt; padding: 10pt 12pt; margin-bottom: 14pt;">
-  <div style="font-size: 9pt; font-weight: 700; color: #64748b; margin-bottom: 4pt;">التعهد الأساسي / ملاحظات الالتزام:</div>
-  <div style="font-size: 10.5pt; font-weight: 600; color: #0f172a; line-height: 1.5;">{{ pledge_text }}</div>
+<div class="section-title">نص التعهد الأساسي وملاحظات الالتزام</div>
+<div class="legal-box" style="font-size: 9.5pt; font-weight: 600;">
+  {{ pledge_text }}
 </div>
 {% endif %}
 
-<h2>قائمة التعهدات والوثائق المعتمدة</h2>
+<div class="section-title">قائمة التعهدات والوثائق المعتمدة</div>
 {% if pledges %}
-<table>
+<table class="gov-table">
   <thead>
     <tr>
-      <th style="width: 5%;">#</th>
+      <th style="width: 25pt; text-align: center;">ت</th>
       <th style="width: 30%;">عنوان التعهد</th>
       <th style="width: 45%;">التفاصيل / البيان</th>
       <th style="width: 20%;">تاريخ الإصدار</th>
@@ -34,7 +32,7 @@
   <tbody>
     {% for pledge in pledges %}
     <tr>
-      <td>{{ forloop.counter }}</td>
+      <td style="text-align: center; font-family: monospace;">{{ forloop.counter }}</td>
       <td><strong>{{ pledge.title }}</strong></td>
       <td>{{ pledge.description|default:"—" }}</td>
       <td><bdi dir="ltr">{{ pledge.issue_date|date:"Y-m-d"|default:"—" }}</bdi></td>
@@ -43,9 +41,8 @@
   </tbody>
 </table>
 {% else %}
-<p class="muted">لا توجد تعهدات تفصيلية مضافة في السجل.</p>
+<div class="legal-box" style="border-right-color: #64748b; color: #64748b;">
+  لا توجد تعهدات تفصيلية إضافية مسجلة في السجل.
+</div>
 {% endif %}
-
-<p class="muted" style="margin-top: 24pt;">تاريخ تجهيز وتحرير الطباعة: <bdi dir="ltr">{{ printed_at|date:"Y-m-d" }}</bdi></p>
-</body>
-</html>
+{% endblock %}

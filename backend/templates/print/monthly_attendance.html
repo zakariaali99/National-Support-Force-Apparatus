@@ -1,148 +1,87 @@
-<!DOCTYPE html>
-<html dir="rtl" lang="ar">
-<head>
-  <meta charset="utf-8">
-  <title>مصفوفة كشف التمام الشهري والانضباط</title>
-  {% include "print/_style.html" %}
-  <style>
-    @page {
-      size: A4 landscape;
-      margin: 10mm 8mm 14mm 8mm;
-      @bottom-left {
-        content: "الجهاز الوطني للقوى المساندة — وثيقة إدارية رسمية";
-        font-family: 'Cairo', sans-serif;
-        font-size: 8pt;
-        color: #64748b;
-      }
-      @bottom-right {
-        content: "صفحة " counter(page) " من " counter(pages);
-        font-family: 'Cairo', sans-serif;
-        font-size: 8pt;
-        color: #64748b;
-      }
-    }
-    thead { display: table-header-group; }
-    tfoot { display: table-footer-group; }
-    tr { page-break-inside: avoid; }
+{% extends "print/_master_landscape.html" %}
 
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 7.5pt;
-    }
-    th, td {
-      padding: 3pt 1.5pt;
-      border: 0.5pt solid #cbd5e1;
-      text-align: center;
-    }
-    th {
-      background: #f1f5f9;
-      font-weight: 700;
-      color: #0a2540;
-    }
-    .member-th, .member-td {
-      text-align: right;
-      padding-right: 4pt;
-      white-space: nowrap;
-    }
-    .status-p { background: #dcfce7; color: #15803d; font-weight: bold; }
-    .status-l { background: #fef3c7; color: #b45309; font-weight: bold; }
-    .status-e { background: #dbeafe; color: #1d4ed8; font-weight: bold; }
-    .status-u { background: #fee2e2; color: #b91c1c; font-weight: bold; }
-    .status-o { background: #f1f5f9; color: #64748b; }
-    .status-v { background: #f3e8ff; color: #7e22ce; }
-    
-    .signatures {
-      display: flex;
-      justify-content: space-around;
-      margin-top: 14pt;
-      text-align: center;
-      page-break-inside: avoid;
-    }
-    .sig-col {
-      width: 160pt;
-    }
-    .sig-line {
-      border-bottom: 1pt dashed #94a3b8;
-      height: 25pt;
-      margin-bottom: 3pt;
-    }
-  </style>
-</head>
-<body>
-  <!-- Standard Institutional Header -->
-  <div class="header">
-    <div class="title">
-      <h1 style="font-size:13.5pt;">دولة ليبيا</h1>
-      <p style="font-weight:700; color:#0a2540; margin:0; font-size:10pt;">الجهاز الوطني للقوى المساندة</p>
-      <p style="font-size:8.5pt; color:#64748b; margin:0;">الإدارة العامة للشؤون الإدارية • شعبة العمليات والتمام</p>
-    </div>
-    <div style="text-align:center;">
-      <h2 style="border:none; margin:0; font-size:14pt; color:#0a2540;">مصفوفة كشف التمام الشهري والانضباط</h2>
-      <span style="font-size:8.5pt; color:#64748b;">عن شهر: {{ month_name }} {{ year }}</span>
-    </div>
-    <div style="text-align:left; font-size:8.5pt; font-family:monospace;">
-      <p style="margin:0;">الفصيل: {{ faction_name|default:"كافة الفصائل والوحدات" }}</p>
-      <p style="margin:0;">تاريخ الإصدار: {{ date }}</p>
-      <p style="margin:0; font-weight:700; color:#047857;">كشف رسمي معتمد</p>
-    </div>
-  </div>
+{% block page_title %}مصفوفة كشف التمام الشهري والانضباط - {{ month_name }} {{ year }}{% endblock %}
 
-  <table>
-    <thead>
-      <tr>
-        <th class="member-th" style="width:125pt;">الفرد والرتبة</th>
-        <th style="width:60pt;">الفصيل</th>
-        {% for d in days_range %}
-          <th style="width:14pt; font-family:monospace;">{{ d }}</th>
-        {% endfor %}
-        <th style="width:24pt; background:#dcfce7; color:#15803d;">حضور</th>
-        <th style="width:24pt; background:#fef3c7; color:#b45309;">تأخير</th>
-        <th style="width:24pt; background:#dbeafe; color:#1d4ed8;">إذن</th>
-        <th style="width:24pt; background:#fee2e2; color:#b91c1c;">غياب</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for row in rows %}
-      <tr>
-        <td class="member-td">
-          <strong>{{ row.member_name }}</strong>
-          <span style="color:#64748b; font-size:7pt; display:block;">{{ row.rank_name }} • {{ row.force_number }}</span>
-        </td>
-        <td>{{ row.faction_name }}</td>
-        {% for day in row.days_status %}
-          <td class="{{ day.cls }}">{{ day.code }}</td>
-        {% endfor %}
-        <td style="font-weight:700; font-family:monospace; color:#15803d;">{{ row.total_present }}</td>
-        <td style="font-weight:700; font-family:monospace; color:#b45309;">{{ row.total_late }}</td>
-        <td style="font-weight:700; font-family:monospace; color:#1d4ed8;">{{ row.total_excused }}</td>
-        <td style="font-weight:700; font-family:monospace; color:#b91c1c;">{{ row.total_unexcused }}</td>
-      </tr>
-      {% empty %}
-      <tr>
-        <td colspan="{{ col_span }}" style="padding:14pt; color:#64748b;">لا توجد سجلات تمام لهذا الشهر.</td>
-      </tr>
+{% block extra_head %}
+<style>
+  table.monthly-grid {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 7pt;
+  }
+  table.monthly-grid th, table.monthly-grid td {
+    padding: 2.5pt 1.5pt;
+    border: 0.5pt solid #cbd5e1;
+    text-align: center;
+  }
+  table.monthly-grid th {
+    background: #f1f5f9;
+    font-weight: 700;
+    color: #0a2540;
+  }
+  .member-th, .member-td {
+    text-align: right;
+    padding-right: 4pt;
+    white-space: nowrap;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<table class="monthly-grid">
+  <thead>
+    <tr>
+      <th class="member-th" style="width: 130pt;">الفرد والرتبة</th>
+      <th style="width: 65pt;">الفصيل</th>
+      {% for d in days_range %}
+        <th style="width: 13pt; font-family: monospace;">{{ d }}</th>
       {% endfor %}
-    </tbody>
-  </table>
+      <th style="width: 24pt; background: #dcfce7; color: #15803d;">حضور</th>
+      <th style="width: 24pt; background: #fef3c7; color: #b45309;">تأخير</th>
+      <th style="width: 24pt; background: #dbeafe; color: #1d4ed8;">إذن</th>
+      <th style="width: 24pt; background: #fee2e2; color: #b91c1c;">غياب</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for row in rows %}
+    <tr>
+      <td class="member-td">
+        <strong>{{ row.member_name }}</strong>
+        <span style="color: #64748b; font-size: 6.5pt; display: block;">{{ row.rank_name }} • {{ row.force_number }}</span>
+      </td>
+      <td style="font-size: 6.5pt;">{{ row.faction_name }}</td>
+      {% for day in row.days_status %}
+        <td class="{{ day.cls }}">{{ day.code }}</td>
+      {% endfor %}
+      <td style="font-weight: 700; font-family: monospace; color: #15803d;">{{ row.total_present }}</td>
+      <td style="font-weight: 700; font-family: monospace; color: #b45309;">{{ row.total_late }}</td>
+      <td style="font-weight: 700; font-family: monospace; color: #1d4ed8;">{{ row.total_excused }}</td>
+      <td style="font-weight: 700; font-family: monospace; color: #b91c1c;">{{ row.total_unexcused }}</td>
+    </tr>
+    {% empty %}
+    <tr>
+      <td colspan="{{ col_span }}" style="padding: 14pt; color: #64748b; text-align: center;">لا توجد سجلات تمام لهذا الشهر.</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}
 
-  <!-- Standard Signatures Footer -->
-  <div class="signatures">
-    <div class="sig-col">
-      <p style="font-weight:700; margin:0 0 3pt 0; font-size:8.5pt;">ضابط التمام والمتابعة</p>
-      <div class="sig-line"></div>
-      <span style="font-size:7.5pt; color:#64748b;">الاسم والتوقيع</span>
-    </div>
-    <div class="sig-col">
-      <p style="font-weight:700; margin:0 0 3pt 0; font-size:8.5pt;">رئيس شعبة الشؤون الإدارية</p>
-      <div class="sig-line"></div>
-      <span style="font-size:7.5pt; color:#64748b;">الاعتماد والتاريخ</span>
-    </div>
-    <div class="sig-col">
-      <p style="font-weight:700; margin:0 0 3pt 0; font-size:8.5pt;">يعتمد / آمر القوة</p>
-      <div class="sig-line"></div>
-      <span style="font-size:7.5pt; color:#64748b;">الختم الرسمي</span>
-    </div>
+{% block signatures %}
+<div class="signatures-block">
+  <div class="sig-box">
+    <p class="sig-title">ضابط التمام والمتابعة</p>
+    <p class="sig-sub">الاسم: .......................................</p>
+    <p class="sig-sub" style="margin-top: 10pt;">التوقيع: .................................</p>
   </div>
-</body>
-</html>
+  <div class="sig-box">
+    <p class="sig-title">رئيس شعبة الشؤون الإدارية</p>
+    <p class="sig-sub">الاسم: .......................................</p>
+    <p class="sig-sub" style="margin-top: 10pt;">الاعتماد والتاريخ: .......................</p>
+  </div>
+  <div class="sig-box" style="justify-content: center; align-items: center;">
+    <p class="sig-title" style="color: #64748b; font-size: 9pt;">الختم الرسمي المعتمد</p>
+    <p class="sig-sub" style="margin-top: 4pt; font-weight: 700; color: #0a2540;">(يعتمد / آمر القوة)</p>
+  </div>
+</div>
+{% endblock %}

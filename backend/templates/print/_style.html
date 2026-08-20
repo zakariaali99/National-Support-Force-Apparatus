@@ -1,15 +1,16 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
   *, *::before, *::after {
     box-sizing: border-box;
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
   }
+
   @page {
-    size: A4;
-    margin: 14mm 12mm 16mm 12mm;
+    size: A4 portrait;
+    margin: 10mm 12mm 12mm 12mm;
     @bottom-left {
       content: "الجهاز الوطني للقوى المساندة — منظومة الإدارة الإلكترونية";
       font-family: 'Cairo', sans-serif;
@@ -23,66 +24,177 @@
       color: #64748b;
     }
   }
+
+  @page landscape {
+    size: A4 landscape;
+    margin: 8mm 10mm 10mm 10mm;
+    @bottom-left {
+      content: "الجهاز الوطني للقوى المساندة — منظومة الإدارة الإلكترونية";
+      font-family: 'Cairo', sans-serif;
+      font-size: 7.5pt;
+      color: #64748b;
+    }
+    @bottom-right {
+      content: "صفحة " counter(page) " من " counter(pages);
+      font-family: 'Cairo', sans-serif;
+      font-size: 7.5pt;
+      color: #64748b;
+    }
+  }
+
   body {
     font-family: 'Cairo', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     direction: rtl;
     color: #0f172a;
-    font-size: 10pt;
+    font-size: 9.5pt;
     line-height: 1.5;
     background: #ffffff;
     margin: 0;
     padding: 0;
   }
-  h1, h2, h3, h4, p { margin: 0; }
-  h1 { font-size: 16pt; font-weight: 800; color: #0a2540; margin-bottom: 2pt; }
-  h2 { font-size: 12pt; font-weight: 700; border-bottom: 1.5pt solid #b8942f; padding-bottom: 3pt; margin-top: 12pt; margin-bottom: 10pt; color: #0a2540; }
-  
-  table {
-    width: 100%;
-    border-collapse: collapse;
-  }
-  thead { display: table-header-group; }
-  tfoot { display: table-footer-group; }
-  tr { break-inside: avoid; page-break-inside: avoid; }
-  th, td {
-    text-align: start;
-    padding: 5pt 7pt;
-    border-bottom: 0.5pt solid #cbd5e1;
-    font-size: 9.5pt;
-  }
-  th {
-    font-weight: 700;
-    background: #f8fafc;
-    color: #0a2540;
-  }
 
-  .header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    border-bottom: 2pt solid #0a2540;
-    padding-bottom: 8pt;
+  h1, h2, h3, h4, h5, p { margin: 0; padding: 0; }
+
+  /* 1. Official Government Sovereign Header */
+  .gov-header-container {
     margin-bottom: 12pt;
+    break-inside: avoid;
   }
-  .header img { height: 42pt; width: auto; }
-  .header .title { text-align: right; }
-
-  .profile-top-card {
+  .gov-header-top {
     display: flex;
-    align-items: center;
     justify-content: space-between;
-    gap: 14pt;
+    align-items: center;
+    padding-bottom: 6pt;
+  }
+  .gov-title-group h1 {
+    font-size: 13.5pt;
+    font-weight: 800;
+    color: #0a2540;
+    line-height: 1.25;
+  }
+  .gov-title-group h2 {
+    font-size: 10.5pt;
+    font-weight: 700;
+    color: #0a2540;
+    margin-top: 1.5pt;
+  }
+  .gov-title-group p {
+    font-size: 8pt;
+    font-weight: 600;
+    color: #64748b;
+    margin-top: 1pt;
+  }
+  .gov-logo {
+    height: 46pt;
+    width: auto;
+    object-fit: contain;
+  }
+  .gov-header-line {
+    border-bottom: 2pt solid #0a2540;
+    margin-bottom: 5pt;
+  }
+  .gov-header-metadata {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 8.5pt;
+    font-weight: 700;
+    color: #334155;
+    padding-bottom: 4pt;
+  }
+
+  /* 2. Document Title Banner Box */
+  .doc-banner {
     background: #f8fafc;
     border: 1pt solid #cbd5e1;
-    border-radius: 8pt;
-    padding: 12pt 14pt;
-    margin-bottom: 14pt;
+    border-radius: 5pt;
+    padding: 6pt 10pt;
+    text-align: center;
+    margin-bottom: 10pt;
+    break-inside: avoid;
+  }
+  .doc-banner h3 {
+    font-size: 11.5pt;
+    font-weight: 800;
+    color: #0a2540;
+  }
+  .doc-banner p {
+    font-size: 8pt;
+    color: #64748b;
+    margin-top: 1.5pt;
+    font-weight: 600;
+  }
+
+  /* 3. Section Titles and Form Grids (Portrait) */
+  .section-title {
+    font-size: 9.5pt;
+    font-weight: 700;
+    color: #0a2540;
+    border-right: 3pt solid #0a2540;
+    padding-right: 6pt;
+    margin-bottom: 6pt;
+    margin-top: 10pt;
+    break-inside: avoid;
+  }
+  .form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 6pt 12pt;
+    background: #ffffff;
+    border: 0.75pt solid #cbd5e1;
+    border-radius: 5pt;
+    padding: 8pt 10pt;
+    margin-bottom: 10pt;
+    break-inside: avoid;
+  }
+  .form-grid-3 {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6pt 10pt;
+    background: #ffffff;
+    border: 0.75pt solid #cbd5e1;
+    border-radius: 5pt;
+    padding: 8pt 10pt;
+    margin-bottom: 10pt;
+    break-inside: avoid;
+  }
+  .form-row {
+    display: flex;
+    align-items: baseline;
+    gap: 4pt;
+    font-size: 9pt;
+  }
+  .form-label {
+    font-weight: 700;
+    color: #64748b;
+    min-width: 90pt;
+    font-size: 8.5pt;
+  }
+  .form-value {
+    font-weight: 700;
+    color: #0f172a;
+    font-size: 9pt;
+    word-break: break-word;
+  }
+
+  /* 4. Photo Frame Box for Member Profile */
+  .profile-top-box {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12pt;
+    background: #f8fafc;
+    border: 0.75pt solid #cbd5e1;
+    border-radius: 6pt;
+    padding: 10pt 12pt;
+    margin-bottom: 10pt;
+    break-inside: avoid;
   }
   .photo-frame {
-    width: 85pt;
-    height: 105pt;
+    width: 75pt;
+    height: 95pt;
     border: 1.5pt solid #b8942f;
-    border-radius: 6pt;
+    border-radius: 5pt;
     background: #ffffff;
     overflow: hidden;
     display: flex;
@@ -96,48 +208,159 @@
     object-fit: cover;
   }
   .no-photo-text {
-    font-size: 8pt;
+    font-size: 7.5pt;
     color: #94a3b8;
     text-align: center;
+    font-weight: 600;
+  }
+
+  /* 5. Summary Metrics Bar (Landscape) */
+  .metrics-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #f8fafc;
+    border: 0.75pt solid #cbd5e1;
+    border-radius: 5pt;
+    padding: 5pt 10pt;
+    margin-bottom: 8pt;
+    break-inside: avoid;
+  }
+  .metric-item {
+    text-align: center;
+  }
+  .metric-label {
+    font-size: 7pt;
+    color: #64748b;
     font-weight: 700;
   }
-  .profile-summary { flex: 1; }
-  .main-name {
-    font-size: 14pt;
+  .metric-value {
+    font-size: 10.5pt;
     font-weight: 800;
     color: #0a2540;
-    margin-bottom: 6pt;
+    font-family: monospace, sans-serif;
   }
 
-  .field-grid { display: flex; flex-wrap: wrap; margin-bottom: 6pt; }
-  .field { width: 48%; min-width: 48%; flex: 0 0 48%; margin-bottom: 10pt; box-sizing: border-box; }
-  .field .label { font-size: 8.5pt; color: #64748b; font-weight: 700; margin-bottom: 2pt; }
-  .field .value { font-size: 10pt; font-weight: 700; color: #0f172a; line-height: 1.35; }
-  .muted { color: #64748b; font-size: 8.5pt; }
+  /* 6. Standard Tables */
+  table.gov-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 6pt;
+    margin-bottom: 10pt;
+    font-size: 8.5pt;
+  }
+  thead {
+    display: table-header-group;
+  }
+  tfoot {
+    display: table-footer-group;
+  }
+  tr {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+  table.gov-table th {
+    background: #f1f5f9;
+    color: #0a2540;
+    font-weight: 700;
+    padding: 5pt 6pt;
+    border: 0.5pt solid #cbd5e1;
+    text-align: start;
+  }
+  table.gov-table td {
+    padding: 4.5pt 6pt;
+    border: 0.5pt solid #cbd5e1;
+    color: #1e293b;
+    text-align: start;
+    vertical-align: middle;
+  }
+  table.gov-table tr:nth-child(even) td {
+    background-color: #fafafa;
+  }
 
-  .signatures {
-    display: flex;
-    justify-content: space-around;
+  /* 7. Legal Text & Declaration Box */
+  .legal-box {
+    border: 0.75pt solid #cbd5e1;
+    background: #ffffff;
+    border-right: 3pt solid #0a2540;
+    padding: 6pt 8pt;
+    border-radius: 4pt;
+    font-size: 8.5pt;
+    color: #334155;
+    line-height: 1.5;
+    margin-top: 8pt;
+    margin-bottom: 12pt;
+    break-inside: avoid;
+  }
+
+  /* 8. Tripartite Endorsement & Signatures Block */
+  .signatures-block {
     margin-top: 14pt;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 12pt;
     text-align: center;
     break-inside: avoid;
     page-break-inside: avoid;
   }
-  .sig-col {
-    width: 160pt;
+  .sig-box {
+    border: 1pt dashed #94a3b8;
+    border-radius: 5pt;
+    padding: 6pt 6pt 16pt;
+    background: #fafafa;
+    min-height: 60pt;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
   }
-  .sig-line {
-    border-bottom: 1pt dashed #94a3b8;
-    height: 24pt;
+  .sig-title {
+    font-size: 8.5pt;
+    font-weight: 800;
+    color: #0a2540;
     margin-bottom: 3pt;
   }
-  .footer {
-    position: fixed;
-    bottom: -10mm;
-    left: 0;
-    right: 0;
-    text-align: center;
-    font-size: 8pt;
-    color: #94a3b8;
+  .sig-sub {
+    font-size: 7.5pt;
+    color: #64748b;
+  }
+
+  /* 9. Bottom Footer Bar */
+  .gov-print-footer {
+    border-top: 0.75pt solid #cbd5e1;
+    padding-top: 4pt;
+    margin-top: 10pt;
+    display: flex;
+    justify-content: space-between;
+    font-size: 7.5pt;
+    color: #64748b;
+    flex-shrink: 0;
+    break-inside: avoid;
+  }
+
+  /* Attendance Status Badges */
+  .status-badge-inline {
+    display: inline-block;
+    padding: 1.5pt 4.5pt;
+    border-radius: 3pt;
+    font-size: 7.5pt;
+    font-weight: 700;
+  }
+  .status-p { background: #dcfce7; color: #15803d; border: 0.5pt solid #86efac; }
+  .status-l { background: #fef3c7; color: #b45309; border: 0.5pt solid #fde68a; }
+  .status-e { background: #e0f2fe; color: #0369a1; border: 0.5pt solid #bae6fd; }
+  .status-u { background: #ffe4e6; color: #be123c; border: 0.5pt solid #fecdd3; }
+  .status-o { background: #f1f5f9; color: #475569; border: 0.5pt solid #e2e8f0; }
+  .status-v { background: #f3e8ff; color: #7e22ce; border: 0.5pt solid #e9d5ff; }
+
+  /* Page Wrappers */
+  .document-page-portrait {
+    width: 100%;
+    max-width: 210mm;
+    margin: 0 auto;
+  }
+  .document-page-landscape {
+    width: 100%;
+    max-width: 297mm;
+    margin: 0 auto;
   }
 </style>

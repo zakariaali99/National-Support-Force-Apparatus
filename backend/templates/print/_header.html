@@ -1,7 +1,22 @@
-<div class="header">
-  <div class="title">
-    <h1>{{ title }}</h1>
-    <p class="muted">الجهاز الوطني للقوى المساندة — الوحدة القتالية الرابعة</p>
+<div class="gov-header-container">
+  <div class="gov-header-top">
+    <div class="gov-title-group">
+      <h1>دولة ليبيا</h1>
+      <h2>الجهاز الوطني للقوى المساندة / الوحدة القتالية الرابعة</h2>
+      <p>منظومة الإدارة والمتابعة الإلكترونية الموحدة</p>
+    </div>
+    <img class="gov-logo" src="static/nasf-seal.jpg" alt="شعار الجهاز" onerror="this.src='/static/nasf-seal.jpg'" />
   </div>
-  <img src="static/nasf-seal.jpg" alt="الشعار" />
+  <div class="gov-header-line"></div>
+  <div class="gov-header-metadata">
+    <span>الإدارة التابعة: {{ department|default:"الإدارة العامة للشؤون الإدارية والعهد" }}</span>
+    <span>الرقم المرجعي للمستند: {% if report_number %}{{ report_number }}{% elif voucher_number %}{{ voucher_number }}{% elif trip_number %}{{ trip_number }}{% elif doc_number %}{{ doc_number }}{% elif member %}{{ member.force_number }}{% else %}NASF-OFFICIAL{% endif %}</span>
+  </div>
 </div>
+
+{% if title %}
+<div class="doc-banner">
+  <h3>{{ title }}</h3>
+  {% if subtitle %}<p>{{ subtitle }}</p>{% endif %}
+</div>
+{% endif %}

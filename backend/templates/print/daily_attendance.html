@@ -1,203 +1,99 @@
-<!DOCTYPE html>
-<html dir="rtl" lang="ar">
-<head>
-  <meta charset="utf-8">
-  <title>كشف التمام اليومي العام للقوة</title>
-  {% include "print/_style.html" %}
-  <style>
-    @page {
-      size: A4 landscape;
-      margin: 8mm 8mm 10mm 8mm;
-      @bottom-left {
-        content: "الجهاز الوطني للقوى المساندة — وثيقة إدارية رسمية";
-        font-family: 'Cairo', sans-serif;
-        font-size: 7.5pt;
-        color: #64748b;
-      }
-      @bottom-right {
-        content: "صفحة " counter(page) " من " counter(pages);
-        font-family: 'Cairo', sans-serif;
-        font-size: 7.5pt;
-        color: #64748b;
-      }
-    }
-    thead { display: table-header-group; }
-    tfoot { display: table-footer-group; }
-    tr { break-inside: avoid; page-break-inside: avoid; }
+{% extends "print/_master_landscape.html" %}
 
-    .header {
-      border-bottom: 2pt solid #0a2540;
-      padding-bottom: 6pt;
-      margin-bottom: 8pt;
-    }
+{% block page_title %}كشف التمام اليومي العام - {{ date }}{% endblock %}
 
-    .stats-grid {
-      display: flex;
-      justify-content: space-between;
-      gap: 5pt;
-      background: #f8fafc;
-      border: 1pt solid #cbd5e1;
-      border-radius: 6pt;
-      padding: 4pt 8pt;
-      margin-bottom: 8pt;
-      text-align: center;
-    }
-    .stat-item {
-      flex: 1;
-      border: 0.5pt solid #e2e8f0;
-      background: #ffffff;
-      padding: 2.5pt 4pt;
-      border-radius: 4pt;
-    }
-    .stat-title { font-size: 7.5pt; color: #64748b; display: block; margin-bottom: 1pt; font-weight: 700; }
-    .stat-val { font-size: 10.5pt; font-weight: 800; font-family: monospace; }
-    
-    .attendance-table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 8pt;
-    }
-    .attendance-table th, .attendance-table td {
-      padding: 3.5pt 4.5pt;
-      border: 0.5pt solid #cbd5e1;
-      text-align: start;
-    }
-    .attendance-table th {
-      background: #f1f5f9;
-      color: #0a2540;
-      font-weight: 700;
-      text-align: center;
-    }
-
-    .signatures {
-      display: flex;
-      justify-content: space-around;
-      margin-top: 10pt;
-      text-align: center;
-      break-inside: avoid;
-      page-break-inside: avoid;
-    }
-    .sig-col {
-      width: 150pt;
-    }
-    .sig-line {
-      border-bottom: 1pt dashed #94a3b8;
-      height: 20pt;
-      margin-bottom: 2pt;
-    }
-  </style>
-</head>
-<body>
-  <!-- Standard Institutional Header -->
-  <div class="header">
-    <div class="title">
-      <h1 style="font-size:12pt; margin:0;">دولة ليبيا</h1>
-      <p style="font-weight:700; color:#0a2540; margin:0; font-size:9.5pt;">الجهاز الوطني للقوى المساندة</p>
-      <p style="font-size:8pt; color:#64748b; margin:0;">الإدارة العامة للشؤون الإدارية • شعبة العمليات والتمام</p>
-    </div>
-    <div style="text-align:center;">
-      <h2 style="border:none; margin:0; font-size:13pt; color:#0a2540;">كشف التمام اليومي العام للقوة</h2>
-      <span style="font-size:8pt; color:#64748b; font-family:monospace;">كشف رقم: {{ report_number|default:"ATT-001" }}</span>
-    </div>
-    <div style="text-align:left; font-size:8pt; font-family:monospace;">
-      <p style="margin:0;">التاريخ: {{ date }}</p>
-      <p style="margin:0;">الفصيل: {{ faction_name|default:"كافة الفصائل والوحدات" }}</p>
-      <p style="margin:0; font-weight:700; color:#047857;">الحالة: معتمد للعمليات</p>
-    </div>
+{% block content %}
+<!-- Statistical Summary Metrics Bar -->
+<div class="metrics-bar">
+  <div class="metric-item">
+    <div class="metric-label">إجمالي القوة</div>
+    <div class="metric-value">{{ total|default:"0" }}</div>
   </div>
-
-  <!-- Statistical Summary -->
-  <div class="stats-grid">
-    <div class="stat-item">
-      <span class="stat-title">إجمالي القوة</span>
-      <span class="stat-val" style="color:#0a2540;">{{ total|default:"0" }}</span>
-    </div>
-    <div class="stat-item" style="background:#ecfdf5;">
-      <span class="stat-title" style="color:#047857;">حاضر</span>
-      <span class="stat-val" style="color:#047857;">{{ present|default:"0" }}</span>
-    </div>
-    <div class="stat-item" style="background:#fffbeb;">
-      <span class="stat-title" style="color:#b45309;">متأخر</span>
-      <span class="stat-val" style="color:#b45309;">{{ late|default:"0" }}</span>
-    </div>
-    <div class="stat-item" style="background:#eff6ff;">
-      <span class="stat-title" style="color:#1d4ed8;">مأذون</span>
-      <span class="stat-val" style="color:#1d4ed8;">{{ excused|default:"0" }}</span>
-    </div>
-    <div class="stat-item" style="background:#fef2f2;">
-      <span class="stat-title" style="color:#b91c1c;">غياب</span>
-      <span class="stat-val" style="color:#b91c1c;">{{ unexcused|default:"0" }}</span>
-    </div>
-    <div class="stat-item">
-      <span class="stat-title">راحة نوبة</span>
-      <span class="stat-val" style="color:#475569;">{{ shift_off|default:"0" }}</span>
-    </div>
-    <div class="stat-item" style="background:#faf5ff;">
-      <span class="stat-title" style="color:#7e22ce;">إجازة</span>
-      <span class="stat-val" style="color:#7e22ce;">{{ vacation|default:"0" }}</span>
-    </div>
+  <div class="metric-item">
+    <div class="metric-label" style="color: #15803d;">حاضر</div>
+    <div class="metric-value" style="color: #15803d;">{{ present|default:"0" }}</div>
   </div>
-
-  <!-- Attendance Table -->
-  <table class="attendance-table">
-    <thead>
-      <tr>
-        <th style="width:20pt; text-align:center;">ت</th>
-        <th style="width:70pt; text-align:center;">الرقم العسكري</th>
-        <th style="text-align:start;">الرتبة والاسم الكامل</th>
-        <th style="width:110pt; text-align:start;">الفصيل / النوبة</th>
-        <th style="width:65pt; text-align:center;">حالة التمام</th>
-        <th style="width:40pt; text-align:center;">تأخير</th>
-        <th style="width:40pt; text-align:center;">إذن</th>
-        <th style="text-align:start;">ملاحظات</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for row in rows %}
-      <tr>
-        <td style="text-align:center; font-family:monospace;">{{ forloop.counter }}</td>
-        <td style="text-align:center; font-family:monospace; font-weight:700;">{{ row.force_number|default:"—" }}</td>
-        <td style="font-weight:700;">{{ row.rank_name }} / {{ row.member_name }}</td>
-        <td>{{ row.faction_name }} {% if row.shift_group_name and row.shift_group_name != '—' %}({{ row.shift_group_name }}){% endif %}</td>
-        <td style="text-align:center; font-weight:700;">
-          {% if row.status == "present" %}<span style="color:#047857;">حاضر</span>
-          {% elif row.status == "late" %}<span style="color:#b45309;">متأخر</span>
-          {% elif row.status == "excused_absence" or row.status == "excused" %}<span style="color:#1d4ed8;">مأذون</span>
-          {% elif row.status == "unexcused_absence" or row.status == "unexcused" %}<span style="color:#b91c1c;">غياب</span>
-          {% elif row.status == "shift_off" %}<span style="color:#64748b;">راحة نوبة</span>
-          {% elif row.status == "vacation" %}<span style="color:#7e22ce;">إجازة</span>
-          {% elif row.status == "mission" %}<span style="color:#4338ca;">مأمورية</span>
-          {% else %}{{ row.status_display|default:row.status }}{% endif %}
-        </td>
-        <td style="text-align:center; font-family:monospace;">{% if row.late_hours %}{{ row.late_hours }}س{% else %}—{% endif %}</td>
-        <td style="text-align:center; font-family:monospace;">{% if row.excused_hours %}{{ row.excused_hours }}س{% else %}—{% endif %}</td>
-        <td style="color:#475569; font-size:7.5pt;">{{ row.notes|default:"—" }}</td>
-      </tr>
-      {% empty %}
-      <tr>
-        <td colspan="8" style="text-align:center; color:#64748b; padding:12pt;">لا توجد سجلات تمام لهذا اليوم.</td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-
-  <!-- Standard Signatures Footer -->
-  <div class="signatures">
-    <div class="sig-col">
-      <p style="font-weight:700; margin:0 0 3pt 0; font-size:8.5pt;">ضابط التمام والمتابعة</p>
-      <div class="sig-line"></div>
-      <span style="font-size:7.5pt; color:#64748b;">الاسم والتوقيع</span>
-    </div>
-    <div class="sig-col">
-      <p style="font-weight:700; margin:0 0 3pt 0; font-size:8.5pt;">رئيس شعبة الشؤون الإدارية</p>
-      <div class="sig-line"></div>
-      <span style="font-size:7.5pt; color:#64748b;">الاعتماد والتاريخ</span>
-    </div>
-    <div class="sig-col">
-      <p style="font-weight:700; margin:0 0 3pt 0; font-size:8.5pt;">يعتمد / آمر القوة</p>
-      <div class="sig-line"></div>
-      <span style="font-size:7.5pt; color:#64748b;">الختم الرسمي</span>
-    </div>
+  <div class="metric-item">
+    <div class="metric-label" style="color: #b45309;">متأخر</div>
+    <div class="metric-value" style="color: #b45309;">{{ late|default:"0" }}</div>
   </div>
-</body>
-</html>
+  <div class="metric-item">
+    <div class="metric-label" style="color: #0369a1;">مأذون</div>
+    <div class="metric-value" style="color: #0369a1;">{{ excused|default:"0" }}</div>
+  </div>
+  <div class="metric-item">
+    <div class="metric-label" style="color: #be123c;">غياب</div>
+    <div class="metric-value" style="color: #be123c;">{{ unexcused|default:"0" }}</div>
+  </div>
+  <div class="metric-item">
+    <div class="metric-label" style="color: #475569;">راحة نوبة</div>
+    <div class="metric-value" style="color: #475569;">{{ shift_off|default:"0" }}</div>
+  </div>
+  <div class="metric-item">
+    <div class="metric-label" style="color: #7e22ce;">إجازة</div>
+    <div class="metric-value" style="color: #7e22ce;">{{ vacation|default:"0" }}</div>
+  </div>
+</div>
+
+<!-- Attendance Roster Table -->
+<table class="gov-table">
+  <thead>
+    <tr>
+      <th style="width: 22pt; text-align: center;">ت</th>
+      <th style="width: 70pt; text-align: center;">الرقم العسكري</th>
+      <th style="text-align: start;">الرتبة والاسم الكامل</th>
+      <th style="width: 120pt; text-align: start;">الفصيل / النوبة</th>
+      <th style="width: 65pt; text-align: center;">حالة التمام</th>
+      <th style="width: 40pt; text-align: center;">تأخير</th>
+      <th style="width: 40pt; text-align: center;">إذن</th>
+      <th style="text-align: start;">ملاحظات</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for row in rows %}
+    <tr>
+      <td style="text-align: center; font-family: monospace;">{{ forloop.counter }}</td>
+      <td style="text-align: center; font-family: monospace; font-weight: 700;">{{ row.force_number|default:"—" }}</td>
+      <td style="font-weight: 700;">{{ row.rank_name }} / {{ row.member_name }}</td>
+      <td>{{ row.faction_name }} {% if row.shift_group_name and row.shift_group_name != '—' %}({{ row.shift_group_name }}){% endif %}</td>
+      <td style="text-align: center; font-weight: 700;">
+        {% if row.status == "present" %}<span class="status-badge-inline status-p">حاضر</span>
+        {% elif row.status == "late" %}<span class="status-badge-inline status-l">متأخر</span>
+        {% elif row.status == "excused_absence" or row.status == "excused" %}<span class="status-badge-inline status-e">مأذون</span>
+        {% elif row.status == "unexcused_absence" or row.status == "unexcused" %}<span class="status-badge-inline status-u">غياب</span>
+        {% elif row.status == "shift_off" %}<span class="status-badge-inline status-o">راحة نوبة</span>
+        {% elif row.status == "vacation" %}<span class="status-badge-inline status-v">إجازة</span>
+        {% elif row.status == "mission" %}<span class="status-badge-inline status-e">مأمورية</span>
+        {% else %}{{ row.status_display|default:row.status }}{% endif %}
+      </td>
+      <td style="text-align: center; font-family: monospace;">{% if row.late_hours %}{{ row.late_hours }}س{% else %}—{% endif %}</td>
+      <td style="text-align: center; font-family: monospace;">{% if row.excused_hours %}{{ row.excused_hours }}س{% else %}—{% endif %}</td>
+      <td style="color: #475569; font-size: 7.5pt;">{{ row.notes|default:"—" }}</td>
+    </tr>
+    {% empty %}
+    <tr>
+      <td colspan="8" style="text-align: center; color: #64748b; padding: 14pt;">لا توجد سجلات تمام لهذا اليوم.</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}
+
+{% block signatures %}
+<div class="signatures-block">
+  <div class="sig-box">
+    <p class="sig-title">ضابط التمام والمتابعة</p>
+    <p class="sig-sub">الاسم: .......................................</p>
+    <p class="sig-sub" style="margin-top: 10pt;">التوقيع: .................................</p>
+  </div>
+  <div class="sig-box">
+    <p class="sig-title">رئيس شعبة الشؤون الإدارية</p>
+    <p class="sig-sub">الاسم: .......................................</p>
+    <p class="sig-sub" style="margin-top: 10pt;">الاعتماد والتاريخ: .......................</p>
+  </div>
+  <div class="sig-box" style="justify-content: center; align-items: center;">
+    <p class="sig-title" style="color: #64748b; font-size: 9pt;">الختم الرسمي المعتمد</p>
+    <p class="sig-sub" style="margin-top: 4pt; font-weight: 700; color: #0a2540;">(يعتمد / آمر القوة)</p>
+  </div>
+</div>
+{% endblock %}

@@ -1,19 +1,33 @@
-<!DOCTYPE html>
-<html dir="rtl" lang="ar">
-<head>
-<meta charset="utf-8" />
-{% include "print/_style.html" %}
-</head>
-<body>
-{% include "print/_header.html" with title="المهام: "|add:member.full_name %}
+{% extends "print/_master_portrait.html" %}
 
+{% block page_title %}سجل المهام والتكليفات - {{ member.full_name }}{% endblock %}
+
+{% block content %}
+<div class="section-title">بيانات المنتسب المكلف</div>
+<div class="form-grid">
+  <div class="form-row"><span class="form-label">الاسم الكامل:</span><span class="form-value">{{ member.full_name }}</span></div>
+  <div class="form-row"><span class="form-label">الرقم الحربي:</span><span class="form-value font-mono"><bdi dir="ltr">{{ member.force_number }}</bdi></span></div>
+  <div class="form-row"><span class="form-label">الرتبة العسكرية:</span><span class="form-value">{{ member.rank.name_ar|default:"فرد" }}</span></div>
+  <div class="form-row"><span class="form-label">التبعية / الفصيل:</span><span class="form-value">{{ member.faction.name_ar|default:"عام" }}</span></div>
+</div>
+
+<div class="section-title">سجل المهام والتكليفات الرسمية</div>
 {% if tasks %}
-<table>
-  <thead><tr><th>العنوان</th><th>المسندة إلى</th><th>الحالة</th><th>الاستحقاق</th></tr></thead>
+<table class="gov-table">
+  <thead>
+    <tr>
+      <th style="width: 25pt; text-align: center;">ت</th>
+      <th>عنوان المهمة</th>
+      <th>المسندة إلى</th>
+      <th>حالة المهمة</th>
+      <th>تاريخ الاستحقاق</th>
+    </tr>
+  </thead>
   <tbody>
     {% for task in tasks %}
     <tr>
-      <td>{{ task.title }}</td>
+      <td style="text-align: center; font-family: monospace;">{{ forloop.counter }}</td>
+      <td><strong>{{ task.title }}</strong></td>
       <td>{% if task.assigned_to %}{{ task.assigned_to.get_full_name|default:task.assigned_to.username }}{% else %}—{% endif %}</td>
       <td>{{ task.get_status_display }}</td>
       <td><bdi dir="ltr">{{ task.due_date|date:"Y-m-d"|default:"—" }}</bdi></td>
@@ -22,7 +36,8 @@
   </tbody>
 </table>
 {% else %}
-<p class="muted">لا توجد مهام مسجلة.</p>
+<div class="legal-box" style="border-right-color: #64748b; color: #64748b;">
+  لا توجد مهام أو تكليفات مسجلة في ملف المنتسب.
+</div>
 {% endif %}
-</body>
-</html>
+{% endblock %}

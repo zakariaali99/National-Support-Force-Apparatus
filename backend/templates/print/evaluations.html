@@ -1,20 +1,34 @@
-<!DOCTYPE html>
-<html dir="rtl" lang="ar">
-<head>
-<meta charset="utf-8" />
-{% include "print/_style.html" %}
-</head>
-<body>
-{% include "print/_header.html" with title="التقييمات: "|add:member.full_name %}
+{% extends "print/_master_portrait.html" %}
 
+{% block page_title %}سجل التقييمات - {{ member.full_name }}{% endblock %}
+
+{% block content %}
+<div class="section-title">بيانات المنتسب الخاضع للتقييم</div>
+<div class="form-grid">
+  <div class="form-row"><span class="form-label">الاسم الكامل:</span><span class="form-value">{{ member.full_name }}</span></div>
+  <div class="form-row"><span class="form-label">الرقم الحربي:</span><span class="form-value font-mono"><bdi dir="ltr">{{ member.force_number }}</bdi></span></div>
+  <div class="form-row"><span class="form-label">الرتبة العسكرية:</span><span class="form-value">{{ member.rank.name_ar|default:"فرد" }}</span></div>
+  <div class="form-row"><span class="form-label">التبعية / الفصيل:</span><span class="form-value">{{ member.faction.name_ar|default:"عام" }}</span></div>
+</div>
+
+<div class="section-title">سجل التقييمات الدورية المعتمدة</div>
 {% if evaluations %}
-<table>
-  <thead><tr><th>الفترة</th><th>الدرجة</th><th>الملاحظات</th><th>المُقيّم</th></tr></thead>
+<table class="gov-table">
+  <thead>
+    <tr>
+      <th style="width: 25pt; text-align: center;">ت</th>
+      <th>الفترة التقييمية</th>
+      <th style="text-align: center; width: 50pt;">الدرجة</th>
+      <th>الملاحظات وبيان التقييم</th>
+      <th>المُقيّم المعتمد</th>
+    </tr>
+  </thead>
   <tbody>
     {% for ev in evaluations %}
     <tr>
+      <td style="text-align: center; font-family: monospace;">{{ forloop.counter }}</td>
       <td><bdi dir="ltr">{{ ev.period_start|date:"Y-m-d" }} — {{ ev.period_end|date:"Y-m-d" }}</bdi></td>
-      <td><bdi dir="ltr">{{ ev.score|default:"—" }}</bdi></td>
+      <td style="text-align: center; font-weight: 700; font-family: monospace;">{{ ev.score|default:"—" }}</td>
       <td>{{ ev.body }}</td>
       <td>{% if ev.evaluator %}{{ ev.evaluator.get_full_name|default:ev.evaluator.username }}{% else %}—{% endif %}</td>
     </tr>
@@ -22,7 +36,8 @@
   </tbody>
 </table>
 {% else %}
-<p class="muted">لا توجد تقييمات مسجلة.</p>
+<div class="legal-box" style="border-right-color: #64748b; color: #64748b;">
+  لا توجد تقييمات دورية مسجلة في ملف المنتسب.
+</div>
 {% endif %}
-</body>
-</html>
+{% endblock %}

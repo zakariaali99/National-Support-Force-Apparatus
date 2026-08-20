@@ -70,155 +70,8 @@ def get_html_print_response(html_content, title="تقرير رسمي", orientati
     import re
     is_landscape = orientation == "landscape"
     
-    inject_head = f"""
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
-    <style>
-        *, *::before, *::after {{
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }}
-        body {{
-            font-family: 'Cairo', system-ui, -apple-system, sans-serif !important;
-            background-color: #f1f5f9;
-            color: #0f172a;
-            line-height: 1.6;
-            font-size: 12.5px;
-            -webkit-print-color-adjust: exact;
-            print-color-adjust: exact;
-            padding-bottom: 50px;
-        }}
-        
-        /* Screen Top Floating Toolbar */
-        .screen-toolbar {{
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            background: #0f172a;
-            color: #ffffff;
-            padding: 12px 24px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            font-family: 'Cairo', sans-serif;
-        }}
-        .screen-toolbar .title {{
-            font-weight: 700;
-            font-size: 14px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }}
-        .screen-toolbar .btn-group {{
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }}
-        .btn {{
-            font-family: inherit;
-            font-size: 12.5px;
-            font-weight: 700;
-            padding: 8px 16px;
-            border-radius: 8px;
-            border: none;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            transition: all 0.15s ease;
-        }}
-        .btn-primary {{
-            background: #2563eb;
-            color: #ffffff;
-        }}
-        .btn-primary:hover {{
-            background: #1d4ed8;
-        }}
-        .btn-outline {{
-            background: rgba(255,255,255,0.1);
-            color: #ffffff;
-            border: 1px solid rgba(255,255,255,0.2);
-        }}
-        .btn-outline:hover {{
-            background: rgba(255,255,255,0.2);
-        }}
-
-        /* A4 Document Page Container */
-        .document-page {{
-            width: {'297mm' if is_landscape else '210mm'};
-            min-height: {'210mm' if is_landscape else '297mm'};
-            margin: 24px auto;
-            background: #ffffff;
-            padding: {'14mm 16mm' if is_landscape else '18mm 18mm'};
-            box-shadow: 0 0 20px rgba(0,0,0,0.08);
-            border-radius: 4px;
-            position: relative;
-            display: flex;
-            flex-direction: column;
-        }}
-
-        .doc-content-wrapper {{
-            flex: 1 0 auto;
-        }}
-
-        .print-footer, .gov-print-footer {{
-            border-top: 1px solid #cbd5e1;
-            padding-top: 6px;
-            margin-top: auto;
-            display: flex;
-            justify-content: space-between;
-            font-size: 8.5pt;
-            color: #64748b;
-            font-family: 'Cairo', sans-serif;
-            flex-shrink: 0;
-        }}
-
-        .page-break {{
-            page-break-after: always;
-            break-after: page;
-        }}
-
-        /* Print Styles */
-        @media print {{
-            body {{
-                background: #ffffff;
-                padding-bottom: 0;
-            }}
-            .screen-toolbar, .no-print {{
-                display: none !important;
-            }}
-            .document-page {{
-                margin: 0;
-                padding: {'6mm 8mm' if is_landscape else '8mm 10mm'};
-                box-shadow: none;
-                width: 100%;
-                min-height: auto;
-                display: block;
-            }}
-            .print-footer, .gov-print-footer {{
-                position: fixed;
-                bottom: 0;
-                left: 10mm;
-                right: 10mm;
-                margin-top: 0;
-            }}
-            @page {{
-                size: {'A4 landscape' if is_landscape else 'A4 portrait'};
-                margin: {'8mm' if is_landscape else '10mm'};
-            }}
-        }}
-    </style>
-    """
-    
-    now_local = timezone.localtime(timezone.now()) if timezone.is_aware(timezone.now()) else timezone.now()
-    date_str = now_local.strftime("%Y-%m-%d")
-    time_str = now_local.strftime("%H:%M")
-    
     toolbar_html = f"""
-    <div class="screen-toolbar">
+    <div class="screen-toolbar no-print">
         <div class="title">
             <span>📄</span>
             <span>{title}</span>
@@ -234,14 +87,6 @@ def get_html_print_response(html_content, title="تقرير رسمي", orientati
     </div>
     """
     
-    footer_html = f"""
-    <div class="print-footer">
-        <span>تاريخ الطباعة: {date_str}</span>
-        <span>توقيت الإصدار: {time_str}</span>
-        <span>الجهاز الوطني للقوى المساندة - منظومة الإدارة الإلكترونية</span>
-    </div>
-    """
-    
     inject_script = """
     <script>
         window.onload = function() {
@@ -252,47 +97,96 @@ def get_html_print_response(html_content, title="تقرير رسمي", orientati
     </script>
     """
     
+    toolbar_styles = """
+    <style>
+        .screen-toolbar {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: #0f172a;
+            color: #ffffff;
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            font-family: 'Cairo', sans-serif;
+            margin-bottom: 12px;
+        }
+        .screen-toolbar .title {
+            font-weight: 700;
+            font-size: 13.5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .screen-toolbar .btn-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn {
+            font-family: inherit;
+            font-size: 12px;
+            font-weight: 700;
+            padding: 7px 14px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.15s ease;
+        }
+        .btn-primary {
+            background: #2563eb;
+            color: #ffffff;
+        }
+        .btn-primary:hover {
+            background: #1d4ed8;
+        }
+        .btn-outline {
+            background: rgba(255,255,255,0.1);
+            color: #ffffff;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        .btn-outline:hover {
+            background: rgba(255,255,255,0.2);
+        }
+        @media print {
+            .screen-toolbar, .no-print {
+                display: none !important;
+            }
+        }
+    </style>
+    """
+    
     # Replace relative static paths to absolute relative to root so browser loads them correctly
     html_content = html_content.replace('src="static/', 'src="/static/')
     html_content = html_content.replace("src='static/", "src='/static/")
     
-    # If the html_content already contains a full html doc, adapt it
-    if "<html" in html_content:
-        # Extract body content if present
-        body_match = re.search(r"<body[^>]*>([\s\S]*?)</body>", html_content, re.IGNORECASE)
-        inner_content = body_match.group(1) if body_match else html_content
+    if "<head>" in html_content or "<head " in html_content:
+        html_content = re.sub(r"(<head[^>]*>)", r"\1" + toolbar_styles, html_content, count=1, flags=re.IGNORECASE)
+    
+    if "<body" in html_content:
+        html_content = re.sub(r"(<body[^>]*>)", r"\1\n" + toolbar_html, html_content, count=1, flags=re.IGNORECASE)
+        html_content = html_content.replace("</body>", inject_script + "\n</body>")
     else:
-        inner_content = html_content
+        html_content = f"""<!DOCTYPE html>
+        <html lang="ar" dir="rtl">
+        <head>
+            <meta charset="utf-8">
+            <title>{title}</title>
+            {toolbar_styles}
+        </head>
+        <body>
+            {toolbar_html}
+            {html_content}
+            {inject_script}
+        </body>
+        </html>"""
         
-    # Check if already wrapped in document-page
-    if "class=\"document-page" not in inner_content and "class='document-page" not in inner_content:
-        # Wrap in document-page with footer
-        page_body = f"""
-        <div class="document-page">
-            <div class="doc-content-wrapper">
-                {inner_content}
-            </div>
-            {footer_html}
-        </div>
-        """
-    else:
-        page_body = inner_content
-        
-    full_html = f"""<!DOCTYPE html>
-    <html lang="ar" dir="rtl">
-    <head>
-        <meta charset="utf-8">
-        <title>{title}</title>
-        {inject_head}
-    </head>
-    <body>
-        {toolbar_html}
-        {page_body}
-        {inject_script}
-    </body>
-    </html>
-    """
-    return HttpResponse(full_html, content_type="text/html; charset=utf-8")
+    return HttpResponse(html_content, content_type="text/html; charset=utf-8")
 
 
 class MemberPrintView(APIView):

@@ -1,30 +1,43 @@
-<!DOCTYPE html>
-<html dir="rtl" lang="ar">
-<head>
-<meta charset="utf-8" />
-{% include "print/_style.html" %}
-</head>
-<body>
-{% include "print/_header.html" with title="سجل الإجازات: "|add:member.full_name %}
+{% extends "print/_master_portrait.html" %}
 
-<p class="field"><span class="label">الرصيد الحالي</span> — <bdi dir="ltr" class="value">{{ member.vacation_balance_days }}</bdi> يوم</p>
+{% block page_title %}سجل الإجازات - {{ member.full_name }}{% endblock %}
 
+{% block content %}
+<div class="section-title">بيانات رصيد الإجازات الرسمي</div>
+<div class="form-grid">
+  <div class="form-row"><span class="form-label">الاسم الكامل:</span><span class="form-value">{{ member.full_name }}</span></div>
+  <div class="form-row"><span class="form-label">الرقم الحربي:</span><span class="form-value font-mono"><bdi dir="ltr">{{ member.force_number }}</bdi></span></div>
+  <div class="form-row"><span class="form-label">الرتبة العسكرية:</span><span class="form-value">{{ member.rank.name_ar|default:"فرد" }}</span></div>
+  <div class="form-row"><span class="form-label">الرصيد المتبقي:</span><span class="form-value font-mono" style="color: #047857;"><bdi dir="ltr">{{ member.vacation_balance_days }}</bdi> يوم</span></div>
+</div>
+
+<div class="section-title">سجل طلبات الإجازات المسجلة</div>
 {% if requests %}
-<table>
-  <thead><tr><th>من</th><th>إلى</th><th>الأيام</th><th>الحالة</th></tr></thead>
+<table class="gov-table">
+  <thead>
+    <tr>
+      <th style="width: 25pt; text-align: center;">ت</th>
+      <th>تاريخ البداية</th>
+      <th>تاريخ النهاية</th>
+      <th style="text-align: center;">عدد الأيام</th>
+      <th>حالة الإجازة</th>
+    </tr>
+  </thead>
   <tbody>
     {% for r in requests %}
     <tr>
+      <td style="text-align: center; font-family: monospace;">{{ forloop.counter }}</td>
       <td><bdi dir="ltr">{{ r.start_date|date:"Y-m-d" }}</bdi></td>
       <td><bdi dir="ltr">{{ r.end_date|date:"Y-m-d" }}</bdi></td>
-      <td><bdi dir="ltr">{{ r.days }}</bdi></td>
+      <td style="text-align: center; font-weight: 700; font-family: monospace;">{{ r.days }}</td>
       <td>{{ r.get_status_display }}</td>
     </tr>
     {% endfor %}
   </tbody>
 </table>
 {% else %}
-<p class="muted">لا توجد طلبات إجازة مسجلة.</p>
+<div class="legal-box" style="border-right-color: #64748b; color: #64748b;">
+  لا توجد طلبات إجازة مسجلة في ملف المنتسب.
+</div>
 {% endif %}
-</body>
-</html>
+{% endblock %}
