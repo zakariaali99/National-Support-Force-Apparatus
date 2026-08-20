@@ -12,27 +12,48 @@ export function useReportSections() {
 
 export { printAuthedHtml };
 
-/** Fetches the composed PDF as an authenticated blob and opens it in a new
- * tab — keeps the JWT out of the window URL, browser history, and server logs.
- */
+/** Opens the document in an authenticated new tab for native browser printing & PDF saving. */
 export async function openAuthedPdf(url) {
-  const { data } = await api.get(url, { responseType: "blob" });
-  const blobUrl = URL.createObjectURL(new Blob([data], { type: "application/pdf" }));
-  const newWindow = window.open(blobUrl, "_blank");
-  if (!newWindow || newWindow.closed || typeof newWindow.closed === "undefined") {
-    showToast("تعذر فتح المستند — يرجى السماح بالنوافذ المنبثقة", "error");
-  }
-  setTimeout(() => URL.revokeObjectURL(blobUrl), 120_000);
+  const cleanUrl = url.replace(/^\/?api\//, "");
+  const separator = cleanUrl.includes("?") ? "&" : "?";
+  const htmlUrl = cleanUrl.includes("html=") ? cleanUrl : `${cleanUrl}${separator}html=1`;
+  printAuthedHtml(htmlUrl);
 }
 
 export async function downloadAuthedFile(url, filename) {
-  const { data } = await api.get(url, { responseType: "blob" });
-  const blobUrl = URL.createObjectURL(new Blob([data], { type: "application/pdf" }));
-  const link = document.createElement("a");
-  link.href = blobUrl;
-  link.download = filename;
-  document.body.appendChild(link);
-  link.click();
-  link.remove();
-  setTimeout(() => URL.revokeObjectURL(blobUrl), 120_000);
+  try {
+    const cleanUrl = url.replace(/^\/?api\//, "");
+    const res = await api.get(cleanUrl, { responseType: "blob" });
+    const contentType = res.headers["content-type"] || "";
+
+    // If server returned HTML (due to fallback or html flag), open print preview window
+    if (contentType.includes("text/html") || (res.data && res.data.type === "text/html")) {
+      const text = await res.data.text();
+      const printWindow = window.open("", "_blank");
+      if (printWindow) {
+        printWindow.document.open();
+        printWindow.document.write(text);
+        printWindow.document.close();
+      }
+      return;
+    }
+
+    const isExcel = filename.endsWith(".xlsx") || filename.endsWith(".csv");
+    const blobType = contentType || (isExcel ? "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" : "application/pdf");
+    const blobUrl = URL.createObjectURL(new Blob([res.data], { type: blobType }));
+    const link = document.createElement("a");
+    link.href = blobUrl;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    setTimeout(() => URL.revokeObjectURL(blobUrl), 120_000);
+  } catch (err) {
+    console.warn("downloadAuthedFile falling back:", err);
+    if (!filename.endsWith(".xlsx") && !filename.endsWith(".csv")) {
+      printAuthedHtml(url);
+    } else {
+      showToast("تعذر تنزيل الملف — حاول مرة أخرى", "error");
+    }
+  }
 }

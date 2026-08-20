@@ -341,41 +341,55 @@ class MemberPrintView(APIView):
 
             return get_html_print_response(pages_html, title=f"ملف الفرد - {member.full_name}", orientation="portrait")
 
-        pdf_chunks = []
-        for key in section_keys:
-            section = SECTION_BY_KEY[key]
-            pdf_chunks.append(render_template_to_pdf(section["template"], contexts[key]))
-
-        if document_ids:
-            documents = MemberDocument.objects.filter(id__in=document_ids, member=member)
-            found_ids = {str(d.id) for d in documents}
-            missing = set(document_ids) - found_ids
-            if missing:
-                return HttpResponseBadRequest(f"Unknown document id(s) for this member: {', '.join(missing)}")
-            # Preserve the order the client asked for, not queryset order.
-            by_id = {str(d.id): d for d in documents}
-            for doc_id in document_ids:
-                pdf_chunks.append(document_to_pdf_bytes(by_id[doc_id]))
-
-        merged = compose(pdf_chunks)
-
         try:
-            log_activity(
-                actor=request.user,
-                action="print",
-                target_model="Member",
-                target_id=member.id,
-                description=f"طباعة ملف: {member.full_name}",
-                metadata={"sections": section_keys, "documents": document_ids},
-                request=request,
-            )
-        except Exception:
-            pass
+            pdf_chunks = []
+            for key in section_keys:
+                section = SECTION_BY_KEY[key]
+                pdf_chunks.append(render_template_to_pdf(section["template"], contexts[key]))
 
-        disposition = "attachment" if request.query_params.get("download") else "inline"
-        response = HttpResponse(merged, content_type="application/pdf")
-        response["Content-Disposition"] = f'{disposition}; filename="{member.force_number}-profile.pdf"'
-        return response
+            if document_ids:
+                documents = MemberDocument.objects.filter(id__in=document_ids, member=member)
+                found_ids = {str(d.id) for d in documents}
+                missing = set(document_ids) - found_ids
+                if missing:
+                    return HttpResponseBadRequest(f"Unknown document id(s) for this member: {', '.join(missing)}")
+                # Preserve the order the client asked for, not queryset order.
+                by_id = {str(d.id): d for d in documents}
+                for doc_id in document_ids:
+                    pdf_chunks.append(document_to_pdf_bytes(by_id[doc_id]))
+
+            merged = compose(pdf_chunks)
+
+            try:
+                log_activity(
+                    actor=request.user,
+                    action="print",
+                    target_model="Member",
+                    target_id=member.id,
+                    description=f"طباعة ملف: {member.full_name}",
+                    metadata={"sections": section_keys, "documents": document_ids},
+                    request=request,
+                )
+            except Exception:
+                pass
+
+            disposition = "attachment" if request.query_params.get("download") else "inline"
+            response = HttpResponse(merged, content_type="application/pdf")
+            response["Content-Disposition"] = f'{disposition}; filename="{member.force_number}-profile.pdf"'
+            return response
+        except Exception as exc:
+            logger.warning("PDF backend unavailable (%s), falling back to high-fidelity HTML print response", exc)
+            # Render HTML response as fail-safe fallback
+            pages_html = ""
+            for key in section_keys:
+                sec_html = render_to_string(SECTION_BY_KEY[key]["template"], contexts[key])
+                if "<body" in sec_html:
+                    body_match = re.search(r"<body[^>]*>([\s\S]*?)</body>", sec_html, re.IGNORECASE)
+                    content = body_match.group(1) if body_match else sec_html
+                else:
+                    content = sec_html
+                pages_html += f"""<div class="document-page page-break"><div class="doc-content-wrapper">{content}</div>{footer_html}</div>"""
+            return get_html_print_response(pages_html, title=f"ملف الفرد - {member.full_name}", orientation="portrait")
 
 
 class MemberIdCardsView(APIView):
@@ -414,20 +428,28 @@ class MemberIdCardsView(APIView):
             for i in ids
         ]
 
-        pdf_bytes = render_html_to_pdf(render_to_string("print/id_card.html", {"cards": cards}))
+        html = render_to_string("print/id_card.html", {"cards": cards})
+        if request.query_params.get("html") == "1" or request.query_params.get("preview") == "1":
+            return get_html_print_response(html, title="بطاقات الهوية الرسمية")
 
-        log_activity(
-            actor=request.user,
-            action="print",
-            target_model="Member",
-            description="طباعة بطاقات هوية",
-            metadata={"member_ids": ids},
-            request=request,
-        )
+        try:
+            pdf_bytes = render_html_to_pdf(html)
 
-        response = HttpResponse(pdf_bytes, content_type="application/pdf")
-        response["Content-Disposition"] = 'inline; filename="id-cards.pdf"'
-        return response
+            log_activity(
+                actor=request.user,
+                action="print",
+                target_model="Member",
+                description="طباعة بطاقات هوية",
+                metadata={"member_ids": ids},
+                request=request,
+            )
+
+            response = HttpResponse(pdf_bytes, content_type="application/pdf")
+            response["Content-Disposition"] = 'inline; filename="id-cards.pdf"'
+            return response
+        except Exception as exc:
+            logger.warning("PDF backend unavailable (%s), falling back to high-fidelity HTML print response", exc)
+            return get_html_print_response(html, title="بطاقات الهوية الرسمية")
 
 
 class MemberExportView(APIView):
@@ -494,14 +516,17 @@ class CustodyVoucherPdfView(APIView):
         }
 
         html = render_to_string("print/custody_voucher.html", context)
-        if request.query_params.get("html") == "1":
+        if request.query_params.get("html") == "1" or request.query_params.get("preview") == "1":
             return get_html_print_response(html, title=f"محضر عهدة - {context['voucher_number']}")
 
-        pdf_bytes = render_html_to_pdf(html)
-
-        response = HttpResponse(pdf_bytes, content_type="application/pdf")
-        response["Content-Disposition"] = f'inline; filename="{context["voucher_number"]}.pdf"'
-        return response
+        try:
+            pdf_bytes = render_html_to_pdf(html)
+            response = HttpResponse(pdf_bytes, content_type="application/pdf")
+            response["Content-Disposition"] = f'inline; filename="{context["voucher_number"]}.pdf"'
+            return response
+        except Exception as exc:
+            logger.warning("PDF backend unavailable (%s), falling back to high-fidelity HTML print response", exc)
+            return get_html_print_response(html, title=f"محضر عهدة - {context['voucher_number']}")
 
 
 class VehicleTripTicketPdfView(APIView):
@@ -550,14 +575,17 @@ class VehicleTripTicketPdfView(APIView):
         }
 
         html = render_to_string("print/trip_ticket.html", context)
-        if request.query_params.get("html") == "1":
+        if request.query_params.get("html") == "1" or request.query_params.get("preview") == "1":
             return get_html_print_response(html, title=f"أمر تحرك - {context['trip_number']}")
 
-        pdf_bytes = render_html_to_pdf(html)
-
-        response = HttpResponse(pdf_bytes, content_type="application/pdf")
-        response["Content-Disposition"] = f'inline; filename="{context["trip_number"]}.pdf"'
-        return response
+        try:
+            pdf_bytes = render_html_to_pdf(html)
+            response = HttpResponse(pdf_bytes, content_type="application/pdf")
+            response["Content-Disposition"] = f'inline; filename="{context["trip_number"]}.pdf"'
+            return response
+        except Exception as exc:
+            logger.warning("PDF backend unavailable (%s), falling back to high-fidelity HTML print response", exc)
+            return get_html_print_response(html, title=f"أمر تحرك - {context['trip_number']}")
 
 
 class DailyAttendancePdfView(APIView):
@@ -657,14 +685,17 @@ class DailyAttendancePdfView(APIView):
         }
 
         html = render_to_string("print/daily_attendance.html", context)
-        if request.query_params.get("html") == "1":
+        if request.query_params.get("html") == "1" or request.query_params.get("preview") == "1":
             return get_html_print_response(html, title=f"كشف التمام اليومي - {date_str}", orientation="landscape")
 
-        pdf_bytes = render_html_to_pdf(html)
-
-        response = HttpResponse(pdf_bytes, content_type="application/pdf")
-        response["Content-Disposition"] = f'inline; filename="attendance-{date_str}.pdf"'
-        return response
+        try:
+            pdf_bytes = render_html_to_pdf(html)
+            response = HttpResponse(pdf_bytes, content_type="application/pdf")
+            response["Content-Disposition"] = f'inline; filename="attendance-{date_str}.pdf"'
+            return response
+        except Exception as exc:
+            logger.warning("PDF backend unavailable (%s), falling back to high-fidelity HTML print response", exc)
+            return get_html_print_response(html, title=f"كشف التمام اليومي - {date_str}", orientation="landscape")
 
 
 class InventorySummaryPdfView(APIView):
@@ -698,14 +729,17 @@ class InventorySummaryPdfView(APIView):
         }
 
         html = render_to_string("print/inventory_summary.html", context)
-        if request.query_params.get("html") == "1":
+        if request.query_params.get("html") == "1" or request.query_params.get("preview") == "1":
             return get_html_print_response(html, title="تقرير جرد المستودع العام", orientation="landscape")
 
-        pdf_bytes = render_html_to_pdf(html)
-
-        response = HttpResponse(pdf_bytes, content_type="application/pdf")
-        response["Content-Disposition"] = 'inline; filename="inventory-summary.pdf"'
-        return response
+        try:
+            pdf_bytes = render_html_to_pdf(html)
+            response = HttpResponse(pdf_bytes, content_type="application/pdf")
+            response["Content-Disposition"] = 'inline; filename="inventory-summary.pdf"'
+            return response
+        except Exception as exc:
+            logger.warning("PDF backend unavailable (%s), falling back to high-fidelity HTML print response", exc)
+            return get_html_print_response(html, title="تقرير جرد المستودع العام", orientation="landscape")
 
 
 class MonthlyAttendancePdfView(APIView):
@@ -825,11 +859,14 @@ class MonthlyAttendancePdfView(APIView):
         }
 
         html = render_to_string("print/monthly_attendance.html", context)
-        if request.query_params.get("html") == "1":
+        if request.query_params.get("html") == "1" or request.query_params.get("preview") == "1":
             return get_html_print_response(html, title=f"كشف التمام الشهري - {year}-{month}", orientation="landscape")
 
-        pdf_bytes = render_html_to_pdf(html)
-
-        response = HttpResponse(pdf_bytes, content_type="application/pdf")
-        response["Content-Disposition"] = f'inline; filename="monthly-attendance-{year}-{month}.pdf"'
-        return response
+        try:
+            pdf_bytes = render_html_to_pdf(html)
+            response = HttpResponse(pdf_bytes, content_type="application/pdf")
+            response["Content-Disposition"] = f'inline; filename="monthly-attendance-{year}-{month}.pdf"'
+            return response
+        except Exception as exc:
+            logger.warning("PDF backend unavailable (%s), falling back to high-fidelity HTML print response", exc)
+            return get_html_print_response(html, title=f"كشف التمام الشهري - {year}-{month}", orientation="landscape")
