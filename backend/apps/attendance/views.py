@@ -54,7 +54,7 @@ class ShiftRosterGroupViewSet(ModelViewSet):
 
 
 class DailyAttendanceViewSet(ModelViewSet):
-    permission_classes = [HasPermission]
+    permission_classes = [IsAuthenticated, HasPermission]
     queryset = DailyAttendance.objects.select_related("member", "member__faction", "member__rank").all()
     serializer_class = DailyAttendanceSerializer
     permission_map = {
@@ -78,10 +78,13 @@ class DailyAttendanceViewSet(ModelViewSet):
         if date_param:
             qs = qs.filter(date=date_param)
         faction_param = self.request.query_params.get("faction")
-        if faction_param:
-            qs = qs.filter(member__faction_id=faction_param)
+        if faction_param and str(faction_param).lower() not in ("all", "none", "", "null", "undefined"):
+            try:
+                qs = qs.filter(member__faction_id=int(faction_param))
+            except (ValueError, TypeError):
+                pass
         status_param = self.request.query_params.get("status")
-        if status_param:
+        if status_param and str(status_param).lower() not in ("all", "none", "", "null", "undefined"):
             qs = qs.filter(status=status_param)
         return qs
 
@@ -137,8 +140,11 @@ class DailyAttendanceViewSet(ModelViewSet):
             target_date = date.today()
 
         faction_id = request.query_params.get("faction")
+        if faction_id and str(faction_id).lower() in ("all", "none", "", "null", "undefined"):
+            faction_id = None
+
         sheet_data = ShiftRotationService.get_daily_sheet(
-            faction_id=faction_id, target_date=target_date
+            faction_id=faction_id, target_date=target_date, user=request.user
         )
         return Response(sheet_data)
 
@@ -148,8 +154,11 @@ class DailyAttendanceViewSet(ModelViewSet):
         year = request.query_params.get("year")
         month = request.query_params.get("month")
         faction_id = request.query_params.get("faction")
+        if faction_id and str(faction_id).lower() in ("all", "none", "", "null", "undefined"):
+            faction_id = None
+
         matrix_data = ShiftRotationService.get_monthly_matrix(
-            faction_id=faction_id, year=year, month=month
+            faction_id=faction_id, year=year, month=month, user=request.user
         )
         return Response(matrix_data)
 

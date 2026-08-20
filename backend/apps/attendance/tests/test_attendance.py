@@ -102,16 +102,28 @@ class AttendanceAndShiftTests(TestCase):
         self.assertEqual(len(res_matrix.data["rows"]), 1)
         self.assertIn("1", res_matrix.data["rows"][0]["days"])
 
+        # Test faction="all" and faction="" queries
+        res_sheet_all = self.client.get("/api/attendance/records/daily-sheet/?date=2026-01-01&faction=all")
+        self.assertEqual(res_sheet_all.status_code, 200)
+        self.assertEqual(res_sheet_all.data["total_members"], 2)
+
+        res_matrix_all = self.client.get("/api/attendance/records/monthly-matrix/?year=2026&month=1&faction=all")
+        self.assertEqual(res_matrix_all.status_code, 200)
+        self.assertEqual(len(res_matrix_all.data["rows"]), 2)
+
     def test_record_attendance_and_vacation_deduction_hourly(self):
         initial_balance = self.alert_member.vacation_balance_days  # 10.0
 
         # Record excused absence with 4 hours late/permission (4 hours = 0.5 day deduction)
+        # Also testing empty string check_in_time/check_out_time
         payload = {
             "date": "2026-01-05",
             "records": [
                 {
                     "member_id": self.alert_member.id,
                     "status": "excused_absence",
+                    "check_in_time": "",
+                    "check_out_time": "",
                     "late_hours": "0.0",
                     "early_departure_hours": "0.0",
                     "excused_hours": "4.0",
@@ -133,4 +145,5 @@ class AttendanceAndShiftTests(TestCase):
         self.assertEqual(att.status, "excused_absence")
         self.assertEqual(att.excused_hours, Decimal("4.0"))
         self.assertEqual(att.deducted_vacation_days, Decimal("0.5"))
+        self.assertIsNone(att.check_in_time)
         self.assertIsNotNone(att.vacation_transaction)

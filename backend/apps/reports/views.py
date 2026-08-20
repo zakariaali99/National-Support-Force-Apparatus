@@ -655,8 +655,11 @@ class DailyAttendancePdfView(APIView):
         from apps.organization.models.faction import Faction
 
         qs = DailyAttendance.objects.filter(date=date_str).select_related("member", "member__rank", "member__faction")
-        if faction_id:
-            qs = qs.filter(member__faction_id=faction_id)
+        if faction_id and str(faction_id).lower() not in ("all", "none", "", "null", "undefined"):
+            try:
+                qs = qs.filter(member__faction_id=int(faction_id))
+            except (ValueError, TypeError):
+                pass
 
         rows = []
         counts = {"present": 0, "late": 0, "excused": 0, "unexcused": 0, "shift_off": 0, "vacation": 0}
@@ -677,10 +680,10 @@ class DailyAttendancePdfView(APIView):
             })
 
         faction_name = ""
-        if faction_id:
+        if faction_id and str(faction_id).lower() not in ("all", "none", "", "null", "undefined"):
             try:
-                faction_name = Faction.objects.get(pk=faction_id).name_ar
-            except Faction.DoesNotExist:
+                faction_name = Faction.objects.get(pk=int(faction_id)).name_ar
+            except (Faction.DoesNotExist, ValueError, TypeError):
                 pass
 
         context = {
@@ -771,8 +774,11 @@ class MonthlyAttendancePdfView(APIView):
         end_date = f"{year:04d}-{month:02d}-{days_in_month:02d}"
 
         members_qs = Member.objects.select_related("rank", "faction").filter(service_status="active")
-        if faction_id and faction_id != "all":
-            members_qs = members_qs.filter(faction_id=faction_id)
+        if faction_id and str(faction_id).lower() not in ("all", "none", "", "null", "undefined"):
+            try:
+                members_qs = members_qs.filter(faction_id=int(faction_id))
+            except (ValueError, TypeError):
+                pass
 
         attendance_qs = DailyAttendance.objects.filter(
             date__range=[start_date, end_date]

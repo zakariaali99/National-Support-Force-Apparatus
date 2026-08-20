@@ -123,6 +123,20 @@ class SingleAttendanceInputSerializer(serializers.Serializer):
     )
     notes = serializers.CharField(required=False, allow_blank=True)
 
+    def to_internal_value(self, data):
+        data = data.copy() if hasattr(data, "copy") else dict(data)
+        if data.get("check_in_time") in ("", None, "null", "undefined"):
+            data["check_in_time"] = None
+        if data.get("check_out_time") in ("", None, "null", "undefined"):
+            data["check_out_time"] = None
+        if "late_hours" in data and data["late_hours"] in ("", None):
+            data["late_hours"] = 0.0
+        if "early_departure_hours" in data and data["early_departure_hours"] in ("", None):
+            data["early_departure_hours"] = 0.0
+        if "excused_hours" in data and data["excused_hours"] in ("", None):
+            data["excused_hours"] = 0.0
+        return super().to_internal_value(data)
+
 
 class BulkAttendanceRecordSerializer(serializers.Serializer):
     date = serializers.DateField()

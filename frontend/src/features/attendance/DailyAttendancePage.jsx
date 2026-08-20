@@ -95,13 +95,20 @@ export function DailyAttendancePage() {
 
   // Date Navigation Helpers
   const handleDateChange = (deltaDays) => {
-    const d = new Date(selectedDate);
-    d.setDate(d.getDate() + deltaDays);
-    setSelectedDate(d.toISOString().split("T")[0]);
+    const parts = selectedDate.split("-").map(Number);
+    const d = new Date(parts[0], parts[1] - 1, parts[2] + deltaDays);
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    setSelectedDate(`${year}-${month}-${day}`);
   };
 
   const handleSetToday = () => {
-    setSelectedDate(new Date().toISOString().split("T")[0]);
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, "0");
+    const day = String(now.getDate()).padStart(2, "0");
+    setSelectedDate(`${year}-${month}-${day}`);
   };
 
   // Instant Single-Click Row Status Toggle

@@ -25,7 +25,7 @@ class ShiftRotationService:
         return "duty" if group.is_on_duty_on(target_date) else "off"
 
     @classmethod
-    def get_daily_sheet(cls, faction_id=None, target_date=None):
+    def get_daily_sheet(cls, faction_id=None, target_date=None, user=None):
         """Returns the full roster and attendance state for all members for a specific day."""
         if target_date is None:
             target_date = date.today()
@@ -33,8 +33,20 @@ class ShiftRotationService:
             target_date = datetime.strptime(target_date, "%Y-%m-%d").date()
 
         members_qs = Member.objects.select_related("rank", "faction").prefetch_related("shift_rosters").filter(is_deleted=False)
-        if faction_id:
-            members_qs = members_qs.filter(faction_id=faction_id)
+
+        # Scoping by user roles if not superuser/admin
+        if user and not user.is_superuser:
+            scopes = set(user.roles.values_list("scope", flat=True))
+            if "all" not in scopes:
+                user_factions = list(user.factions.values_list("id", flat=True))
+                members_qs = members_qs.filter(faction_id__in=user_factions)
+
+        # Safe faction filtering (ignores 'all', 'none', '', None)
+        if faction_id is not None and str(faction_id).lower() not in ("all", "none", "", "null", "undefined"):
+            try:
+                members_qs = members_qs.filter(faction_id=int(faction_id))
+            except (ValueError, TypeError):
+                pass
 
         # Prefetch existing attendance records for target_date
         records_map = {
@@ -82,7 +94,7 @@ class ShiftRotationService:
         }
 
     @classmethod
-    def get_monthly_matrix(cls, faction_id=None, year=None, month=None):
+    def get_monthly_matrix(cls, faction_id=None, year=None, month=None, user=None):
         """Returns monthly roll-call grid matrix (1..days_in_month) for all members."""
         today = date.today()
         year = int(year) if year else today.year
@@ -93,8 +105,20 @@ class ShiftRotationService:
         end_date = date(year, month, num_days)
 
         members_qs = Member.objects.select_related("rank", "faction").prefetch_related("shift_rosters").filter(is_deleted=False)
-        if faction_id:
-            members_qs = members_qs.filter(faction_id=faction_id)
+
+        # Scoping by user roles if not superuser/admin
+        if user and not user.is_superuser:
+            scopes = set(user.roles.values_list("scope", flat=True))
+            if "all" not in scopes:
+                user_factions = list(user.factions.values_list("id", flat=True))
+                members_qs = members_qs.filter(faction_id__in=user_factions)
+
+        # Safe faction filtering (ignores 'all', 'none', '', None)
+        if faction_id is not None and str(faction_id).lower() not in ("all", "none", "", "null", "undefined"):
+            try:
+                members_qs = members_qs.filter(faction_id=int(faction_id))
+            except (ValueError, TypeError):
+                pass
 
         # Fetch all attendance records for the month
         records = DailyAttendance.objects.filter(
@@ -222,8 +246,8 @@ class ShiftRotationService:
 
         record.status = status
         record.expected_status = expected
-        record.check_in_time = check_in_time
-        record.check_out_time = check_out_time
+        record.check_in_time = check_in_time if check_in_time not in ("", None) else None
+        record.check_out_time = check_out_time if check_out_time not in ("", None) else None
         record.late_hours = late_hours
         record.early_departure_hours = early_departure_hours
         record.excused_hours = excused_hours
