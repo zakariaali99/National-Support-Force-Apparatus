@@ -295,20 +295,17 @@ class MemberPrintView(APIView):
                 else:
                     content = sec_html
                 
-                # Remove any existing footer inside template content so we have our unified one
-                content = re.sub(r'<div class=["\']print-footer["\'][\s\S]*?</div>', '', content)
-                content = re.sub(r'<p class=["\']muted["\'][\s\S]*?تاريخ تجهيز وتحرير الطباعة[\s\S]*?</p>', '', content)
+                # Ensure the page has the page-break class for crisp single-page splitting
+                if 'class="document-page-portrait"' in content:
+                    content = content.replace('class="document-page-portrait"', 'class="document-page-portrait page-break"')
+                elif 'class="document-page-landscape"' in content:
+                    content = content.replace('class="document-page-landscape"', 'class="document-page-landscape page-break"')
+                else:
+                    content = f"""<div class="document-page-portrait page-break">{content}</div>"""
                 
-                pages_html += f"""
-                <div class="document-page page-break">
-                    <div class="doc-content-wrapper">
-                        {content}
-                    </div>
-                    {footer_html}
-                </div>
-                """
+                pages_html += content
             
-            # Scanned documents if any
+            # Scanned documents if any (each on its own sheet)
             if document_ids:
                 documents = MemberDocument.objects.filter(id__in=document_ids, member=member)
                 by_id = {str(d.id): d for d in documents}
@@ -319,22 +316,20 @@ class MemberPrintView(APIView):
                     if doc.content_type in ("image/jpeg", "image/png"):
                         doc_url = doc.file.url if hasattr(doc.file, 'url') else f"/media/{doc.file.name}"
                         doc_img_html = f"""
-                        <div class="document-page page-break">
-                            <div class="doc-content-wrapper">
-                                <div class="gov-header-container" style="margin-bottom: 16px;">
-                                    <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 8px;">
-                                        <div style="text-align: right;">
-                                            <h1 style="font-size: 15pt; font-weight: 800; color: #0a2540; margin: 0 0 2px 0;">دولة ليبيا</h1>
-                                            <h2 style="font-size: 12.5pt; font-weight: 700; color: #0a2540; margin: 0 0 4px 0;">الجهاز الوطني للقوى المساندة</h2>
-                                            <h3 style="font-size: 11pt; font-weight: 700; color: #2563eb; margin: 0;">وثيقة مرفقة: {doc.document_type.name_ar if doc.document_type else 'مستند'}</h3>
-                                        </div>
-                                        <img src="/static/nasf-seal.jpg" alt="شعار الجهاز" style="height: 58px; width: auto; object-fit: contain;" />
+                        <div class="document-page-portrait page-break">
+                            <div class="gov-header-container" style="margin-bottom: 16px;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 8px;">
+                                    <div style="text-align: right;">
+                                        <h1 style="font-size: 15pt; font-weight: 800; color: #0a2540; margin: 0 0 2px 0;">دولة ليبيا</h1>
+                                        <h2 style="font-size: 12.5pt; font-weight: 700; color: #0a2540; margin: 0 0 4px 0;">الجهاز الوطني للقوى المساندة</h2>
+                                        <h3 style="font-size: 11pt; font-weight: 700; color: #2563eb; margin: 0;">وثيقة مرفقة: {doc.document_type.name_ar if doc.document_type else 'مستند'}</h3>
                                     </div>
-                                    <div style="border-bottom: 2px solid #0a2540; margin-bottom: 6px;"></div>
+                                    <img src="/static/nasf-seal.jpg" alt="شعار الجهاز" style="height: 58px; width: auto; object-fit: contain;" />
                                 </div>
-                                <div style="text-align: center; margin-top: 20px;">
-                                    <img src="{doc_url}" style="max-width: 100%; max-height: 700px; object-fit: contain; border: 1px solid #cbd5e1; border-radius: 6px;" alt="{doc.original_name}" />
-                                </div>
+                                <div style="border-bottom: 2px solid #0a2540; margin-bottom: 6px;"></div>
+                            </div>
+                            <div class="doc-content-wrapper" style="text-align: center; margin: 20px 0;">
+                                <img src="{doc_url}" style="max-width: 100%; max-height: 680px; object-fit: contain; border: 1px solid #cbd5e1; border-radius: 6px;" alt="{doc.original_name}" />
                             </div>
                             {footer_html}
                         </div>

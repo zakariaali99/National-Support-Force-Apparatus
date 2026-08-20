@@ -379,24 +379,56 @@
     width: 100%;
   }
 
+  /* Page break rules for multi-section and multi-page documents */
+  .page-sheet, .page-break, .document-page-portrait, .document-page-landscape {
+    page-break-after: always !important;
+    break-after: page !important;
+  }
+  .page-sheet:last-child, .page-break:last-child, .document-page-portrait:last-child, .document-page-landscape:last-child {
+    page-break-after: auto !important;
+    break-after: auto !important;
+  }
+
+  @media screen {
+    .document-page-portrait, .document-page-landscape {
+      margin: 0 auto 30px auto !important;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      padding: 18px 24px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      background: #ffffff;
+    }
+  }
+
   @media print {
+    @page {
+      size: A4 portrait;
+      margin: 10mm 12mm 12mm 12mm;
+    }
+    @page landscape {
+      size: A4 landscape;
+      margin: 8mm 10mm 10mm 10mm;
+    }
     html, body {
       background-color: #ffffff !important;
       height: auto;
     }
-    .document-page-portrait {
-      min-height: 272mm;
-      margin: 0;
-      padding: 0;
+    .document-page-portrait, .document-page-landscape {
+      min-height: 268mm !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      border: none !important;
+      box-shadow: none !important;
+      border-radius: 0 !important;
       display: flex;
       flex-direction: column;
+      justify-content: space-between;
+      page-break-after: always !important;
+      break-after: page !important;
     }
-    .document-page-landscape {
-      min-height: 188mm;
-      margin: 0;
-      padding: 0;
-      display: flex;
-      flex-direction: column;
+    .document-page-portrait:last-child, .document-page-landscape:last-child {
+      page-break-after: auto !important;
+      break-after: auto !important;
     }
     .doc-content-wrapper {
       flex: 1 0 auto;

@@ -14,8 +14,7 @@ import { Badge } from "../../components/ui/Badge";
 import { AuthedImage } from "../../components/ui/AuthedImage";
 import { Checkbox } from "../../components/ui/Checkbox";
 import { showToast } from "../../components/ui/Toast";
-import { staggerIn } from "../../lib/motion";
-import { useReportSections, openAuthedPdf, downloadAuthedFile } from "../reports/api";
+import { useReportSections, openAuthedPdf, downloadAuthedFile, printAuthedHtml } from "../reports/api";
 import { printMemberProfileInNewWindow } from "../../lib/printUtils";
 import { useMemberDocuments } from "./api";
 
